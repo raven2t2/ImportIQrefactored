@@ -91,8 +91,45 @@ export default function AIRecommendations() {
     },
   });
 
+  // Save report mutation
+  const saveReportMutation = useMutation({
+    mutationFn: async (reportData: any) => {
+      return await apiRequest("POST", "/api/save-report", reportData);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Report Saved!",
+        description: "Your AI recommendations have been saved to your ImportIQ dashboard.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Save Failed",
+        description: "Unable to save report. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const onSubmit = (data: FormData) => {
     recommendMutation.mutate(data);
+  };
+
+  const handleSaveReport = () => {
+    if (results && userInfo) {
+      const reportData = {
+        email: userInfo.email,
+        reportType: "ai-recommendations",
+        reportTitle: `AI Vehicle Recommendations - ${userInfo.name}`,
+        reportData: {
+          ...results,
+          formData: form.getValues(),
+          generatedAt: new Date().toISOString(),
+        }
+      };
+      
+      saveReportMutation.mutate(reportData);
+    }
   };
 
   const formatCurrency = (amount: number) => {
@@ -472,14 +509,43 @@ export default function AIRecommendations() {
                 </div>
 
                 {/* Strategic Recommendations */}
-                <Card className="shadow-sm">
+                <Card className="shadow-sm bg-card border-brand-gray">
                   <CardContent className="p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Strategic Recommendations</h3>
-                    <div className="p-4 bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg">
-                      <p className="text-sm text-gray-800">{results.personalizedAdvice}</p>
+                    <h3 className="text-lg font-semibold text-brand-white mb-4">Strategic Recommendations</h3>
+                    <div className="p-4 bg-brand-dark-gray border border-brand-gold rounded-lg">
+                      <p className="text-sm text-brand-white">{results.personalizedAdvice}</p>
                     </div>
                   </CardContent>
                 </Card>
+
+                {/* Action Buttons */}
+                <div className="grid md:grid-cols-3 gap-4">
+                  <Button 
+                    onClick={handleSaveReport}
+                    disabled={saveReportMutation.isPending}
+                    className="bg-brand-gold hover:bg-brand-gold-dark text-black"
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    {saveReportMutation.isPending ? "Saving..." : "Save to Dashboard"}
+                  </Button>
+                  
+                  <Button 
+                    onClick={() => window.location.href = '/booking'}
+                    variant="outline"
+                    className="border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-black"
+                  >
+                    <Calendar className="w-4 h-4 mr-2" />
+                    Book Consultation
+                  </Button>
+                  
+                  <Button 
+                    onClick={() => window.location.href = '/checkout'}
+                    className="bg-brand-gold hover:bg-brand-gold-dark text-black"
+                  >
+                    <CreditCard className="w-4 h-4 mr-2" />
+                    Secure Vehicle - $500
+                  </Button>
+                </div>
 
                 {/* Exclusive Access CTA */}
                 <Card className="shadow-lg bg-gradient-to-r from-slate-800 to-slate-900 text-white border-2 border-brand-gold">
