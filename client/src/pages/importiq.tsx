@@ -10,6 +10,12 @@ import { useQuery } from "@tanstack/react-query";
 export default function ImportIQ() {
   const [userInfo, setUserInfo] = useState<{ name: string; email: string; isReturning: boolean } | null>(null);
 
+  // Fetch trial status when user info is available
+  const { data: trialStatus } = useQuery({
+    queryKey: [`/api/trial-status/${userInfo?.email}`],
+    enabled: !!userInfo?.email,
+  });
+
   // Handle email gate success
   const handleEmailGateSuccess = (userData: { name: string; email: string; isReturning: boolean }) => {
     setUserInfo(userData);
@@ -24,6 +30,38 @@ export default function ImportIQ() {
         buttonText="Start Free Trial"
         onSuccess={handleEmailGateSuccess}
       />
+    );
+  }
+
+  // Show trial expired message if trial is inactive
+  if (trialStatus && !trialStatus.isActive) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+        <Card className="max-w-md mx-auto text-center">
+          <CardHeader>
+            <div className="flex items-center justify-center mb-4">
+              <AlertCircle className="h-12 w-12 text-amber-500" />
+            </div>
+            <CardTitle className="text-2xl">Trial Expired</CardTitle>
+            <CardDescription>
+              Your 14-day ImportIQ trial has ended. Subscribe to continue accessing all tools.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <p className="text-sm text-gray-600">
+                Ready to unlock the full power of ImportIQ?
+              </p>
+              <Button className="w-full bg-brand-gold hover:bg-amber-600 text-white">
+                Subscribe for $97/month
+              </Button>
+              <p className="text-xs text-gray-500">
+                Cancel anytime • Full access to all tools
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
@@ -43,10 +81,17 @@ export default function ImportIQ() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Badge className="bg-green-100 text-green-800 border-green-200">
-                <Clock className="h-3 w-3 mr-1" />
-                14 Days Free Trial
-              </Badge>
+              {trialStatus && trialStatus.isActive ? (
+                <Badge className="bg-green-100 text-green-800 border-green-200">
+                  <Clock className="h-3 w-3 mr-1" />
+                  {trialStatus.daysRemaining} Days Remaining
+                </Badge>
+              ) : (
+                <Badge className="bg-amber-100 text-amber-800 border-amber-200">
+                  <Clock className="h-3 w-3 mr-1" />
+                  Trial Active
+                </Badge>
+              )}
               <div className="text-right">
                 <p className="text-sm font-medium text-gray-900">Welcome, {userInfo.name}</p>
                 <p className="text-xs text-gray-600">{userInfo.email}</p>
