@@ -219,7 +219,7 @@ export default function Features() {
 
           {/* Trust indicators */}
           <div className="text-gray-400 text-sm space-y-2">
-            <div>Trusted by professionals • Industry-leading AI accuracy</div>
+            <div>Industry-leading AI accuracy</div>
           </div>
         </div>
       </div>
