@@ -220,17 +220,17 @@ export default function Landing() {
             <CardContent>
               <div className="space-y-4">
                 <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                  <div className="font-semibold text-purple-900 mb-2">The Unfair Advantage:</div>
-                  <div className="text-purple-800 text-sm">While others browse auctions randomly, you get AI-powered market analysis that identifies undervalued vehicles and predicts investment potential.</div>
+                  <div className="font-semibold text-purple-900 mb-2">Smart Vehicle Guidance:</div>
+                  <div className="text-purple-800 text-sm">Get AI-powered recommendations based on your budget, preferences, and import goals to make smarter vehicle selection decisions.</div>
                 </div>
                 <ul className="space-y-3">
                   <li className="flex items-start space-x-3">
                     <Check className="h-5 w-5 text-green-600 mt-1 flex-shrink-0" />
-                    <span><strong>Real auction data analysis</strong> - Historical trends and pricing patterns</span>
+                    <span><strong>Market research guidance</strong> - Tips for evaluating vehicle values and trends</span>
                   </li>
                   <li className="flex items-start space-x-3">
                     <Check className="h-5 w-5 text-green-600 mt-1 flex-shrink-0" />
-                    <span><strong>Investment potential scoring</strong> - Appreciation vs depreciation forecasts</span>
+                    <span><strong>Vehicle recommendation engine</strong> - Smart suggestions based on your criteria</span>
                   </li>
                   <li className="flex items-start space-x-3">
                     <Check className="h-5 w-5 text-green-600 mt-1 flex-shrink-0" />
@@ -238,7 +238,7 @@ export default function Landing() {
                   </li>
                   <li className="flex items-start space-x-3">
                     <Check className="h-5 w-5 text-green-600 mt-1 flex-shrink-0" />
-                    <span><strong>Market timing alerts</strong> - When to buy, when to wait</span>
+                    <span><strong>Smart timing guidance</strong> - Best practices for import planning</span>
                   </li>
                 </ul>
               </div>
