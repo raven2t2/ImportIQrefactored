@@ -1152,39 +1152,39 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
-  // Registration stats endpoint - connects to data.vic.gov.au
+  // Registration stats endpoint - connects to driveimmaculate.com quiz data
   app.get("/api/registration-stats", async (req, res) => {
     const { state = "VIC", year = "2023", make = "" } = req.query;
     
     try {
-      // Connect to Australian government registration data
-      // This requires API credentials for data.vic.gov.au, data.nsw.gov.au, etc.
+      // Connect to driveimmaculate.com quiz data for real user preferences
+      // This requires API access to your quiz database
       res.status(503).json({
-        error: "Registration data service requires API access to Australian government data sources",
-        message: "To access live vehicle registration statistics from data.vic.gov.au and other state databases, please provide the necessary API credentials",
-        requiredCredentials: ["VIC_DATA_API_KEY", "NSW_DATA_API_KEY", "QLD_DATA_API_KEY"],
-        dataSource: "Australian Government Open Data Portals"
+        error: "Quiz data integration requires API access to driveimmaculate.com",
+        message: "To access real user preference data from your quiz at https://driveimmaculate.com/quiz/, please provide database access credentials",
+        requiredCredentials: ["DRIVEIMMACULATE_DB_URL", "DRIVEIMMACULATE_API_KEY"],
+        dataSource: "Drive Immaculate Quiz Database"
       });
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch registration data" });
+      res.status(500).json({ error: "Failed to fetch quiz data" });
     }
   });
 
-  // Import volume dashboard endpoint - connects to National Freight Data Hub
+  // Import volume dashboard endpoint - connects to driveimmaculate.com contact form data
   app.get("/api/import-volume-dashboard", async (req, res) => {
     const { year = "2023", port = "all" } = req.query;
     
     try {
-      // Connect to National Freight Data Hub for import statistics
-      // This requires authenticated access to government freight data
+      // Connect to driveimmaculate.com contact form data for real customer inquiries
+      // This requires API access to your contact form database
       res.status(503).json({
-        error: "Import volume data requires authenticated access to National Freight Data Hub",
-        message: "To access live vehicle import statistics from the Department of Infrastructure, please provide the necessary API credentials",
-        requiredCredentials: ["FREIGHT_DATA_HUB_API_KEY", "INFRASTRUCTURE_DEPT_TOKEN"],
-        dataSource: "National Freight Data Hub - Australian Government"
+        error: "Contact form data integration requires API access to driveimmaculate.com",
+        message: "To access real customer inquiry data from your contact form at https://driveimmaculate.com/contact-us/, please provide database access credentials",
+        requiredCredentials: ["DRIVEIMMACULATE_CONTACT_DB_URL", "DRIVEIMMACULATE_API_KEY"],
+        dataSource: "Drive Immaculate Contact Form Database"
       });
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch import volume data" });
+      res.status(500).json({ error: "Failed to fetch contact form data" });
     }
   });
 

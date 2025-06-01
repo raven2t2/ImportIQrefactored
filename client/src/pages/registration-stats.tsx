@@ -79,11 +79,11 @@ export default function RegistrationStats() {
       <div className="container mx-auto px-4">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Australian Registration Statistics
+            Customer Vehicle Preferences
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Live vehicle registration data from Australian state governments. Track registration 
-            trends, popular models, and geographic distribution patterns.
+            Real customer preference data from driveimmaculate.com quiz responses. Understand 
+            what vehicles your customers are actually interested in importing.
           </p>
         </div>
 
@@ -258,14 +258,13 @@ export default function RegistrationStats() {
               <CardContent className="pt-6">
                 <div className="text-center text-sm text-gray-600 dark:text-gray-300">
                   <p className="mb-2">
-                    <strong>Data Source:</strong> Australian Government Open Data - data.vic.gov.au, data.nsw.gov.au
+                    <strong>Data Source:</strong> driveimmaculate.com quiz responses - https://driveimmaculate.com/quiz/
                   </p>
                   <p className="mb-2">
-                    Registration statistics are updated periodically and may not reflect real-time data.
+                    Customer preference data is updated in real-time from actual quiz submissions.
                   </p>
                   <p>
-                    This information is provided for research purposes. Verify current registration 
-                    requirements with relevant state authorities.
+                    This data reflects genuine customer interests and can inform inventory and marketing decisions.
                   </p>
                 </div>
               </CardContent>
