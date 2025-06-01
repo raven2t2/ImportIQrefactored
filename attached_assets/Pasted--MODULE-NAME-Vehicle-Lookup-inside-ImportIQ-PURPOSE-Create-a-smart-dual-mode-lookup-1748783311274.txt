@@ -1,0 +1,106 @@
+🎯 MODULE NAME: “Vehicle Lookup” (inside ImportIQ)
+
+---
+
+📌 PURPOSE:
+Create a smart dual-mode lookup tool that supports both:
+1. Standard 17-character VINs (U.S./global)
+2. JDM-style chassis codes (e.g., JZX100, S15, FD3S)
+
+---
+
+📥 INPUT:
+- One search box labeled: “Enter VIN or JDM Chassis Code”
+- Auto-detect format:
+  - If 17 alphanumeric characters → run NHTSA VIN decode
+  - If shorter → search in internal JDM chassis dataset
+
+---
+
+🇺🇸 VIN DECODE MODE:
+- API: https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/{VIN}?format=json
+- Display in card format:
+  - Make
+  - Model
+  - Year
+  - Trim (if present)
+  - Engine or Fuel Type
+- Include a “🔄 Use This Info” button to auto-fill ImportIQ’s import cost calculator or timeline planner
+
+---
+
+🇯🇵 JDM LOOKUP MODE:
+- Use internal dataset below
+- Show:
+  - Make
+  - Model
+  - Year Range
+  - Engine Code
+  - Compliance Notes
+- If not found, show graceful fallback:
+  > “This chassis code isn’t in our database yet. Try using a full VIN or message us to add it.”
+
+- Also include a “🔄 Use This Info” button to pre-fill ImportIQ tools
+
+---
+
+💬 UI COPY FOR TOOL HEADER:
+> **Instant Vehicle Lookup**
+> Easily decode U.S. VINs or JDM chassis codes to get vehicle specs, year ranges, engine info, and compliance insights — all in one place. Whether you're researching a Skyline, Chaser, or WRX, this tool gives you clarity *before* you commit.
+
+✅ No guessing.  
+✅ No spreadsheet browsing.  
+✅ Just type, and ImportIQ figures it out.
+
+---
+
+⚠️ DISCLAIMER (beneath results):
+> “ImportIQ uses official VIN registries and curated JDM reference data. Information is accurate to the best of our ability but does not replace physical inspection or formal compliance approval.”
+
+---
+
+🎨 UI REQUIREMENTS:
+- Responsive layout for mobile and desktop
+- Match ImportIQ theme: black background, gold primary buttons, white text
+- Show a small flag next to mode: 🇺🇸 = VIN, 🇯🇵 = JDM
+- Automatically toggle based on input (no manual switch needed)
+
+---
+
+❌ ERROR HANDLING:
+- Invalid VIN length: “VINs must be exactly 17 characters.”
+- Chassis code not found: “This chassis code is not recognized yet — let us know and we’ll add it.”
+
+---
+
+🧠 JDM DATABASE: (Embed in code or separate file)
+
+````json
+{
+  "JZX100": { "make": "Toyota", "model": "Chaser", "years": "1996–2001", "engine": "1JZ-GTE", "compliance_notes": "Turbo model may require emissions testing in VIC" },
+  "JZA80": { "make": "Toyota", "model": "Supra", "years": "1993–2002", "engine": "2JZ-GTE", "compliance_notes": "Rear seatbelt compliance may be required in some states" },
+  "AE86": { "make": "Toyota", "model": "Sprinter Trueno / Corolla Levin", "years": "1983–1987", "engine": "4A-GE", "compliance_notes": "May require structural inspection due to age" },
+  "R32": { "make": "Nissan", "model": "Skyline GT-R", "years": "1989–1994", "engine": "RB26DETT", "compliance_notes": "Early models may need asbestos compliance check" },
+  "R33": { "make": "Nissan", "model": "Skyline GT-R", "years": "1993–1998", "engine": "RB26DETT", "compliance_notes": "Check for asbestos-related parts in early models" },
+  "R34": { "make": "Nissan", "model": "Skyline GT-R", "years": "1999–2002", "engine": "RB26DETT", "compliance_notes": "Some variants not SEVS eligible — check VIN carefully" },
+  "S13": { "make": "Nissan", "model": "Silvia", "years": "1988–1993", "engine": "CA18DET / SR20DET", "compliance_notes": "Turbo models may require engineer sign-off" },
+  "S14": { "make": "Nissan", "model": "Silvia", "years": "1993–1999", "engine": "SR20DET", "compliance_notes": "Check for factory immobiliser compliance" },
+  "S15": { "make": "Nissan", "model": "Silvia", "years": "1999–2002", "engine": "SR20DET", "compliance_notes": "Requires frontal impact compliance in NSW" },
+  "Z32": { "make": "Nissan", "model": "300ZX", "years": "1989–2000", "engine": "VG30DETT", "compliance_notes": "Twin turbo requires specialist compliance inspection" },
+  "FD3S": { "make": "Mazda", "model": "RX-7", "years": "1992–2002", "engine": "13B-REW", "compliance_notes": "Rotary emissions tests stricter in VIC" },
+  "FC3S": { "make": "Mazda", "model": "RX-7", "years": "1986–1991", "engine": "13B-T", "compliance_notes": "Check structural rust on import" },
+  "BP5": { "make": "Subaru", "model": "Legacy GT Wagon", "years": "2003–2009", "engine": "EJ20X / EJ20Y", "compliance_notes": "Ensure twin-scroll turbo compliance is met" },
+  "BL5": { "make": "Subaru", "model": "Legacy GT Sedan", "years": "2003–2009", "engine": "EJ20X / EJ20Y", "compliance_notes": "Same mechanicals as BP5; verify rear impact compliance" },
+  "GC8": { "make": "Subaru", "model": "Impreza WRX STI", "years": "1992–2000", "engine": "EJ20G / EJ207", "compliance_notes": "Check for aftermarket ECU or mods during compliance" },
+  "GDB": { "make": "Subaru", "model": "Impreza WRX STI", "years": "2000–2007", "engine": "EJ207", "compliance_notes": "Turbo inlet mods may require certification" },
+  "CT9A": { "make": "Mitsubishi", "model": "Lancer Evolution 7–9", "years": "2001–2006", "engine": "4G63T", "compliance_notes": "Track packages may require engineer report" },
+  "CZ4A": { "make": "Mitsubishi", "model": "Lancer Evolution X", "years": "2007–2016", "engine": "4B11T", "compliance_notes": "DSG models require additional compliance for paddle shift systems" },
+  "DB8": { "make": "Honda", "model": "Integra Type R (4-door)", "years": "1995–2000", "engine": "B18C", "compliance_notes": "Verify airbags and rear headrest compliance" },
+  "DC2": { "make": "Honda", "model": "Integra Type R", "years": "1995–2001", "engine": "B18C", "compliance_notes": "JDM lights and seatbelts may need replacing" },
+  "EK9": { "make": "Honda", "model": "Civic Type R", "years": "1997–2000", "engine": "B16B", "compliance_notes": "Compliance may require immobiliser check" },
+  "EP3": { "make": "Honda", "model": "Civic Type R", "years": "2001–2005", "engine": "K20A", "compliance_notes": "UKDM and JDM variants differ in compliance pathways" },
+  "ZC31S": { "make": "Suzuki", "model": "Swift Sport", "years": "2005–2010", "engine": "M16A", "compliance_notes": "Generally low-risk import" },
+  "HCR32": { "make": "Nissan", "model": "Skyline GTS-T", "years": "1989–1993", "engine": "RB20DET", "compliance_notes": "Popular with tuners, check for prior chassis mods" },
+  "GX100": { "make": "Toyota", "model": "Mark II", "years": "1996–2000", "engine": "1G-FE / 1JZ-GE", "compliance_notes": "Non-turbo variants often easier to comply" },
+  "ZZT231": { "make": "Toyota", "model": "Celica (7th Gen)", "years": "1999–2006", "engine": "2ZZ-GE", "compliance_notes": "VVTL-i engines require verified ECU for emissions" }
+}
