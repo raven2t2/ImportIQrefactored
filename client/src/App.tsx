@@ -49,6 +49,7 @@ function Router() {
       <Route path="/import-volume-dashboard" component={ImportVolumeDashboard} />
       <Route path="/auction-sample-explorer" component={AuctionSampleExplorer} />
       <Route path="/dashboard" component={UserDashboard} />
+      <Route path="/user-dashboard" component={UserDashboard} />
       <Route path="/admin" component={Dashboard} />
       <Route path="/garage" component={EnhancedDashboard} />
       <Route path="/subscribe" component={Subscribe} />
