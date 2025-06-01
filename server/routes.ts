@@ -20,7 +20,7 @@ const complianceSchema = z.object({
 const modEstimatorSchema = z.object({
   make: z.string().min(1),
   model: z.string().min(1),
-  year: z.number().min(1990).max(new Date().getFullYear()),
+  year: z.number().min(1950).max(new Date().getFullYear()),
   goal: z.enum(["daily", "drift", "show"]),
 });
 
