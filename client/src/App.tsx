@@ -16,6 +16,7 @@ import BuildComply from "@/pages/build-comply";
 import ImportTimeline from "@/pages/import-timeline";
 import ExpertPicks from "@/pages/expert-picks";
 import Dashboard from "@/pages/dashboard";
+import UserDashboard from "@/pages/user-dashboard";
 import EnhancedDashboard from "@/pages/enhanced-dashboard";
 import Subscribe from "@/pages/subscribe";
 import ValueEstimator from "@/pages/value-estimator";
@@ -47,7 +48,8 @@ function Router() {
       <Route path="/registration-stats" component={RegistrationStats} />
       <Route path="/import-volume-dashboard" component={ImportVolumeDashboard} />
       <Route path="/auction-sample-explorer" component={AuctionSampleExplorer} />
-      <Route path="/dashboard" component={Dashboard} />
+      <Route path="/dashboard" component={UserDashboard} />
+      <Route path="/admin" component={Dashboard} />
       <Route path="/garage" component={EnhancedDashboard} />
       <Route path="/subscribe" component={Subscribe} />
       <Route path="/checkout" component={Checkout} />
