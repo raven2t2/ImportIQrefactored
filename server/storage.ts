@@ -100,7 +100,7 @@ export class DatabaseStorage implements IStorage {
 
   async createTrial(email: string, name: string): Promise<any> {
     const trialEndDate = new Date();
-    trialEndDate.setDate(trialEndDate.getDate() + 14); // 14 days from now
+    trialEndDate.setDate(trialEndDate.getDate() + 7); // 7 days from now
 
     const [trial] = await db
       .insert(trials)
