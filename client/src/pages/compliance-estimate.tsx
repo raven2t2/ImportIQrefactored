@@ -14,7 +14,7 @@ import { z } from "zod";
 import { Link } from "wouter";
 
 const complianceSchema = z.object({
-  year: z.coerce.number().min(1970, "Year must be 1970 or later").max(new Date().getFullYear(), "Year cannot be in the future"),
+  year: z.coerce.number().min(1945, "Year must be 1945 or later").max(new Date().getFullYear(), "Year cannot be in the future"),
   category: z.enum(["passenger", "suv", "kei", "commercial"], {
     required_error: "Please select a vehicle category",
   }),
