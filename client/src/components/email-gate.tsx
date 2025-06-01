@@ -59,48 +59,48 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
   };
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center p-4 font-sans">
-      <div className="w-full max-w-6xl">
+    <div className="min-h-screen bg-[#F9FAFB] px-4 py-6 font-sans">
+      <div className="w-full max-w-6xl mx-auto">
         {/* Hero Section */}
-        <div className="text-center mb-12">
-          <div className="flex justify-center items-center mb-8">
+        <div className="text-center mb-8 sm:mb-12">
+          <div className="flex flex-col sm:flex-row justify-center items-center mb-6 sm:mb-8">
             <img 
               src={logoPath} 
               alt="Immaculate Imports" 
-              className="w-20 h-20 mr-6"
+              className="w-16 h-16 sm:w-20 sm:h-20 mb-4 sm:mb-0 sm:mr-6"
             />
             <div>
-              <h1 className="text-5xl md:text-6xl font-bold text-[#1E1E1E] mb-3">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[#1E1E1E] mb-2 sm:mb-3">
                 <span className="text-[#D4AF37]">ImportIQ™</span>
               </h1>
-              <p className="text-base text-gray-600 font-medium">
+              <p className="text-sm sm:text-base text-gray-600 font-medium">
                 Brought to you by <a href="https://driveimmaculate.com" target="_blank" className="text-[#D4AF37] hover:underline font-semibold">Immaculate Imports</a>
               </p>
             </div>
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-[#1E1E1E] mb-6 leading-tight">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[#1E1E1E] mb-4 sm:mb-6 leading-tight px-2">
             Professional Import Intelligence Platform
           </h2>
-          <p className="text-xl text-gray-700 max-w-4xl mx-auto mb-12 leading-relaxed">
+          <p className="text-lg sm:text-xl text-gray-700 max-w-4xl mx-auto mb-8 sm:mb-12 leading-relaxed px-2">
             Stop guessing and start planning with professional-grade tools that save you 
             <span className="text-[#D4AF37] font-semibold"> thousands on every import</span>
           </p>
         </div>
 
         {/* Value-First Layout - Tools Grid Above the Fold */}
-        <div className="mb-8">
-          <div className="bg-gradient-to-br from-[#D4AF37]/10 to-amber-50 border-2 border-[#D4AF37]/30 rounded-xl shadow-sm p-6 mb-8">
-            <div className="text-center mb-6">
-              <div className="text-3xl md:text-4xl font-bold text-[#1E1E1E] mb-2">Total Value: $15,000+</div>
-              <h3 className="text-xl md:text-2xl font-bold text-[#1E1E1E]">
+        <div className="mb-6 sm:mb-8">
+          <div className="bg-gradient-to-br from-[#D4AF37]/10 to-amber-50 border-2 border-[#D4AF37]/30 rounded-xl shadow-sm p-4 sm:p-6 mb-6 sm:mb-8">
+            <div className="text-center mb-4 sm:mb-6">
+              <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#1E1E1E] mb-2">Total Value: $15,000+</div>
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-[#1E1E1E]">
                 ✅ All 14 Professional Tools Included
               </h3>
-              <p className="text-lg font-semibold text-[#D4AF37] mt-3">
+              <p className="text-base sm:text-lg font-semibold text-[#D4AF37] mt-2 sm:mt-3 px-2">
                 Instant access to 14 professional tools that have saved importers thousands.
               </p>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
               {[
                 { name: "Import Cost Calculator", tagline: "Know your landed cost before you commit." },
                 { name: "True Cost Explorer", tagline: "The total cost of ownership, uncovered." },
@@ -117,13 +117,13 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
                 { name: "AI Import Assistant", tagline: "Ask anything about your import journey." },
                 { name: "Value Estimator", tagline: "Know what your car's worth — now and later." }
               ].map((tool, index) => (
-                <div key={index} className="flex items-start p-3 bg-white/60 rounded-lg">
+                <div key={index} className="flex items-start p-3 sm:p-4 bg-white/60 rounded-lg min-h-[60px] touch-manipulation">
                   <div className="flex items-center justify-center w-6 h-6 bg-[#10B981] rounded-full mr-3 flex-shrink-0 mt-0.5">
                     <span className="text-white text-xs font-bold">✓</span>
                   </div>
-                  <div>
-                    <div className="font-semibold text-[#1E1E1E] text-sm">{tool.name}</div>
-                    <div className="text-xs text-gray-500 mt-0.5">{tool.tagline}</div>
+                  <div className="flex-1">
+                    <div className="font-semibold text-[#1E1E1E] text-sm sm:text-base leading-tight">{tool.name}</div>
+                    <div className="text-xs sm:text-sm text-gray-500 mt-0.5 leading-relaxed">{tool.tagline}</div>
                   </div>
                 </div>
               ))}
@@ -131,11 +131,11 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-12 items-start">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-12 items-start">
           {/* Left Side - Social Proof */}
-          <div className="flex-1 space-y-8">
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h3 className="text-2xl font-bold text-[#1E1E1E] mb-6">
+          <div className="flex-1 space-y-6 lg:space-y-8">
+            <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+              <h3 className="text-xl sm:text-2xl font-bold text-[#1E1E1E] mb-4 sm:mb-6">
                 Stop Making Expensive Import Mistakes
               </h3>
               
@@ -178,16 +178,16 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
           </div>
 
           {/* Right Side - Form */}
-          <div className="flex-1 lg:max-w-md">
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <div className="text-center mb-8">
-                <h3 className="text-3xl font-bold text-[#1E1E1E] mb-3">
+          <div className="flex-1 lg:max-w-md w-full">
+            <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
+              <div className="text-center mb-6 sm:mb-8">
+                <h3 className="text-2xl sm:text-3xl font-bold text-[#1E1E1E] mb-2 sm:mb-3">
                   Start Your Free Trial
                 </h3>
-                <p className="text-lg font-semibold text-[#D4AF37] mb-2">
+                <p className="text-base sm:text-lg font-semibold text-[#D4AF37] mb-2 px-2">
                   Instant access to 14 professional tools that have saved importers thousands.
                 </p>
-                <p className="text-gray-600 text-base">
+                <p className="text-gray-600 text-sm sm:text-base px-2">
                   No credit card required. Full access for 7 days.
                 </p>
               </div>
@@ -200,9 +200,9 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
                 </div>
               </div>
 
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-sm font-medium text-[#1E1E1E]">
+                  <Label htmlFor="name" className="text-sm sm:text-base font-medium text-[#1E1E1E]">
                     Full Name
                   </Label>
                   <div className="relative">
@@ -211,7 +211,7 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
                       id="name"
                       type="text"
                       placeholder="Enter your full name"
-                      className="pl-10 h-14 rounded-xl border-gray-200 focus:border-[#D4AF37] focus:ring-[#D4AF37]"
+                      className="pl-10 h-12 sm:h-14 text-base rounded-xl border-2 border-gray-200 focus:border-[#D4AF37] focus:ring-[#D4AF37] touch-manipulation"
                       {...form.register("name")}
                     />
                   </div>
@@ -221,7 +221,7 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium text-[#1E1E1E]">
+                  <Label htmlFor="email" className="text-sm sm:text-base font-medium text-[#1E1E1E]">
                     Email Address
                   </Label>
                   <div className="relative">
@@ -230,7 +230,7 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
                       id="email"
                       type="email"
                       placeholder="Enter your email address"
-                      className="pl-10 h-14 rounded-xl border-gray-200 focus:border-[#D4AF37] focus:ring-[#D4AF37]"
+                      className="pl-10 h-12 sm:h-14 text-base rounded-xl border-2 border-gray-200 focus:border-[#D4AF37] focus:ring-[#D4AF37] touch-manipulation"
                       {...form.register("email")}
                     />
                   </div>
@@ -241,7 +241,7 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
 
                 <Button
                   type="submit"
-                  className="w-full bg-[#0A84FF] hover:bg-[#007AEB] text-white font-bold py-4 text-lg rounded-xl transition-colors duration-200"
+                  className="w-full bg-[#0A84FF] hover:bg-[#007AEB] text-white font-bold py-3 sm:py-4 text-base sm:text-lg rounded-xl transition-colors duration-200 touch-manipulation min-h-[48px]"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? "ACTIVATING YOUR ACCOUNT..." : "START FREE TRIAL NOW"}
