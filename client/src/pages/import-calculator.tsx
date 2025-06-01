@@ -30,6 +30,26 @@ export default function ImportCalculator() {
   const [userInfo, setUserInfo] = useState<{ name: string; email: string; isReturning: boolean } | null>(null);
   const { toast } = useToast();
 
+  // Save report mutation
+  const saveReportMutation = useMutation({
+    mutationFn: async (reportData: any) => {
+      return await apiRequest("POST", "/api/save-report", reportData);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Report Saved!",
+        description: "Your import calculation has been saved to your ImportIQ dashboard.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Save Failed",
+        description: "Unable to save report. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const form = useForm<FormData>({
     resolver: zodResolver(insertSubmissionSchema),
     defaultValues: {
@@ -70,6 +90,32 @@ export default function ImportCalculator() {
   };
 
   // Function to calculate costs with different service tiers
+  const handleSaveReport = () => {
+    if (calculations && userInfo) {
+      const reportData = {
+        email: userInfo.email,
+        reportType: "import-calculation",
+        reportTitle: `Import Cost Report - ${form.getValues("vehicleMake")} ${form.getValues("vehicleModel")}`,
+        reportData: {
+          ...calculations,
+          vehicleDetails: {
+            make: form.getValues("vehicleMake"),
+            model: form.getValues("vehicleModel"),
+            year: form.getValues("vehicleYear"),
+            price: form.getValues("vehiclePrice"),
+            origin: form.getValues("shippingOrigin"),
+          },
+          customerInfo: {
+            name: userInfo.name,
+            email: userInfo.email,
+          }
+        }
+      };
+      
+      saveReportMutation.mutate(reportData);
+    }
+  };
+
   const calculateWithServiceTier = (baseCosts: CalculationResult, tier: string) => {
     if (!baseCosts) return baseCosts;
     
@@ -629,8 +675,28 @@ export default function ImportCalculator() {
                   </div>
                 </div>
 
+                {/* Save to Dashboard Button */}
+                <div className="mt-6 flex gap-3">
+                  <Button 
+                    onClick={handleSaveReport}
+                    disabled={saveReportMutation.isPending}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700"
+                  >
+                    <FileText className="w-4 h-4 mr-2" />
+                    {saveReportMutation.isPending ? "Saving..." : "Save to Dashboard"}
+                  </Button>
+                  
+                  <Button 
+                    onClick={() => window.location.href = '/checkout'}
+                    className="flex-1 bg-[#D4AF37] hover:bg-amber-500"
+                  >
+                    Get Started - $500 Deposit
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+
                 {/* Powerful CTA Section */}
-                <div className="mt-6 p-6 bg-gradient-to-r from-brand-gold to-yellow-400 rounded-xl text-white">
+                <div className="mt-6 p-6 bg-gradient-to-r from-[#D4AF37] to-yellow-400 rounded-xl text-white">
                   <div className="text-center mb-4">
                     <h3 className="text-xl font-bold mb-2">Want This Exact Car Delivered to Your Driveway?</h3>
                     <p className="text-sm opacity-90">We'll source, inspect, ship, and make it road-legal for you.</p>
