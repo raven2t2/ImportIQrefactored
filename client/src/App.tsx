@@ -17,6 +17,7 @@ import ExpertPicks from "@/pages/expert-picks";
 import Dashboard from "@/pages/dashboard";
 import Subscribe from "@/pages/subscribe";
 import ValueEstimator from "@/pages/value-estimator";
+import VehicleLookup from "@/pages/vehicle-lookup";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -32,6 +33,7 @@ function Router() {
       <Route path="/compliance-estimate" component={ComplianceEstimate} />
       <Route path="/mod-estimator" component={ModEstimator} />
       <Route path="/value-estimator" component={ValueEstimator} />
+      <Route path="/vehicle-lookup" component={VehicleLookup} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/subscribe" component={Subscribe} />
       <Route component={NotFound} />

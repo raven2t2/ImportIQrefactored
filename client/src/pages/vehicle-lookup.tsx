@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { Search, RefreshCw, Car, Flag, Info } from "lucide-react";
+import { Search, RefreshCw, Car, Flag, Info, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -330,6 +330,63 @@ export default function VehicleLookup() {
               </CardContent>
             </Card>
           )}
+
+          {/* Auction Sample Explorer */}
+          {result && result.success && result.auctionSamples && result.auctionSamples.length > 0 && (
+            <Card className="bg-gray-900 border-gray-700 mb-8">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-white">
+                  <DollarSign className="h-5 w-5" />
+                  Auction Sample Explorer
+                  <Badge variant="outline" className="ml-2">
+                    🇯🇵 Historical Data
+                  </Badge>
+                </CardTitle>
+                <p className="text-gray-400">
+                  See how recent vehicles like yours performed at Japanese auctions:
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {result.auctionSamples.map((sample, index) => (
+                    <div key={index} className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                          <p className="text-sm text-gray-400">Year</p>
+                          <p className="text-lg font-semibold text-white">{sample.year}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-400">Mileage</p>
+                          <p className="text-lg font-semibold text-white">{sample.mileage}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-400">Auction House</p>
+                          <p className="text-lg font-semibold text-white">{sample.auctionHouse}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-400">Sample Auction Price</p>
+                          <div className="space-y-1">
+                            <p className="text-sm text-gray-300">{sample.priceJpy}</p>
+                            <p className="text-lg font-semibold text-yellow-400">{sample.priceAud}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="mt-6 bg-blue-900/20 border border-blue-700 rounded-lg p-4">
+                  <p className="text-sm text-blue-400 font-medium mb-2">Important Notice</p>
+                  <p className="text-sm text-gray-300">
+                    These are historical auction samples—not live feeds. Use for planning only. 
+                    Actual auction prices vary based on condition, market demand, and specific vehicle features.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+
 
           {/* Disclaimer */}
           <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 text-center">
