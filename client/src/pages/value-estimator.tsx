@@ -71,6 +71,7 @@ export default function ValueEstimator() {
   });
 
   const onSubmit = (data: ValueEstimatorData) => {
+    setSubmittedData(data);
     mutation.mutate(data);
   };
 
@@ -311,9 +312,9 @@ export default function ValueEstimator() {
                       <Button
                         onClick={() => {
                           const searchParams = new URLSearchParams();
-                          searchParams.set("make", lastSubmittedData?.make || "");
-                          searchParams.set("model", lastSubmittedData?.model || "");
-                          searchParams.set("year", lastSubmittedData?.year?.toString() || "");
+                          searchParams.set("make", submittedData?.make || "");
+                          searchParams.set("model", submittedData?.model || "");
+                          searchParams.set("year", submittedData?.year?.toString() || "");
                           searchParams.set("vehiclePrice", results?.estimatedImportTotal?.toString() || "");
                           window.location.href = `/import-calculator?${searchParams.toString()}`;
                         }}
@@ -327,9 +328,9 @@ export default function ValueEstimator() {
                         variant="outline"
                         onClick={() => {
                           const searchParams = new URLSearchParams();
-                          searchParams.set("make", lastSubmittedData?.make || "");
-                          searchParams.set("model", lastSubmittedData?.model || "");
-                          searchParams.set("year", lastSubmittedData?.year?.toString() || "");
+                          searchParams.set("make", submittedData?.make || "");
+                          searchParams.set("model", submittedData?.model || "");
+                          searchParams.set("year", submittedData?.year?.toString() || "");
                           window.location.href = `/compliance-estimate?${searchParams.toString()}`;
                         }}
                         className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-50"
