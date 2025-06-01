@@ -1,0 +1,57 @@
+🎯 TASK: Ensure full mobile functionality and responsive layout across all ImportIQ pages, tools, and components.
+
+---
+
+✅ GENERAL LAYOUT:
+
+- All pages must render cleanly on screens 320px–768px wide (iPhone SE to iPhone 15 Pro Max)
+- Use flex or grid with responsive breakpoints for all key sections
+- Ensure tool panels, forms, cards, and CTA blocks **stack vertically** on small screens
+- Avoid horizontal scrolling unless part of an intentional carousel
+- Prevent layout overflow (especially with long labels or result cards)
+
+---
+
+✅ SPECIFIC COMPONENTS TO OPTIMIZE:
+
+1. **Email Gate / Signup Page**
+   - Feature grid must stack clearly and remain legible
+   - Signup form input fields and CTA button must be easy to tap with thumbs
+   - All value content (e.g. “$15,000+ of tools”) should be visible **above the fold**
+
+2. **Dashboard**
+   - Tool cards should render in 1-column layout on small screens
+   - Ensure padding/margins are consistent for finger-friendly tap zones
+
+3. **Individual Tool Pages (e.g., BuildReady™, Import Cost Calculator, Auction Explorer)**
+   - All tables, output boxes, mod summaries, and risk indicators must scale properly
+   - Buttons, inputs, dropdowns should not overlap or go off-screen
+   - Ensure dropdowns and toggles are fully accessible via touch (min height 44px)
+
+4. **Modals and Chat Interfaces (e.g., AI Assistant)**
+   - Must be fully scrollable inside viewport on mobile
+   - Avoid fixed-height issues that cut off content
+   - Provide clear close/back navigation
+
+---
+
+✅ TOUCH UX & FONT SCALING:
+
+- Use `rem` or `em` units for text and spacing so font sizes adjust naturally
+- Maintain line height for readability on small screens
+- Ensure all interactive elements have **minimum touch targets (44x44px)**
+- Prevent double-tap zoom by disabling `user-scalable=no` only if all text is legible
+
+---
+
+✅ OPTIONAL (FOR BETTER PWA-LIKE FEEL):
+- Add “Add to Home Screen” metadata if not already done
+- Ensure favicon and splash screen render correctly on iOS and Android
+
+---
+
+🎯 OUTCOME:
+ImportIQ should feel like a **true mobile-native app**, not just a downsized web page. All users — including on phones — should be able to:
+- View, scroll, tap, and type easily
+- Understand tool outputs without zooming
+- Navigate intuitively with no layout bugs or cramped UI
