@@ -213,8 +213,11 @@ export default function BuildComply() {
               <Settings className="h-6 w-6 text-purple-600" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Build & Comply</h1>
-              <p className="text-gray-600">Plan modifications with compliance clarity for road-ready builds</p>
+              <h1 className="text-3xl font-bold text-gray-900" title="BuildReady™ shows you which modifications will pass compliance in your state — before you commit to costly changes.">BuildReady™</h1>
+              <div className="text-sm text-gray-500 mb-2">
+                Powered by ImportIQ's BuildReady™ Engine
+              </div>
+              <p className="text-gray-600">Design your build with clarity, compliance, and confidence.</p>
             </div>
           </div>
         </div>
@@ -291,7 +294,7 @@ export default function BuildComply() {
                     className="w-full bg-purple-600 hover:bg-purple-700"
                     disabled={!form.watch("vehicle") || !form.watch("state") || selectedMods.length === 0}
                   >
-                    Generate Compliance Plan
+                    Generate BuildReady Plan
                   </Button>
                 </form>
               </CardContent>
@@ -306,7 +309,7 @@ export default function BuildComply() {
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
                     <Shield className="h-5 w-5" />
-                    <span>Compliance Overview</span>
+                    <span>Your BuildReady Summary</span>
                   </CardTitle>
                   <CardDescription>
                     {results.vehicle} build plan for {results.state.name}

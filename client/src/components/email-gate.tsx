@@ -131,7 +131,7 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
                   "Import Cost Calculator",
                   "True Cost Explorer", 
                   "Import Timeline",
-                  "Build & Comply",
+                  "BuildReady™",
                   "AI Vehicle Recommendations",
                   "Expert Picks",
                   "Compliance Estimate",
