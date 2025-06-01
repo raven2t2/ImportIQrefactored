@@ -422,8 +422,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const listings = [
         {
           source: "Japanese Auction House",
-          price: baseMarketPrice - Math.floor(Math.random() * 8000 + 2000),
-          priceWithMarkup: Math.round((baseMarketPrice - Math.floor(Math.random() * 8000 + 2000)) * 1.2),
+          price: adjustedBasePrice - Math.floor(Math.random() * 8000 + 2000),
+          priceWithMarkup: Math.round((adjustedBasePrice - Math.floor(Math.random() * 8000 + 2000)) * 1.2),
           currency: "AUD",
           mileage: `${Math.floor(Math.random() * 80000) + 25000} km`,
           condition: "Grade 4.5/5",
@@ -433,8 +433,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
         {
           source: "Specialist Dealer",
-          price: baseMarketPrice + Math.floor(Math.random() * 5000),
-          priceWithMarkup: Math.round((baseMarketPrice + Math.floor(Math.random() * 5000)) * 1.2),
+          price: adjustedBasePrice + Math.floor(Math.random() * 5000),
+          priceWithMarkup: Math.round((adjustedBasePrice + Math.floor(Math.random() * 5000)) * 1.2),
           currency: "AUD",
           mileage: `${Math.floor(Math.random() * 60000) + 30000} km`,
           condition: "Grade 4/5",
@@ -444,8 +444,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
         {
           source: "Export Dealer",
-          price: baseMarketPrice + Math.floor(Math.random() * 3000 - 1500),
-          priceWithMarkup: Math.round((baseMarketPrice + Math.floor(Math.random() * 3000 - 1500)) * 1.2),
+          price: adjustedBasePrice + Math.floor(Math.random() * 3000 - 1500),
+          priceWithMarkup: Math.round((adjustedBasePrice + Math.floor(Math.random() * 3000 - 1500)) * 1.2),
           currency: "AUD",
           mileage: `${Math.floor(Math.random() * 50000) + 35000} km`,
           condition: "Grade 4.5/5",
@@ -469,7 +469,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           demandLevel: vehicleData.demandFactor > 1.2 ? "High" : vehicleData.demandFactor > 1.0 ? "Medium" : "Stable"
         },
         marketInsights: [
-          `${validatedData.year} model year affects pricing by ${Math.round((ageMultiplier - 1) * 100)}%`,
+          `${validatedData.year} model year ${ageFactor > 1 ? 'commands premium pricing' : 'reflects market depreciation'}`,
           `Current market demand is ${vehicleData.demandFactor > 1.2 ? "very strong" : vehicleData.demandFactor > 1.0 ? "healthy" : "stable"}`,
           "Prices include 20% broker markup for import services",
           "Final landed cost will include shipping, compliance, and duties"
