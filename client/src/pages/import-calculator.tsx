@@ -217,29 +217,29 @@ export default function ImportCalculator() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-black">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-card shadow-sm border-b border-brand-gray">
         <div className="max-w-4xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="flex items-center justify-center w-10 h-10 bg-brand-gold rounded-lg">
-                <Calculator className="h-5 w-5 text-white" />
+                <Calculator className="h-5 w-5 text-black" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Immaculate Imports Calculator</h1>
-                <p className="text-sm text-gray-600">Your Dream Car, Delivered - Calculate total landed costs for importing vehicles to Australia</p>
+                <h1 className="text-2xl font-bold text-brand-white">Immaculate Imports Calculator</h1>
+                <p className="text-sm text-brand-gray">Your Dream Car, Delivered - Calculate total landed costs for importing vehicles to Australia</p>
               </div>
             </div>
             <div className="flex space-x-2">
               <Link href="/ai-recommendations">
-                <Button variant="outline" size="sm">AI Recommendations</Button>
+                <Button variant="outline" size="sm" className="border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-black">AI Recommendations</Button>
               </Link>
               <Link href="/compliance-estimate">
-                <Button variant="outline" size="sm">Compliance</Button>
+                <Button variant="outline" size="sm" className="border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-black">Compliance</Button>
               </Link>
               <Link href="/mod-estimator">
-                <Button variant="outline" size="sm">Mods</Button>
+                <Button variant="outline" size="sm" className="border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-black">Mods</Button>
               </Link>
             </div>
           </div>
@@ -249,14 +249,14 @@ export default function ImportCalculator() {
       <main className="max-w-4xl mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Form Section */}
-          <Card className="shadow-sm">
+          <Card className="bg-card border-brand-gray shadow-sm">
             <CardContent className="p-6">
               <div className="mb-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">Vehicle Import Calculator</h2>
-                <p className="text-sm text-gray-600 mb-4">Calculate accurate landed costs for importing vehicles to Australia</p>
+                <h2 className="text-xl font-semibold text-brand-white mb-2">Vehicle Import Calculator</h2>
+                <p className="text-sm text-brand-gray mb-4">Calculate accurate landed costs for importing vehicles to Australia</p>
                 
                 {/* What's Included */}
-                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="p-4 bg-brand-dark-gray border border-brand-gold rounded-lg">
                   <div className="text-sm">
                     <p className="font-semibold text-gray-900 mb-2">This calculation includes:</p>
                     <div className="space-y-1 text-xs">
