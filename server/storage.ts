@@ -1,4 +1,4 @@
-import { users, submissions, aiRecommendations, emailCache, type User, type InsertUser, type Submission, type InsertSubmission } from "@shared/schema";
+import { users, submissions, aiRecommendations, emailCache, trials, type User, type InsertUser, type Submission, type InsertSubmission } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import fs from 'fs';
@@ -18,6 +18,8 @@ export interface IStorage {
   checkEmailExists(email: string): Promise<boolean>;
   updateEmailCache(email: string, name: string): Promise<void>;
   getEmailInfo(email: string): Promise<{ name: string; submissionCount: number } | null>;
+  createTrial(email: string, name: string): Promise<any>;
+  getTrialStatus(email: string): Promise<{ isActive: boolean; daysRemaining: number; status: string } | null>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -88,6 +90,48 @@ export class DatabaseStorage implements IStorage {
   async getEmailInfo(email: string): Promise<{ name: string; submissionCount: number } | null> {
     const [cached] = await db.select().from(emailCache).where(eq(emailCache.email, email));
     return cached ? { name: cached.name, submissionCount: cached.submissionCount } : null;
+  }
+
+  async createTrial(email: string, name: string): Promise<any> {
+    const trialEndDate = new Date();
+    trialEndDate.setDate(trialEndDate.getDate() + 14); // 14 days from now
+
+    const [trial] = await db
+      .insert(trials)
+      .values({
+        email,
+        name,
+        trialEndDate,
+        isActive: true,
+        subscriptionStatus: "trial"
+      })
+      .onConflictDoUpdate({
+        target: trials.email,
+        set: {
+          name,
+          trialEndDate,
+          isActive: true,
+          subscriptionStatus: "trial"
+        }
+      })
+      .returning();
+    return trial;
+  }
+
+  async getTrialStatus(email: string): Promise<{ isActive: boolean; daysRemaining: number; status: string } | null> {
+    const [trial] = await db.select().from(trials).where(eq(trials.email, email));
+    
+    if (!trial) return null;
+
+    const now = new Date();
+    const endDate = new Date(trial.trialEndDate);
+    const daysRemaining = Math.max(0, Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+    
+    return {
+      isActive: trial.isActive && daysRemaining > 0,
+      daysRemaining,
+      status: trial.subscriptionStatus
+    };
   }
 
   async getAllSubmissions(): Promise<Submission[]> {
