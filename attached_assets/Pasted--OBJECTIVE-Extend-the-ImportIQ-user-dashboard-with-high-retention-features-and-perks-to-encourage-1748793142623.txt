@@ -1,0 +1,84 @@
+🎯 OBJECTIVE:
+Extend the ImportIQ user dashboard with high-retention features and perks to encourage ongoing engagement after the vehicle has been imported.
+
+---
+
+✅ 1. "My Build Garage" Module
+
+- Let authenticated users create and track their imported vehicle builds
+- Fields:
+  - Vehicle nickname, chassis code, VIN (optional)
+  - Photos (upload)
+  - Mod list (e.g., wheels, exhaust, suspension)
+  - Planned upgrades (with ETA)
+  - Public/Private toggle
+- Add simple AI-powered mod recommendations: “What should I upgrade next?”
+
+Display in dashboard under “My Garage” section. Multiple vehicle support.
+
+---
+
+✅ 2. "Mod Shop Perks" Program (Coming Soon Block + CMS-Ready)
+
+- Section for exclusive discounts at partner mod shops
+- UI Component: Grid of partner logos w/ taglines
+- Backend: Make this CMS-driven so you can easily add perks later
+- If no perks available, show: “Perks Program launching soon – get early access!”
+
+Add “Suggest a Shop” form → stores to admin database for outreach
+
+---
+
+✅ 3. "Event Calendar" (Beta View)
+
+- Add a calendar widget or simple event list UI
+- Filter by state (SA, NSW, VIC, etc.)
+- Data fields:
+  - Event Name, Location, Date/Time, Car Type Focus (e.g. JDM, Muscle)
+  - Link to external event page
+- Option to RSVP internally or add to Google Calendar
+- Users see only upcoming events in their region by default
+
+---
+
+✅ 4. "Saved Parts Watchlist" (Phase 1 MVP)
+
+- Let users create watchlist entries for specific parts
+  - Part Name, Price Target, Source (eBay, Yahoo JP, Facebook, etc.)
+- Bonus: When price is met (manually entered or future API), send notification
+- MVP: No scraping yet, just static entries + “Mark as Found” option
+
+---
+
+✅ 5. "Next Import Planner" Section
+
+- Allow existing users to duplicate their past import workflows
+- Pre-fills calculator with past values
+- Add “Import for a Friend” flow → includes referral tracking
+- Adds soft CTA to become an affiliate (with link)
+
+---
+
+✅ 6. Dashboard Sidebar Reorg
+
+- Add new sections:
+  - 📦 My Garage
+  - 🛍 Mod Shop Perks
+  - 📅 Event Calendar
+  - 🔁 Next Import
+  - 💡 Suggest a Feature
+- Sidebar should collapse for mobile, maintain sticky nav
+
+---
+
+📱 MOBILE-FIRST DESIGN:
+
+- All components must be responsive and optimized for mobile dashboard use
+- Collapse event dates/locations under tappable headers
+- Add swipeable cards or accordions for mod list in “My Garage”
+
+---
+
+🎯 GOAL:
+
+Make ImportIQ feel like *more* than a one-and-done tool — it should be a post-import lifestyle companion. This update should increase monthly retention and create new pathways for affiliate growth and user-generated content.
