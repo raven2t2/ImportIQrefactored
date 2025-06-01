@@ -193,19 +193,19 @@ export default function ImportIQ() {
             </a>
           </div>
 
-          {/* Social Proof */}
+          {/* Professional Credibility */}
           <div className="flex flex-wrap justify-center items-center gap-8 text-gray-400 text-sm">
             <div className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5 text-amber-400" />
-              <span>Trusted by 10,000+ importers</span>
+              <span>Professional-grade analysis</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5 text-amber-400" />
-              <span>$50M+ in savings generated</span>
+              <span>Real-time market data</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5 text-amber-400" />
-              <span>Industry leading AI accuracy</span>
+              <span>Built by import experts</span>
             </div>
           </div>
         </div>
