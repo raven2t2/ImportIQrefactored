@@ -123,34 +123,44 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
                 ✅ What You Get With ImportIQ
               </h3>
               
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {[
-                  { name: "💰 Import Cost Calculator", value: "$500+ value per quote", desc: "Precise landed costs with duties, GST, LCT and freight" },
-                  { name: "📊 True Cost Explorer", value: "$800 ownership insights", desc: "Multi-year ownership cost analysis and projections" },
-                  { name: "🛡️ Build & Comply + Timeline", value: "$1,500 mistake preventer", desc: "State compliance requirements and modification planning" },
-                  { name: "🔍 Vehicle Lookup + Auction Data", value: "$1,200 market intelligence", desc: "VIN decoder with real Japanese auction price history" },
-                  { name: "🤖 AI Assistant + Recommendations", value: "$2,000+ consultation value", desc: "24/7 expert guidance and smart vehicle matching" },
-                  { name: "⭐ Expert Picks + Data Modules", value: "$3,000+ regret prevention", desc: "Professional strategies plus market data dashboards" },
-                  { name: "📈 Value Estimator + Mod Planner", value: "$600 planning tools", desc: "Vehicle valuation and modification cost estimation" },
-                  { name: "🎁 Free Trial – Full Access", value: "no card, instant start", desc: "Complete platform access for 14 days" }
+                  "Import Cost Calculator",
+                  "True Cost Explorer", 
+                  "Import Timeline",
+                  "Build & Comply",
+                  "AI Vehicle Recommendations",
+                  "Expert Picks",
+                  "Compliance Estimate",
+                  "Mod Estimator",
+                  "Value Estimator",
+                  "Vehicle Lookup",
+                  "Registration Stats",
+                  "Import Volume Dashboard",
+                  "Auction Sample Explorer",
+                  "AI Import Assistant"
                 ].map((tool, index) => (
-                  <div key={index} className="flex items-start justify-between p-3 bg-white/50 rounded-lg">
-                    <div className="flex-1">
-                      <div className="font-semibold text-[#1E1E1E] mb-1">{tool.name}</div>
-                      <div className="text-gray-600 text-sm">{tool.desc}</div>
+                  <div key={index} className="flex items-center p-3 bg-white/50 rounded-lg">
+                    <div className="flex items-center justify-center w-6 h-6 bg-[#10B981] rounded-full mr-3 flex-shrink-0">
+                      <span className="text-white text-xs font-bold">✓</span>
                     </div>
-                    <div className="text-right text-sm">
-                      <div className="font-semibold text-[#10B981]">({tool.value})</div>
-                    </div>
+                    <div className="font-semibold text-[#1E1E1E] text-sm">{tool}</div>
                   </div>
                 ))}
               </div>
               
               <div className="mt-6 pt-4 border-t border-[#D4AF37]/20">
                 <div className="text-center">
-                  <div className="text-lg font-bold text-[#1E1E1E] mb-1">Total Value: $9,600+</div>
-                  <div className="text-2xl font-bold text-[#D4AF37]">Your Price: $97/mo</div>
+                  <div className="text-lg font-bold text-[#1E1E1E] mb-1">All 14 Professional Tools</div>
+                  <div className="text-2xl font-bold text-[#D4AF37] mb-2">Your Price: $97/mo</div>
+                  <div className="text-sm font-semibold text-red-600 bg-red-50 p-2 rounded-lg">
+                    🔒 Lock in $97/month for life — offer expires at end of trial
+                  </div>
                 </div>
+              </div>
+              
+              <div className="mt-4 text-center text-gray-600 text-sm italic">
+                Built for importers, dealers, and first-timers who don't want to guess.
               </div>
             </div>
           </div>
@@ -163,7 +173,7 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
                   Start Your Free Trial
                 </h3>
                 <p className="text-gray-600 text-base">
-                  No credit card required • Full access for 14 days • Cancel anytime
+                  No credit card required • Full access for 7 days • Cancel anytime
                 </p>
               </div>
 
