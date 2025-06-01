@@ -250,7 +250,7 @@ export default function ImportIQ() {
                     <Settings className="h-5 w-5 text-orange-600" />
                   </div>
                   <div>
-                    <CardTitle className="text-lg">Build & Comply</CardTitle>
+                    <CardTitle className="text-lg">BuildReady™</CardTitle>
                     <CardDescription className="text-sm">Modification compliance planning</CardDescription>
                   </div>
                 </div>
