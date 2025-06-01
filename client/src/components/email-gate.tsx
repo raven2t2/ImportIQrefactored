@@ -87,8 +87,52 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
           </p>
         </div>
 
+        {/* Value-First Layout - Tools Grid Above the Fold */}
+        <div className="mb-8">
+          <div className="bg-gradient-to-br from-[#D4AF37]/10 to-amber-50 border-2 border-[#D4AF37]/30 rounded-xl shadow-sm p-6 mb-8">
+            <div className="text-center mb-6">
+              <div className="text-3xl md:text-4xl font-bold text-[#1E1E1E] mb-2">Total Value: $15,000+</div>
+              <h3 className="text-xl md:text-2xl font-bold text-[#1E1E1E]">
+                ✅ All 14 Professional Tools Included
+              </h3>
+              <p className="text-lg font-semibold text-[#D4AF37] mt-3">
+                Instant access to 14 professional tools that have saved importers thousands.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {[
+                { name: "Import Cost Calculator", tagline: "Know your landed cost before you commit." },
+                { name: "True Cost Explorer", tagline: "The total cost of ownership, uncovered." },
+                { name: "BuildReady™", tagline: "Make your dream build road-legal." },
+                { name: "Import Timeline", tagline: "Realistic delivery expectations from port to plate." },
+                { name: "AI Vehicle Recommendations", tagline: "Smarter suggestions based on your goals." },
+                { name: "Expert Picks", tagline: "Pre-screened imports worth a closer look." },
+                { name: "Compliance Estimate", tagline: "Know if your build will pass — and how much it'll cost." },
+                { name: "Mod Estimator", tagline: "Estimate costs for tuning, mods, and compliance." },
+                { name: "Vehicle Lookup", tagline: "VIN or chassis code? We'll break it down." },
+                { name: "Registration Stats", tagline: "See what's already on Aussie roads." },
+                { name: "Import Volume Dashboard", tagline: "What's entering the country — and from where." },
+                { name: "Auction Sample Explorer", tagline: "Recent comps from Japanese auctions." },
+                { name: "AI Import Assistant", tagline: "Ask anything about your import journey." },
+                { name: "Value Estimator", tagline: "Know what your car's worth — now and later." }
+              ].map((tool, index) => (
+                <div key={index} className="flex items-start p-3 bg-white/60 rounded-lg">
+                  <div className="flex items-center justify-center w-6 h-6 bg-[#10B981] rounded-full mr-3 flex-shrink-0 mt-0.5">
+                    <span className="text-white text-xs font-bold">✓</span>
+                  </div>
+                  <div>
+                    <div className="font-semibold text-[#1E1E1E] text-sm">{tool.name}</div>
+                    <div className="text-xs text-gray-500 mt-0.5">{tool.tagline}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
         <div className="flex flex-col lg:flex-row gap-12 items-start">
-          {/* Left Side - Value Props */}
+          {/* Left Side - Social Proof */}
           <div className="flex-1 space-y-8">
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h3 className="text-2xl font-bold text-[#1E1E1E] mb-6">
@@ -117,57 +161,19 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
                 </div>
               </div>
             </div>
-
-            <div className="bg-gradient-to-br from-[#D4AF37]/10 to-amber-50 border-2 border-[#D4AF37]/30 rounded-xl shadow-sm p-6">
-              <div className="text-center mb-6">
-                <div className="text-3xl font-bold text-[#1E1E1E] mb-2">Total Value: $15,000+</div>
-                <h3 className="text-xl font-bold text-[#1E1E1E]">
-                  ✅ All 14 Professional Tools Included
-                </h3>
-              </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {[
-                  { name: "Import Cost Calculator", tagline: "Know your landed cost before you commit." },
-                  { name: "True Cost Explorer", tagline: "The total cost of ownership, uncovered." },
-                  { name: "BuildReady™", tagline: "Make your dream build road-legal." },
-                  { name: "Import Timeline", tagline: "Realistic delivery expectations from port to plate." },
-                  { name: "AI Vehicle Recommendations", tagline: "Smarter suggestions based on your goals." },
-                  { name: "Expert Picks", tagline: "Pre-screened imports worth a closer look." },
-                  { name: "Compliance Estimate", tagline: "Know if your build will pass — and how much it'll cost." },
-                  { name: "Mod Estimator", tagline: "Estimate costs for tuning, mods, and compliance." },
-                  { name: "Vehicle Lookup", tagline: "VIN or chassis code? We'll break it down." },
-                  { name: "Registration Stats", tagline: "See what's already on Aussie roads." },
-                  { name: "Import Volume Dashboard", tagline: "What's entering the country — and from where." },
-                  { name: "Auction Sample Explorer", tagline: "Recent comps from Japanese auctions." },
-                  { name: "AI Import Assistant", tagline: "Ask anything about your import journey." },
-                  { name: "Value Estimator", tagline: "Know what your car's worth — now and later." }
-                ].map((tool, index) => (
-                  <div key={index} className="flex items-start p-3 bg-white/50 rounded-lg">
-                    <div className="flex items-center justify-center w-6 h-6 bg-[#10B981] rounded-full mr-3 flex-shrink-0 mt-0.5">
-                      <span className="text-white text-xs font-bold">✓</span>
-                    </div>
-                    <div>
-                      <div className="font-semibold text-[#1E1E1E] text-sm">{tool.name}</div>
-                      <div className="text-xs text-gray-500 mt-0.5">{tool.tagline}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              <div className="mt-6 pt-4 border-t border-[#D4AF37]/20">
-                <div className="text-center">
-                  <div className="text-lg text-gray-600 mb-1">Professional Value: $15,000+</div>
-                  <div className="text-3xl font-bold text-[#D4AF37] mb-2">Your Price: $97/mo</div>
-                  <div className="text-sm font-semibold text-red-600 bg-red-50 p-2 rounded-lg">
-                    🔒 Lock in $97/month for life — offer expires at end of trial
-                  </div>
+            <div className="mt-6 pt-4 border-t border-[#D4AF37]/20">
+              <div className="text-center">
+                <div className="text-lg text-gray-600 mb-1">Professional Value: $15,000+</div>
+                <div className="text-3xl font-bold text-[#D4AF37] mb-2">Your Price: $97/mo</div>
+                <div className="text-sm font-semibold text-red-600 bg-red-50 p-2 rounded-lg">
+                  🔒 Lock in $97/month for life — offer expires at end of trial
                 </div>
               </div>
+            </div>
               
-              <div className="mt-4 text-center text-gray-600 text-sm italic">
-                Built for importers, dealers, and first-timers who don't want to guess.
-              </div>
+            <div className="mt-4 text-center text-gray-600 text-sm italic">
+              Built for importers, dealers, and first-timers who don't want to guess.
             </div>
           </div>
 
@@ -178,8 +184,11 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
                 <h3 className="text-3xl font-bold text-[#1E1E1E] mb-3">
                   Start Your Free Trial
                 </h3>
+                <p className="text-lg font-semibold text-[#D4AF37] mb-2">
+                  Instant access to 14 professional tools that have saved importers thousands.
+                </p>
                 <p className="text-gray-600 text-base">
-                  No credit card required • Full access for 7 days • Cancel anytime
+                  No credit card required. Full access for 7 days.
                 </p>
               </div>
 
@@ -238,21 +247,26 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
                   {isSubmitting ? "ACTIVATING YOUR ACCOUNT..." : "START FREE TRIAL NOW"}
                 </Button>
                 
+                {/* Trust Line */}
+                <div className="text-center text-gray-600 text-sm mt-4">
+                  Built by importers, trusted by enthusiasts, used by pros.
+                </div>
+                
                 {/* Urgency Bar */}
                 <div className="mt-4 p-3 bg-[#FEF3C7] border border-[#D9822B]/30 rounded-lg">
                   <div className="text-center text-[#D9822B] text-sm font-medium">
                     ⚠️ Import costs are up 40% this quarter. Avoid delays. Lock in your $97/month before we raise prices.
                   </div>
                 </div>
-                
-                {/* Confidence Building Copy */}
-                <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <p className="text-sm text-gray-700 text-center leading-relaxed">
-                    If ImportIQ doesn't save you money, time, or stress on your next import — you shouldn't pay for it. 
-                    That's why we offer full access for 7 days, no credit card required. You decide if it's worth it.
-                  </p>
-                </div>
               </form>
+
+              {/* Confidence Building Copy */}
+              <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <p className="text-sm text-gray-700 text-center leading-relaxed">
+                  If ImportIQ doesn't save you money, time, or stress on your next import — you shouldn't pay for it. 
+                  That's why we offer full access for 7 days, no credit card required. You decide if it's worth it.
+                </p>
+              </div>
 
               {/* Trust Signals */}
               <div className="mt-8 space-y-6">
