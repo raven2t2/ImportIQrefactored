@@ -7,10 +7,12 @@ import OpenAI from "openai";
 import Stripe from "stripe";
 
 // Additional schemas for new tools
-const japanValueSchema = z.object({
+const valueEstimatorSchema = z.object({
   make: z.string().min(1),
   model: z.string().min(1),
   year: z.number().min(1990).max(new Date().getFullYear()),
+  country: z.enum(["japan", "usa"]),
+  condition: z.enum(["excellent", "good", "fair"]).optional(),
 });
 
 const complianceSchema = z.object({
@@ -268,10 +270,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Japan Value Lookup endpoint
-  app.post("/api/japan-value", async (req, res) => {
+  // Value Estimator endpoint
+  app.post("/api/value-estimator", async (req, res) => {
     try {
-      const validatedData = japanValueSchema.parse(req.body);
+      const validatedData = valueEstimatorSchema.parse(req.body);
       
       // Comprehensive market data based on recent auction trends
       const marketDatabase = {
