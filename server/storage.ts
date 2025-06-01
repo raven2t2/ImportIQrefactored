@@ -1,4 +1,6 @@
 import { users, submissions, type User, type InsertUser, type Submission, type InsertSubmission } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 import fs from 'fs';
 import path from 'path';
 
@@ -11,6 +13,38 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   createSubmission(submission: Omit<Submission, 'id' | 'createdAt'>): Promise<Submission>;
   getAllSubmissions(): Promise<Submission[]>;
+}
+
+export class DatabaseStorage implements IStorage {
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  async createSubmission(submissionData: Omit<Submission, 'id' | 'createdAt'>): Promise<Submission> {
+    const [submission] = await db
+      .insert(submissions)
+      .values(submissionData)
+      .returning();
+    return submission;
+  }
+
+  async getAllSubmissions(): Promise<Submission[]> {
+    return await db.select().from(submissions);
+  }
 }
 
 export class MemStorage implements IStorage {
@@ -90,4 +124,4 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
