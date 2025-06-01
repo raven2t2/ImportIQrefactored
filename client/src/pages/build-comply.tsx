@@ -132,13 +132,39 @@ const stateCompliance = {
 export default function BuildComply() {
   const [results, setResults] = useState<any>(null);
   const [selectedMods, setSelectedMods] = useState<string[]>([]);
+  const [planType, setPlanType] = useState<"pre-reg" | "post-reg">("pre-reg");
+  const { toast } = useToast();
 
   const form = useForm<FormData>({
     resolver: zodResolver(buildComplySchema),
     defaultValues: {
+      email: "",
       vehicle: "",
       state: "",
+      budget: "",
+      timeline: "",
       modifications: [],
+      planType: "pre-reg",
+    },
+  });
+
+  // Save report mutation
+  const saveReportMutation = useMutation({
+    mutationFn: async (reportData: any) => {
+      return await apiRequest("POST", "/api/save-report", reportData);
+    },
+    onSuccess: () => {
+      toast({
+        title: "BuildReady™ Report Saved!",
+        description: "Your compliance plan has been saved to your ImportIQ dashboard.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Save Failed",
+        description: "Unable to save report. Please try again.",
+        variant: "destructive",
+      });
     },
   });
 
@@ -153,6 +179,23 @@ export default function BuildComply() {
     form.setValue("modifications", newMods);
   };
 
+  const handleSaveReport = () => {
+    if (results) {
+      const reportData = {
+        email: form.getValues("email"),
+        reportType: "buildready-compliance",
+        reportTitle: `BuildReady™ Plan - ${results.vehicle} (${results.state.name})`,
+        reportData: {
+          ...results,
+          planType,
+          generatedAt: new Date().toISOString(),
+        }
+      };
+      
+      saveReportMutation.mutate(reportData);
+    }
+  };
+
   const onSubmit = (data: FormData) => {
     const selectedModData = data.modifications.map(modId => ({
       id: modId,
@@ -161,24 +204,51 @@ export default function BuildComply() {
 
     const state = stateCompliance[data.state as keyof typeof stateCompliance];
     
-    // Calculate overall risk
-    const riskLevels = selectedModData.map(mod => mod.risk);
+    // Calculate overall risk based on state strictness and plan type
+    const riskLevels = selectedModData.map(mod => {
+      if (planType === "pre-reg") {
+        // Adjust risk based on state strictness
+        if (state.strictness === "High" && mod.risk === "yellow") return "red";
+        if (state.strictness === "Low" && mod.risk === "red") return "yellow";
+      }
+      return mod.risk;
+    });
+    
     let overallRisk = "green";
     if (riskLevels.includes("red")) overallRisk = "red";
     else if (riskLevels.includes("yellow")) overallRisk = "yellow";
 
-    // Generate compliance path
+    // Generate state-specific compliance path
     const engineeringRequired = selectedModData.some(mod => mod.risk === "red" || mod.risk === "yellow");
     const vassRequired = selectedModData.some(mod => mod.risk === "red");
 
-    const compliancePath = [
-      "Vehicle inspection and documentation",
-      engineeringRequired ? "Engineering certificate required" : null,
-      vassRequired ? "VASS approval needed" : null,
-      "State authority inspection",
-      "Registration compliance certificate",
-      "Road-ready certification"
-    ].filter(Boolean);
+    let compliancePath = [];
+    if (planType === "pre-reg") {
+      compliancePath = [
+        "Import vehicle with minimal modifications",
+        `Initial inspection at ${state.authority}`,
+        engineeringRequired ? "Engineer certification for approved mods only" : null,
+        "Register vehicle first",
+        "Apply for modification permits post-registration"
+      ].filter(Boolean);
+    } else {
+      compliancePath = [
+        "Register vehicle in stock condition",
+        "Apply for modification permits",
+        engineeringRequired ? "Engineer certification required" : null,
+        vassRequired ? "VASS approval needed" : null,
+        `${state.authority} inspection`,
+        "Compliance certificate issued"
+      ].filter(Boolean);
+    }
+
+    const estimatedCost = planType === "pre-reg" ? 
+      (vassRequired ? 5000 : engineeringRequired ? 2500 : 1200) :
+      (vassRequired ? 8000 : engineeringRequired ? 3500 : 1500);
+
+    const estimatedTime = planType === "pre-reg" ?
+      (vassRequired ? "6-8 weeks" : engineeringRequired ? "3-4 weeks" : "2-3 weeks") :
+      (vassRequired ? "8-12 weeks" : engineeringRequired ? "4-6 weeks" : "2-4 weeks");
 
     setResults({
       vehicle: data.vehicle,
@@ -188,8 +258,12 @@ export default function BuildComply() {
       engineeringRequired,
       vassRequired,
       compliancePath,
-      estimatedCost: vassRequired ? 8000 : engineeringRequired ? 3500 : 1200,
-      estimatedTime: vassRequired ? "8-12 weeks" : engineeringRequired ? "4-6 weeks" : "2-3 weeks"
+      estimatedCost,
+      estimatedTime,
+      planType,
+      recommendation: planType === "pre-reg" ? 
+        "Keep modifications minimal for easier registration" :
+        "Register first, then modify with proper certifications"
     });
   };
 
