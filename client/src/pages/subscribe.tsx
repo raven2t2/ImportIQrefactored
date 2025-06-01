@@ -87,7 +87,7 @@ export default function Subscribe() {
   }, [selectedPlan]);
 
   const monthlyPrice = 97;
-  const yearlyPrice = Math.round(monthlyPrice * 12 * 0.75); // 25% discount
+  const yearlyPrice = Math.round(monthlyPrice * 12 * 0.8); // 20% discount
   const yearlyMonthlyEquivalent = Math.round(yearlyPrice / 12);
 
   return (
@@ -184,7 +184,7 @@ export default function Subscribe() {
             onClick={() => setSelectedPlan('yearly')}
           >
             <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-[#D4AF37] text-white">
-              Save 25%
+              Save 20%
             </Badge>
             <CardHeader className="text-center">
               <div className="flex justify-center mb-4">
@@ -208,7 +208,7 @@ export default function Subscribe() {
                 </li>
                 <li className="flex items-center space-x-3">
                   <Check className="h-4 w-4 text-green-600" />
-                  <span>25% discount (save ${monthlyPrice * 12 - yearlyPrice}/year)</span>
+                  <span>20% discount (save ${monthlyPrice * 12 - yearlyPrice}/year)</span>
                 </li>
                 <li className="flex items-center space-x-3">
                   <Check className="h-4 w-4 text-green-600" />

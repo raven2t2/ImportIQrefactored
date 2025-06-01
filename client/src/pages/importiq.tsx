@@ -386,7 +386,7 @@ export default function ImportIQ() {
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-black mr-3 flex-shrink-0" />
-                  <span className="text-amber-900 text-sm font-medium">Annual strategy review</span>
+                  <span className="text-amber-900 text-sm font-medium">Exclusive import guides & reports</span>
                 </li>
               </ul>
               
