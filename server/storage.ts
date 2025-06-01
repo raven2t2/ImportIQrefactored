@@ -1,4 +1,4 @@
-import { users, submissions, type User, type InsertUser, type Submission, type InsertSubmission } from "@shared/schema";
+import { users, submissions, aiRecommendations, emailCache, type User, type InsertUser, type Submission, type InsertSubmission } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import fs from 'fs';
@@ -15,6 +15,9 @@ export interface IStorage {
   getAllSubmissions(): Promise<Submission[]>;
   createAIRecommendation(recommendation: Omit<any, 'id' | 'createdAt'>): Promise<any>;
   getAllAIRecommendations(): Promise<any[]>;
+  checkEmailExists(email: string): Promise<boolean>;
+  updateEmailCache(email: string, name: string): Promise<void>;
+  getEmailInfo(email: string): Promise<{ name: string; submissionCount: number } | null>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -54,6 +57,37 @@ export class DatabaseStorage implements IStorage {
 
   async getAllAIRecommendations(): Promise<any[]> {
     return await db.select().from(aiRecommendations).orderBy(aiRecommendations.createdAt);
+  }
+
+  async checkEmailExists(email: string): Promise<boolean> {
+    const [cached] = await db.select().from(emailCache).where(eq(emailCache.email, email));
+    return !!cached;
+  }
+
+  async updateEmailCache(email: string, name: string): Promise<void> {
+    const existing = await db.select().from(emailCache).where(eq(emailCache.email, email));
+    
+    if (existing.length > 0) {
+      await db
+        .update(emailCache)
+        .set({ 
+          submissionCount: existing[0].submissionCount + 1,
+          lastSubmission: new Date()
+        })
+        .where(eq(emailCache.email, email));
+    } else {
+      await db.insert(emailCache).values({
+        email,
+        name,
+        submissionCount: 1,
+        lastSubmission: new Date()
+      });
+    }
+  }
+
+  async getEmailInfo(email: string): Promise<{ name: string; submissionCount: number } | null> {
+    const [cached] = await db.select().from(emailCache).where(eq(emailCache.email, email));
+    return cached ? { name: cached.name, submissionCount: cached.submissionCount } : null;
   }
 
   async getAllSubmissions(): Promise<Submission[]> {

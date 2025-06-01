@@ -41,6 +41,15 @@ export const aiRecommendations = pgTable("ai_recommendations", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const emailCache = pgTable("email_cache", {
+  id: serial("id").primaryKey(),
+  email: text("email").unique().notNull(),
+  name: text("name").notNull(),
+  submissionCount: integer("submission_count").default(1).notNull(),
+  lastSubmission: timestamp("last_submission").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
