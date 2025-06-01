@@ -45,15 +45,15 @@ export default function About() {
               </h2>
               <div className="space-y-6 text-gray-300 leading-relaxed">
                 <p>
-                  ImportIQ was founded by professionals with deep expertise in military logistics 
-                  and global sourcing operations. As dual citizens with extensive experience across 
-                  Australia, the U.S., and Japan, we've seen firsthand the complexity of international 
-                  vehicle imports.
+                  ImportIQ was founded by professionals with deep expertise in defense operations 
+                  management and global sourcing across multiple enterprises. As dual citizens with 
+                  extensive experience across Australia, the U.S., and Japan, we've seen firsthand 
+                  the complexity of international supply chains and regulatory compliance.
                 </p>
                 <p>
-                  After years of managing complex supply chains and navigating regulatory frameworks 
-                  in defense operations, we recognized that the vehicle import industry was stuck 
-                  in the past - relying on outdated processes, hidden fees, and guesswork.
+                  After years of managing enterprise-wide project portfolios and coordinating complex 
+                  operations across military and defense sectors, we recognized that the vehicle import 
+                  industry was stuck in the past - relying on outdated processes, hidden fees, and guesswork.
                 </p>
                 <p>
                   ImportIQ brings military-grade precision to vehicle imports. We believe every 
@@ -67,8 +67,8 @@ export default function About() {
               {[
                 {
                   icon: Shield,
-                  title: "Military Logistics Background",
-                  description: "Proven experience managing complex, multi-national supply chain operations with zero tolerance for errors."
+                  title: "Defense Operations Management",
+                  description: "Proven experience coordinating enterprise-wide project portfolios and managing complex operations across multiple organizations."
                 },
                 {
                   icon: Globe,
