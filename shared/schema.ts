@@ -40,6 +40,10 @@ export const insertSubmissionSchema = createInsertSchema(submissions).pick({
   shippingOrigin: z.enum(["japan", "usa"], {
     required_error: "Please select a shipping origin",
   }),
+  zipCode: z.string().min(4, "Please enter your zip/postal code"),
+  vehicleMake: z.string().min(1, "Vehicle make is required"),
+  vehicleModel: z.string().min(1, "Vehicle model is required"),
+  vehicleYear: z.coerce.number().min(1950).max(new Date().getFullYear() + 1),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;

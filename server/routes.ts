@@ -37,9 +37,48 @@ const aiRecommendationSchema = z.object({
 // Initialize OpenAI
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-function calculateImportCosts(vehiclePrice: number, shippingOrigin: string): CalculationResult {
-  // Calculate shipping based on origin
-  const shipping = shippingOrigin === "japan" ? 3200 : 4500;
+function calculateImportCosts(vehiclePrice: number, shippingOrigin: string, zipCode?: string): CalculationResult {
+  // Base shipping costs by origin
+  let baseShipping = shippingOrigin === "japan" ? 3200 : 4500;
+  
+  // Regional freight adjustments based on zip code
+  let freightAdjustment = 0;
+  if (zipCode) {
+    const firstDigit = parseInt(zipCode.charAt(0));
+    
+    // Australian state-based freight costs
+    switch (firstDigit) {
+      case 1: // NSW (1000-1999)
+      case 2: // NSW (2000-2999) - Sydney Metro
+        freightAdjustment = 0; // Base rate
+        break;
+      case 3: // VIC (3000-3999) - Melbourne Metro
+        freightAdjustment = 200;
+        break;
+      case 4: // QLD (4000-4999) - Brisbane Metro
+        freightAdjustment = 400;
+        break;
+      case 5: // SA (5000-5999) - Adelaide Metro
+        freightAdjustment = 600;
+        break;
+      case 6: // WA (6000-6999) - Perth Metro
+        freightAdjustment = 800;
+        break;
+      case 7: // TAS (7000-7999) - Tasmania
+        freightAdjustment = 1200;
+        break;
+      case 8: // NT/SA Remote (8000-8999)
+        freightAdjustment = 1000;
+        break;
+      case 9: // WA Remote (9000-9999)
+        freightAdjustment = 1500;
+        break;
+      default:
+        freightAdjustment = 0;
+    }
+  }
+  
+  const shipping = baseShipping + freightAdjustment;
   
   // Calculate customs duty (5% of vehicle price)
   const customsDuty = vehiclePrice * 0.05;
@@ -103,7 +142,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const calculations = calculateImportCosts(
         validatedData.vehiclePrice,
-        validatedData.shippingOrigin
+        validatedData.shippingOrigin,
+        validatedData.zipCode
       );
       
       // Save submission to storage
