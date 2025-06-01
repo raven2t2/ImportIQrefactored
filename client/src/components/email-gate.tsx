@@ -125,11 +125,13 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
               
               <div className="space-y-4">
                 {[
-                  { name: "💰 Real-time Cost Calculator", value: "$500+ value per quote", desc: "Accurate landed costs with duties, GST, LCT and freight" },
-                  { name: "🛡️ Compliance Clarity Guide", value: "$1,500 mistake preventer", desc: "State-specific requirements and modification planning" },
-                  { name: "⏰ Mod Planner + Timeline", value: "$800 in time/stress saved", desc: "Visual timeline with realistic delivery estimates" },
-                  { name: "🤖 AI Import Assistant", value: "24/7 $0 consultation cost", desc: "Get expert answers to your import questions instantly" },
-                  { name: "⭐ Expert Scenarios & Vehicle Picks", value: "avoid $3,000 regrets", desc: "Pre-configured import strategies that work" },
+                  { name: "💰 Import Cost Calculator", value: "$500+ value per quote", desc: "Precise landed costs with duties, GST, LCT and freight" },
+                  { name: "📊 True Cost Explorer", value: "$800 ownership insights", desc: "Multi-year ownership cost analysis and projections" },
+                  { name: "🛡️ Build & Comply + Timeline", value: "$1,500 mistake preventer", desc: "State compliance requirements and modification planning" },
+                  { name: "🔍 Vehicle Lookup + Auction Data", value: "$1,200 market intelligence", desc: "VIN decoder with real Japanese auction price history" },
+                  { name: "🤖 AI Assistant + Recommendations", value: "$2,000+ consultation value", desc: "24/7 expert guidance and smart vehicle matching" },
+                  { name: "⭐ Expert Picks + Data Modules", value: "$3,000+ regret prevention", desc: "Professional strategies plus market data dashboards" },
+                  { name: "📈 Value Estimator + Mod Planner", value: "$600 planning tools", desc: "Vehicle valuation and modification cost estimation" },
                   { name: "🎁 Free Trial – Full Access", value: "no card, instant start", desc: "Complete platform access for 14 days" }
                 ].map((tool, index) => (
                   <div key={index} className="flex items-start justify-between p-3 bg-white/50 rounded-lg">
@@ -146,7 +148,7 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
               
               <div className="mt-6 pt-4 border-t border-[#D4AF37]/20">
                 <div className="text-center">
-                  <div className="text-lg font-bold text-[#1E1E1E] mb-1">Total Value: $5,000+</div>
+                  <div className="text-lg font-bold text-[#1E1E1E] mb-1">Total Value: $9,600+</div>
                   <div className="text-2xl font-bold text-[#D4AF37]">Your Price: $97/mo</div>
                 </div>
               </div>
