@@ -11,6 +11,7 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  upsertUser(user: any): Promise<User>;
   createSubmission(submission: Omit<Submission, 'id' | 'createdAt'>): Promise<Submission>;
   getAllSubmissions(): Promise<Submission[]>;
   createAIRecommendation(recommendation: Omit<any, 'id' | 'createdAt'>): Promise<any>;
@@ -20,6 +21,11 @@ export interface IStorage {
   getEmailInfo(email: string): Promise<{ name: string; submissionCount: number } | null>;
   createTrial(email: string, name: string): Promise<any>;
   getTrialStatus(email: string): Promise<{ isActive: boolean; daysRemaining: number; status: string } | null>;
+  createUserProject(userId: string, project: any): Promise<any>;
+  getUserProjects(userId: string): Promise<any[]>;
+  awardBadge(userId: string, badgeId: string, badgeName: string): Promise<void>;
+  getUserAchievements(userId: string): Promise<any[]>;
+  getNearbyCarEvents(postcode: string): Promise<any[]>;
 }
 
 export class DatabaseStorage implements IStorage {
