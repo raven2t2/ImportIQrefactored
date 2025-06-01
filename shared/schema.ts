@@ -50,6 +50,17 @@ export const emailCache = pgTable("email_cache", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const trials = pgTable("trials", {
+  id: serial("id").primaryKey(),
+  email: text("email").unique().notNull(),
+  name: text("name").notNull(),
+  trialStartDate: timestamp("trial_start_date").defaultNow().notNull(),
+  trialEndDate: timestamp("trial_end_date").notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  subscriptionStatus: text("subscription_status").default("trial").notNull(), // trial, active, expired, cancelled
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,

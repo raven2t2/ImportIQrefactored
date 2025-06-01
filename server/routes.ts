@@ -163,13 +163,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const exists = await storage.checkEmailExists(email);
       await storage.updateEmailCache(email, name);
       
+      // Start trial for ImportIQ automatically
+      await storage.createTrial(email, name);
+      
       res.json({ 
         exists,
-        message: exists ? "Welcome back!" : "Welcome to Immaculate Imports!"
+        message: exists ? "Welcome back!" : "Welcome to ImportIQ!"
       });
     } catch (error) {
       console.error("Error checking email:", error);
       res.status(500).json({ error: "Failed to process email" });
+    }
+  });
+
+  // Trial status endpoint
+  app.get("/api/trial-status/:email", async (req, res) => {
+    try {
+      const { email } = req.params;
+      const trialStatus = await storage.getTrialStatus(email);
+      
+      if (!trialStatus) {
+        return res.status(404).json({ error: "Trial not found" });
+      }
+      
+      res.json(trialStatus);
+    } catch (error) {
+      console.error("Error fetching trial status:", error);
+      res.status(500).json({ error: "Failed to fetch trial status" });
     }
   });
 

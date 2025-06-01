@@ -3,6 +3,7 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import ImportIQ from "@/pages/importiq";
 import ImportCalculator from "@/pages/import-calculator";
 import ComplianceEstimate from "@/pages/compliance-estimate";
 import ModEstimator from "@/pages/mod-estimator";
@@ -13,7 +14,8 @@ import NotFound from "@/pages/not-found";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={ImportCalculator} />
+      <Route path="/" component={ImportIQ} />
+      <Route path="/import-calculator" component={ImportCalculator} />
       <Route path="/compliance-estimate" component={ComplianceEstimate} />
       <Route path="/mod-estimator" component={ModEstimator} />
       <Route path="/ai-recommendations" component={AIRecommendations} />
