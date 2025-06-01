@@ -156,16 +156,16 @@ export default function AIRecommendations() {
           <Card className="shadow-sm lg:col-span-1">
             <CardContent className="p-6">
               <div className="mb-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">Your Vehicle Intelligence Brief</h2>
-                <p className="text-sm text-gray-600 mb-4">Combining 15+ years of sourcing intel with advanced AI analysis</p>
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">Vehicle Recommendation Engine</h2>
+                <p className="text-sm text-gray-600 mb-4">Advanced AI analysis powered by our global sourcing network</p>
                 
-                {/* Michael's Expertise */}
+                {/* Company Expertise */}
                 <div className="p-4 bg-gradient-to-r from-blue-50 to-gray-50 border border-blue-200 rounded-lg">
                   <div className="flex items-start space-x-2">
                     <Target className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
                     <div className="text-sm">
-                      <p className="font-medium text-blue-900 mb-1">Military-Precision Sourcing Intelligence</p>
-                      <p className="text-blue-800 text-xs">Our AI leverages Michael's network across Australia, Japan, and the U.S. — sourcing intel from auction houses, specialist dealers, and private collections most importers never access.</p>
+                      <p className="font-medium text-blue-900 mb-1">Global Sourcing Intelligence</p>
+                      <p className="text-blue-800 text-xs">Our AI leverages Immaculate Imports' network across Australia, Japan, and the U.S. — sourcing intel from auction houses, specialist dealers, and private collections most importers never access.</p>
                     </div>
                   </div>
                 </div>
@@ -348,7 +348,7 @@ export default function AIRecommendations() {
                     disabled={recommendMutation.isPending}
                   >
                     <Brain className="h-5 w-5 mr-2" />
-                    {recommendMutation.isPending ? "Analyzing Global Markets..." : "Get My Sourcing Intelligence Report"}
+                    {recommendMutation.isPending ? "Analyzing..." : "Get Vehicle Recommendations"}
                   </Button>
 
                   <div className="text-center text-xs text-gray-600">
@@ -363,12 +363,12 @@ export default function AIRecommendations() {
           <div className="lg:col-span-2">
             {results && (
               <div className="space-y-6">
-                {/* Michael's Intelligence Brief */}
+                {/* Market Intelligence Brief */}
                 <Card className="shadow-sm">
                   <CardContent className="p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-4">Michael's Intelligence Brief</h2>
+                    <h2 className="text-xl font-semibold text-gray-900 mb-4">Market Intelligence Brief</h2>
                     <div className="p-4 bg-gradient-to-r from-blue-50 to-gray-50 border border-blue-200 rounded-lg">
-                      <p className="text-sm text-gray-800 font-medium mb-2">Market Analysis for Your Budget:</p>
+                      <p className="text-sm text-gray-800 font-medium mb-2">Budget Analysis:</p>
                       <p className="text-sm text-gray-800">{results.budgetAnalysis}</p>
                     </div>
                   </CardContent>
@@ -433,7 +433,7 @@ export default function AIRecommendations() {
                           </div>
 
                           <div className="p-3 bg-gray-50 rounded border-l-4 border-brand-gold">
-                            <h6 className="font-medium text-gray-900 mb-1">Michael's Market Intel:</h6>
+                            <h6 className="font-medium text-gray-900 mb-1">Market Intelligence:</h6>
                             <p className="text-sm text-gray-700">{recommendation.marketInsight}</p>
                           </div>
                         </div>
@@ -445,7 +445,7 @@ export default function AIRecommendations() {
                 {/* Strategic Recommendations */}
                 <Card className="shadow-sm">
                   <CardContent className="p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Michael's Strategic Recommendations</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Strategic Recommendations</h3>
                     <div className="p-4 bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg">
                       <p className="text-sm text-gray-800">{results.personalizedAdvice}</p>
                     </div>
