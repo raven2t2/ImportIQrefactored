@@ -1311,6 +1311,55 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
+  // Booking endpoints
+  app.post("/api/bookings", async (req, res) => {
+    try {
+      const bookingData = {
+        name: req.body.name,
+        email: req.body.email,
+        phone: req.body.phone,
+        service: req.body.service,
+        preferredDate: req.body.preferredDate,
+        preferredTime: req.body.preferredTime,
+        vehicleDetails: req.body.vehicleDetails || null,
+        message: req.body.message || null,
+        status: "pending",
+      };
+      
+      const booking = await storage.createBooking(bookingData);
+      res.json({ 
+        success: true, 
+        bookingId: booking.id.toString(),
+        confirmationEmail: true 
+      });
+    } catch (error: any) {
+      console.error("Error creating booking:", error);
+      res.status(500).json({ message: "Failed to create booking: " + error.message });
+    }
+  });
+
+  app.get("/api/bookings", async (req, res) => {
+    try {
+      const bookings = await storage.getAllBookings();
+      res.json(bookings);
+    } catch (error: any) {
+      console.error("Error fetching bookings:", error);
+      res.status(500).json({ message: "Failed to fetch bookings: " + error.message });
+    }
+  });
+
+  app.put("/api/bookings/:id/status", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      const booking = await storage.updateBookingStatus(parseInt(id), status);
+      res.json({ success: true, booking });
+    } catch (error: any) {
+      console.error("Error updating booking status:", error);
+      res.status(500).json({ message: "Failed to update booking: " + error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

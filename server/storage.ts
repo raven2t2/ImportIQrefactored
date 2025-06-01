@@ -161,6 +161,27 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(reports).where(eq(reports.email, email));
   }
 
+  async createBooking(bookingData: Omit<Booking, 'id' | 'createdAt'>): Promise<Booking> {
+    const [booking] = await db
+      .insert(bookings)
+      .values(bookingData)
+      .returning();
+    return booking;
+  }
+
+  async getAllBookings(): Promise<Booking[]> {
+    return await db.select().from(bookings).orderBy(bookings.createdAt);
+  }
+
+  async updateBookingStatus(id: number, status: string): Promise<Booking> {
+    const [booking] = await db
+      .update(bookings)
+      .set({ status })
+      .where(eq(bookings.id, id))
+      .returning();
+    return booking;
+  }
+
   // Stub implementations for missing methods
   async upsertUser(user: any): Promise<User> {
     // Implementation needed for auth
