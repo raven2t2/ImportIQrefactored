@@ -720,7 +720,9 @@ Use accurate 2024 import costs: vehicle cost + shipping ($3200 Japan/$4500 US) +
 
 For classic/older vehicles (pre-2000), pricing is driven by rarity, condition, and desirability, NOT age depreciation. A clean 1988 IROC-Z should be priced around $35K USD base price, not inflated numbers.
 
-Write like a military logistics expert who knows real market values and won't overprice to make a sale.`;
+Write like a military logistics expert who knows real market values and won't overprice to make a sale.
+
+Respond with a JSON object containing your recommendations.`;
 
       // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
       const response = await openai.chat.completions.create({
