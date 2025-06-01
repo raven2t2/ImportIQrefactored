@@ -143,7 +143,10 @@ export default function EnhancedDashboard() {
           <CardContent>
             <h2 className="text-2xl font-bold text-white mb-4">Access Required</h2>
             <p className="text-gray-400 mb-6">Please log in to access your dashboard.</p>
-            <Button className="bg-amber-400 hover:bg-amber-500 text-black">
+            <Button 
+              className="bg-amber-400 hover:bg-amber-500 text-black"
+              onClick={() => window.location.href = '/api/login'}
+            >
               Sign In
             </Button>
           </CardContent>
