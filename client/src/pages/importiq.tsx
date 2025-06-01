@@ -138,31 +138,22 @@ export default function ImportIQ() {
       {/* Hero Section */}
       <div className={`${trialStatus?.isActive ? 'pt-8' : 'pt-32'} pb-20`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          {/* Bold High-Conviction Statement */}
-          <div className="mb-12">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-8 tracking-tight leading-tight">
-              In every gold rush, some people find gold.
-              <br />
-              <span className="text-amber-400">The smart ones sold maps, gear, and guarantees.</span>
-            </h1>
-            
-            <div className="max-w-4xl mx-auto">
-              <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-6 leading-tight">
-                Welcome to <span className="text-amber-400">ImportIQ</span>.
-              </p>
-              <p className="text-xl sm:text-2xl text-gray-300 mb-8 font-light leading-relaxed">
-                We don't sell you a dream car — we make sure you don't get wrecked chasing it.
-              </p>
+          <div className="mb-6">
+            <div className="inline-flex items-center bg-amber-400/10 border border-amber-400/20 rounded-full px-6 py-2 text-amber-400 text-sm font-medium">
+              <Brain className="h-4 w-4 mr-2" />
+              AI & Machine Learning Powered
             </div>
           </div>
-
-          {/* Key Benefit */}
-          <div className="mb-10">
-            <div className="inline-flex items-center bg-amber-400/10 border border-amber-400/20 rounded-full px-8 py-3 text-amber-400 text-lg font-medium">
-              <CheckCircle className="h-5 w-5 mr-3" />
-              All-in-one AI-powered import toolkit
-            </div>
-          </div>
+          
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-8 tracking-tight leading-none">
+            Import Smarter.
+            <br />
+            <span className="text-amber-400">Save Thousands.</span>
+          </h1>
+          
+          <p className="text-xl sm:text-2xl text-gray-300 max-w-4xl mx-auto mb-6 leading-relaxed font-light">
+            14 professional-grade tools worth $2,000+ individually. Get the complete vehicle import intelligence platform for just $97/month.
+          </p>
           
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-6">
