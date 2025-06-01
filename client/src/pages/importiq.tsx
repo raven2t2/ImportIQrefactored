@@ -3,8 +3,9 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Brain, Calculator, Clock, Shield, Truck, FileText, TrendingUp, Star, Check, Zap, AlertCircle } from "lucide-react";
+import { Brain, Calculator, Clock, Shield, Truck, FileText, TrendingUp, Star, Check, Zap, AlertCircle, DollarSign, Calendar, Settings } from "lucide-react";
 import EmailGate from "@/components/email-gate";
+import AIChatAssistant from "@/components/ai-chat-assistant";
 import { useQuery } from "@tanstack/react-query";
 
 export default function ImportIQ() {
@@ -126,166 +127,227 @@ export default function ImportIQ() {
           </div>
         </div>
 
-        {/* Tools Grid */}
-        <div className="grid lg:grid-cols-2 gap-8 mb-12">
-          {/* Import Calculator */}
+        {/* Quick Access Tools */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <Link href="/import-calculator">
+            <Button className="w-full h-20 bg-blue-600 hover:bg-blue-700 flex flex-col items-center justify-center space-y-2">
+              <Calculator className="h-6 w-6" />
+              <span className="text-sm font-medium">Import Calculator</span>
+            </Button>
+          </Link>
+          <Link href="/ai-recommendations">
+            <Button className="w-full h-20 bg-purple-600 hover:bg-purple-700 flex flex-col items-center justify-center space-y-2">
+              <Brain className="h-6 w-6" />
+              <span className="text-sm font-medium">AI Recommendations</span>
+            </Button>
+          </Link>
+          <Link href="/true-cost-explorer">
+            <Button className="w-full h-20 bg-green-600 hover:bg-green-700 flex flex-col items-center justify-center space-y-2">
+              <DollarSign className="h-6 w-6" />
+              <span className="text-sm font-medium">True Cost Explorer</span>
+            </Button>
+          </Link>
+          <Link href="/expert-picks">
+            <Button className="w-full h-20 bg-brand-gold hover:bg-amber-600 flex flex-col items-center justify-center space-y-2">
+              <Star className="h-6 w-6" />
+              <span className="text-sm font-medium">Expert Picks</span>
+            </Button>
+          </Link>
+        </div>
+
+        {/* Main Tools Grid */}
+        <div className="grid lg:grid-cols-3 gap-6 mb-12">
+          {/* Core Import Tools */}
           <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
             <Link href="/import-calculator">
               <CardHeader>
                 <div className="flex items-center space-x-3">
-                  <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
-                    <Calculator className="h-6 w-6 text-blue-600" />
+                  <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
+                    <Calculator className="h-5 w-5 text-blue-600" />
                   </div>
                   <div>
-                    <CardTitle className="text-xl">Import Cost Calculator</CardTitle>
-                    <CardDescription>Precise landed cost calculations with regional freight</CardDescription>
+                    <CardTitle className="text-lg">Import Cost Calculator</CardTitle>
+                    <CardDescription className="text-sm">Precise landed cost calculations</CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3 mb-4">
-                  <div className="flex items-center text-sm text-gray-700">
-                    <div className="w-2 h-2 bg-brand-gold rounded-full mr-3"></div>
-                    <span>Real-time shipping rates from Japan & USA</span>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center text-xs text-gray-600">
+                    <Check className="h-3 w-3 text-green-600 mr-2" />
+                    <span>Real-time shipping rates</span>
                   </div>
-                  <div className="flex items-center text-sm text-gray-700">
-                    <div className="w-2 h-2 bg-brand-gold rounded-full mr-3"></div>
-                    <span>Accurate duties, GST, LCT calculations</span>
-                  </div>
-                  <div className="flex items-center text-sm text-gray-700">
-                    <div className="w-2 h-2 bg-brand-gold rounded-full mr-3"></div>
-                    <span>Regional freight adjustments by postcode</span>
-                  </div>
-                  <div className="flex items-center text-sm text-gray-700">
-                    <div className="w-2 h-2 bg-brand-gold rounded-full mr-3"></div>
-                    <span>Service tier recommendations</span>
+                  <div className="flex items-center text-xs text-gray-600">
+                    <Check className="h-3 w-3 text-green-600 mr-2" />
+                    <span>Regional freight adjustments</span>
                   </div>
                 </div>
-                <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                  Calculate Import Costs
-                </Button>
               </CardContent>
             </Link>
           </Card>
 
-          {/* AI Recommendations */}
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
+            <Link href="/true-cost-explorer">
+              <CardHeader>
+                <div className="flex items-center space-x-3">
+                  <div className="flex items-center justify-center w-10 h-10 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
+                    <DollarSign className="h-5 w-5 text-green-600" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">True Cost Explorer</CardTitle>
+                    <CardDescription className="text-sm">Real ownership cost analysis</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center text-xs text-gray-600">
+                    <Check className="h-3 w-3 text-green-600 mr-2" />
+                    <span>Multi-year ownership costs</span>
+                  </div>
+                  <div className="flex items-center text-xs text-gray-600">
+                    <Check className="h-3 w-3 text-green-600 mr-2" />
+                    <span>State-specific calculations</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Link>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
+            <Link href="/import-timeline">
+              <CardHeader>
+                <div className="flex items-center space-x-3">
+                  <div className="flex items-center justify-center w-10 h-10 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
+                    <Calendar className="h-5 w-5 text-purple-600" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">Import Timeline</CardTitle>
+                    <CardDescription className="text-sm">Visual delivery timeline</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center text-xs text-gray-600">
+                    <Check className="h-3 w-3 text-green-600 mr-2" />
+                    <span>Port-specific processing</span>
+                  </div>
+                  <div className="flex items-center text-xs text-gray-600">
+                    <Check className="h-3 w-3 text-green-600 mr-2" />
+                    <span>Seasonal delay factors</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Link>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
+            <Link href="/build-comply">
+              <CardHeader>
+                <div className="flex items-center space-x-3">
+                  <div className="flex items-center justify-center w-10 h-10 bg-orange-100 rounded-lg group-hover:bg-orange-200 transition-colors">
+                    <Settings className="h-5 w-5 text-orange-600" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">Build & Comply</CardTitle>
+                    <CardDescription className="text-sm">Modification compliance planning</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center text-xs text-gray-600">
+                    <Check className="h-3 w-3 text-green-600 mr-2" />
+                    <span>State compliance requirements</span>
+                  </div>
+                  <div className="flex items-center text-xs text-gray-600">
+                    <Check className="h-3 w-3 text-green-600 mr-2" />
+                    <span>Engineering certificate paths</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Link>
+          </Card>
+
           <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
             <Link href="/ai-recommendations">
               <CardHeader>
                 <div className="flex items-center space-x-3">
-                  <div className="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
-                    <Brain className="h-6 w-6 text-purple-600" />
+                  <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
+                    <Brain className="h-5 w-5 text-blue-600" />
                   </div>
                   <div>
-                    <CardTitle className="text-xl">AI Vehicle Recommendations</CardTitle>
-                    <CardDescription>Smart vehicle matching based on market data</CardDescription>
+                    <CardTitle className="text-lg">AI Recommendations</CardTitle>
+                    <CardDescription className="text-sm">Smart vehicle matching</CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3 mb-4">
-                  <div className="flex items-center text-sm text-gray-700">
-                    <div className="w-2 h-2 bg-brand-gold rounded-full mr-3"></div>
-                    <span>AI analysis of auction data & market trends</span>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center text-xs text-gray-600">
+                    <Check className="h-3 w-3 text-green-600 mr-2" />
+                    <span>Market trend analysis</span>
                   </div>
-                  <div className="flex items-center text-sm text-gray-700">
-                    <div className="w-2 h-2 bg-brand-gold rounded-full mr-3"></div>
+                  <div className="flex items-center text-xs text-gray-600">
+                    <Check className="h-3 w-3 text-green-600 mr-2" />
                     <span>Investment potential forecasts</span>
                   </div>
-                  <div className="flex items-center text-sm text-gray-700">
-                    <div className="w-2 h-2 bg-brand-gold rounded-full mr-3"></div>
-                    <span>Personalized vehicle matching</span>
-                  </div>
-                  <div className="flex items-center text-sm text-gray-700">
-                    <div className="w-2 h-2 bg-brand-gold rounded-full mr-3"></div>
-                    <span>Detailed pros/cons analysis</span>
-                  </div>
                 </div>
-                <Button className="w-full bg-purple-600 hover:bg-purple-700">
-                  Get AI Recommendations
-                </Button>
               </CardContent>
             </Link>
           </Card>
 
-          {/* Compliance Estimator */}
           <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
-            <Link href="/compliance-estimate">
+            <Link href="/expert-picks">
               <CardHeader>
                 <div className="flex items-center space-x-3">
-                  <div className="flex items-center justify-center w-12 h-12 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
-                    <Shield className="h-6 w-6 text-green-600" />
+                  <div className="flex items-center justify-center w-10 h-10 bg-brand-gold rounded-lg group-hover:bg-amber-200 transition-colors">
+                    <Star className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <CardTitle className="text-xl">Compliance Timeline</CardTitle>
-                    <CardDescription>Accurate timeframes for vehicle compliance</CardDescription>
+                    <CardTitle className="text-lg">Expert Picks</CardTitle>
+                    <CardDescription className="text-sm">Pre-configured scenarios</CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3 mb-4">
-                  <div className="flex items-center text-sm text-gray-700">
-                    <div className="w-2 h-2 bg-brand-gold rounded-full mr-3"></div>
-                    <span>AI-powered timeline predictions</span>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center text-xs text-gray-600">
+                    <Check className="h-3 w-3 text-green-600 mr-2" />
+                    <span>Professional import strategies</span>
                   </div>
-                  <div className="flex items-center text-sm text-gray-700">
-                    <div className="w-2 h-2 bg-brand-gold rounded-full mr-3"></div>
-                    <span>Vehicle eligibility assessment</span>
-                  </div>
-                  <div className="flex items-center text-sm text-gray-700">
-                    <div className="w-2 h-2 bg-brand-gold rounded-full mr-3"></div>
-                    <span>Complexity factor analysis</span>
-                  </div>
-                  <div className="flex items-center text-sm text-gray-700">
-                    <div className="w-2 h-2 bg-brand-gold rounded-full mr-3"></div>
-                    <span>Workshop recommendations</span>
+                  <div className="flex items-center text-xs text-gray-600">
+                    <Check className="h-3 w-3 text-green-600 mr-2" />
+                    <span>Instant calculator setup</span>
                   </div>
                 </div>
-                <Button className="w-full bg-green-600 hover:bg-green-700">
-                  Estimate Compliance
-                </Button>
               </CardContent>
             </Link>
           </Card>
+        </div>
 
-          {/* Mod Estimator */}
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
-            <Link href="/mod-estimator">
-              <CardHeader>
-                <div className="flex items-center space-x-3">
-                  <div className="flex items-center justify-center w-12 h-12 bg-orange-100 rounded-lg group-hover:bg-orange-200 transition-colors">
-                    <TrendingUp className="h-6 w-6 text-orange-600" />
+        {/* AI Assistant Promotion */}
+        <div className="mb-8">
+          <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center justify-center w-12 h-12 bg-blue-600 rounded-full">
+                    <Brain className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <CardTitle className="text-xl">Modification Planner</CardTitle>
-                    <CardDescription>Stage-by-stage mod planning with cost estimates</CardDescription>
+                    <h3 className="font-semibold text-gray-900">AI Import Assistant Available</h3>
+                    <p className="text-sm text-gray-600">
+                      Get instant answers about eligibility, compliance, and state requirements
+                    </p>
                   </div>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3 mb-4">
-                  <div className="flex items-center text-sm text-gray-700">
-                    <div className="w-2 h-2 bg-brand-gold rounded-full mr-3"></div>
-                    <span>Progressive modification stages</span>
-                  </div>
-                  <div className="flex items-center text-sm text-gray-700">
-                    <div className="w-2 h-2 bg-brand-gold rounded-full mr-3"></div>
-                    <span>Cost estimates for each stage</span>
-                  </div>
-                  <div className="flex items-center text-sm text-gray-700">
-                    <div className="w-2 h-2 bg-brand-gold rounded-full mr-3"></div>
-                    <span>Performance goal planning</span>
-                  </div>
-                  <div className="flex items-center text-sm text-gray-700">
-                    <div className="w-2 h-2 bg-brand-gold rounded-full mr-3"></div>
-                    <span>Service tier matching</span>
-                  </div>
-                </div>
-                <Button className="w-full bg-orange-600 hover:bg-orange-700">
-                  Plan Modifications
-                </Button>
-              </CardContent>
-            </Link>
+                <Badge className="bg-blue-600 text-white animate-pulse">
+                  Ask Anything
+                </Badge>
+              </div>
+            </CardContent>
           </Card>
         </div>
 
@@ -343,6 +405,12 @@ export default function ImportIQ() {
           </Card>
         </div>
       </main>
+
+      {/* AI Chat Assistant */}
+      <AIChatAssistant 
+        vehicleContext="ImportIQ Dashboard"
+        userLocation="Australia"
+      />
     </div>
   );
 }
