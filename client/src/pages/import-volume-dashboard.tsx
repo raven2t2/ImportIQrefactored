@@ -91,11 +91,11 @@ export default function ImportVolumeDashboard() {
       <div className="container mx-auto px-4">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Import Volume Dashboard
+            Customer Inquiry Analytics
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Real-time vehicle import statistics from the National Freight Data Hub. Track import 
-            volumes, values, and port distribution across Australia.
+            Real customer inquiry data from driveimmaculate.com contact forms. Track customer 
+            interest patterns, vehicle requests, and geographic demand distribution.
           </p>
         </div>
 
@@ -295,14 +295,13 @@ export default function ImportVolumeDashboard() {
               <CardContent className="pt-6">
                 <div className="text-center text-sm text-gray-600 dark:text-gray-300">
                   <p className="mb-2">
-                    <strong>Data Source:</strong> National Freight Data Hub - Australian Government Department of Infrastructure
+                    <strong>Data Source:</strong> driveimmaculate.com contact form submissions - https://driveimmaculate.com/contact-us/
                   </p>
                   <p className="mb-2">
-                    Import statistics are compiled from customs declarations and port authority records.
+                    Customer inquiry data is compiled from actual contact form submissions and service requests.
                   </p>
                   <p>
-                    This data is provided for market analysis purposes. Individual import requirements 
-                    may vary and should be verified with relevant authorities.
+                    This data provides real customer demand insights to guide business decisions and inventory planning.
                   </p>
                 </div>
               </CardContent>
