@@ -252,7 +252,7 @@ export default function Features() {
               </div>
               <h3 className="text-2xl font-semibold text-white mb-6">Industry Leading Accuracy</h3>
               <p className="text-gray-300 leading-relaxed">
-                Real-time data from government sources and industry databases ensures you get the most accurate calculations every time.
+                Current government data and comprehensive industry databases ensure you get the most accurate calculations every time.
               </p>
             </div>
 
@@ -326,7 +326,7 @@ export default function Features() {
                     "Know exact costs upfront - no surprises, ever",
                     "AI compliance planning prevents costly mistakes",
                     "ML recommendations find the best value vehicles",
-                    "Real-time auction data gives you the market edge",
+                    "Historical auction insights reveal market patterns",
                     "Automated timeline keeps everything on track"
                   ].map((solution, index) => (
                     <div key={index} className="flex items-start gap-3">
