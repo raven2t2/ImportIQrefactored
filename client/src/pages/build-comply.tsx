@@ -769,7 +769,7 @@ export default function BuildComply() {
                         {saveReportMutation.isPending ? 'Saving...' : 'Save to Dashboard'}
                       </Button>
                       <Button
-                        onClick={() => window.open('https://driveimmaculate.com/howitworks', '_blank')}
+                        onClick={() => window.location.href = '/booking'}
                         variant="outline"
                         className="w-full border-blue-600 text-blue-600 hover:bg-blue-50"
                       >

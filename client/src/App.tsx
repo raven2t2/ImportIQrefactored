@@ -22,6 +22,7 @@ import RegistrationStats from "@/pages/registration-stats";
 import ImportVolumeDashboard from "@/pages/import-volume-dashboard";
 import AuctionSampleExplorer from "@/pages/auction-sample-explorer";
 import Checkout from "@/pages/checkout";
+import BookingCalendar from "@/pages/booking-calendar";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -44,6 +45,7 @@ function Router() {
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/subscribe" component={Subscribe} />
       <Route path="/checkout" component={Checkout} />
+      <Route path="/booking" component={BookingCalendar} />
       <Route component={NotFound} />
     </Switch>
   );
