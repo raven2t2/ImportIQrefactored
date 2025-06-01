@@ -37,14 +37,14 @@ export default function ImportIQ() {
   // Show trial expired message if trial is inactive
   if (trialStatus && !trialStatus.isActive) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-        <Card className="max-w-md mx-auto text-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <Card className="max-w-md mx-auto text-center bg-card border-brand-gray">
           <CardHeader>
             <div className="flex items-center justify-center mb-4">
-              <AlertCircle className="h-12 w-12 text-amber-500" />
+              <AlertCircle className="h-12 w-12 text-brand-gold" />
             </div>
-            <CardTitle className="text-2xl">Trial Expired</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-2xl text-brand-white">Trial Expired</CardTitle>
+            <CardDescription className="text-brand-gray">
               Your 14-day ImportIQ trial has ended. Subscribe to continue accessing all tools.
             </CardDescription>
           </CardHeader>
@@ -67,35 +67,35 @@ export default function ImportIQ() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-black">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-card shadow-sm border-b border-brand-gray">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-brand-gold to-amber-500 rounded-xl">
-                <Zap className="h-6 w-6 text-white" />
+              <div className="flex items-center justify-center w-12 h-12 bg-brand-gold rounded-xl">
+                <Zap className="h-6 w-6 text-black" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">ImportIQ</h1>
-                <p className="text-sm text-gray-600">Complete Vehicle Import Intelligence Platform</p>
+                <h1 className="text-3xl font-bold text-brand-white">ImportIQ</h1>
+                <p className="text-sm text-brand-gray">Complete Vehicle Import Intelligence Platform</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               {trialStatus && trialStatus.isActive ? (
-                <Badge className="bg-green-100 text-green-800 border-green-200">
+                <Badge className="bg-brand-gold text-black border-brand-gold">
                   <Clock className="h-3 w-3 mr-1" />
                   {trialStatus.daysRemaining} Days Remaining
                 </Badge>
               ) : (
-                <Badge className="bg-amber-100 text-amber-800 border-amber-200">
+                <Badge className="bg-brand-gold text-black border-brand-gold">
                   <Clock className="h-3 w-3 mr-1" />
                   Trial Active
                 </Badge>
               )}
               <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">Welcome, {userInfo.name}</p>
-                <p className="text-xs text-gray-600">{userInfo.email}</p>
+                <p className="text-sm font-medium text-brand-white">Welcome, {userInfo.name}</p>
+                <p className="text-xs text-brand-gray">{userInfo.email}</p>
               </div>
             </div>
           </div>
@@ -105,23 +105,23 @@ export default function ImportIQ() {
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Hero Section */}
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-4xl font-bold text-brand-white mb-4">
             Everything You Need to Import Vehicles Like a Pro
           </h2>
-          <p className="text-xl text-gray-600 mb-6 max-w-3xl mx-auto">
+          <p className="text-xl text-brand-gray mb-6 max-w-3xl mx-auto">
             From AI-powered vehicle recommendations to precise cost calculations - ImportIQ gives you the intelligence to make smart import decisions and maximize your ROI.
           </p>
-          <div className="flex items-center justify-center space-x-6 text-sm text-gray-600">
+          <div className="flex items-center justify-center space-x-6 text-sm text-brand-gray">
             <div className="flex items-center">
-              <Check className="h-4 w-4 text-green-600 mr-2" />
+              <Check className="h-4 w-4 text-brand-gold mr-2" />
               <span>Real auction data</span>
             </div>
             <div className="flex items-center">
-              <Check className="h-4 w-4 text-green-600 mr-2" />
+              <Check className="h-4 w-4 text-brand-gold mr-2" />
               <span>Accurate cost modeling</span>
             </div>
             <div className="flex items-center">
-              <Check className="h-4 w-4 text-green-600 mr-2" />
+              <Check className="h-4 w-4 text-brand-gold mr-2" />
               <span>AI market insights</span>
             </div>
           </div>
@@ -130,25 +130,25 @@ export default function ImportIQ() {
         {/* Quick Access Tools */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <Link href="/import-calculator">
-            <Button className="w-full h-20 bg-blue-600 hover:bg-blue-700 flex flex-col items-center justify-center space-y-2">
+            <Button className="w-full h-20 bg-brand-gold hover:bg-brand-gold-dark text-black flex flex-col items-center justify-center space-y-2">
               <Calculator className="h-6 w-6" />
               <span className="text-sm font-medium">Import Calculator</span>
             </Button>
           </Link>
           <Link href="/ai-recommendations">
-            <Button className="w-full h-20 bg-purple-600 hover:bg-purple-700 flex flex-col items-center justify-center space-y-2">
+            <Button className="w-full h-20 bg-brand-gold hover:bg-brand-gold-dark text-black flex flex-col items-center justify-center space-y-2">
               <Brain className="h-6 w-6" />
               <span className="text-sm font-medium">AI Recommendations</span>
             </Button>
           </Link>
           <Link href="/true-cost-explorer">
-            <Button className="w-full h-20 bg-green-600 hover:bg-green-700 flex flex-col items-center justify-center space-y-2">
+            <Button className="w-full h-20 bg-brand-gold hover:bg-brand-gold-dark text-black flex flex-col items-center justify-center space-y-2">
               <DollarSign className="h-6 w-6" />
               <span className="text-sm font-medium">True Cost Explorer</span>
             </Button>
           </Link>
           <Link href="/vehicle-lookup">
-            <Button className="w-full h-20 bg-orange-600 hover:bg-orange-700 flex flex-col items-center justify-center space-y-2">
+            <Button className="w-full h-20 bg-brand-gold hover:bg-brand-gold-dark text-black flex flex-col items-center justify-center space-y-2">
               <Search className="h-6 w-6" />
               <span className="text-sm font-medium">Vehicle Lookup</span>
             </Button>
