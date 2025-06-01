@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { insertSubmissionSchema, type CalculationResult } from "@shared/schema";
+import EmailGate from "@/components/email-gate";
 import type { z } from "zod";
 
 type FormData = z.infer<typeof insertSubmissionSchema>;
@@ -25,6 +26,7 @@ interface CalculationResponse {
 export default function ImportCalculator() {
   const [calculations, setCalculations] = useState<CalculationResult | null>(null);
   const [selectedServiceTier, setSelectedServiceTier] = useState<string | null>(null);
+  const [userInfo, setUserInfo] = useState<{ name: string; email: string; isReturning: boolean } | null>(null);
   const { toast } = useToast();
 
   const form = useForm<FormData>({
@@ -134,6 +136,38 @@ export default function ImportCalculator() {
         return <Calculator className="h-4 w-4 text-blue-600" />;
     }
   };
+
+  // Handle email gate success
+  const handleEmailGateSuccess = (userData: { name: string; email: string; isReturning: boolean }) => {
+    setUserInfo(userData);
+    // Pre-fill the form with the user's info
+    form.setValue("fullName", userData.name);
+    form.setValue("email", userData.email);
+    
+    if (userData.isReturning) {
+      toast({
+        title: "Welcome back!",
+        description: "We've saved your details for a faster experience.",
+      });
+    } else {
+      toast({
+        title: "Welcome to Immaculate Imports!",
+        description: "Let's calculate your vehicle import costs.",
+      });
+    }
+  };
+
+  // Show email gate if user hasn't provided contact info yet
+  if (!userInfo) {
+    return (
+      <EmailGate
+        title="Get Your Import Cost Estimate"
+        description="Calculate accurate landed costs for importing vehicles to Australia. Get instant pricing with freight adjustments for your location."
+        buttonText="Calculate Import Costs"
+        onSuccess={handleEmailGateSuccess}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -198,6 +198,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         serviceFee: calculations.serviceFee.toString(),
         totalCost: calculations.totalCost.toString(),
         serviceTier: calculations.serviceTier,
+        zipCode: validatedData.zipCode || null,
+        vehicleMake: validatedData.vehicleMake || null,
+        vehicleModel: validatedData.vehicleModel || null,
+        vehicleYear: validatedData.vehicleYear || null,
       });
       
       res.json({
