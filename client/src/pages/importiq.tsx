@@ -84,6 +84,7 @@ export default function ImportIQ() {
               <a href="#features" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Features</a>
               <a href="#pricing" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Pricing</a>
               <a href="/affiliate-signup" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Partners</a>
+              <a href="/about" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Our Mission</a>
               <Button 
                 className="bg-amber-400 hover:bg-amber-500 text-black px-6 py-2 rounded-full transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
                 onClick={() => setShowEmailGate(true)}
@@ -113,6 +114,7 @@ export default function ImportIQ() {
                 <a href="#features" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium">Features</a>
                 <a href="#pricing" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium">Pricing</a>
                 <a href="/affiliate-signup" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium">Partners</a>
+                <a href="/about" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium">Our Mission</a>
                 <Button 
                   className="bg-yellow-400 hover:bg-yellow-500 text-black w-full rounded-full mt-4 font-medium"
                   onClick={() => setShowEmailGate(true)}
