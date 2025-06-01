@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Brain, Calculator, Clock, Shield, Truck, FileText, TrendingUp, Star, Check, Zap, AlertCircle, DollarSign, Calendar, Settings } from "lucide-react";
+import { Brain, Calculator, Clock, Shield, Truck, FileText, TrendingUp, Star, Check, Zap, AlertCircle, DollarSign, Calendar, Settings, Search } from "lucide-react";
 import EmailGate from "@/components/email-gate";
 import AIChatAssistant from "@/components/ai-chat-assistant";
 import { useQuery } from "@tanstack/react-query";
@@ -147,10 +147,10 @@ export default function ImportIQ() {
               <span className="text-sm font-medium">True Cost Explorer</span>
             </Button>
           </Link>
-          <Link href="/expert-picks">
-            <Button className="w-full h-20 bg-brand-gold hover:bg-amber-600 flex flex-col items-center justify-center space-y-2">
-              <Star className="h-6 w-6" />
-              <span className="text-sm font-medium">Expert Picks</span>
+          <Link href="/vehicle-lookup">
+            <Button className="w-full h-20 bg-orange-600 hover:bg-orange-700 flex flex-col items-center justify-center space-y-2">
+              <Search className="h-6 w-6" />
+              <span className="text-sm font-medium">Vehicle Lookup</span>
             </Button>
           </Link>
         </div>
