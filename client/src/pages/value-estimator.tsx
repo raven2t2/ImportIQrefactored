@@ -16,7 +16,7 @@ import { Link } from "wouter";
 const valueEstimatorSchema = z.object({
   make: z.string().min(1, "Vehicle make is required"),
   model: z.string().min(1, "Vehicle model is required"),
-  year: z.number().min(1990).max(new Date().getFullYear()),
+  year: z.number().min(1970, "Year must be 1970 or later").max(new Date().getFullYear(), "Year cannot be in the future"),
   country: z.enum(["japan", "usa"]),
   condition: z.enum(["excellent", "good", "fair"]).optional(),
 });
@@ -150,7 +150,7 @@ export default function ValueEstimator() {
                   <Input
                     id="year"
                     type="number"
-                    min="1990"
+                    min="1970"
                     max={new Date().getFullYear()}
                     {...form.register("year", { valueAsNumber: true })}
                   />
