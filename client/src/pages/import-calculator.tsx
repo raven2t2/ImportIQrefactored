@@ -23,6 +23,7 @@ interface CalculationResponse {
 
 export default function ImportCalculator() {
   const [calculations, setCalculations] = useState<CalculationResult | null>(null);
+  const [selectedServiceTier, setSelectedServiceTier] = useState<string | null>(null);
   const { toast } = useToast();
 
   const form = useForm<FormData>({
@@ -59,6 +60,46 @@ export default function ImportCalculator() {
   const onSubmit = (data: FormData) => {
     calculateMutation.mutate(data);
   };
+
+  // Function to calculate costs with different service tiers
+  const calculateWithServiceTier = (baseCosts: CalculationResult, tier: string) => {
+    if (!baseCosts) return baseCosts;
+    
+    const baseLandedCost = baseCosts.vehiclePrice + baseCosts.shipping + baseCosts.customsDuty + baseCosts.gst + baseCosts.lct + baseCosts.inspection;
+    
+    let serviceFee: number;
+    let serviceTierDescription: string;
+    
+    switch (tier) {
+      case "Essentials":
+        serviceFee = 3000;
+        serviceTierDescription = "For confident buyers who just want clean sourcing and smooth delivery. Verified partner referrals, transparent costs, progress tracking.";
+        break;
+      case "Concierge":
+        serviceFee = 5000;
+        serviceTierDescription = "For busy professionals or first-timers who want hands-on project management. Includes mod shop liaison, priority sourcing, enhanced updates.";
+        break;
+      case "Elite":
+        serviceFee = 10000;
+        serviceTierDescription = "For collectors and complex builds that turn heads. Exclusive sourcing, full build coordination, white-glove delivery experience.";
+        break;
+      default:
+        return baseCosts;
+    }
+    
+    return {
+      ...baseCosts,
+      serviceFee,
+      totalCost: baseLandedCost + serviceFee,
+      serviceTier: tier,
+      serviceTierDescription,
+    };
+  };
+
+  // Get the displayed calculations based on selected tier or original
+  const displayedCalculations = selectedServiceTier && calculations 
+    ? calculateWithServiceTier(calculations, selectedServiceTier)
+    : calculations;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-AU", {
@@ -225,7 +266,7 @@ export default function ImportCalculator() {
           </Card>
 
           {/* Results Section */}
-          {calculations && (
+          {calculations && displayedCalculations && (
             <Card className="shadow-sm">
               <CardContent className="p-6">
                 <div className="mb-6">
@@ -233,11 +274,59 @@ export default function ImportCalculator() {
                   <p className="text-sm text-gray-600">Detailed breakdown of all import costs</p>
                 </div>
 
+                {/* Service Tier Selector */}
+                <div className="mb-6">
+                  <h3 className="text-sm font-medium text-gray-700 mb-3">Compare Service Tiers:</h3>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      onClick={() => setSelectedServiceTier("Essentials")}
+                      className={`px-3 py-2 text-xs font-medium rounded-md transition-colors ${
+                        (selectedServiceTier === "Essentials" || (!selectedServiceTier && displayedCalculations?.serviceTier === "Essentials"))
+                          ? "bg-blue-600 text-white"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
+                    >
+                      Essentials
+                      <div className="text-xs opacity-75">$3,000</div>
+                    </button>
+                    <button
+                      onClick={() => setSelectedServiceTier("Concierge")}
+                      className={`px-3 py-2 text-xs font-medium rounded-md transition-colors ${
+                        (selectedServiceTier === "Concierge" || (!selectedServiceTier && displayedCalculations?.serviceTier === "Concierge"))
+                          ? "bg-purple-600 text-white"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
+                    >
+                      Concierge
+                      <div className="text-xs opacity-75">$5,000</div>
+                    </button>
+                    <button
+                      onClick={() => setSelectedServiceTier("Elite")}
+                      className={`px-3 py-2 text-xs font-medium rounded-md transition-colors ${
+                        (selectedServiceTier === "Elite" || (!selectedServiceTier && displayedCalculations?.serviceTier === "Elite"))
+                          ? "bg-amber-600 text-white"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
+                    >
+                      Elite
+                      <div className="text-xs opacity-75">$10,000</div>
+                    </button>
+                  </div>
+                  {selectedServiceTier && (
+                    <button
+                      onClick={() => setSelectedServiceTier(null)}
+                      className="mt-2 text-xs text-blue-600 hover:text-blue-800"
+                    >
+                      Reset to recommended tier
+                    </button>
+                  )}
+                </div>
+
                 <div className="space-y-4">
                   {/* Vehicle Cost */}
                   <div className="flex justify-between items-center py-2 border-b border-gray-100">
                     <span className="text-gray-700 font-medium">Vehicle Price</span>
-                    <span className="font-semibold text-gray-900">{formatCurrency(calculations.vehiclePrice)}</span>
+                    <span className="font-semibold text-gray-900">{formatCurrency(displayedCalculations.vehiclePrice)}</span>
                   </div>
 
                   {/* Shipping Cost */}
@@ -248,7 +337,7 @@ export default function ImportCalculator() {
                         from {form.getValues("shippingOrigin") === "japan" ? "Japan" : "USA"}
                       </span>
                     </div>
-                    <span className="font-semibold text-gray-900">{formatCurrency(calculations.shipping)}</span>
+                    <span className="font-semibold text-gray-900">{formatCurrency(displayedCalculations.shipping)}</span>
                   </div>
 
                   {/* Customs Duty */}
@@ -257,7 +346,7 @@ export default function ImportCalculator() {
                       <span className="text-gray-700 font-medium">Customs Duty</span>
                       <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">5%</span>
                     </div>
-                    <span className="font-semibold text-gray-900">{formatCurrency(calculations.customsDuty)}</span>
+                    <span className="font-semibold text-gray-900">{formatCurrency(displayedCalculations.customsDuty)}</span>
                   </div>
 
                   {/* GST */}
@@ -266,7 +355,7 @@ export default function ImportCalculator() {
                       <span className="text-gray-700 font-medium">GST</span>
                       <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">10%</span>
                     </div>
-                    <span className="font-semibold text-gray-900">{formatCurrency(calculations.gst)}</span>
+                    <span className="font-semibold text-gray-900">{formatCurrency(displayedCalculations.gst)}</span>
                   </div>
 
                   {/* LCT */}
@@ -275,45 +364,53 @@ export default function ImportCalculator() {
                       <span className="text-gray-700 font-medium">Luxury Car Tax (LCT)</span>
                       <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">33%</span>
                     </div>
-                    <span className="font-semibold text-gray-900">{formatCurrency(calculations.lct)}</span>
+                    <span className="font-semibold text-gray-900">{formatCurrency(displayedCalculations.lct)}</span>
                   </div>
 
                   {/* Inspection */}
                   <div className="flex justify-between items-center py-2 border-b border-gray-100">
                     <span className="text-gray-700 font-medium">Inspection Fee</span>
-                    <span className="font-semibold text-gray-900">{formatCurrency(calculations.inspection)}</span>
+                    <span className="font-semibold text-gray-900">{formatCurrency(displayedCalculations.inspection)}</span>
                   </div>
 
                   {/* Service Fee */}
                   <div className="flex justify-between items-center py-2 border-b border-gray-100">
                     <div className="flex items-center space-x-2">
                       <span className="text-gray-700 font-medium">Service Fee</span>
-                      <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">{calculations.serviceTier}</span>
+                      <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">{displayedCalculations.serviceTier}</span>
                     </div>
-                    <span className="font-semibold text-gray-900">{formatCurrency(calculations.serviceFee)}</span>
+                    <span className="font-semibold text-gray-900">{formatCurrency(displayedCalculations.serviceFee)}</span>
                   </div>
 
                   {/* Total */}
                   <div className="flex justify-between items-center py-4 mt-4 bg-gray-50 rounded-lg px-4 border-2 border-blue-600">
                     <span className="text-lg font-bold text-gray-900">Total Landed Cost</span>
-                    <span className="text-2xl font-bold text-blue-600">{formatCurrency(calculations.totalCost)}</span>
+                    <span className="text-2xl font-bold text-blue-600">{formatCurrency(displayedCalculations.totalCost)}</span>
                   </div>
                 </div>
 
                 {/* Service Tier Recommendation */}
-                <div className={`mt-6 p-4 bg-gradient-to-r ${getServiceTierColor(calculations.serviceTier)} border rounded-lg`}>
+                <div className={`mt-6 p-4 bg-gradient-to-r ${getServiceTierColor(displayedCalculations.serviceTier)} border rounded-lg`}>
                   <div className="flex items-start space-x-3">
                     <div className="flex items-center justify-center w-8 h-8 bg-white rounded-full flex-shrink-0 mt-1">
-                      {getServiceTierIcon(calculations.serviceTier)}
+                      {getServiceTierIcon(displayedCalculations.serviceTier)}
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 mb-1">{calculations.serviceTier} Service Tier</h3>
-                      <p className="text-sm text-gray-700">{calculations.serviceTierDescription}</p>
+                      <div className="flex items-center space-x-2 mb-1">
+                        <h3 className="font-semibold text-gray-900">{displayedCalculations.serviceTier} Service Tier</h3>
+                        {selectedServiceTier && selectedServiceTier !== calculations?.serviceTier && (
+                          <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">Custom Selection</span>
+                        )}
+                        {!selectedServiceTier && (
+                          <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">Recommended</span>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-700">{displayedCalculations.serviceTierDescription}</p>
                       <div className="mt-2 text-xs text-gray-600">
                         <span className="font-medium">
-                          {calculations.serviceTier === "Essentials" && "Service Fee: $3,000 AUD - For confident buyers"}
-                          {calculations.serviceTier === "Concierge" && "Service Fee: $5,000 AUD - For hands-on project management"}
-                          {calculations.serviceTier === "Elite" && "Service Fee: $10,000 AUD - For collectors & complex builds"}
+                          {displayedCalculations.serviceTier === "Essentials" && "Service Fee: $3,000 AUD - For confident buyers"}
+                          {displayedCalculations.serviceTier === "Concierge" && "Service Fee: $5,000 AUD - For hands-on project management"}
+                          {displayedCalculations.serviceTier === "Elite" && "Service Fee: $10,000 AUD - For collectors & complex builds"}
                         </span>
                       </div>
                     </div>
