@@ -118,7 +118,10 @@ export default function ImportIQ() {
                 <Link href="/about" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium">Our Mission</Link>
                 <Button 
                   className="bg-amber-400 hover:bg-amber-500 text-black w-full rounded-full mt-4 font-medium"
-                  onClick={() => setShowEmailGate(true)}
+                  onClick={() => {
+                    setSelectedTool("ImportIQ Platform");
+                    setShowEmailGate(true);
+                  }}
                 >
                   Start Free Trial
                 </Button>
@@ -160,7 +163,10 @@ export default function ImportIQ() {
             <Button 
               size="lg" 
               className="bg-amber-400 hover:bg-amber-500 text-black px-12 py-4 text-lg rounded-full transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 font-semibold"
-              onClick={() => setShowEmailGate(true)}
+              onClick={() => {
+                setSelectedTool("ImportIQ Platform");
+                setShowEmailGate(true);
+              }}
             >
               Start 7-Day Free Trial
             </Button>
@@ -372,7 +378,10 @@ export default function ImportIQ() {
               </ul>
               <Button 
                 className="w-full bg-gray-700 hover:bg-gray-600 text-white py-3 text-base rounded-full font-medium transition-all duration-300"
-                onClick={() => setShowEmailGate(true)}
+                onClick={() => {
+                  setSelectedTool("ImportIQ Platform");
+                  setShowEmailGate(true);
+                }}
               >
                 Start 7-Day Free Trial
               </Button>
@@ -421,7 +430,10 @@ export default function ImportIQ() {
               
               <Button 
                 className="w-full bg-black hover:bg-gray-800 text-white py-3 text-base rounded-full font-bold transition-all duration-300 hover:scale-105 shadow-lg"
-                onClick={() => setShowEmailGate(true)}
+                onClick={() => {
+                  setSelectedTool("ImportIQ Platform");
+                  setShowEmailGate(true);
+                }}
               >
                 Start 7-Day Free Trial
               </Button>
