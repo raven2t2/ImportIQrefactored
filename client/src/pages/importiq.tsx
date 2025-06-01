@@ -148,9 +148,17 @@ export default function ImportIQ() {
             <span className="text-amber-400">Save Thousands.</span>
           </h1>
           
-          <p className="text-xl sm:text-2xl text-gray-300 max-w-4xl mx-auto mb-8 leading-relaxed font-light">
+          <p className="text-xl sm:text-2xl text-gray-300 max-w-4xl mx-auto mb-6 leading-relaxed font-light">
             14 professional-grade tools worth $2,000+ individually. Get the complete vehicle import intelligence platform for just $97/month.
           </p>
+          
+          {/* No Credit Card Required Badge */}
+          <div className="mb-8">
+            <div className="inline-flex items-center bg-green-400/10 border border-green-400/20 rounded-full px-6 py-2 text-green-400 text-sm font-medium">
+              <Shield className="h-4 w-4 mr-2" />
+              No Credit Card Required • Start Free Today
+            </div>
+          </div>
           
           <div className="mb-12">
             <p className="text-gray-400 text-sm mb-2">Brought to you by</p>
@@ -165,7 +173,7 @@ export default function ImportIQ() {
             </a>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-4">
             <Button 
               size="lg" 
               className="bg-amber-400 hover:bg-amber-500 text-black px-12 py-4 text-lg rounded-full transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 font-medium"
@@ -180,6 +188,13 @@ export default function ImportIQ() {
             >
               Watch Demo
             </Button>
+          </div>
+
+          {/* No Credit Card Required Text */}
+          <div className="mb-16">
+            <p className="text-gray-400 text-sm">
+              No credit card required • Cancel anytime during trial
+            </p>
           </div>
 
           {/* Social Proof */}
