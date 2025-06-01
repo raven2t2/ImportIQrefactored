@@ -136,24 +136,8 @@ function EnhancedDashboard() {
     },
   });
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <Card className="bg-gray-900 border-gray-800 p-8 text-center">
-          <CardContent>
-            <h2 className="text-2xl font-bold text-white mb-4">Access Required</h2>
-            <p className="text-gray-400 mb-6">Please log in to access your dashboard.</p>
-            <Button 
-              className="bg-amber-400 hover:bg-amber-500 text-black"
-              onClick={() => window.location.href = '/api/login'}
-            >
-              Sign In
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  // Demo mode - show dashboard without authentication for now
+  const demoMode = true;
 
   return (
     <div className="min-h-screen bg-black">
