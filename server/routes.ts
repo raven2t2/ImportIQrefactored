@@ -458,22 +458,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const averagePrice = Math.round(listings.reduce((sum, listing) => sum + listing.price, 0) / listings.length);
       const averagePriceWithMarkup = Math.round(listings.reduce((sum, listing) => sum + listing.priceWithMarkup, 0) / listings.length);
       
+      // Generate market estimates in the correct format for frontend
+      const estimates = [
+        {
+          source: validatedData.country === 'japan' ? "Auction House Direct" : "Dealer Network",
+          basePrice: Math.round(adjustedBasePrice * 0.92),
+          finalPrice: Math.round(adjustedBasePrice * 0.92 * 1.25),
+          markup: 25,
+          currency: "AUD",
+          description: validatedData.country === 'japan' ? "Direct auction purchase, highest savings" : "Established dealer network, verified condition"
+        },
+        {
+          source: "Specialist Importer",
+          basePrice: Math.round(adjustedBasePrice * 1.05),
+          finalPrice: Math.round(adjustedBasePrice * 1.05 * 1.18),
+          markup: 18,
+          currency: "AUD",
+          description: "Curated selection, pre-import inspection included"
+        },
+        {
+          source: "Broker Service",
+          basePrice: Math.round(adjustedBasePrice * 1.02),
+          finalPrice: Math.round(adjustedBasePrice * 1.02 * 1.22),
+          markup: 22,
+          currency: "AUD",
+          description: "Full-service import, compliance management"
+        }
+      ];
+
+      // Calculate estimated import total using our calculator logic
+      const averageVehiclePrice = estimates.reduce((sum, est) => sum + est.finalPrice, 0) / estimates.length;
+      const shipping = validatedData.country === 'japan' ? 3400 : 4500;
+      const customsDuty = averageVehiclePrice * 0.05;
+      const gst = (averageVehiclePrice + shipping + customsDuty) * 0.10;
+      const lct = (averageVehiclePrice + shipping + customsDuty + gst) > 76950 ? 
+        ((averageVehiclePrice + shipping + customsDuty + gst) - 76950) * 0.33 : 0;
+      const compliance = 3000;
+      
+      const estimatedImportTotal = Math.round(averageVehiclePrice + shipping + customsDuty + gst + lct + compliance);
+
+      // Determine demand rating
+      const demandRating = vehicleData.demandFactor > 1.2 ? "High" : 
+                          vehicleData.demandFactor > 1.0 ? "Medium" : "Low";
+
+      // Market insights
+      const insights = [
+        `${validatedData.year} model year ${ageFactor > 1 ? 'commands premium pricing' : 'reflects market depreciation'}`,
+        `${validatedData.country.toUpperCase()} sourcing ${validatedData.country === 'japan' ? 'offers unique JDM variants' : 'provides familiar U.S. specifications'}`,
+        validatedData.condition ? `${validatedData.condition} condition affects final pricing` : "Condition assessment impacts final valuation",
+        "Professional import services include compliance, shipping, and duties",
+        `${vehicleData.category} vehicles show ${demandRating.toLowerCase()} market demand`
+      ];
+
       res.json({
         success: true,
-        listings,
-        averagePrice,
-        averagePriceWithMarkup,
+        estimates,
+        demandRating,
+        marketInsights: insights,
+        estimatedImportTotal,
         vehicleInfo: {
           category: vehicleData.category,
-          description: vehicleData.description,
-          demandLevel: vehicleData.demandFactor > 1.2 ? "High" : vehicleData.demandFactor > 1.0 ? "Medium" : "Stable"
-        },
-        marketInsights: [
-          `${validatedData.year} model year ${ageFactor > 1 ? 'commands premium pricing' : 'reflects market depreciation'}`,
-          `Current market demand is ${vehicleData.demandFactor > 1.2 ? "very strong" : vehicleData.demandFactor > 1.0 ? "healthy" : "stable"}`,
-          "Prices include 20% broker markup for import services",
-          "Final landed cost will include shipping, compliance, and duties"
-        ]
+          popularity: vehicleData.popularity
+        }
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
