@@ -874,10 +874,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
             auctionSamples
           });
         } else {
+          // Find similar chassis codes and alternative suggestions
+          const allCodes = Object.keys(jdmDatabase);
+          const suggestions = [];
+          
+          // Look for partial matches and similar codes
+          const queryUpper = chassisCode.toUpperCase();
+          const similarCodes = allCodes.filter(code => {
+            return code.includes(queryUpper.substring(0, 3)) || 
+                   queryUpper.includes(code.substring(0, 3)) ||
+                   code.substring(0, 4) === queryUpper.substring(0, 4);
+          });
+
+          // Add popular alternatives if no similar codes found
+          if (similarCodes.length === 0) {
+            const popularCodes = ["JZX100", "BNR32", "FD3S", "EK9", "GC8", "AE86"];
+            suggestions.push(...popularCodes.slice(0, 3));
+          } else {
+            suggestions.push(...similarCodes.slice(0, 5));
+          }
+
+          // Get auction samples for suggested vehicles
+          const suggestionData = suggestions.map(code => ({
+            code,
+            vehicle: jdmDatabase[code as keyof typeof jdmDatabase]
+          })).filter(item => item.vehicle);
+
+          // Get some auction samples from suggested vehicles
+          const auctionSamples: any[] = [];
+          suggestionData.slice(0, 3).forEach(item => {
+            if (item.vehicle) {
+              const samples = getAuctionSamples(item.vehicle.make, item.vehicle.model, 2000);
+              auctionSamples.push(...samples.slice(0, 2));
+            }
+          });
+
           res.json({
             success: false,
-            error: "This chassis code isn't in our database yet. Try using a full VIN or message us to add it.",
-            type: "jdm"
+            error: "Chassis code not found in our database",
+            type: "jdm",
+            suggestions: suggestionData.map(item => ({
+              code: item.code,
+              description: `${item.vehicle.make} ${item.vehicle.model} (${item.vehicle.years})`
+            })),
+            auctionSamples: auctionSamples.slice(0, 6)
           });
         }
       }

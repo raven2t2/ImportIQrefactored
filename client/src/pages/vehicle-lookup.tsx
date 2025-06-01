@@ -50,6 +50,10 @@ interface LookupResponse {
   data?: VinResult | JdmResult;
   error?: string;
   auctionSamples?: AuctionSample[];
+  suggestions?: Array<{
+    code: string;
+    description: string;
+  }>;
 }
 
 export default function VehicleLookup() {
@@ -325,6 +329,31 @@ export default function VehicleLookup() {
                   <div className="text-center py-8">
                     <p className="text-red-400 mb-2">Lookup Failed</p>
                     <p className="text-gray-400">{result.error}</p>
+                    
+                    {/* Display suggestions when lookup fails */}
+                    {result.suggestions && result.suggestions.length > 0 && (
+                      <div className="mt-6">
+                        <p className="text-yellow-400 mb-3 font-medium">Try these similar vehicles:</p>
+                        <div className="space-y-2">
+                          {result.suggestions.map((suggestion, index) => (
+                            <button
+                              key={index}
+                              onClick={() => {
+                                form.setValue("identifier", suggestion.code);
+                                const formData = { identifier: suggestion.code };
+                                lookupMutation.mutate(formData);
+                              }}
+                              className="block w-full text-left p-3 bg-gray-800 hover:bg-gray-700 rounded border border-gray-600 transition-colors"
+                            >
+                              <div className="flex justify-between items-center">
+                                <span className="text-yellow-400 font-mono">{suggestion.code}</span>
+                                <span className="text-gray-300 text-sm">{suggestion.description}</span>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>

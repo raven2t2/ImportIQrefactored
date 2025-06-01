@@ -43,6 +43,10 @@ export default function Landing() {
                 <div className="space-y-4">
                   <div className="flex items-start space-x-3">
                     <Check className="h-5 w-5 text-brand-gold mt-1 flex-shrink-0" />
+                    <span className="text-gray-200"><strong>Vehicle Lookup + Auction Explorer:</strong> Decode any VIN or JDM chassis code instantly, see real Japanese auction prices from USS Tokyo, HAA Kobe, and 15+ auction houses</span>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <Check className="h-5 w-5 text-brand-gold mt-1 flex-shrink-0" />
                     <span className="text-gray-200"><strong>AI Import Assistant:</strong> Get instant answers to complex compliance questions that used to require expensive consultants</span>
                   </div>
                   <div className="flex items-start space-x-3">
