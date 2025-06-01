@@ -62,4 +62,9 @@ export interface CalculationResult {
   totalCost: number;
   serviceTier: string;
   serviceTierDescription: string;
+  freightBreakdown?: {
+    baseShipping: number;
+    regionalAdjustment: number;
+    region: string;
+  };
 }

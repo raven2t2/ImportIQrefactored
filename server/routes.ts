@@ -43,6 +43,8 @@ function calculateImportCosts(vehiclePrice: number, shippingOrigin: string, zipC
   
   // Regional freight adjustments based on zip code
   let freightAdjustment = 0;
+  let region = "NSW (Sydney Metro)";
+  
   if (zipCode) {
     const firstDigit = parseInt(zipCode.charAt(0));
     
@@ -51,30 +53,39 @@ function calculateImportCosts(vehiclePrice: number, shippingOrigin: string, zipC
       case 1: // NSW (1000-1999)
       case 2: // NSW (2000-2999) - Sydney Metro
         freightAdjustment = 0; // Base rate
+        region = "NSW (Sydney Metro)";
         break;
       case 3: // VIC (3000-3999) - Melbourne Metro
         freightAdjustment = 200;
+        region = "VIC (Melbourne Metro)";
         break;
       case 4: // QLD (4000-4999) - Brisbane Metro
         freightAdjustment = 400;
+        region = "QLD (Brisbane Metro)";
         break;
       case 5: // SA (5000-5999) - Adelaide Metro
         freightAdjustment = 600;
+        region = "SA (Adelaide Metro)";
         break;
       case 6: // WA (6000-6999) - Perth Metro
         freightAdjustment = 800;
+        region = "WA (Perth Metro)";
         break;
       case 7: // TAS (7000-7999) - Tasmania
         freightAdjustment = 1200;
+        region = "TAS (Tasmania)";
         break;
       case 8: // NT/SA Remote (8000-8999)
         freightAdjustment = 1000;
+        region = "NT/SA (Remote)";
         break;
       case 9: // WA Remote (9000-9999)
         freightAdjustment = 1500;
+        region = "WA (Remote)";
         break;
       default:
         freightAdjustment = 0;
+        region = "Standard Rate";
     }
   }
   
@@ -131,6 +142,11 @@ function calculateImportCosts(vehiclePrice: number, shippingOrigin: string, zipC
     totalCost,
     serviceTier,
     serviceTierDescription,
+    freightBreakdown: {
+      baseShipping,
+      regionalAdjustment: freightAdjustment,
+      region,
+    },
   };
 }
 
@@ -573,13 +589,17 @@ Customer Profile:
 - Preferences: ${validatedData.preferences}
 - Timeline: ${validatedData.timeline}
 
-Provide military-precision analysis in JSON format. Be specific about actual vehicles you can source, not generic categories. Use your network intelligence from auction houses, specialist dealers, and private collections across all three markets.
+CRITICAL: Use realistic 2024 market pricing. Do NOT inflate prices. Examples of realistic pricing:
+- 1988 Camaro IROC-Z (clean): $35K USD base ($62K AUD landed)
+- R32 GT-R (good condition): $45K USD base ($75K AUD landed)  
+- FD RX-7 (clean): $55K USD base ($90K AUD landed)
+- Supra A80 (turbo): $85K USD base ($140K AUD landed)
 
 {
   "recommendations": [
     {
       "vehicleName": "Specific year/make/model (be precise, e.g., '2018 Honda Civic Type R FK8')",
-      "estimatedPrice": number (realistic total landed cost in AUD),
+      "estimatedPrice": number (realistic total landed cost in AUD - be conservative with pricing),
       "category": "Clear category like 'JDM Hot Hatch' or 'USDM Muscle'",
       "reasoning": "Military-style brief: why this specific vehicle hits their requirements perfectly",
       "pros": ["3-4 tactical advantages for their use case"],
@@ -593,9 +613,11 @@ Provide military-precision analysis in JSON format. Be specific about actual veh
   "personalizedAdvice": "Direct, actionable advice based on their experience level and timeline - what they should do next"
 }
 
-Use 2024 Australian import costs: vehicle cost + shipping ($3200 Japan/$4500 US) + 5% customs duty + 10% GST + LCT (33% if over $89,332) + compliance ($3000-5000) + service fees ($3000-10000).
+Use accurate 2024 import costs: vehicle cost + shipping ($3200 Japan/$4500 US) + 5% customs duty + 10% GST + LCT (33% if over $89,332) + compliance ($3000-5000) + service fees ($3000-10000).
 
-Write like a military logistics expert who knows exactly what vehicles are available and what they cost. Be direct, confident, and focused on results.`;
+For classic/older vehicles (pre-2000), pricing is driven by rarity, condition, and desirability, NOT age depreciation. A clean 1988 IROC-Z should be priced around $35K USD base price, not inflated numbers.
+
+Write like a military logistics expert who knows real market values and won't overprice to make a sale.`;
 
       // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
       const response = await openai.chat.completions.create({
