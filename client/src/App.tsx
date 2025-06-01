@@ -20,6 +20,7 @@ import Dashboard from "@/pages/dashboard";
 import UserDashboard from "@/pages/user-dashboard";
 import EnhancedDashboard from "@/pages/enhanced-dashboard";
 import Subscribe from "@/pages/subscribe";
+import Pricing from "@/pages/pricing";
 import ValueEstimator from "@/pages/value-estimator";
 import VehicleLookup from "@/pages/vehicle-lookup";
 import RegistrationStats from "@/pages/registration-stats";
@@ -36,6 +37,7 @@ function Router() {
     <Switch>
       <Route path="/" component={ImportIQ} />
       <Route path="/features" component={Features} />
+      <Route path="/pricing" component={Pricing} />
       <Route path="/about" component={About} />
       <Route path="/import-calculator" component={ImportCalculator} />
       <Route path="/true-cost-explorer" component={TrueCostExplorer} />
