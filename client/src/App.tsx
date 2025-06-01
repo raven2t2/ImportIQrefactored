@@ -23,6 +23,8 @@ import ImportVolumeDashboard from "@/pages/import-volume-dashboard";
 import AuctionSampleExplorer from "@/pages/auction-sample-explorer";
 import Checkout from "@/pages/checkout";
 import BookingCalendar from "@/pages/booking-calendar";
+import AffiliateSignup from "@/pages/affiliate-signup";
+import AffiliateDashboard from "@/pages/affiliate-dashboard";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -46,6 +48,8 @@ function Router() {
       <Route path="/subscribe" component={Subscribe} />
       <Route path="/checkout" component={Checkout} />
       <Route path="/booking" component={BookingCalendar} />
+      <Route path="/affiliate-signup" component={AffiliateSignup} />
+      <Route path="/affiliate-dashboard" component={AffiliateDashboard} />
       <Route component={NotFound} />
     </Switch>
   );
