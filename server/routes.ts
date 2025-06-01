@@ -275,104 +275,148 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = valueEstimatorSchema.parse(req.body);
       
-      // Comprehensive market data based on recent auction trends
-      const marketDatabase = {
+      // Comprehensive global vehicle database
+      const globalVehicleDatabase = {
+        // Japanese Vehicles
         "toyota supra": { 
-          basePrice: 85000, 
+          basePrice: { japan: 85000, usa: 95000 }, 
           demandFactor: 1.4, 
-          category: "JDM Legend",
-          description: "Twin-turbo 2JZ engine, highly sought after"
+          category: "Performance Legend",
+          popularity: "Extremely High Demand"
         },
         "nissan skyline": { 
-          basePrice: 55000, 
+          basePrice: { japan: 55000, usa: 0 }, // USA doesn't have R34s legally yet
           demandFactor: 1.2, 
           category: "JDM Icon",
-          description: "R32/R33/R34 variants, RB engine platform"
-        },
-        "toyota skyline": { 
-          basePrice: 45000, 
-          demandFactor: 1.1, 
-          category: "JDM Sports",
-          description: "Classic rear-wheel drive platform"
+          popularity: "High Collector Interest"
         },
         "honda nsx": { 
-          basePrice: 120000, 
+          basePrice: { japan: 120000, usa: 140000 }, 
           demandFactor: 1.3, 
-          category: "JDM Supercar",
-          description: "Mid-engine VTEC masterpiece"
+          category: "Supercar Classic",
+          popularity: "Investment Grade"
         },
         "mazda rx7": { 
-          basePrice: 65000, 
+          basePrice: { japan: 65000, usa: 75000 }, 
           demandFactor: 1.3, 
-          category: "JDM Rotary",
-          description: "Rotary engine, lightweight chassis"
+          category: "Rotary Icon",
+          popularity: "Enthusiast Favorite"
         },
         "subaru impreza": { 
-          basePrice: 35000, 
+          basePrice: { japan: 35000, usa: 45000 }, 
           demandFactor: 1.1, 
-          category: "JDM Rally",
-          description: "WRX STI variants, AWD performance"
+          category: "Rally Heritage",
+          popularity: "Strong AWD Market"
         },
-        "mitsubishi evo": { 
-          basePrice: 40000, 
+        "toyota ae86": { 
+          basePrice: { japan: 35000, usa: 25000 }, 
+          demandFactor: 1.3, 
+          category: "Drift Legend",
+          popularity: "Cult Following"
+        },
+        "nissan silvia": { 
+          basePrice: { japan: 28000, usa: 0 }, 
+          demandFactor: 1.1, 
+          category: "Drift Platform",
+          popularity: "High Tuner Demand"
+        },
+        "mazda miata": { 
+          basePrice: { japan: 20000, usa: 18000 }, 
+          demandFactor: 0.9, 
+          category: "Roadster Classic",
+          popularity: "Strong Sports Car Market"
+        },
+        "honda civic": { 
+          basePrice: { japan: 25000, usa: 22000 }, 
+          demandFactor: 0.9, 
+          category: "Tuner Platform",
+          popularity: "Broad Appeal"
+        },
+        "mitsubishi lancer": { 
+          basePrice: { japan: 40000, usa: 35000 }, 
           demandFactor: 1.2, 
-          category: "JDM Rally",
-          description: "Evolution series, 4G63T engine"
+          category: "Rally Icon",
+          popularity: "Performance Heritage"
         },
+        // U.S. Vehicles
         "ford mustang": { 
-          basePrice: 35000, 
-          demandFactor: 1.0, 
-          category: "US Muscle",
-          description: "Classic American V8 power"
+          basePrice: { japan: 0, usa: 45000 }, 
+          demandFactor: 1.1, 
+          category: "American Muscle",
+          popularity: "Global Icon"
         },
         "chevrolet camaro": { 
-          basePrice: 40000, 
-          demandFactor: 1.1, 
-          category: "US Muscle",
-          description: "LS engine platform, track-ready"
+          basePrice: { japan: 0, usa: 50000 }, 
+          demandFactor: 1.0, 
+          category: "Muscle Car",
+          popularity: "Performance Market"
         },
         "dodge challenger": { 
-          basePrice: 45000, 
-          demandFactor: 1.0, 
-          category: "US Muscle",
-          description: "HEMI V8, retro styling"
+          basePrice: { japan: 0, usa: 55000 }, 
+          demandFactor: 1.1, 
+          category: "Modern Muscle",
+          popularity: "Retro Appeal"
         },
         "chevrolet corvette": { 
-          basePrice: 65000, 
-          demandFactor: 1.2, 
-          category: "US Sports",
-          description: "American supercar performance"
+          basePrice: { japan: 0, usa: 85000 }, 
+          demandFactor: 1.3, 
+          category: "American Supercar",
+          popularity: "Performance Legend"
+        },
+        "ford f150": { 
+          basePrice: { japan: 0, usa: 65000 }, 
+          demandFactor: 0.9, 
+          category: "Full-Size Truck",
+          popularity: "Work & Lifestyle"
+        },
+        "ram 1500": { 
+          basePrice: { japan: 0, usa: 62000 }, 
+          demandFactor: 0.9, 
+          category: "Heavy Duty Truck",
+          popularity: "Commercial & Recreation"
         }
       };
       
-      const vehicleKey = `${validatedData.make} ${validatedData.model}`.toLowerCase();
-      const vehicleData = marketDatabase[vehicleKey as keyof typeof marketDatabase];
-      
-      if (!vehicleData) {
+      // Create vehicle key for lookup
+      const vehicleKey = `${validatedData.make.toLowerCase()} ${validatedData.model.toLowerCase()}`;
+      const vehicleData = (globalVehicleDatabase as any)[vehicleKey] || {
+        basePrice: { japan: 35000, usa: 40000 },
+        demandFactor: 1.0,
+        category: "Import Vehicle",
+        popularity: "General Market"
+      };
+
+      // Get base price for the selected country
+      const countryBasePrice = vehicleData.basePrice[validatedData.country];
+      if (countryBasePrice === 0) {
         return res.json({
           success: false,
-          message: "Vehicle not in our current database. Contact us for a custom market analysis.",
-          customQuoteNeeded: true,
-          popularAlternatives: [
-            { make: "Toyota", model: "Supra", category: "JDM Legend" },
-            { make: "Nissan", model: "Skyline", category: "JDM Icon" },
-            { make: "Ford", model: "Mustang", category: "US Muscle" }
-          ]
+          error: `${validatedData.make} ${validatedData.model} is not commonly available from ${validatedData.country.toUpperCase()} market`
         });
       }
       
-      // Calculate realistic pricing based on age and market factors
+      // Calculate age factor
       const currentYear = new Date().getFullYear();
       const vehicleAge = currentYear - validatedData.year;
+      let ageFactor = 1.0;
       
-      let ageMultiplier = 1;
-      if (vehicleAge <= 3) ageMultiplier = 1.3;
-      else if (vehicleAge <= 8) ageMultiplier = 1.1;
-      else if (vehicleAge <= 15) ageMultiplier = 1.0;
-      else if (vehicleAge <= 25) ageMultiplier = 0.85;
-      else ageMultiplier = 0.7;
-      
-      const baseMarketPrice = Math.round(vehicleData.basePrice * ageMultiplier * vehicleData.demandFactor);
+      if (vehicleAge < 5) {
+        ageFactor = 1.2;
+      } else if (vehicleAge > 25) {
+        ageFactor = 1.3;
+      } else {
+        ageFactor = Math.max(0.4, 1 - (vehicleAge * 0.03));
+      }
+
+      // Condition factor
+      const conditionMultiplier = {
+        excellent: 1.15,
+        good: 1.0,
+        fair: 0.85
+      };
+      const conditionFactor = conditionMultiplier[validatedData.condition || 'good'];
+
+      const adjustedBasePrice = Math.round(countryBasePrice * ageFactor * vehicleData.demandFactor * conditionFactor);
       
       // Generate realistic market listings with variation
       const listings = [
