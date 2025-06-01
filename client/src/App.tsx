@@ -7,6 +7,7 @@ import ImportCalculator from "@/pages/import-calculator";
 import ComplianceEstimate from "@/pages/compliance-estimate";
 import ModEstimator from "@/pages/mod-estimator";
 import AIRecommendations from "@/pages/ai-recommendations";
+import Dashboard from "@/pages/dashboard";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -16,6 +17,7 @@ function Router() {
       <Route path="/compliance-estimate" component={ComplianceEstimate} />
       <Route path="/mod-estimator" component={ModEstimator} />
       <Route path="/ai-recommendations" component={AIRecommendations} />
+      <Route path="/dashboard" component={Dashboard} />
       <Route component={NotFound} />
     </Switch>
   );
