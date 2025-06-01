@@ -52,7 +52,7 @@ export default function About() {
                 </p>
                 <p>
                   After years of managing enterprise-wide project portfolios and coordinating complex 
-                  operations across military and defense sectors, we recognized that the vehicle import 
+                  operations across global military and defense sectors, we recognized that the vehicle import 
                   industry was stuck in the past - relying on outdated processes, hidden fees, and guesswork.
                 </p>
                 <p>
