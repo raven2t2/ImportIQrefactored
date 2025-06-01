@@ -8,6 +8,10 @@ import ImportCalculator from "@/pages/import-calculator";
 import ComplianceEstimate from "@/pages/compliance-estimate";
 import ModEstimator from "@/pages/mod-estimator";
 import AIRecommendations from "@/pages/ai-recommendations";
+import TrueCostExplorer from "@/pages/true-cost-explorer";
+import BuildComply from "@/pages/build-comply";
+import ImportTimeline from "@/pages/import-timeline";
+import ExpertPicks from "@/pages/expert-picks";
 import Dashboard from "@/pages/dashboard";
 import NotFound from "@/pages/not-found";
 
@@ -16,9 +20,13 @@ function Router() {
     <Switch>
       <Route path="/" component={ImportIQ} />
       <Route path="/import-calculator" component={ImportCalculator} />
+      <Route path="/true-cost-explorer" component={TrueCostExplorer} />
+      <Route path="/import-timeline" component={ImportTimeline} />
+      <Route path="/build-comply" component={BuildComply} />
+      <Route path="/ai-recommendations" component={AIRecommendations} />
+      <Route path="/expert-picks" component={ExpertPicks} />
       <Route path="/compliance-estimate" component={ComplianceEstimate} />
       <Route path="/mod-estimator" component={ModEstimator} />
-      <Route path="/ai-recommendations" component={AIRecommendations} />
       <Route path="/dashboard" component={Dashboard} />
       <Route component={NotFound} />
     </Switch>
