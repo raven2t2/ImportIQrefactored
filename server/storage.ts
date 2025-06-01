@@ -13,6 +13,8 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   createSubmission(submission: Omit<Submission, 'id' | 'createdAt'>): Promise<Submission>;
   getAllSubmissions(): Promise<Submission[]>;
+  createAIRecommendation(recommendation: Omit<any, 'id' | 'createdAt'>): Promise<any>;
+  getAllAIRecommendations(): Promise<any[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -40,6 +42,18 @@ export class DatabaseStorage implements IStorage {
       .values(submissionData)
       .returning();
     return submission;
+  }
+
+  async createAIRecommendation(recommendationData: Omit<any, 'id' | 'createdAt'>): Promise<any> {
+    const [recommendation] = await db
+      .insert(aiRecommendations)
+      .values(recommendationData)
+      .returning();
+    return recommendation;
+  }
+
+  async getAllAIRecommendations(): Promise<any[]> {
+    return await db.select().from(aiRecommendations).orderBy(aiRecommendations.createdAt);
   }
 
   async getAllSubmissions(): Promise<Submission[]> {
