@@ -24,8 +24,8 @@ export default function About() {
               Founded by Industry Professionals
             </Badge>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-8 tracking-tight">
-              Built by Experts Who
-              <span className="text-amber-400"> Understand Import</span>
+              Built by Professionals Who
+              <span className="text-amber-400"> Navigate Complexity</span>
             </h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto font-light leading-relaxed">
               ImportIQ was born from real-world experience navigating complex international supply chains, 
