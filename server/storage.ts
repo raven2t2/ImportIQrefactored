@@ -1,4 +1,4 @@
-import { users, submissions, aiRecommendations, emailCache, trials, type User, type InsertUser, type Submission, type InsertSubmission } from "@shared/schema";
+import { users, submissions, aiRecommendations, emailCache, trials, userProjects, userAchievements, carEvents, type User, type InsertUser, type Submission, type InsertSubmission } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import fs from 'fs';

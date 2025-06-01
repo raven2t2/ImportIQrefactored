@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, decimal } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, decimal, jsonb, varchar, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -66,8 +66,8 @@ export const userProjects = pgTable("user_projects", {
   id: serial("id").primaryKey(),
   userId: text("user_id").notNull(),
   projectName: text("project_name").notNull(),
-  vehicleDetails: jsonb("vehicle_details").notNull(),
-  calculationResults: jsonb("calculation_results"),
+  vehicleDetails: text("vehicle_details").notNull(),
+  calculationResults: text("calculation_results"),
   projectType: text("project_type").notNull(), // "import", "mod", "compliance", etc.
   status: text("status").default("planning"), // planning, in-progress, completed
   bookmarked: boolean("bookmarked").default(false),
