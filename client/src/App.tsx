@@ -18,6 +18,9 @@ import Dashboard from "@/pages/dashboard";
 import Subscribe from "@/pages/subscribe";
 import ValueEstimator from "@/pages/value-estimator";
 import VehicleLookup from "@/pages/vehicle-lookup";
+import RegistrationStats from "@/pages/registration-stats";
+import ImportVolumeDashboard from "@/pages/import-volume-dashboard";
+import AuctionSampleExplorer from "@/pages/auction-sample-explorer";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -34,6 +37,9 @@ function Router() {
       <Route path="/mod-estimator" component={ModEstimator} />
       <Route path="/value-estimator" component={ValueEstimator} />
       <Route path="/vehicle-lookup" component={VehicleLookup} />
+      <Route path="/registration-stats" component={RegistrationStats} />
+      <Route path="/import-volume-dashboard" component={ImportVolumeDashboard} />
+      <Route path="/auction-sample-explorer" component={AuctionSampleExplorer} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/subscribe" component={Subscribe} />
       <Route component={NotFound} />
