@@ -17,6 +17,9 @@ const japanValueSchema = z.object({
   make: z.string().min(1, "Make is required"),
   model: z.string().min(1, "Model is required"),
   year: z.coerce.number().min(1990, "Year must be 1990 or later").max(new Date().getFullYear(), "Year cannot be in the future"),
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Valid email is required"),
+  phone: z.string().optional(),
 });
 
 type FormData = z.infer<typeof japanValueSchema>;
@@ -48,8 +51,20 @@ export default function JapanValue() {
       make: "",
       model: "",
       year: new Date().getFullYear(),
+      name: "",
+      email: "",
+      phone: "",
     },
   });
+
+  const popularCars = [
+    { make: "Toyota", model: "Supra", category: "JDM Legend" },
+    { make: "Nissan", model: "Skyline", category: "JDM Icon" },
+    { make: "Honda", model: "NSX", category: "JDM Supercar" },
+    { make: "Mazda", model: "RX7", category: "JDM Sports" },
+    { make: "Ford", model: "Mustang", category: "US Muscle" },
+    { make: "Chevrolet", model: "Camaro", category: "US Muscle" },
+  ];
 
   const searchMutation = useMutation({
     mutationFn: async (data: FormData): Promise<JapanValueResponse> => {
