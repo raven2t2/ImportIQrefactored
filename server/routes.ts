@@ -53,13 +53,26 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const auctionData = JSON.parse(fs.readFileSync(path.join(__dirname, 'auction-data.json'), 'utf8'));
 
-// JDM Chassis Code Database
+// JDM Chassis Code Database - Essential Import Vehicles
 const jdmDatabase = {
   "JZX100": { "make": "Toyota", "model": "Chaser", "years": "1996–2001", "engine": "1JZ-GTE", "compliance_notes": "Turbo model may require emissions testing in VIC" },
+  "JZX110": { "make": "Toyota", "model": "Mark II", "years": "2000–2004", "engine": "1JZ-GTE", "compliance_notes": "Popular drift platform" },
+  "BNR32": { "make": "Nissan", "model": "Skyline GT-R", "years": "1989–1994", "engine": "RB26DETT", "compliance_notes": "25+ year rule eligible" },
+  "BNR33": { "make": "Nissan", "model": "Skyline GT-R", "years": "1995–1998", "engine": "RB26DETT", "compliance_notes": "SEVS eligible or 25+ year rule" },
+  "BNR34": { "make": "Nissan", "model": "Skyline GT-R", "years": "1999–2002", "engine": "RB26DETT", "compliance_notes": "SEVS eligible" },
+  "FD3S": { "make": "Mazda", "model": "RX-7", "years": "1992–2002", "engine": "13B-REW", "compliance_notes": "Rotary engine compliance required" },
+  "FC3S": { "make": "Mazda", "model": "RX-7", "years": "1986–1991", "engine": "13B-T", "compliance_notes": "25+ year rule eligible" },
+  "EK9": { "make": "Honda", "model": "Civic Type R", "years": "1997–2000", "engine": "B16B", "compliance_notes": "SEVS eligible" },
+  "DC2": { "make": "Honda", "model": "Integra Type R", "years": "1995–2001", "engine": "B18C", "compliance_notes": "SEVS eligible" },
+  "GC8": { "make": "Subaru", "model": "Impreza WRX STI", "years": "1992–2000", "engine": "EJ20", "compliance_notes": "SEVS eligible or 25+ year rule" },
+  "GDB": { "make": "Subaru", "model": "Impreza WRX STI", "years": "2000–2007", "engine": "EJ207", "compliance_notes": "SEVS eligible" },
+  "AE86": { "make": "Toyota", "model": "Corolla", "years": "1983–1987", "engine": "4A-GE", "compliance_notes": "25+ year rule eligible" },
+  "SW20": { "make": "Toyota", "model": "MR2", "years": "1989–1999", "engine": "3S-GTE", "compliance_notes": "Turbo model popular" },
+  "NA1": { "make": "Honda", "model": "NSX", "years": "1990–1997", "engine": "C30A", "compliance_notes": "25+ year rule or SEVS" },
+  "NA2": { "make": "Honda", "model": "NSX", "years": "1997–2005", "engine": "C32B", "compliance_notes": "SEVS eligible" },
+  "CP9A": { "make": "Mitsubishi", "model": "Lancer Evolution IV", "years": "1996–1998", "engine": "4G63T", "compliance_notes": "SEVS eligible" },
+  "CT9A": { "make": "Mitsubishi", "model": "Lancer Evolution VIII", "years": "2003–2005", "engine": "4G63T", "compliance_notes": "SEVS eligible" },
   "JZA80": { "make": "Toyota", "model": "Supra", "years": "1993–2002", "engine": "2JZ-GTE", "compliance_notes": "Rear seatbelt compliance may be required in some states" },
-  "AE86": { "make": "Toyota", "model": "Sprinter Trueno / Corolla Levin", "years": "1983–1987", "engine": "4A-GE", "compliance_notes": "May require structural inspection due to age" },
-  "R32": { "make": "Nissan", "model": "Skyline GT-R", "years": "1989–1994", "engine": "RB26DETT", "compliance_notes": "Early models may need asbestos compliance check" },
-  "R33": { "make": "Nissan", "model": "Skyline GT-R", "years": "1993–1998", "engine": "RB26DETT", "compliance_notes": "Check for asbestos-related parts in early models" },
   "R34": { "make": "Nissan", "model": "Skyline GT-R", "years": "1999–2002", "engine": "RB26DETT", "compliance_notes": "Some variants not SEVS eligible — check VIN carefully" },
   "S13": { "make": "Nissan", "model": "Silvia", "years": "1988–1993", "engine": "CA18DET / SR20DET", "compliance_notes": "Turbo models may require engineer sign-off" },
   "S14": { "make": "Nissan", "model": "Silvia", "years": "1993–1999", "engine": "SR20DET", "compliance_notes": "Check for factory immobiliser compliance" },
