@@ -382,16 +382,34 @@ export default function AuctionSampleExplorer() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-center text-sm text-gray-600 dark:text-gray-300">
-              <p className="mb-2">
+              <p className="mb-4">
                 <strong>Data Source:</strong> Kaggle Japanese Vehicle Auction Dataset
               </p>
-              <p className="mb-2">
+              <p className="mb-4">
                 Auction data compiled from major Japanese auction houses including USS, IAA, JU, HAA, and TAA.
               </p>
-              <p>
-                Historical pricing data is provided for research purposes. Current market conditions may vary.
-                Exchange rates are updated regularly for AUD conversions.
-              </p>
+              
+              {/* Contact Actions */}
+              <div className="flex flex-col sm:flex-row gap-3 justify-center items-center mt-6">
+                <a
+                  href="https://driveimmaculate.com/contact-us/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                >
+                  <MessageCircle className="h-4 w-4 mr-2" />
+                  Need Help Finding Specific Auctions?
+                </a>
+                <a
+                  href="https://driveimmaculate.com/quiz/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                >
+                  <HelpCircle className="h-4 w-4 mr-2" />
+                  What Should I Import?
+                </a>
+              </div>
             </div>
           </CardContent>
         </Card>
