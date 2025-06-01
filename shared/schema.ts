@@ -114,6 +114,20 @@ export const reports = pgTable("reports", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const bookings = pgTable("bookings", {
+  id: serial("id").primaryKey(),
+  name: varchar("name").notNull(),
+  email: varchar("email").notNull(),
+  phone: varchar("phone").notNull(),
+  service: varchar("service").notNull(),
+  preferredDate: varchar("preferred_date").notNull(),
+  preferredTime: varchar("preferred_time").notNull(),
+  vehicleDetails: text("vehicle_details"),
+  message: text("message"),
+  status: varchar("status").default("pending"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -139,6 +153,8 @@ export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type InsertSubmission = z.infer<typeof insertSubmissionSchema>;
 export type Submission = typeof submissions.$inferSelect;
+export type Booking = typeof bookings.$inferSelect;
+export type InsertBooking = typeof bookings.$inferInsert;
 
 export interface CalculationResult {
   vehiclePrice: number;

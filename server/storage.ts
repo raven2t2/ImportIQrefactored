@@ -1,4 +1,4 @@
-import { users, submissions, aiRecommendations, emailCache, trials, userProjects, userAchievements, carEvents, reports, type User, type InsertUser, type Submission, type InsertSubmission } from "@shared/schema";
+import { users, submissions, aiRecommendations, emailCache, trials, userProjects, userAchievements, carEvents, reports, bookings, type User, type InsertUser, type Submission, type InsertSubmission, type Booking, type InsertBooking } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import fs from 'fs';
@@ -28,6 +28,9 @@ export interface IStorage {
   getNearbyCarEvents(postcode: string): Promise<any[]>;
   saveReport(reportData: any): Promise<any>;
   getUserReports(email: string): Promise<any[]>;
+  createBooking(booking: Omit<Booking, 'id' | 'createdAt'>): Promise<Booking>;
+  getAllBookings(): Promise<Booking[]>;
+  updateBookingStatus(id: number, status: string): Promise<Booking>;
 }
 
 export class DatabaseStorage implements IStorage {
