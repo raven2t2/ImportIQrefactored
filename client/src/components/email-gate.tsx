@@ -72,6 +72,29 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {/* Value Proposition */}
+          <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+            <h3 className="font-semibold text-sm text-gray-900 mb-3">You'll get instant access to:</h3>
+            <div className="space-y-2">
+              <div className="flex items-center text-sm text-gray-700">
+                <div className="w-2 h-2 bg-brand-gold rounded-full mr-3"></div>
+                <span>Accurate landed cost calculator with real freight rates</span>
+              </div>
+              <div className="flex items-center text-sm text-gray-700">
+                <div className="w-2 h-2 bg-brand-gold rounded-full mr-3"></div>
+                <span>Regional shipping adjustments for your location</span>
+              </div>
+              <div className="flex items-center text-sm text-gray-700">
+                <div className="w-2 h-2 bg-brand-gold rounded-full mr-3"></div>
+                <span>Breakdown of duties, GST, LCT, and compliance costs</span>
+              </div>
+              <div className="flex items-center text-sm text-gray-700">
+                <div className="w-2 h-2 bg-brand-gold rounded-full mr-3"></div>
+                <span>Service tier recommendations based on vehicle value</span>
+              </div>
+            </div>
+          </div>
+
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="name" className="text-sm font-medium text-gray-700">
@@ -120,10 +143,16 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
             </Button>
           </form>
 
-          <div className="mt-6 text-center text-xs text-gray-500">
-            <div className="flex items-center justify-center space-x-2">
-              <Shield className="h-3 w-3" />
-              <span>Your information is secure and will not be shared</span>
+          <div className="mt-6 space-y-3">
+            <div className="text-center text-xs text-gray-500">
+              <div className="flex items-center justify-center space-x-2">
+                <Shield className="h-3 w-3" />
+                <span>Your information is secure and will not be shared</span>
+              </div>
+            </div>
+            <div className="text-center text-xs text-gray-600 bg-gray-50 p-3 rounded-lg">
+              <p className="font-medium">Why we need your details:</p>
+              <p className="mt-1">To provide accurate regional freight costs and save your calculations for future reference. No spam, just helpful import insights.</p>
             </div>
           </div>
         </CardContent>

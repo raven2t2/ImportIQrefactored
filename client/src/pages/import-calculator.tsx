@@ -161,9 +161,9 @@ export default function ImportCalculator() {
   if (!userInfo) {
     return (
       <EmailGate
-        title="Get Your Import Cost Estimate"
-        description="Calculate accurate landed costs for importing vehicles to Australia. Get instant pricing with freight adjustments for your location."
-        buttonText="Calculate Import Costs"
+        title="Get Your Instant Import Cost Estimate"
+        description="Calculate accurate landed costs for importing vehicles to Australia. You'll get instant pricing with freight adjustments for your location, plus a detailed breakdown of all fees, taxes, and service options. Takes 2 minutes - no phone calls required."
+        buttonText="Get My Free Cost Estimate"
         onSuccess={handleEmailGateSuccess}
       />
     );
