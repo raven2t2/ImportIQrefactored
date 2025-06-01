@@ -34,7 +34,7 @@ export default function AIEmailGate({ onSuccess }: AIEmailGateProps) {
 
   const emailCheckMutation = useMutation({
     mutationFn: async (data: EmailGateData) => {
-      return await apiRequest("/api/check-email", "POST", data);
+      return await apiRequest("POST", "/api/check-email", data);
     },
     onSuccess: (response: any) => {
       setIsSubmitting(false);
