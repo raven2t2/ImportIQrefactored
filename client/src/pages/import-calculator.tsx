@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { insertSubmissionSchema, type CalculationResult } from "@shared/schema";
 import EmailGate from "@/components/email-gate";
+import CTASection from "@/components/cta-section";
 import type { z } from "zod";
 
 type FormData = z.infer<typeof insertSubmissionSchema>;

@@ -1,4 +1,4 @@
-import { users, submissions, aiRecommendations, emailCache, trials, userProjects, userAchievements, carEvents, type User, type InsertUser, type Submission, type InsertSubmission } from "@shared/schema";
+import { users, submissions, aiRecommendations, emailCache, trials, userProjects, userAchievements, carEvents, reports, type User, type InsertUser, type Submission, type InsertSubmission } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import fs from 'fs';
@@ -144,6 +144,44 @@ export class DatabaseStorage implements IStorage {
 
   async getAllSubmissions(): Promise<Submission[]> {
     return await db.select().from(submissions);
+  }
+
+  async saveReport(reportData: any): Promise<any> {
+    const [report] = await db
+      .insert(reports)
+      .values(reportData)
+      .returning();
+    return report;
+  }
+
+  async getUserReports(email: string): Promise<any[]> {
+    return await db.select().from(reports).where(eq(reports.email, email));
+  }
+
+  // Stub implementations for missing methods
+  async upsertUser(user: any): Promise<User> {
+    // Implementation needed for auth
+    return user;
+  }
+
+  async createUserProject(userId: string, project: any): Promise<any> {
+    return project;
+  }
+
+  async getUserProjects(userId: string): Promise<any[]> {
+    return [];
+  }
+
+  async awardBadge(userId: string, badgeId: string, badgeName: string): Promise<void> {
+    // Badge implementation
+  }
+
+  async getUserAchievements(userId: string): Promise<any[]> {
+    return [];
+  }
+
+  async getNearbyCarEvents(postcode: string): Promise<any[]> {
+    return [];
   }
 }
 
