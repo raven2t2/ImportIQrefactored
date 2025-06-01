@@ -190,7 +190,7 @@ export default function UserDashboard() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {myBuilds.map((build) => (
+              {userBuilds.length > 0 ? userBuilds.map((build: any) => (
                 <Card key={build.id} className="overflow-hidden">
                   <div className="aspect-video bg-gray-200 relative">
                     {build.image ? (
@@ -227,7 +227,17 @@ export default function UserDashboard() {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+              )) : (
+                <div className="col-span-full text-center py-12">
+                  <Car className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No vehicles in your garage yet</h3>
+                  <p className="text-gray-500 mb-4">Start tracking your imported vehicles and modification projects</p>
+                  <Button className="bg-brand-gold hover:bg-brand-gold/90">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Your First Vehicle
+                  </Button>
+                </div>
+              )}
 
               <Card className="border-dashed border-2 border-gray-300 hover:border-brand-gold transition-colors">
                 <CardContent className="flex flex-col items-center justify-center h-64 text-center">
@@ -254,7 +264,7 @@ export default function UserDashboard() {
             </div>
 
             <div className="space-y-4">
-              {watchlistItems.map((item) => (
+              {userWatchlist.length > 0 ? userWatchlist.map((item: any) => (
                 <Card key={item.id}>
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
@@ -283,7 +293,17 @@ export default function UserDashboard() {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+              )) : (
+                <div className="text-center py-12">
+                  <Heart className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No parts in watchlist</h3>
+                  <p className="text-gray-500 mb-4">Start tracking prices on parts you want for your builds</p>
+                  <Button className="bg-brand-gold hover:bg-brand-gold/90">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Your First Part
+                  </Button>
+                </div>
+              )}
             </div>
           </TabsContent>
 
