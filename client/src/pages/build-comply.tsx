@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Settings, AlertTriangle, CheckCircle, AlertCircle, FileText, Shield, ArrowRight } from "lucide-react";
+import { Settings, AlertTriangle, CheckCircle, AlertCircle, FileText, Shield, ArrowRight, Brain, Calendar, CreditCard, Save, Clock, DollarSign } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import CTASection from "@/components/cta-section";
@@ -516,14 +516,46 @@ export default function BuildComply() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-3 gap-4 mb-6">
-                    <div className={`p-4 rounded-lg border ${getRiskColor(results.overallRisk)}`}>
-                      <div className="flex items-center space-x-2">
-                        {getRiskIcon(results.overallRisk)}
-                        <span className="font-medium capitalize">{results.overallRisk} Risk</span>
-                      </div>
-                      <div className="text-xs mt-1">Overall compliance risk</div>
+                  {/* Machine Learning Risk Analysis */}
+                  <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200">
+                    <div className="flex items-center space-x-2 mb-3">
+                      <Brain className="h-5 w-5 text-purple-600" />
+                      <span className="font-semibold text-purple-900">Smart Risk Prediction</span>
+                      <Badge className="text-xs bg-purple-100 text-purple-800">ML-Powered</Badge>
                     </div>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className={`p-3 rounded-lg border ${getRiskColor(results.overallRisk)}`}>
+                        <div className="flex items-center space-x-2">
+                          {getRiskIcon(results.overallRisk)}
+                          <span className="font-medium capitalize">{results.overallRisk} Risk</span>
+                        </div>
+                        <div className="text-xs mt-1">ML Risk Score: {results.mlRiskScore}/20</div>
+                      </div>
+                      <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                        <div className="text-lg font-bold text-blue-600">{results.confidence}%</div>
+                        <div className="text-xs text-blue-700">Prediction Confidence</div>
+                      </div>
+                      <div className="bg-green-50 p-3 rounded-lg border border-green-200">
+                        <div className="text-sm font-bold text-green-600">{results.mlRecommendation}</div>
+                        <div className="text-xs text-green-700">AI Recommendation</div>
+                      </div>
+                    </div>
+                    
+                    {/* Risk Factors */}
+                    <div className="mt-4">
+                      <h4 className="text-sm font-medium text-gray-900 mb-2">Risk Factors Analyzed:</h4>
+                      <div className="grid grid-cols-1 gap-2">
+                        {results.riskFactors.map((factor: string, index: number) => (
+                          <div key={index} className="flex items-start space-x-2 text-xs">
+                            <div className="w-1 h-1 bg-purple-600 rounded-full mt-2"></div>
+                            <span className="text-gray-700">{factor}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-4 mb-6">
                     <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                       <div className="text-lg font-bold text-blue-600">
                         ${results.estimatedCost.toLocaleString()}
@@ -636,8 +668,50 @@ export default function BuildComply() {
                       </div>
                     </div>
                   )}
+
+                  {/* Action Buttons */}
+                  <div className="mt-6 space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <Button
+                        onClick={() => saveReport()}
+                        className="w-full bg-green-600 hover:bg-green-700 text-white"
+                      >
+                        <Save className="h-4 w-4 mr-2" />
+                        Save to Dashboard
+                      </Button>
+                      <Button
+                        onClick={() => window.open('https://driveimmaculate.com/howitworks', '_blank')}
+                        variant="outline"
+                        className="w-full border-blue-600 text-blue-600 hover:bg-blue-50"
+                      >
+                        <Calendar className="h-4 w-4 mr-2" />
+                        Book Consultation
+                      </Button>
+                    </div>
+                    
+                    <div className="text-center">
+                      <Button
+                        onClick={() => window.location.href = '/checkout'}
+                        className="w-full bg-purple-600 hover:bg-purple-700 text-white text-lg py-3"
+                      >
+                        <CreditCard className="h-5 w-5 mr-2" />
+                        Secure Your Build - $500 Deposit
+                      </Button>
+                      <p className="text-sm text-gray-600 mt-2">
+                        Ready to start? Secure your build slot with a refundable deposit
+                      </p>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
+
+              {/* Call-to-Action Section */}
+              <CTASection 
+                title="Ready to Make It Happen?"
+                description="Your BuildReady™ plan is just the beginning. Let our experts handle the complex compliance process while you focus on your dream build."
+                primaryAction="Start Your Build Journey"
+                secondaryAction="Learn More About Our Process"
+              />
             </div>
           )}
         </div>
