@@ -131,8 +131,8 @@ export default function AIRecommendations() {
                 <Brain className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">AI Vehicle Recommendations</h1>
-                <p className="text-sm text-gray-600">Get personalized vehicle suggestions powered by advanced AI analysis</p>
+                <h1 className="text-2xl font-bold text-gray-900">Immaculate AI Vehicle Matcher</h1>
+                <p className="text-sm text-gray-600">Military-precision sourcing intel meets advanced AI — find your perfect import</p>
               </div>
             </div>
             <div className="flex space-x-2">
@@ -156,16 +156,16 @@ export default function AIRecommendations() {
           <Card className="shadow-sm lg:col-span-1">
             <CardContent className="p-6">
               <div className="mb-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">Tell Our AI About You</h2>
-                <p className="text-sm text-gray-600 mb-4">Advanced algorithms will analyze your preferences and market data</p>
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">Your Vehicle Intelligence Brief</h2>
+                <p className="text-sm text-gray-600 mb-4">Combining 15+ years of sourcing intel with advanced AI analysis</p>
                 
-                {/* AI Value Proposition */}
-                <div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg">
+                {/* Michael's Expertise */}
+                <div className="p-4 bg-gradient-to-r from-blue-50 to-gray-50 border border-blue-200 rounded-lg">
                   <div className="flex items-start space-x-2">
-                    <Sparkles className="h-4 w-4 text-purple-600 mt-0.5 flex-shrink-0" />
+                    <Target className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
                     <div className="text-sm">
-                      <p className="font-medium text-purple-900 mb-1">AI-Powered Analysis</p>
-                      <p className="text-purple-800 text-xs">Our AI considers 50+ factors including market trends, import costs, and your personal preferences to find your perfect match.</p>
+                      <p className="font-medium text-blue-900 mb-1">Military-Precision Sourcing Intelligence</p>
+                      <p className="text-blue-800 text-xs">Our AI leverages Michael's network across Australia, Japan, and the U.S. — sourcing intel from auction houses, specialist dealers, and private collections most importers never access.</p>
                     </div>
                   </div>
                 </div>
@@ -348,11 +348,11 @@ export default function AIRecommendations() {
                     disabled={recommendMutation.isPending}
                   >
                     <Brain className="h-5 w-5 mr-2" />
-                    {recommendMutation.isPending ? "AI Analyzing..." : "Get My AI Recommendations"}
+                    {recommendMutation.isPending ? "Analyzing Global Markets..." : "Get My Sourcing Intelligence Report"}
                   </Button>
 
                   <div className="text-center text-xs text-gray-600">
-                    Analysis powered by advanced AI • Personalized for you
+                    Military-grade analysis • 3-market intelligence • Zero obligation
                   </div>
                 </form>
               </Form>
@@ -363,11 +363,12 @@ export default function AIRecommendations() {
           <div className="lg:col-span-2">
             {results && (
               <div className="space-y-6">
-                {/* Budget Analysis */}
+                {/* Michael's Intelligence Brief */}
                 <Card className="shadow-sm">
                   <CardContent className="p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-4">AI Budget Analysis</h2>
-                    <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg">
+                    <h2 className="text-xl font-semibold text-gray-900 mb-4">Michael's Intelligence Brief</h2>
+                    <div className="p-4 bg-gradient-to-r from-blue-50 to-gray-50 border border-blue-200 rounded-lg">
+                      <p className="text-sm text-gray-800 font-medium mb-2">Market Analysis for Your Budget:</p>
                       <p className="text-sm text-gray-800">{results.budgetAnalysis}</p>
                     </div>
                   </CardContent>
@@ -375,9 +376,9 @@ export default function AIRecommendations() {
 
                 {/* Vehicle Recommendations */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Personalized Vehicle Recommendations</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">Sourcing Intelligence: Your Perfect Matches</h3>
                   {results.recommendations.map((recommendation, index) => (
-                    <Card key={index} className="shadow-sm">
+                    <Card key={index} className="shadow-sm border-l-4 border-l-brand-gold">
                       <CardContent className="p-6">
                         <div className="flex items-start justify-between mb-4">
                           <div>
@@ -387,7 +388,7 @@ export default function AIRecommendations() {
                               <div className="flex items-center space-x-1">
                                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                                 <span className="text-xs text-green-700 font-medium">
-                                  {recommendation.confidence}% match
+                                  {recommendation.confidence}% intelligence match
                                 </span>
                               </div>
                             </div>
@@ -396,7 +397,7 @@ export default function AIRecommendations() {
                             <p className="text-xl font-bold text-brand-gold">
                               {formatCurrency(recommendation.estimatedPrice)}
                             </p>
-                            <p className="text-sm text-gray-600">Est. total cost</p>
+                            <p className="text-sm text-gray-600">All-in landed cost</p>
                           </div>
                         </div>
 
@@ -432,7 +433,7 @@ export default function AIRecommendations() {
                           </div>
 
                           <div className="p-3 bg-gray-50 rounded border-l-4 border-brand-gold">
-                            <h6 className="font-medium text-gray-900 mb-1">Market Insight:</h6>
+                            <h6 className="font-medium text-gray-900 mb-1">Michael's Market Intel:</h6>
                             <p className="text-sm text-gray-700">{recommendation.marketInsight}</p>
                           </div>
                         </div>
@@ -441,26 +442,71 @@ export default function AIRecommendations() {
                   ))}
                 </div>
 
-                {/* Personalized Advice */}
+                {/* Strategic Recommendations */}
                 <Card className="shadow-sm">
                   <CardContent className="p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Personalized Advice</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Michael's Strategic Recommendations</h3>
                     <div className="p-4 bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg">
                       <p className="text-sm text-gray-800">{results.personalizedAdvice}</p>
                     </div>
                   </CardContent>
                 </Card>
 
-                {/* Next Steps CTA */}
-                <Card className="shadow-sm bg-gradient-to-r from-brand-gold to-yellow-400 text-white">
-                  <CardContent className="p-6 text-center">
-                    <h3 className="text-xl font-bold mb-2">Ready to Find Your Perfect Car?</h3>
-                    <p className="text-sm opacity-90 mb-4">Book a free consultation to discuss these recommendations and start your import journey.</p>
-                    <Button className="bg-white text-brand-gold hover:bg-gray-100 font-bold text-lg py-3 px-8">
-                      <ArrowRight className="h-5 w-5 mr-2" />
-                      Book My FREE Consultation
-                    </Button>
-                    <p className="text-xs opacity-90 mt-2">Next available: Tomorrow • Worth $500</p>
+                {/* Exclusive Access CTA */}
+                <Card className="shadow-lg bg-gradient-to-r from-slate-800 to-slate-900 text-white border-2 border-brand-gold">
+                  <CardContent className="p-8 text-center">
+                    <div className="mb-4">
+                      <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-gold rounded-full mb-4">
+                        <Target className="h-8 w-8 text-white" />
+                      </div>
+                      <h3 className="text-2xl font-bold mb-2">Secure Your Vehicle Now</h3>
+                      <p className="text-lg opacity-90 mb-2">Exclusive Immaculate Imports Client Access</p>
+                    </div>
+                    
+                    <div className="bg-slate-700 bg-opacity-50 rounded-lg p-4 mb-6">
+                      <p className="text-sm mb-3">
+                        <strong>Warning:</strong> These vehicles won't last. Michael's network sees the best cars first, 
+                        but they move fast — especially in the current market.
+                      </p>
+                      <div className="grid grid-cols-3 gap-4 text-xs">
+                        <div>
+                          <div className="font-bold text-brand-gold">72 hours</div>
+                          <div>Average time to sale</div>
+                        </div>
+                        <div>
+                          <div className="font-bold text-brand-gold">3 markets</div>
+                          <div>Exclusive access</div>
+                        </div>
+                        <div>
+                          <div className="font-bold text-brand-gold">$0 risk</div>
+                          <div>Refundable deposit</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3 mb-6">
+                      <a 
+                        href="https://driveimmaculate.com/checkout" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="block"
+                      >
+                        <Button className="w-full bg-brand-gold hover:bg-yellow-500 text-slate-900 font-bold text-lg py-4 px-8 text-center">
+                          <ArrowRight className="h-5 w-5 mr-2" />
+                          Secure My Vehicle Access — $500 Deposit
+                        </Button>
+                      </a>
+                      <p className="text-xs opacity-75">
+                        100% refundable • Guarantees first access to matching vehicles
+                      </p>
+                    </div>
+
+                    <div className="border-t border-slate-600 pt-4">
+                      <p className="text-sm opacity-90">
+                        <strong>Concierge Import Service</strong> — Michael handles everything from sourcing to compliance to delivery. 
+                        Military precision. Zero shortcuts. Your dream car, delivered immaculately.
+                      </p>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
