@@ -16,6 +16,7 @@ import ImportTimeline from "@/pages/import-timeline";
 import ExpertPicks from "@/pages/expert-picks";
 import Dashboard from "@/pages/dashboard";
 import Subscribe from "@/pages/subscribe";
+import ValueEstimator from "@/pages/value-estimator";
 import NotFound from "@/pages/not-found";
 
 function Router() {
