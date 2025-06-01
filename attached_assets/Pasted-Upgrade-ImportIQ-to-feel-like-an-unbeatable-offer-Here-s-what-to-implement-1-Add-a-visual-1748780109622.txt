@@ -1,0 +1,51 @@
+Upgrade ImportIQ to feel like an unbeatable offer. Here's what to implement:
+
+---
+
+1. ✅ Add a visual offer stack card on the signup page:
+Title: “✅ What You Get With ImportIQ”
+List the following items with emojis and value framing:
+- Real-time Cost Calculator ($500+ value per quote)
+- Compliance Clarity Guide ($1,500 mistake preventer)
+- Mod Planner + Timeline ($800 in time/stress saved)
+- AI Import Assistant (24/7 $0 consultation cost)
+- Expert Scenarios & Vehicle Picks (avoid $3,000 regrets)
+- Free Trial – Full Access (no card, instant start)
+
+Add a "Total Value: $5,000+" line with “Your Price: $97/mo” below it.
+
+---
+
+2. ✅ Add “Proof Mode” logic into tools:
+After each result (e.g. cost calc, compliance plan), show a value-based message like:
+- “You just avoided $1,250 in potential compliance risk”
+- “Your projected ownership cost is 27% below average”
+
+Use simple logic from imported benchmarks or fixed scenarios.
+
+---
+
+3. ✅ On signup page, below trial CTA, add this copy:
+"If ImportIQ doesn’t save you money, time, or stress on your next import — you shouldn’t pay for it. That’s why we offer full access for 14 days, no credit card required. You decide if it’s worth it."
+
+---
+
+4. ✅ Add urgency bar under “Start Free Trial Now” CTA:
+Style it lightly with red/orange alert style.
+Message: 
+“⚠️ Import costs are up 40% this quarter. Avoid delays. Lock in your $97/month before we raise prices.”
+
+---
+
+5. ✅ Testimonials logic (placeholder for now):
+Add a rotating or fixed section that says:
+- “I saved $4,000 avoiding a compliance trap thanks to ImportIQ.”
+- “I used to dread importing. Now I know exactly what to expect.”
+
+Allow admin to edit testimonials easily or hardcode 3 for now.
+
+---
+
+Use the clean layout and color fixes previously shared. Maintain responsive stacking and trial logic. Emphasize clarity, confidence, and conversion-focused UX. If you track quote submissions or tool usage during the free trial → you can email users personalized savings summaries like:
+
+“Based on your quote, you avoided $2,045 in compliance risk. ImportIQ is already working for you — let’s lock it in.”
