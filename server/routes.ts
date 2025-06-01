@@ -510,17 +510,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // AI Recommendations endpoint with intelligent fallback
+  // AI Recommendations endpoint
   app.post("/api/ai-recommendations", async (req, res) => {
     try {
       const validatedData = aiRecommendationSchema.parse(req.body);
 
-      // Try AI service first, fall back to expert recommendations
-      let useAI = false;
-      let aiResponse = null;
-
-      if (process.env.OPENAI_API_KEY) {
-        try {
+      if (!process.env.OPENAI_API_KEY) {
+        return res.status(500).json({ 
+          success: false, 
+          error: "AI service is currently unavailable. Please contact support for vehicle recommendations." 
+        });
+      }
 
       // Create detailed prompt for OpenAI
       const prompt = `You are Michael T. Ragland from Immaculate Imports - a dual citizen with deep sourcing networks across Australia, Japan, and the U.S. You have military logistics background and 15+ years of automotive import expertise. You're analyzing this customer profile to provide 3 specific, actionable vehicle recommendations.
@@ -563,7 +563,7 @@ Write like a military logistics expert who knows exactly what vehicles are avail
         messages: [
           {
             role: "system",
-            content: "You are an expert automotive import consultant specializing in the Australian market. Provide accurate, helpful recommendations based on real market data and conditions."
+            content: "You are Michael T. Ragland, military logistics expert and automotive import specialist with deep modification experience."
           },
           {
             role: "user",
@@ -575,11 +575,11 @@ Write like a military logistics expert who knows exactly what vehicles are avail
         temperature: 0.7
       });
 
-      const aiResponse = JSON.parse(response.choices[0].message.content || "{}");
+      const aiData = JSON.parse(response.choices[0].message.content || "{}");
 
       res.json({
         success: true,
-        ...aiResponse
+        ...aiData
       });
 
     } catch (error: any) {
