@@ -117,28 +117,37 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h3 className="text-xl font-bold text-[#1E1E1E] mb-6">
-                🚀 Professional Import Tools Inside:
+            <div className="bg-gradient-to-br from-[#D4AF37]/10 to-amber-50 border-2 border-[#D4AF37]/30 rounded-xl shadow-sm p-6">
+              <h3 className="text-xl font-bold text-[#1E1E1E] mb-6 text-center">
+                ✅ What You Get With ImportIQ
               </h3>
               
               <div className="space-y-4">
                 {[
-                  { name: "Import Cost Calculator", desc: "Accurate landed costs with duties, GST, LCT and freight" },
-                  { name: "AI Vehicle Recommendations", desc: "Smart suggestions based on your budget and preferences" },
-                  { name: "Import Timeline Planner", desc: "Visual timeline with realistic delivery estimates" },
-                  { name: "Compliance Guide", desc: "State-specific requirements and modification planning" },
-                  { name: "AI Import Assistant", desc: "Get expert answers to your import questions" },
-                  { name: "Expert Scenarios", desc: "Pre-configured import strategies that work" }
+                  { name: "💰 Real-time Cost Calculator", value: "$500+ value per quote", desc: "Accurate landed costs with duties, GST, LCT and freight" },
+                  { name: "🛡️ Compliance Clarity Guide", value: "$1,500 mistake preventer", desc: "State-specific requirements and modification planning" },
+                  { name: "⏰ Mod Planner + Timeline", value: "$800 in time/stress saved", desc: "Visual timeline with realistic delivery estimates" },
+                  { name: "🤖 AI Import Assistant", value: "24/7 $0 consultation cost", desc: "Get expert answers to your import questions instantly" },
+                  { name: "⭐ Expert Scenarios & Vehicle Picks", value: "avoid $3,000 regrets", desc: "Pre-configured import strategies that work" },
+                  { name: "🎁 Free Trial – Full Access", value: "no card, instant start", desc: "Complete platform access for 14 days" }
                 ].map((tool, index) => (
-                  <div key={index} className="flex items-start space-x-4">
-                    <div className="w-2 h-2 bg-[#D4AF37] rounded-full mt-2 flex-shrink-0"></div>
-                    <div>
-                      <div className="font-semibold text-[#1E1E1E]">{tool.name}</div>
+                  <div key={index} className="flex items-start justify-between p-3 bg-white/50 rounded-lg">
+                    <div className="flex-1">
+                      <div className="font-semibold text-[#1E1E1E] mb-1">{tool.name}</div>
                       <div className="text-gray-600 text-sm">{tool.desc}</div>
+                    </div>
+                    <div className="text-right text-sm">
+                      <div className="font-semibold text-[#10B981]">({tool.value})</div>
                     </div>
                   </div>
                 ))}
+              </div>
+              
+              <div className="mt-6 pt-4 border-t border-[#D4AF37]/20">
+                <div className="text-center">
+                  <div className="text-lg font-bold text-[#1E1E1E] mb-1">Total Value: $5,000+</div>
+                  <div className="text-2xl font-bold text-[#D4AF37]">Your Price: $97/mo</div>
+                </div>
               </div>
             </div>
           </div>
@@ -209,6 +218,21 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
                 >
                   {isSubmitting ? "ACTIVATING YOUR ACCOUNT..." : "START FREE TRIAL NOW"}
                 </Button>
+                
+                {/* Urgency Bar */}
+                <div className="mt-4 p-3 bg-[#FEF3C7] border border-[#D9822B]/30 rounded-lg">
+                  <div className="text-center text-[#D9822B] text-sm font-medium">
+                    ⚠️ Import costs are up 40% this quarter. Avoid delays. Lock in your $97/month before we raise prices.
+                  </div>
+                </div>
+                
+                {/* Confidence Building Copy */}
+                <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <p className="text-sm text-gray-700 text-center leading-relaxed">
+                    If ImportIQ doesn't save you money, time, or stress on your next import — you shouldn't pay for it. 
+                    That's why we offer full access for 14 days, no credit card required. You decide if it's worth it.
+                  </p>
+                </div>
               </form>
 
               {/* Trust Signals */}
@@ -221,6 +245,23 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
                       <div>• Your personalized import intelligence dashboard</div>
                       <div>• Start calculating and saving money immediately</div>
                     </div>
+                  </div>
+                </div>
+                
+                {/* Testimonials */}
+                <div className="space-y-4">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="text-blue-800 text-sm italic mb-2">
+                      "I saved $4,000 avoiding a compliance trap thanks to ImportIQ."
+                    </div>
+                    <div className="text-blue-600 text-xs">— Melbourne Importer</div>
+                  </div>
+                  
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                    <div className="text-purple-800 text-sm italic mb-2">
+                      "I used to dread importing. Now I know exactly what to expect."
+                    </div>
+                    <div className="text-purple-600 text-xs">— Sydney Business Owner</div>
                   </div>
                 </div>
                 
