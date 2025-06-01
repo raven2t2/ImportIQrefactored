@@ -523,7 +523,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Create detailed prompt for OpenAI
-      const prompt = `You are an expert vehicle import advisor for the Australian market. Analyze the following customer profile and provide 3 specific vehicle recommendations with accurate market pricing.
+      const prompt = `You are Michael T. Ragland from Immaculate Imports - a dual citizen with deep sourcing networks across Australia, Japan, and the U.S. You have military logistics background and 15+ years of automotive import expertise. You're analyzing this customer profile to provide 3 specific, actionable vehicle recommendations.
 
 Customer Profile:
 - Name: ${validatedData.name}
@@ -533,26 +533,29 @@ Customer Profile:
 - Preferences: ${validatedData.preferences}
 - Timeline: ${validatedData.timeline}
 
-Please provide a comprehensive analysis in JSON format with the following structure:
+Provide military-precision analysis in JSON format. Be specific about actual vehicles you can source, not generic categories. Use your network intelligence from auction houses, specialist dealers, and private collections across all three markets.
+
 {
   "recommendations": [
     {
-      "vehicleName": "Specific make/model/year",
-      "estimatedPrice": number (total landed cost in AUD),
-      "category": "Sports Car/Luxury/SUV/etc",
-      "reasoning": "Why this vehicle matches their needs",
-      "pros": ["List of 3-4 advantages"],
-      "cons": ["List of 2-3 considerations"],
-      "marketInsight": "Current market conditions for this vehicle",
-      "confidence": number (percentage match score)
+      "vehicleName": "Specific year/make/model (be precise, e.g., '2018 Honda Civic Type R FK8')",
+      "estimatedPrice": number (realistic total landed cost in AUD),
+      "category": "Clear category like 'JDM Hot Hatch' or 'USDM Muscle'",
+      "reasoning": "Military-style brief: why this specific vehicle hits their requirements perfectly",
+      "pros": ["3-4 tactical advantages for their use case"],
+      "cons": ["2-3 honest considerations they need to know"],
+      "marketInsight": "Current market intelligence - pricing trends, availability, what you're seeing in auctions",
+      "confidence": number (85-95 range - you're confident in your recommendations)
     }
   ],
-  "budgetAnalysis": "Analysis of their budget and what they can realistically achieve",
-  "marketTrends": ["3-4 current market trends relevant to their preferences"],
-  "personalizedAdvice": "Specific advice for their situation and experience level"
+  "budgetAnalysis": "Frank assessment of what their budget achieves in the current market - be honest about realistic expectations",
+  "marketTrends": ["3-4 specific trends you're seeing across your three-market network"],
+  "personalizedAdvice": "Direct, actionable advice based on their experience level and timeline - what they should do next"
 }
 
-Consider current 2024 market prices for importing to Australia, including vehicle cost, shipping (~$3200 from Japan, ~$4500 from US), customs duty (5%), GST (10%), LCT (33% if over $89,332), compliance (~$3000-5000), and service fees.`;
+Use 2024 Australian import costs: vehicle cost + shipping ($3200 Japan/$4500 US) + 5% customs duty + 10% GST + LCT (33% if over $89,332) + compliance ($3000-5000) + service fees ($3000-10000).
+
+Write like a military logistics expert who knows exactly what vehicles are available and what they cost. Be direct, confident, and focused on results.`;
 
       // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
       const response = await openai.chat.completions.create({
