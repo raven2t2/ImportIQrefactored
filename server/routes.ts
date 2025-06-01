@@ -47,6 +47,10 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 // Load auction sample data
 import * as fs from 'fs';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const auctionData = JSON.parse(fs.readFileSync(path.join(__dirname, 'auction-data.json'), 'utf8'));
 
 // JDM Chassis Code Database
