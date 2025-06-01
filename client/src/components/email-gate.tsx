@@ -246,7 +246,7 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
                 <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
                   <p className="text-sm text-gray-700 text-center leading-relaxed">
                     If ImportIQ doesn't save you money, time, or stress on your next import — you shouldn't pay for it. 
-                    That's why we offer full access for 14 days, no credit card required. You decide if it's worth it.
+                    That's why we offer full access for 7 days, no credit card required. You decide if it's worth it.
                   </p>
                 </div>
               </form>
@@ -257,7 +257,7 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
                   <div className="text-center">
                     <div className="font-semibold text-[#10B981] mb-3">✅ What Happens Next:</div>
                     <div className="text-[#065F46] text-sm space-y-1">
-                      <div>• Instant access to all 6 professional tools</div>
+                      <div>• Instant access to all 14 professional tools</div>
                       <div>• Your personalized import intelligence dashboard</div>
                       <div>• Start calculating and saving money immediately</div>
                     </div>
