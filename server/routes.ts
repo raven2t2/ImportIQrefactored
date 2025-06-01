@@ -37,8 +37,83 @@ const aiRecommendationSchema = z.object({
   timeline: z.enum(["asap", "3-months", "6-months", "flexible"]),
 });
 
+const vehicleLookupSchema = z.object({
+  identifier: z.string().min(1),
+});
+
 // Initialize OpenAI
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+// Load auction sample data
+import * as fs from 'fs';
+import * as path from 'path';
+const auctionData = JSON.parse(fs.readFileSync(path.join(__dirname, 'auction-data.json'), 'utf8'));
+
+// JDM Chassis Code Database
+const jdmDatabase = {
+  "JZX100": { "make": "Toyota", "model": "Chaser", "years": "1996–2001", "engine": "1JZ-GTE", "compliance_notes": "Turbo model may require emissions testing in VIC" },
+  "JZA80": { "make": "Toyota", "model": "Supra", "years": "1993–2002", "engine": "2JZ-GTE", "compliance_notes": "Rear seatbelt compliance may be required in some states" },
+  "AE86": { "make": "Toyota", "model": "Sprinter Trueno / Corolla Levin", "years": "1983–1987", "engine": "4A-GE", "compliance_notes": "May require structural inspection due to age" },
+  "R32": { "make": "Nissan", "model": "Skyline GT-R", "years": "1989–1994", "engine": "RB26DETT", "compliance_notes": "Early models may need asbestos compliance check" },
+  "R33": { "make": "Nissan", "model": "Skyline GT-R", "years": "1993–1998", "engine": "RB26DETT", "compliance_notes": "Check for asbestos-related parts in early models" },
+  "R34": { "make": "Nissan", "model": "Skyline GT-R", "years": "1999–2002", "engine": "RB26DETT", "compliance_notes": "Some variants not SEVS eligible — check VIN carefully" },
+  "S13": { "make": "Nissan", "model": "Silvia", "years": "1988–1993", "engine": "CA18DET / SR20DET", "compliance_notes": "Turbo models may require engineer sign-off" },
+  "S14": { "make": "Nissan", "model": "Silvia", "years": "1993–1999", "engine": "SR20DET", "compliance_notes": "Check for factory immobiliser compliance" },
+  "S15": { "make": "Nissan", "model": "Silvia", "years": "1999–2002", "engine": "SR20DET", "compliance_notes": "Requires frontal impact compliance in NSW" },
+  "Z32": { "make": "Nissan", "model": "300ZX", "years": "1989–2000", "engine": "VG30DETT", "compliance_notes": "Twin turbo requires specialist compliance inspection" },
+  "FD3S": { "make": "Mazda", "model": "RX-7", "years": "1992–2002", "engine": "13B-REW", "compliance_notes": "Rotary emissions tests stricter in VIC" },
+  "FC3S": { "make": "Mazda", "model": "RX-7", "years": "1986–1991", "engine": "13B-T", "compliance_notes": "Check structural rust on import" },
+  "BP5": { "make": "Subaru", "model": "Legacy GT Wagon", "years": "2003–2009", "engine": "EJ20X / EJ20Y", "compliance_notes": "Ensure twin-scroll turbo compliance is met" },
+  "BL5": { "make": "Subaru", "model": "Legacy GT Sedan", "years": "2003–2009", "engine": "EJ20X / EJ20Y", "compliance_notes": "Same mechanicals as BP5; verify rear impact compliance" },
+  "GC8": { "make": "Subaru", "model": "Impreza WRX STI", "years": "1992–2000", "engine": "EJ20G / EJ207", "compliance_notes": "Check for aftermarket ECU or mods during compliance" },
+  "GDB": { "make": "Subaru", "model": "Impreza WRX STI", "years": "2000–2007", "engine": "EJ207", "compliance_notes": "Turbo inlet mods may require certification" },
+  "CT9A": { "make": "Mitsubishi", "model": "Lancer Evolution 7–9", "years": "2001–2006", "engine": "4G63T", "compliance_notes": "Track packages may require engineer report" },
+  "CZ4A": { "make": "Mitsubishi", "model": "Lancer Evolution X", "years": "2007–2016", "engine": "4B11T", "compliance_notes": "DSG models require additional compliance for paddle shift systems" },
+  "DB8": { "make": "Honda", "model": "Integra Type R (4-door)", "years": "1995–2000", "engine": "B18C", "compliance_notes": "Verify airbags and rear headrest compliance" },
+  "DC2": { "make": "Honda", "model": "Integra Type R", "years": "1995–2001", "engine": "B18C", "compliance_notes": "JDM lights and seatbelts may need replacing" },
+  "EK9": { "make": "Honda", "model": "Civic Type R", "years": "1997–2000", "engine": "B16B", "compliance_notes": "Compliance may require immobiliser check" },
+  "EP3": { "make": "Honda", "model": "Civic Type R", "years": "2001–2005", "engine": "K20A", "compliance_notes": "UKDM and JDM variants differ in compliance pathways" },
+  "ZC31S": { "make": "Suzuki", "model": "Swift Sport", "years": "2005–2010", "engine": "M16A", "compliance_notes": "Generally low-risk import" },
+  "HCR32": { "make": "Nissan", "model": "Skyline GTS-T", "years": "1989–1993", "engine": "RB20DET", "compliance_notes": "Popular with tuners, check for prior chassis mods" },
+  "GX100": { "make": "Toyota", "model": "Mark II", "years": "1996–2000", "engine": "1G-FE / 1JZ-GE", "compliance_notes": "Non-turbo variants often easier to comply" },
+  "ZZT231": { "make": "Toyota", "model": "Celica (7th Gen)", "years": "1999–2006", "engine": "2ZZ-GE", "compliance_notes": "VVTL-i engines require verified ECU for emissions" }
+};
+
+// Function to get auction samples for a vehicle
+function getAuctionSamples(make: string, model: string, year: number) {
+  const targetYear = year;
+  const yearRange = 2; // +/- 2 years
+  
+  // Filter auction data by make, model, and year range
+  const matches = auctionData.filter((entry: any) => {
+    return entry.maker.toLowerCase() === make.toLowerCase() &&
+           entry.model.toLowerCase().includes(model.toLowerCase()) &&
+           entry.year >= (targetYear - yearRange) &&
+           entry.year <= (targetYear + yearRange);
+  });
+  
+  // Randomly select 3-5 samples
+  const sampleCount = Math.min(matches.length, Math.floor(Math.random() * 3) + 3);
+  const samples = [];
+  
+  for (let i = 0; i < sampleCount && matches.length > 0; i++) {
+    const randomIndex = Math.floor(Math.random() * matches.length);
+    const sample = matches.splice(randomIndex, 1)[0];
+    
+    // Convert JPY to AUD (using 150 yen = 1 AUD exchange rate)
+    const audPrice = Math.round(sample.price_jpy / 150);
+    
+    samples.push({
+      year: sample.year,
+      mileage: sample.mileage.toLocaleString() + " km",
+      auctionHouse: sample.auction_house,
+      priceJpy: "¥" + sample.price_jpy.toLocaleString(),
+      priceAud: "AUD $" + audPrice.toLocaleString()
+    });
+  }
+  
+  return samples;
+}
 
 function calculateImportCosts(vehiclePrice: number, shippingOrigin: string, zipCode?: string): CalculationResult {
   // Base shipping costs by origin
@@ -708,6 +783,112 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({
         success: false,
         message: "Internal server error",
+      });
+    }
+  });
+
+  // Vehicle Lookup endpoint
+  app.post("/api/vehicle-lookup", async (req, res) => {
+    try {
+      const validatedData = vehicleLookupSchema.parse(req.body);
+      const { identifier } = validatedData;
+
+      // Detect if VIN (17 characters) or JDM chassis code
+      const isVin = identifier.length === 17 && /^[A-HJ-NPR-Z0-9]{17}$/i.test(identifier);
+
+      if (isVin) {
+        // VIN Decode using NHTSA API
+        try {
+          const vinResponse = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/${identifier}?format=json`);
+          const vinData = await vinResponse.json();
+
+          if (vinData.Results && vinData.Results.length > 0) {
+            const results = vinData.Results;
+            const make = results.find((r: any) => r.Variable === "Make")?.Value || "";
+            const model = results.find((r: any) => r.Variable === "Model")?.Value || "";
+            const year = results.find((r: any) => r.Variable === "Model Year")?.Value || "";
+            const trim = results.find((r: any) => r.Variable === "Trim")?.Value || "";
+            const engine = results.find((r: any) => r.Variable === "Engine Model")?.Value || "";
+            const fuelType = results.find((r: any) => r.Variable === "Fuel Type - Primary")?.Value || "";
+
+            if (!make || !model) {
+              return res.json({
+                success: false,
+                error: "VIN could not be decoded. Please verify the VIN is correct.",
+                type: "vin"
+              });
+            }
+
+            // Get auction samples
+            const auctionSamples = getAuctionSamples(make, model, parseInt(year) || new Date().getFullYear());
+
+            res.json({
+              success: true,
+              type: "vin",
+              data: {
+                make,
+                model,
+                year,
+                trim: trim || undefined,
+                engine: engine || undefined,
+                fuelType: fuelType || undefined
+              },
+              auctionSamples
+            });
+          } else {
+            res.json({
+              success: false,
+              error: "VIN could not be decoded. Please verify the VIN is correct.",
+              type: "vin"
+            });
+          }
+        } catch (error) {
+          console.error("NHTSA API error:", error);
+          res.json({
+            success: false,
+            error: "Failed to decode VIN. Please try again later.",
+            type: "vin"
+          });
+        }
+      } else {
+        // JDM Chassis Code Lookup
+        const chassisCode = identifier.toUpperCase();
+        const jdmData = jdmDatabase[chassisCode as keyof typeof jdmDatabase];
+
+        if (jdmData) {
+          // Extract year from years range for auction samples
+          const yearMatch = jdmData.years.match(/(\d{4})/);
+          const year = yearMatch ? parseInt(yearMatch[1]) : new Date().getFullYear();
+          
+          // Get auction samples
+          const auctionSamples = getAuctionSamples(jdmData.make, jdmData.model, year);
+
+          res.json({
+            success: true,
+            type: "jdm",
+            data: jdmData,
+            auctionSamples
+          });
+        } else {
+          res.json({
+            success: false,
+            error: "This chassis code isn't in our database yet. Try using a full VIN or message us to add it.",
+            type: "jdm"
+          });
+        }
+      }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          success: false,
+          message: "Validation failed",
+          errors: error.errors,
+        });
+      }
+      console.error("Vehicle lookup error:", error);
+      res.status(500).json({ 
+        success: false,
+        error: "Failed to lookup vehicle information" 
       });
     }
   });
