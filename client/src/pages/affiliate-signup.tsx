@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { Users, DollarSign, TrendingUp, Share2, CheckCircle, ArrowRight } from "lucide-react";
+import { Users, DollarSign, TrendingUp, Share2, CheckCircle, ArrowRight, Menu, X } from "lucide-react";
+import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -10,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { insertAffiliateSchema } from "@shared/schema";
+import logoPath from "@assets/circular imi logo (3).png";
 import type { z } from "zod";
 
 type FormData = z.infer<typeof insertAffiliateSchema>;
@@ -29,6 +31,7 @@ interface AffiliateSignupResponse {
 export default function AffiliateSignup() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [affiliateData, setAffiliateData] = useState<AffiliateSignupResponse['affiliate'] | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { toast } = useToast();
 
   const form = useForm<FormData>({
