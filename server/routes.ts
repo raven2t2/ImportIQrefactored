@@ -679,6 +679,51 @@ Write like a military logistics expert who knows real market values and won't ov
     }
   });
 
+  // Dashboard API endpoints
+  app.get("/api/admin/submissions", async (req, res) => {
+    try {
+      const submissions = await storage.getAllSubmissions();
+      res.json(submissions);
+    } catch (error) {
+      console.error("Error fetching submissions:", error);
+      res.status(500).json({ error: "Failed to fetch submissions" });
+    }
+  });
+
+  app.get("/api/admin/ai-recommendations", async (req, res) => {
+    try {
+      const recommendations = await storage.getAllAIRecommendations();
+      res.json(recommendations);
+    } catch (error) {
+      console.error("Error fetching AI recommendations:", error);
+      res.status(500).json({ error: "Failed to fetch AI recommendations" });
+    }
+  });
+
+  app.get("/api/admin/stats", async (req, res) => {
+    try {
+      const submissions = await storage.getAllSubmissions();
+      const aiRecommendations = await storage.getAllAIRecommendations();
+      
+      const totalRevenuePotential = submissions.reduce((sum, sub) => {
+        const cost = parseFloat(sub.totalCost) || 0;
+        return sum + cost;
+      }, 0);
+
+      const stats = {
+        totalSubmissions: submissions.length,
+        totalAIRecommendations: aiRecommendations.length,
+        totalRevenuePotential,
+        conversionRate: submissions.length > 0 ? (submissions.length / (submissions.length + aiRecommendations.length)) * 100 : 0
+      };
+
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+      res.status(500).json({ error: "Failed to fetch stats" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
