@@ -52,6 +52,29 @@ export interface IStorage {
   createPayoutRequest(request: Omit<InsertPayoutRequest, 'id' | 'requestedAt'>): Promise<PayoutRequest>;
   getPayoutRequests(affiliateId?: number): Promise<PayoutRequest[]>;
   updatePayoutRequest(id: number, updates: Partial<PayoutRequest>): Promise<PayoutRequest>;
+  
+  // Vehicle Builds (My Build Garage)
+  createVehicleBuild(build: Omit<InsertVehicleBuild, 'id' | 'createdAt' | 'updatedAt'>): Promise<VehicleBuild>;
+  getUserVehicleBuilds(userId: string): Promise<VehicleBuild[]>;
+  updateVehicleBuild(id: number, updates: Partial<VehicleBuild>): Promise<VehicleBuild>;
+  deleteVehicleBuild(id: number): Promise<void>;
+  
+  // Mod Shop Partners
+  getModShopPartners(): Promise<ModShopPartner[]>;
+  createModShopPartner(partner: Omit<InsertModShopPartner, 'id' | 'createdAt'>): Promise<ModShopPartner>;
+  
+  // Car Events
+  getCarEventsByState(state: string): Promise<any[]>;
+  getUpcomingCarEvents(): Promise<any[]>;
+  
+  // Parts Watchlist
+  createWatchlistItem(item: Omit<InsertPartsWatchlistItem, 'id' | 'createdAt' | 'updatedAt'>): Promise<PartsWatchlistItem>;
+  getUserWatchlist(userId: string): Promise<PartsWatchlistItem[]>;
+  updateWatchlistItem(id: number, updates: Partial<PartsWatchlistItem>): Promise<PartsWatchlistItem>;
+  deleteWatchlistItem(id: number): Promise<void>;
+  
+  // Shop Suggestions
+  createShopSuggestion(suggestion: Omit<InsertShopSuggestion, 'id' | 'createdAt'>): Promise<ShopSuggestion>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -370,6 +393,114 @@ export class DatabaseStorage implements IStorage {
       .where(eq(payoutRequests.id, id))
       .returning();
     return request;
+  }
+
+  // Vehicle Builds (My Build Garage)
+  async createVehicleBuild(buildData: Omit<InsertVehicleBuild, 'id' | 'createdAt' | 'updatedAt'>): Promise<VehicleBuild> {
+    const [build] = await db
+      .insert(vehicleBuilds)
+      .values(buildData)
+      .returning();
+    return build;
+  }
+
+  async getUserVehicleBuilds(userId: string): Promise<VehicleBuild[]> {
+    return await db
+      .select()
+      .from(vehicleBuilds)
+      .where(eq(vehicleBuilds.userId, userId))
+      .orderBy(vehicleBuilds.createdAt);
+  }
+
+  async updateVehicleBuild(id: number, updates: Partial<VehicleBuild>): Promise<VehicleBuild> {
+    const [updated] = await db
+      .update(vehicleBuilds)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(vehicleBuilds.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteVehicleBuild(id: number): Promise<void> {
+    await db
+      .delete(vehicleBuilds)
+      .where(eq(vehicleBuilds.id, id));
+  }
+
+  // Mod Shop Partners
+  async getModShopPartners(): Promise<ModShopPartner[]> {
+    return await db
+      .select()
+      .from(modShopPartners)
+      .where(eq(modShopPartners.isActive, true))
+      .orderBy(modShopPartners.name);
+  }
+
+  async createModShopPartner(partnerData: Omit<InsertModShopPartner, 'id' | 'createdAt'>): Promise<ModShopPartner> {
+    const [partner] = await db
+      .insert(modShopPartners)
+      .values(partnerData)
+      .returning();
+    return partner;
+  }
+
+  // Car Events (reusing existing structure)
+  async getCarEventsByState(state: string): Promise<any[]> {
+    return await db
+      .select()
+      .from(carEvents)
+      .where(eq(carEvents.state, state))
+      .orderBy(carEvents.eventDate);
+  }
+
+  async getUpcomingCarEvents(): Promise<any[]> {
+    return await db
+      .select()
+      .from(carEvents)
+      .where(gt(carEvents.eventDate, new Date()))
+      .orderBy(carEvents.eventDate)
+      .limit(10);
+  }
+
+  // Parts Watchlist
+  async createWatchlistItem(itemData: Omit<InsertPartsWatchlistItem, 'id' | 'createdAt' | 'updatedAt'>): Promise<PartsWatchlistItem> {
+    const [item] = await db
+      .insert(partsWatchlist)
+      .values(itemData)
+      .returning();
+    return item;
+  }
+
+  async getUserWatchlist(userId: string): Promise<PartsWatchlistItem[]> {
+    return await db
+      .select()
+      .from(partsWatchlist)
+      .where(eq(partsWatchlist.userId, userId))
+      .orderBy(partsWatchlist.createdAt);
+  }
+
+  async updateWatchlistItem(id: number, updates: Partial<PartsWatchlistItem>): Promise<PartsWatchlistItem> {
+    const [updated] = await db
+      .update(partsWatchlist)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(partsWatchlist.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteWatchlistItem(id: number): Promise<void> {
+    await db
+      .delete(partsWatchlist)
+      .where(eq(partsWatchlist.id, id));
+  }
+
+  // Shop Suggestions
+  async createShopSuggestion(suggestionData: Omit<InsertShopSuggestion, 'id' | 'createdAt'>): Promise<ShopSuggestion> {
+    const [suggestion] = await db
+      .insert(shopSuggestions)
+      .values(suggestionData)
+      .returning();
+    return suggestion;
   }
 
   private generateReferralCode(): string {

@@ -195,6 +195,67 @@ export const payoutRequests = pgTable("payout_requests", {
   processedAt: timestamp("processed_at"),
 });
 
+// My Build Garage - Vehicle builds
+export const vehicleBuilds = pgTable("vehicle_builds", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull(),
+  nickname: varchar("nickname").notNull(),
+  chassisCode: varchar("chassis_code"),
+  vin: varchar("vin"),
+  make: varchar("make"),
+  model: varchar("model"),
+  year: integer("year"),
+  photos: text("photos").array(), // Array of photo URLs
+  modList: text("mod_list").array(), // Array of modifications
+  plannedUpgrades: text("planned_upgrades").array(), // Array of planned mods
+  upgradeEta: text("upgrade_eta").array(), // ETAs for planned upgrades
+  isPublic: boolean("is_public").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Mod Shop Partners
+export const modShopPartners = pgTable("mod_shop_partners", {
+  id: serial("id").primaryKey(),
+  name: varchar("name").notNull(),
+  description: text("description"),
+  logoUrl: varchar("logo_url"),
+  website: varchar("website"),
+  discountCode: varchar("discount_code"),
+  discountPercent: integer("discount_percent"),
+  location: varchar("location"),
+  specialty: varchar("specialty"), // JDM, European, American, etc.
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Parts Watchlist
+export const partsWatchlist = pgTable("parts_watchlist", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull(),
+  partName: varchar("part_name").notNull(),
+  targetPrice: integer("target_price"), // in cents
+  currentPrice: integer("current_price"), // in cents
+  source: varchar("source"), // eBay, Yahoo JP, Facebook, etc.
+  sourceUrl: varchar("source_url"),
+  isFound: boolean("is_found").default(false),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Shop Suggestions (for CMS)
+export const shopSuggestions = pgTable("shop_suggestions", {
+  id: serial("id").primaryKey(),
+  shopName: varchar("shop_name").notNull(),
+  website: varchar("website"),
+  location: varchar("location"),
+  specialty: varchar("specialty"),
+  suggestedBy: varchar("suggested_by"), // email or user ID
+  status: varchar("status").default("pending"), // pending, contacted, approved, rejected
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -234,6 +295,18 @@ export type ReferralSignup = typeof referralSignups.$inferSelect;
 export type InsertReferralSignup = typeof referralSignups.$inferInsert;
 export type PayoutRequest = typeof payoutRequests.$inferSelect;
 export type InsertPayoutRequest = typeof payoutRequests.$inferInsert;
+
+export type VehicleBuild = typeof vehicleBuilds.$inferSelect;
+export type InsertVehicleBuild = typeof vehicleBuilds.$inferInsert;
+
+export type ModShopPartner = typeof modShopPartners.$inferSelect;
+export type InsertModShopPartner = typeof modShopPartners.$inferInsert;
+
+export type PartsWatchlistItem = typeof partsWatchlist.$inferSelect;
+export type InsertPartsWatchlistItem = typeof partsWatchlist.$inferInsert;
+
+export type ShopSuggestion = typeof shopSuggestions.$inferSelect;
+export type InsertShopSuggestion = typeof shopSuggestions.$inferInsert;
 
 // Affiliate schema for forms
 export const insertAffiliateSchema = createInsertSchema(affiliates).pick({
