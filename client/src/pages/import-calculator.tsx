@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Calculator, Ship, Crown, FileText, ArrowRight } from "lucide-react";
+import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -135,13 +136,26 @@ export default function ImportCalculator() {
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-4 py-6">
-          <div className="flex items-center space-x-3">
-            <div className="flex items-center justify-center w-10 h-10 bg-brand-gold rounded-lg">
-              <Calculator className="h-5 w-5 text-white" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center justify-center w-10 h-10 bg-brand-gold rounded-lg">
+                <Calculator className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Immaculate Imports Calculator</h1>
+                <p className="text-sm text-gray-600">Your Dream Car, Delivered - Calculate total landed costs for importing vehicles to Australia</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Immaculate Imports Calculator</h1>
-              <p className="text-sm text-gray-600">Your Dream Car, Delivered - Calculate total landed costs for importing vehicles to Australia</p>
+            <div className="flex space-x-2">
+              <Link href="/japan-value">
+                <Button variant="outline" size="sm">Japan Value</Button>
+              </Link>
+              <Link href="/compliance-estimate">
+                <Button variant="outline" size="sm">Compliance</Button>
+              </Link>
+              <Link href="/mod-estimator">
+                <Button variant="outline" size="sm">Mods</Button>
+              </Link>
             </div>
           </div>
         </div>
