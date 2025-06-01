@@ -31,6 +31,7 @@ function Router() {
       <Route path="/expert-picks" component={ExpertPicks} />
       <Route path="/compliance-estimate" component={ComplianceEstimate} />
       <Route path="/mod-estimator" component={ModEstimator} />
+      <Route path="/value-estimator" component={ValueEstimator} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/subscribe" component={Subscribe} />
       <Route component={NotFound} />
