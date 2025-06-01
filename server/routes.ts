@@ -1360,6 +1360,211 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
+  // Affiliate System Routes
+  
+  // Public affiliate signup
+  app.post("/api/affiliate/signup", async (req, res) => {
+    try {
+      const { name, email, socialLink } = req.body;
+      
+      // Check if affiliate already exists
+      const existingAffiliate = await storage.getAffiliateByEmail(email);
+      if (existingAffiliate) {
+        return res.status(400).json({ message: "Affiliate with this email already exists" });
+      }
+      
+      const affiliate = await storage.createAffiliate({
+        name,
+        email,
+        socialLink: socialLink || null,
+      });
+      
+      res.json({ 
+        success: true, 
+        affiliate: {
+          id: affiliate.id,
+          name: affiliate.name,
+          email: affiliate.email,
+          referralCode: affiliate.referralCode,
+          tier: affiliate.tier,
+          commissionRate: affiliate.commissionRate
+        }
+      });
+    } catch (error) {
+      console.error("Error creating affiliate:", error);
+      res.status(500).json({ message: "Failed to create affiliate" });
+    }
+  });
+
+  // Track referral clicks
+  app.post("/api/affiliate/track-click", async (req, res) => {
+    try {
+      const { referralCode } = req.body;
+      const ipAddress = req.ip;
+      const userAgent = req.get('User-Agent');
+      const referer = req.get('Referer');
+      
+      const affiliate = await storage.getAffiliateByReferralCode(referralCode);
+      if (!affiliate) {
+        return res.status(404).json({ message: "Invalid referral code" });
+      }
+      
+      await storage.trackReferralClick({
+        affiliateId: affiliate.id,
+        ipAddress,
+        userAgent,
+        referer
+      });
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error tracking click:", error);
+      res.status(500).json({ message: "Failed to track click" });
+    }
+  });
+
+  // Get affiliate dashboard data
+  app.get("/api/affiliate/:email", async (req, res) => {
+    try {
+      const { email } = req.params;
+      
+      const affiliate = await storage.getAffiliateByEmail(email);
+      if (!affiliate) {
+        return res.status(404).json({ message: "Affiliate not found" });
+      }
+      
+      const stats = await storage.getReferralStats(affiliate.id);
+      const payoutRequests = await storage.getPayoutRequests(affiliate.id);
+      
+      let influencerProfile = null;
+      if (affiliate.isInfluencer) {
+        influencerProfile = await storage.getInfluencerProfile(affiliate.id);
+      }
+      
+      res.json({
+        affiliate: {
+          ...affiliate,
+          currentBalance: affiliate.currentBalance / 100, // Convert cents to dollars
+          totalEarnings: affiliate.totalEarnings / 100
+        },
+        stats,
+        payoutRequests: payoutRequests.map(req => ({
+          ...req,
+          amount: req.amount / 100
+        })),
+        influencerProfile
+      });
+    } catch (error) {
+      console.error("Error fetching affiliate data:", error);
+      res.status(500).json({ message: "Failed to fetch affiliate data" });
+    }
+  });
+
+  // Create payout request
+  app.post("/api/affiliate/payout-request", async (req, res) => {
+    try {
+      const { affiliateEmail, amount, paymentMethod, paymentDetails } = req.body;
+      
+      const affiliate = await storage.getAffiliateByEmail(affiliateEmail);
+      if (!affiliate) {
+        return res.status(404).json({ message: "Affiliate not found" });
+      }
+      
+      const amountInCents = Math.round(amount * 100);
+      if (amountInCents > affiliate.currentBalance) {
+        return res.status(400).json({ message: "Insufficient balance" });
+      }
+      
+      const payoutRequest = await storage.createPayoutRequest({
+        affiliateId: affiliate.id,
+        amount: amountInCents,
+        paymentMethod,
+        paymentDetails
+      });
+      
+      res.json({ success: true, payoutRequest });
+    } catch (error) {
+      console.error("Error creating payout request:", error);
+      res.status(500).json({ message: "Failed to create payout request" });
+    }
+  });
+
+  // Get influencer landing page
+  app.get("/api/influencer/:handle", async (req, res) => {
+    try {
+      const { handle } = req.params;
+      
+      const profile = await storage.getInfluencerProfileByHandle(handle);
+      if (!profile || !profile.isActive) {
+        return res.status(404).json({ message: "Influencer not found" });
+      }
+      
+      const affiliate = await storage.getAffiliate(profile.affiliateId);
+      if (!affiliate) {
+        return res.status(404).json({ message: "Affiliate not found" });
+      }
+      
+      res.json({
+        profile,
+        affiliate: {
+          name: affiliate.name,
+          referralCode: affiliate.referralCode
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching influencer profile:", error);
+      res.status(500).json({ message: "Failed to fetch influencer profile" });
+    }
+  });
+
+  // Admin routes for affiliate management
+  app.get("/api/admin/affiliates", async (req, res) => {
+    try {
+      const affiliates = await storage.getAllAffiliates();
+      const payoutRequests = await storage.getPayoutRequests();
+      
+      res.json({ 
+        affiliates: affiliates.map(affiliate => ({
+          ...affiliate,
+          currentBalance: affiliate.currentBalance / 100,
+          totalEarnings: affiliate.totalEarnings / 100
+        })),
+        payoutRequests: payoutRequests.map(req => ({
+          ...req,
+          amount: req.amount / 100
+        }))
+      });
+    } catch (error) {
+      console.error("Error fetching affiliates:", error);
+      res.status(500).json({ message: "Failed to fetch affiliates" });
+    }
+  });
+
+  // Upgrade affiliate to influencer
+  app.post("/api/admin/upgrade-influencer", async (req, res) => {
+    try {
+      const { affiliateId, profileData } = req.body;
+      
+      // Update affiliate to influencer status
+      await storage.updateAffiliate(affiliateId, {
+        isInfluencer: true,
+        commissionRate: 40, // Influencer tier gets 40%
+        tier: "influencer"
+      });
+      
+      // Create influencer profile
+      const profile = await storage.createInfluencerProfile({
+        affiliateId,
+        ...profileData
+      });
+      
+      res.json({ success: true, profile });
+    } catch (error) {
+      console.error("Error upgrading to influencer:", error);
+      res.status(500).json({ message: "Failed to upgrade to influencer" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
