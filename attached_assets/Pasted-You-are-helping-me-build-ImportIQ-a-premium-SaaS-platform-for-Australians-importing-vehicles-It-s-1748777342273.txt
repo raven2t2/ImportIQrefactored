@@ -1,0 +1,114 @@
+You are helping me build ImportIQ — a premium SaaS platform for Australians importing vehicles. It’s already live with:
+
+✓ Email-gated access
+✓ 14-day free trial logic (no credit card)
+✓ Database for trial/user status
+✓ Core tools:
+  - Import Cost Calculator
+  - AI-Powered Service Tier Recommender
+  - Compliance Estimator
+  - Modification Planner
+✓ Pricing: $97/month after trial
+
+Now I want to evolve ImportIQ into an industry-dominating product that delivers **massive value**. Your job is to add and wire up the following feature modules inside the portal. Use minimal, clean UI for now. Function over form.
+
+---
+
+## ✅ New Modules to Build:
+
+### 1. **True Cost Explorer**
+An enhanced ownership calculator beyond import costs.
+Includes fields for:
+- Annual rego fees (based on state dropdown)
+- Average insurance estimate (basic/standard/premium tiers)
+- Fuel type + estimated yearly consumption cost
+- Resale value slider (based on # of years held)
+
+✅ Output: Summary with total 3–5 year ownership cost.
+
+---
+
+### 2. **Build & Comply**
+A modification planning tool + compliance checker.
+Steps:
+- User selects vehicle and state (NSW, VIC, SA, etc.)
+- Choose from mod options (wheels, turbo, suspension, etc.)
+- Each mod shows green/yellow/red based on compliance risk
+- Display compliance path (e.g., engineer cert required)
+
+✅ Output: Custom mod plan + checklist for legal compliance.
+
+---
+
+### 3. **Import Timeline Simulator**
+Simulates estimated delivery & registration time based on:
+- Shipping origin (Japan/USA)
+- Method (RoRo, container)
+- User-selected port of entry
+- Time of year (for backlog estimate)
+
+✅ Output: Gantt-style visual timeline of steps to road-ready status.
+
+---
+
+### 4. **AI Import Assistant**
+Always-available chatbot embedded in the portal.
+Handles questions like:
+- “Is my car eligible for import?”
+- “What do I need for SA rego?”
+- “Can I lower this vehicle legally?”
+
+Use GPT-4o API for fast, helpful replies. Context-aware of user’s selected vehicle if available.
+
+✅ Output: Embedded chat bubble or modal. Logged chat optional.
+
+---
+
+### 5. **Expert Picks / Starter Scenarios**
+Create a page with pre-filled examples:
+- “Import an R34 Skyline” → show total cost + timeline
+- “Get a Hellcat into QLD” → steps, risks, and suggestions
+- “Budget import under $25K” → show best value path
+
+✅ Output: Click → populate calculator and timeline with editable fields.
+
+---
+
+### 6. **Dashboard Revamp**
+Revise dashboard homepage to show:
+- Welcome message with trial days remaining
+- Quick launch buttons for each tool
+- “Recommended for You” AI tip
+- CTA to subscribe if trial is near expiry
+
+✅ Output: Clean React-style dashboard layout (minimal CSS, modular design).
+
+---
+
+### 7. **Optional: Power Tools Tier (Future)**
+Build structure for power users who pay more:
+- Market alerts on specific cars
+- Auction price trend graphs
+- VIN decoder for build info
+- Vehicle watchlist (email alert on drops)
+
+✅ Output: Do not build this yet, just stub it in the codebase.
+
+---
+
+## 🧠 Brand Language
+- Premium, confident tone
+- Use phrases like: “road-ready,” “compliance clarity,” “real ownership cost”
+- Everything must feel like it’s designed for **high-trust car buyers**
+
+---
+
+## 🔐 Constraints
+- All features remain inside the ImportIQ portal
+- Maintain 14-day trial logic
+- Store user actions and trial status in your database (can be JSON for now)
+- No styling polish needed yet – just keep it clean and mobile-friendly
+
+---
+
+Let me know what else you need — I’ll provide any API keys, prompt wording, or UI ideas. Let's make ImportIQ a must-have for importers across Australia.
