@@ -311,40 +311,92 @@ export default function ImportIQ() {
             Start with a free trial, then choose the plan that works for you.
           </p>
 
-          <div className="bg-black border border-gray-800 rounded-3xl p-12 max-w-lg mx-auto">
-            <h3 className="text-3xl font-bold text-white mb-6">Professional</h3>
-            <div className="mb-8">
-              <span className="text-6xl font-bold text-amber-400">$97</span>
-              <span className="text-gray-300 ml-3 text-xl">/month</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* Monthly Plan */}
+            <div className="bg-black border border-gray-800 rounded-3xl p-8">
+              <h3 className="text-2xl font-bold text-white mb-4">Monthly</h3>
+              <div className="mb-6">
+                <span className="text-5xl font-bold text-amber-400">$97</span>
+                <span className="text-gray-300 ml-2 text-lg">/month</span>
+              </div>
+              <ul className="text-left space-y-3 mb-8">
+                <li className="flex items-center">
+                  <CheckCircle className="h-5 w-5 text-amber-400 mr-3 flex-shrink-0" />
+                  <span className="text-gray-300 text-sm">Access to all 14 AI tools</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-5 w-5 text-amber-400 mr-3 flex-shrink-0" />
+                  <span className="text-gray-300 text-sm">Unlimited calculations</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-5 w-5 text-amber-400 mr-3 flex-shrink-0" />
+                  <span className="text-gray-300 text-sm">ML-powered recommendations</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-5 w-5 text-amber-400 mr-3 flex-shrink-0" />
+                  <span className="text-gray-300 text-sm">Expert support</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-5 w-5 text-amber-400 mr-3 flex-shrink-0" />
+                  <span className="text-gray-300 text-sm">Cancel anytime</span>
+                </li>
+              </ul>
+              <Button 
+                className="w-full bg-gray-700 hover:bg-gray-600 text-white py-3 text-base rounded-full font-medium transition-all duration-300"
+                onClick={() => setShowEmailGate(true)}
+              >
+                Start 7-Day Free Trial
+              </Button>
             </div>
-            <ul className="text-left space-y-4 mb-10">
-              <li className="flex items-center">
-                <CheckCircle className="h-6 w-6 text-amber-400 mr-4 flex-shrink-0" />
-                <span className="text-gray-300">Access to all 14 AI tools</span>
-              </li>
-              <li className="flex items-center">
-                <CheckCircle className="h-6 w-6 text-amber-400 mr-4 flex-shrink-0" />
-                <span className="text-gray-300">Unlimited calculations</span>
-              </li>
-              <li className="flex items-center">
-                <CheckCircle className="h-6 w-6 text-amber-400 mr-4 flex-shrink-0" />
-                <span className="text-gray-300">ML-powered recommendations</span>
-              </li>
-              <li className="flex items-center">
-                <CheckCircle className="h-6 w-6 text-amber-400 mr-4 flex-shrink-0" />
-                <span className="text-gray-300">Expert support</span>
-              </li>
-              <li className="flex items-center">
-                <CheckCircle className="h-6 w-6 text-amber-400 mr-4 flex-shrink-0" />
-                <span className="text-gray-300">Priority updates</span>
-              </li>
-            </ul>
-            <Button 
-              className="w-full bg-amber-400 hover:bg-amber-500 text-black py-4 text-lg rounded-full font-medium transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
-              onClick={() => setShowEmailGate(true)}
-            >
-              Start 7-Day Free Trial
-            </Button>
+
+            {/* Yearly Plan - Featured */}
+            <div className="bg-gradient-to-br from-amber-400 to-yellow-500 border-0 rounded-3xl p-8 relative transform scale-105 shadow-2xl">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                <div className="bg-red-600 text-white px-4 py-2 rounded-full text-sm font-bold">
+                  SAVE $232/YEAR
+                </div>
+              </div>
+              
+              <h3 className="text-2xl font-bold text-black mb-2">Yearly</h3>
+              <p className="text-sm text-amber-900 mb-4">Most Popular Choice</p>
+              
+              <div className="mb-6">
+                <div className="text-lg text-amber-800 line-through mb-1">$1,164</div>
+                <span className="text-5xl font-bold text-black">$77</span>
+                <span className="text-black ml-2 text-lg">/month</span>
+                <div className="text-sm text-amber-900 mt-1">$932 billed annually</div>
+              </div>
+              
+              <ul className="text-left space-y-3 mb-8">
+                <li className="flex items-center">
+                  <CheckCircle className="h-5 w-5 text-black mr-3 flex-shrink-0" />
+                  <span className="text-amber-900 text-sm font-medium">Everything in Monthly</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-5 w-5 text-black mr-3 flex-shrink-0" />
+                  <span className="text-amber-900 text-sm font-medium">20% discount (2+ months free)</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-5 w-5 text-black mr-3 flex-shrink-0" />
+                  <span className="text-amber-900 text-sm font-medium">Priority support</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-5 w-5 text-black mr-3 flex-shrink-0" />
+                  <span className="text-amber-900 text-sm font-medium">Early access to new tools</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-5 w-5 text-black mr-3 flex-shrink-0" />
+                  <span className="text-amber-900 text-sm font-medium">Annual strategy review</span>
+                </li>
+              </ul>
+              
+              <Button 
+                className="w-full bg-black hover:bg-gray-800 text-white py-3 text-base rounded-full font-bold transition-all duration-300 hover:scale-105 shadow-lg"
+                onClick={() => setShowEmailGate(true)}
+              >
+                Start 7-Day Free Trial
+              </Button>
+            </div>
           </div>
         </div>
       </div>
