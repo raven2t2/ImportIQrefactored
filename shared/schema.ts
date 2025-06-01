@@ -61,6 +61,48 @@ export const trials = pgTable("trials", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// User projects and saved calculations
+export const userProjects = pgTable("user_projects", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  projectName: text("project_name").notNull(),
+  vehicleDetails: jsonb("vehicle_details").notNull(),
+  calculationResults: jsonb("calculation_results"),
+  projectType: text("project_type").notNull(), // "import", "mod", "compliance", etc.
+  status: text("status").default("planning"), // planning, in-progress, completed
+  bookmarked: boolean("bookmarked").default(false),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// User achievements and badges
+export const userAchievements = pgTable("user_achievements", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  badgeId: text("badge_id").notNull(),
+  badgeName: text("badge_name").notNull(),
+  badgeDescription: text("badge_description"),
+  earnedAt: timestamp("earned_at").defaultNow(),
+  unlockedFeature: text("unlocked_feature"),
+});
+
+// Car events near users
+export const carEvents = pgTable("car_events", {
+  id: serial("id").primaryKey(),
+  eventName: text("event_name").notNull(),
+  eventType: text("event_type").notNull(), // "show", "meet", "track", "auction"
+  description: text("description"),
+  location: text("location").notNull(),
+  postcode: text("postcode").notNull(),
+  eventDate: timestamp("event_date").notNull(),
+  endDate: timestamp("end_date"),
+  websiteUrl: text("website_url"),
+  entryFee: text("entry_fee"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
