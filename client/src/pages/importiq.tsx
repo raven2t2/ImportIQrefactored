@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Calculator, TrendingUp, Shield, Clock, Users, ArrowRight, CheckCircle, Menu, X, Star, Globe, Zap } from "lucide-react";
+import { Calculator, TrendingUp, Shield, Clock, Users, ArrowRight, CheckCircle, Menu, X, Star, Globe, Zap, Brain, BarChart3 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import EmailGate from "@/components/email-gate";
+import logoPath from "@assets/circular imi logo (1).png";
 
 export default function ImportIQ() {
   const [showEmailGate, setShowEmailGate] = useState(false);
@@ -20,12 +21,12 @@ export default function ImportIQ() {
     { name: "Import Cost Calculator", path: "/import-calculator", icon: Calculator, description: "Get accurate import costs instantly" },
     { name: "True Cost Explorer", path: "/true-cost-explorer", icon: TrendingUp, description: "Explore total ownership costs" },
     { name: "Import Timeline", path: "/import-timeline", icon: Clock, description: "Plan your import timeline" },
-    { name: "Build & Comply", path: "/build-comply", icon: Shield, description: "Ensure compliance requirements" },
-    { name: "AI Recommendations", path: "/ai-recommendations", icon: Zap, description: "AI-powered vehicle suggestions" },
+    { name: "BuildReady™", path: "/build-comply", icon: Shield, description: "AI compliance & build planning" },
+    { name: "AI Recommendations", path: "/ai-recommendations", icon: Brain, description: "ML-powered vehicle suggestions" },
     { name: "Expert Vehicle Picks", path: "/expert-picks", icon: Star, description: "Curated expert recommendations" },
     { name: "Compliance Estimate", path: "/compliance-estimate", icon: Shield, description: "Estimate compliance costs" },
     { name: "Mod Cost Estimator", path: "/mod-estimator", icon: Calculator, description: "Calculate modification costs" },
-    { name: "Value Estimator", path: "/value-estimator", icon: TrendingUp, description: "Estimate vehicle values" },
+    { name: "Value Estimator", path: "/value-estimator", icon: BarChart3, description: "ML market value analysis" },
     { name: "Vehicle Lookup", path: "/vehicle-lookup", icon: Globe, description: "Comprehensive vehicle database" },
     { name: "Registration Stats", path: "/registration-stats", icon: Users, description: "Market registration data" },
     { name: "Import Volume Dashboard", path: "/import-volume-dashboard", icon: TrendingUp, description: "Track import volumes" },
@@ -70,8 +71,11 @@ export default function ImportIQ() {
       <nav className="fixed top-0 left-0 right-0 bg-black/95 backdrop-blur-xl border-b border-gray-800/50 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="text-2xl font-semibold text-white">
-              Import<span className="text-yellow-400">IQ</span>
+            <div className="flex items-center space-x-3">
+              <img src={logoPath} alt="Immaculate Imports" className="h-10 w-10" />
+              <div className="text-2xl font-semibold text-white">
+                Import<span className="text-amber-400">IQ</span>
+              </div>
             </div>
             
             {/* Desktop Navigation */}
@@ -81,7 +85,7 @@ export default function ImportIQ() {
               <a href="#pricing" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Pricing</a>
               <a href="/affiliate-signup" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Partners</a>
               <Button 
-                className="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-2 rounded-full transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
+                className="bg-amber-400 hover:bg-amber-500 text-black px-6 py-2 rounded-full transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
                 onClick={() => setShowEmailGate(true)}
               >
                 Start Free Trial
@@ -131,21 +135,43 @@ export default function ImportIQ() {
       {/* Hero Section */}
       <div className={`${trialStatus?.isActive ? 'pt-8' : 'pt-32'} pb-20`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="mb-6">
+            <div className="inline-flex items-center bg-amber-400/10 border border-amber-400/20 rounded-full px-6 py-2 text-amber-400 text-sm font-medium">
+              <Brain className="h-4 w-4 mr-2" />
+              AI & Machine Learning Powered
+            </div>
+          </div>
+          
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-8 tracking-tight leading-none">
             Import Smarter.
             <br />
-            <span className="text-yellow-400">Save Thousands.</span>
+            <span className="text-amber-400">Save Thousands.</span>
           </h1>
-          <p className="text-xl sm:text-2xl text-gray-300 max-w-4xl mx-auto mb-12 leading-relaxed font-light">
-            The complete vehicle import intelligence platform trusted by Australia's top importers and automotive professionals.
+          
+          <p className="text-xl sm:text-2xl text-gray-300 max-w-4xl mx-auto mb-8 leading-relaxed font-light">
+            14 professional-grade tools worth $2,000+ individually. Get the complete vehicle import intelligence platform for just $97/month.
           </p>
+          
+          <div className="mb-12">
+            <p className="text-gray-400 text-sm mb-2">Brought to you by</p>
+            <a 
+              href="https://driveimmaculate.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center text-amber-400 hover:text-amber-300 transition-colors duration-300 font-medium"
+            >
+              <img src={logoPath} alt="Immaculate Imports" className="h-6 w-6 mr-2" />
+              Immaculate Imports
+            </a>
+          </div>
+          
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
             <Button 
               size="lg" 
-              className="bg-yellow-400 hover:bg-yellow-500 text-black px-12 py-4 text-lg rounded-full transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 font-medium"
+              className="bg-amber-400 hover:bg-amber-500 text-black px-12 py-4 text-lg rounded-full transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 font-medium"
               onClick={() => setShowEmailGate(true)}
             >
-              Start Free Trial
+              Start 7-Day Free Trial
             </Button>
             <Button 
               variant="outline" 
@@ -159,16 +185,16 @@ export default function ImportIQ() {
           {/* Social Proof */}
           <div className="flex flex-wrap justify-center items-center gap-8 text-gray-400 text-sm">
             <div className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-yellow-400" />
+              <CheckCircle className="h-5 w-5 text-amber-400" />
               <span>Trusted by 10,000+ importers</span>
             </div>
             <div className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-yellow-400" />
+              <CheckCircle className="h-5 w-5 text-amber-400" />
               <span>$50M+ in savings generated</span>
             </div>
             <div className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-yellow-400" />
-              <span>Industry leading accuracy</span>
+              <CheckCircle className="h-5 w-5 text-amber-400" />
+              <span>Industry leading AI accuracy</span>
             </div>
           </div>
         </div>
