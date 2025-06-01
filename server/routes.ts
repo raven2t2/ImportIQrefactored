@@ -1565,6 +1565,161 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
+  // User Personal Dashboard API Endpoints
+  
+  // Get user's personal calculation history
+  app.get("/api/user/my-calculations", async (req, res) => {
+    try {
+      const { email } = req.query;
+      if (!email) {
+        return res.status(400).json({ error: "Email required" });
+      }
+      
+      // Get user's submission history from database
+      const submissions = await storage.getAllSubmissions();
+      const userSubmissions = submissions.filter(sub => sub.email === email);
+      
+      res.json(userSubmissions);
+    } catch (error) {
+      console.error("Error fetching user calculations:", error);
+      res.status(500).json({ error: "Failed to fetch calculations" });
+    }
+  });
+
+  // Get user's AI recommendation history
+  app.get("/api/user/my-recommendations", async (req, res) => {
+    try {
+      const { email } = req.query;
+      if (!email) {
+        return res.status(400).json({ error: "Email required" });
+      }
+      
+      // Get user's AI recommendation history from database
+      const recommendations = await storage.getAllAIRecommendations();
+      const userRecommendations = recommendations.filter(rec => rec.email === email);
+      
+      res.json(userRecommendations);
+    } catch (error) {
+      console.error("Error fetching user recommendations:", error);
+      res.status(500).json({ error: "Failed to fetch recommendations" });
+    }
+  });
+
+  // Get user's vehicle builds (My Garage)
+  app.get("/api/user/my-builds", async (req, res) => {
+    try {
+      const { userId } = req.query;
+      if (!userId) {
+        return res.status(400).json({ error: "User ID required" });
+      }
+      
+      const builds = await storage.getUserVehicleBuilds(userId as string);
+      res.json(builds);
+    } catch (error) {
+      console.error("Error fetching user builds:", error);
+      res.status(500).json({ error: "Failed to fetch vehicle builds" });
+    }
+  });
+
+  // Create new vehicle build
+  app.post("/api/user/my-builds", async (req, res) => {
+    try {
+      const { userId, name, vehicle, stage, targetMods, budget, notes } = req.body;
+      
+      const build = await storage.createVehicleBuild({
+        userId,
+        name,
+        vehicle,
+        stage: stage || 'Planning',
+        targetMods: targetMods || [],
+        budget: budget || 0,
+        notes: notes || null,
+        imageUrl: null
+      });
+      
+      res.json({ success: true, build });
+    } catch (error) {
+      console.error("Error creating vehicle build:", error);
+      res.status(500).json({ error: "Failed to create vehicle build" });
+    }
+  });
+
+  // Get user's parts watchlist
+  app.get("/api/user/my-watchlist", async (req, res) => {
+    try {
+      const { userId } = req.query;
+      if (!userId) {
+        return res.status(400).json({ error: "User ID required" });
+      }
+      
+      const watchlist = await storage.getUserWatchlist(userId as string);
+      res.json(watchlist);
+    } catch (error) {
+      console.error("Error fetching user watchlist:", error);
+      res.status(500).json({ error: "Failed to fetch watchlist" });
+    }
+  });
+
+  // Add item to parts watchlist
+  app.post("/api/user/my-watchlist", async (req, res) => {
+    try {
+      const { userId, partName, vehicle, targetPrice, source, notes } = req.body;
+      
+      const item = await storage.createWatchlistItem({
+        userId,
+        partName,
+        vehicle: vehicle || null,
+        targetPrice: targetPrice || null,
+        currentPrice: null,
+        source: source || null,
+        notes: notes || null,
+        isFound: false,
+        priceAlert: false
+      });
+      
+      res.json({ success: true, item });
+    } catch (error) {
+      console.error("Error adding watchlist item:", error);
+      res.status(500).json({ error: "Failed to add watchlist item" });
+    }
+  });
+
+  // Get user's dashboard stats
+  app.get("/api/user/dashboard-stats", async (req, res) => {
+    try {
+      const { email, userId } = req.query;
+      if (!email && !userId) {
+        return res.status(400).json({ error: "Email or User ID required" });
+      }
+      
+      // Get user's data counts
+      const submissions = await storage.getAllSubmissions();
+      const recommendations = await storage.getAllAIRecommendations();
+      
+      const userSubmissions = submissions.filter(sub => sub.email === email);
+      const userRecommendations = recommendations.filter(rec => rec.email === email);
+      
+      let userBuilds = [];
+      let userWatchlist = [];
+      
+      if (userId) {
+        userBuilds = await storage.getUserVehicleBuilds(userId as string);
+        userWatchlist = await storage.getUserWatchlist(userId as string);
+      }
+      
+      res.json({
+        totalCalculations: userSubmissions.length,
+        totalRecommendations: userRecommendations.length,
+        totalBuilds: userBuilds.length,
+        watchlistItems: userWatchlist.length,
+        totalProjectValue: userSubmissions.reduce((sum, sub) => sum + parseFloat(sub.totalCost || "0"), 0)
+      });
+    } catch (error) {
+      console.error("Error fetching user dashboard stats:", error);
+      res.status(500).json({ error: "Failed to fetch dashboard stats" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
