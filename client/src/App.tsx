@@ -21,6 +21,7 @@ import VehicleLookup from "@/pages/vehicle-lookup";
 import RegistrationStats from "@/pages/registration-stats";
 import ImportVolumeDashboard from "@/pages/import-volume-dashboard";
 import AuctionSampleExplorer from "@/pages/auction-sample-explorer";
+import Checkout from "@/pages/checkout";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -42,6 +43,7 @@ function Router() {
       <Route path="/auction-sample-explorer" component={AuctionSampleExplorer} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/subscribe" component={Subscribe} />
+      <Route path="/checkout" component={Checkout} />
       <Route component={NotFound} />
     </Switch>
   );
