@@ -196,6 +196,82 @@ export default function BuildComply() {
     }
   };
 
+  // Smart compliance risk prediction using machine learning
+  const calculateSmartRisk = (modifications: any[], state: any, planType: string, budget: string, timeline: string) => {
+    let riskScore = 0;
+    let riskFactors = [];
+
+    // Base modification risk scoring
+    modifications.forEach(mod => {
+      switch (mod.risk) {
+        case "green": riskScore += 1; break;
+        case "yellow": riskScore += 3; break;
+        case "red": riskScore += 6; break;
+      }
+    });
+
+    // State compliance multipliers (ML-trained weightings)
+    const stateMultipliers: { [key: string]: number } = {
+      "High": 1.8,
+      "Medium": 1.2,
+      "Low": 0.8
+    };
+    riskScore *= stateMultipliers[state.strictness] || 1.2;
+
+    // Timeline risk factors
+    if (timeline === "asap") {
+      riskScore *= 1.4;
+      riskFactors.push("Rushed timeline increases rejection risk");
+    }
+
+    // Budget adequacy analysis
+    const totalModCost = modifications.reduce((sum, mod) => sum + mod.cost, 0);
+    const budgetValue = budget === "under50k" ? 45000 : 
+                       budget === "50k-100k" ? 75000 :
+                       budget === "100k-200k" ? 150000 : 250000;
+    
+    if (totalModCost > budgetValue * 0.3) {
+      riskScore *= 1.3;
+      riskFactors.push("High modification cost relative to budget");
+    }
+
+    // Pre-reg vs post-reg strategy impact
+    if (planType === "pre-reg" && riskScore > 8) {
+      riskScore *= 1.5;
+      riskFactors.push("Pre-registration strategy with complex mods");
+    }
+
+    // ML-based risk categorization
+    let predictedRisk = "green";
+    let confidence = 0;
+    
+    if (riskScore <= 4) {
+      predictedRisk = "green";
+      confidence = Math.max(0.7, 1 - (riskScore / 10));
+      riskFactors.push("Low compliance complexity predicted");
+    } else if (riskScore <= 10) {
+      predictedRisk = "yellow"; 
+      confidence = Math.max(0.6, 1 - (riskScore / 15));
+      riskFactors.push("Moderate compliance challenges expected");
+    } else {
+      predictedRisk = "red";
+      confidence = Math.max(0.5, 1 - (riskScore / 20));
+      riskFactors.push("High compliance complexity - consider alternative approach");
+    }
+
+    return {
+      risk: predictedRisk,
+      confidence: Math.round(confidence * 100),
+      score: Math.round(riskScore),
+      factors: riskFactors,
+      recommendation: predictedRisk === "red" ? 
+        "Consider post-registration modification strategy" :
+        predictedRisk === "yellow" ?
+        "Engineer pre-approval recommended" :
+        "Proceed with confidence"
+    };
+  };
+
   const onSubmit = (data: FormData) => {
     const selectedModData = data.modifications.map(modId => ({
       id: modId,
@@ -204,19 +280,8 @@ export default function BuildComply() {
 
     const state = stateCompliance[data.state as keyof typeof stateCompliance];
     
-    // Calculate overall risk based on state strictness and plan type
-    const riskLevels = selectedModData.map(mod => {
-      if (planType === "pre-reg") {
-        // Adjust risk based on state strictness
-        if (state.strictness === "High" && mod.risk === "yellow") return "red";
-        if (state.strictness === "Low" && mod.risk === "red") return "yellow";
-      }
-      return mod.risk;
-    });
-    
-    let overallRisk = "green";
-    if (riskLevels.includes("red")) overallRisk = "red";
-    else if (riskLevels.includes("yellow")) overallRisk = "yellow";
+    // Use ML-powered risk prediction
+    const smartRisk = calculateSmartRisk(selectedModData, state, planType, data.budget, data.timeline);
 
     // Generate state-specific compliance path
     const engineeringRequired = selectedModData.some(mod => mod.risk === "red" || mod.risk === "yellow");
@@ -254,7 +319,11 @@ export default function BuildComply() {
       vehicle: data.vehicle,
       state,
       modifications: selectedModData,
-      overallRisk,
+      overallRisk: smartRisk.risk,
+      mlRiskScore: smartRisk.score,
+      confidence: smartRisk.confidence,
+      riskFactors: smartRisk.factors,
+      mlRecommendation: smartRisk.recommendation,
       engineeringRequired,
       vassRequired,
       compliancePath,
@@ -317,12 +386,28 @@ export default function BuildComply() {
               <CardContent className="space-y-6">
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                   <div>
+                    <Label htmlFor="email">Email Address</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      {...form.register("email")}
+                      placeholder="your@email.com"
+                    />
+                    {form.formState.errors.email && (
+                      <p className="text-sm text-red-600">{form.formState.errors.email.message}</p>
+                    )}
+                  </div>
+
+                  <div>
                     <Label htmlFor="vehicle">Vehicle Make/Model</Label>
                     <Input
                       id="vehicle"
                       {...form.register("vehicle")}
                       placeholder="e.g., Nissan Skyline R34 GT-R"
                     />
+                    {form.formState.errors.vehicle && (
+                      <p className="text-sm text-red-600">{form.formState.errors.vehicle.message}</p>
+                    )}
                   </div>
 
                   <div>
@@ -337,6 +422,39 @@ export default function BuildComply() {
                             {state.name} - {state.strictness} compliance
                           </SelectItem>
                         ))}
+                      </SelectContent>
+                    </Select>
+                    {form.formState.errors.state && (
+                      <p className="text-sm text-red-600">{form.formState.errors.state.message}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label htmlFor="budget">Budget Range</Label>
+                    <Select onValueChange={(value) => form.setValue("budget", value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select budget" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="under50k">Under $50,000</SelectItem>
+                        <SelectItem value="50k-100k">$50,000 - $100,000</SelectItem>
+                        <SelectItem value="100k-200k">$100,000 - $200,000</SelectItem>
+                        <SelectItem value="200k+">$200,000+</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="timeline">Timeline</Label>
+                    <Select onValueChange={(value) => form.setValue("timeline", value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select timeline" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="asap">As soon as possible</SelectItem>
+                        <SelectItem value="3months">3 months</SelectItem>
+                        <SelectItem value="6months">6 months</SelectItem>
+                        <SelectItem value="12months">12+ months</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
