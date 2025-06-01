@@ -83,9 +83,9 @@ export default function Checkout() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Get Started with Immaculate Imports</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Your First Step Toward Something Immaculate</h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Ready to import your dream vehicle? Let's discuss your project and secure your spot with a $500 deposit.
+            You wouldn't be here if you weren't serious — and that's exactly who we work with.
           </p>
         </div>
 
@@ -96,27 +96,32 @@ export default function Checkout() {
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <DollarSign className="h-5 w-5 text-green-600" />
-                  <span>Why $500 Deposit?</span>
+                  <span>This $500 deposit:</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-start space-x-3">
                   <CheckCircle className="h-4 w-4 text-green-600 mt-1" />
                   <div className="text-sm">
-                    <strong>Secures your slot</strong> - Priority processing in our import queue
+                    Reserves your place in our active sourcing queue
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <CheckCircle className="h-4 w-4 text-green-600 mt-1" />
                   <div className="text-sm">
-                    <strong>Covers initial costs</strong> - Auction registration and documentation
+                    Signals you're ready to stop browsing and start building
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <CheckCircle className="h-4 w-4 text-green-600 mt-1" />
                   <div className="text-sm">
-                    <strong>Fully refundable</strong> - If we can't find your ideal vehicle
+                    Is fully credited toward your chosen service tier — nothing extra, no hidden upsells
                   </div>
+                </div>
+                
+                <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <p className="text-sm text-blue-800 font-medium mb-1">🔐 Secure checkout powered by Stripe</p>
+                  <p className="text-sm text-blue-700">⚖️ Risk-free — refundable until we source your vehicle</p>
                 </div>
               </CardContent>
             </Card>
@@ -256,8 +261,15 @@ export default function Checkout() {
                     </Select>
                   </div>
 
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center italic">
+                    <p className="text-gray-700 text-sm mb-2">
+                      "People don't buy because they understand. They buy because they feel understood."
+                    </p>
+                    <p className="text-gray-600 text-xs">— Zig Ziglar</p>
+                  </div>
+
                   <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-                    <div className="text-amber-800 font-medium mb-2">Ready to Secure Your Import?</div>
+                    <div className="text-amber-800 font-medium mb-2">This is your move. We'll take it from here.</div>
                     <div className="text-amber-700 text-sm">
                       Submit this form and we'll contact you within 24 hours to discuss your project and arrange the $500 deposit to get started.
                     </div>
