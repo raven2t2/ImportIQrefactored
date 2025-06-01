@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import AIEmailGate from "@/components/ai-email-gate";
 import { z } from "zod";
 import { Link } from "wouter";
 
@@ -53,6 +54,7 @@ interface AIRecommendationResponse {
 
 export default function AIRecommendations() {
   const [results, setResults] = useState<AIRecommendationResponse | null>(null);
+  const [userInfo, setUserInfo] = useState<{ name: string; email: string; isReturning: boolean } | null>(null);
   const { toast } = useToast();
 
   const form = useForm<FormData>({
@@ -119,6 +121,33 @@ export default function AIRecommendations() {
       default: return use;
     }
   };
+
+  // Handle email gate success
+  const handleEmailGateSuccess = (userData: { name: string; email: string; isReturning: boolean }) => {
+    setUserInfo(userData);
+    // Pre-fill the form with the user's info
+    form.setValue("name", userData.name);
+    form.setValue("email", userData.email);
+    
+    if (userData.isReturning) {
+      toast({
+        title: "Welcome back!",
+        description: "Ready to find your perfect vehicle match?",
+      });
+    } else {
+      toast({
+        title: "Welcome to Immaculate Imports!",
+        description: "Let's find your ideal vehicle with AI recommendations.",
+      });
+    }
+  };
+
+  // Show email gate if user hasn't provided contact info yet
+  if (!userInfo) {
+    return (
+      <AIEmailGate onSuccess={handleEmailGateSuccess} />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
