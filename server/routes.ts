@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { insertSubmissionSchema, type CalculationResult } from "@shared/schema";
 import { z } from "zod";
 import OpenAI from "openai";
+import Stripe from "stripe";
 
 // Additional schemas for new tools
 const japanValueSchema = z.object({
@@ -149,6 +150,13 @@ function calculateImportCosts(vehiclePrice: number, shippingOrigin: string, zipC
     },
   };
 }
+
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+}
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: "2023-10-16",
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Email checking endpoint for smart gating
@@ -800,6 +808,29 @@ Respond with a JSON object containing your recommendations.`;
     } catch (error) {
       console.error("Error fetching stats:", error);
       res.status(500).json({ error: "Failed to fetch stats" });
+    }
+  });
+
+  // Stripe subscription endpoint
+  app.post("/api/create-subscription", async (req, res) => {
+    try {
+      const { plan } = req.body;
+      const amount = plan === 'yearly' ? Math.round(97 * 12 * 0.75 * 100) : 97 * 100; // yearly gets 25% discount
+      
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount,
+        currency: "aud",
+        metadata: {
+          plan: plan,
+          subscription_type: 'importiq_professional'
+        },
+      });
+      
+      res.json({ clientSecret: paymentIntent.client_secret });
+    } catch (error: any) {
+      res.status(500).json({ 
+        message: "Error creating subscription: " + error.message 
+      });
     }
   });
 
