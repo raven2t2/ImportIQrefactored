@@ -15,6 +15,7 @@ import BuildComply from "@/pages/build-comply";
 import ImportTimeline from "@/pages/import-timeline";
 import ExpertPicks from "@/pages/expert-picks";
 import Dashboard from "@/pages/dashboard";
+import Subscribe from "@/pages/subscribe";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -30,6 +31,7 @@ function Router() {
       <Route path="/compliance-estimate" component={ComplianceEstimate} />
       <Route path="/mod-estimator" component={ModEstimator} />
       <Route path="/dashboard" component={Dashboard} />
+      <Route path="/subscribe" component={Subscribe} />
       <Route component={NotFound} />
     </Switch>
   );
