@@ -147,6 +147,9 @@ export default function ImportCalculator() {
               </div>
             </div>
             <div className="flex space-x-2">
+              <Link href="/ai-recommendations">
+                <Button variant="outline" size="sm">AI Recommendations</Button>
+              </Link>
               <Link href="/compliance-estimate">
                 <Button variant="outline" size="sm">Compliance</Button>
               </Link>
@@ -164,32 +167,31 @@ export default function ImportCalculator() {
           <Card className="shadow-sm">
             <CardContent className="p-6">
               <div className="mb-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">Get Your Exact Import Cost</h2>
-                <p className="text-sm text-gray-600 mb-4">Used by 1,847+ clients to save an average of $12,300 vs local dealers</p>
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">Vehicle Import Calculator</h2>
+                <p className="text-sm text-gray-600 mb-4">Calculate accurate landed costs for importing vehicles to Australia</p>
                 
-                {/* Value Stack */}
-                <div className="p-4 bg-gradient-to-r from-brand-gold bg-opacity-5 to-yellow-50 border border-brand-gold border-opacity-20 rounded-lg">
+                {/* What's Included */}
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
                   <div className="text-sm">
-                    <p className="font-semibold text-gray-900 mb-2">What you get with this calculation:</p>
+                    <p className="font-semibold text-gray-900 mb-2">This calculation includes:</p>
                     <div className="space-y-1 text-xs">
                       <div className="flex items-center space-x-2">
-                        <div className="w-1 h-1 bg-brand-gold rounded-full"></div>
-                        <span>Exact landed cost breakdown (value: $500)</span>
+                        <div className="w-1 h-1 bg-blue-600 rounded-full"></div>
+                        <span>Complete landed cost breakdown</span>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <div className="w-1 h-1 bg-brand-gold rounded-full"></div>
-                        <span>Service tier recommendation (value: $300)</span>
+                        <div className="w-1 h-1 bg-blue-600 rounded-full"></div>
+                        <span>Service tier recommendation</span>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <div className="w-1 h-1 bg-brand-gold rounded-full"></div>
-                        <span>Compliance requirements analysis (value: $400)</span>
+                        <div className="w-1 h-1 bg-blue-600 rounded-full"></div>
+                        <span>All duties, taxes, and fees</span>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <div className="w-1 h-1 bg-brand-gold rounded-full"></div>
-                        <span>Priority consultation booking (value: $200)</span>
+                        <div className="w-1 h-1 bg-blue-600 rounded-full"></div>
+                        <span>Service tier comparison</span>
                       </div>
                     </div>
-                    <p className="font-bold text-brand-gold mt-2 text-sm">Total Value: $1,400 - Yours FREE</p>
                   </div>
                 </div>
               </div>
@@ -292,13 +294,13 @@ export default function ImportCalculator() {
                           </div>
                         </div>
 
-                        {/* Social Proof & Trust */}
+                        {/* Helpful Info */}
                         <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                           <div className="flex items-start space-x-2">
                             <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
                             <div className="text-xs text-green-800">
-                              <p className="font-medium mb-1">1,847 vehicles successfully imported</p>
-                              <p>"We've saved our clients an average of $12,300 compared to local dealers by finding the exact same cars overseas." - Based on 2024 client outcomes</p>
+                              <p className="font-medium mb-1">Popular import price ranges</p>
+                              <p>Most clients import vehicles between $45,000-$150,000 AUD including all costs. Use these ranges as a starting point if you're unsure.</p>
                             </div>
                           </div>
                         </div>
@@ -332,40 +334,17 @@ export default function ImportCalculator() {
                     )}
                   />
 
-                  {/* Urgency & Scarcity */}
-                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                    <div className="text-center">
-                      <p className="text-sm font-semibold text-red-800 mb-1">Only 23 consultation slots left this month</p>
-                      <p className="text-xs text-red-700">Our calendar books out 3-4 weeks in advance. Calculate now to secure priority booking.</p>
-                    </div>
-                  </div>
-
                   <Button 
                     type="submit" 
-                    className="w-full bg-brand-gold hover:bg-brand-gold-dark text-white font-semibold text-lg py-4"
+                    className="w-full bg-brand-gold hover:bg-brand-gold-dark text-white font-semibold py-3"
                     disabled={calculateMutation.isPending}
                   >
-                    <Calculator className="h-5 w-5 mr-2" />
-                    {calculateMutation.isPending ? "Calculating Your Savings..." : "Get My Exact Import Cost (FREE)"}
+                    <Calculator className="h-4 w-4 mr-2" />
+                    {calculateMutation.isPending ? "Calculating..." : "Calculate Import Costs"}
                   </Button>
 
-                  {/* Trust Indicators */}
-                  <div className="mt-4 text-center space-y-2">
-                    <p className="text-xs text-gray-600">Calculation takes 3 seconds • No spam, guaranteed</p>
-                    <div className="flex items-center justify-center space-x-4 text-xs text-gray-500">
-                      <div className="flex items-center space-x-1">
-                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        <span>Secure</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        <span>Private</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        <span>No Obligation</span>
-                      </div>
-                    </div>
+                  <div className="mt-3 text-center text-xs text-gray-600">
+                    Calculation includes all duties, taxes, and compliance costs
                   </div>
                 </form>
               </Form>
