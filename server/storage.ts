@@ -228,6 +228,153 @@ export class DatabaseStorage implements IStorage {
   async getNearbyCarEvents(postcode: string): Promise<any[]> {
     return [];
   }
+
+  // Affiliate System Implementation
+  async createAffiliate(affiliateData: Omit<InsertAffiliate, 'id' | 'createdAt' | 'updatedAt'>): Promise<Affiliate> {
+    const referralCode = this.generateReferralCode();
+    const [affiliate] = await db
+      .insert(affiliates)
+      .values({
+        ...affiliateData,
+        referralCode,
+      })
+      .returning();
+    return affiliate;
+  }
+
+  async getAffiliate(id: number): Promise<Affiliate | undefined> {
+    const [affiliate] = await db.select().from(affiliates).where(eq(affiliates.id, id));
+    return affiliate;
+  }
+
+  async getAffiliateByEmail(email: string): Promise<Affiliate | undefined> {
+    const [affiliate] = await db.select().from(affiliates).where(eq(affiliates.email, email));
+    return affiliate;
+  }
+
+  async getAffiliateByReferralCode(code: string): Promise<Affiliate | undefined> {
+    const [affiliate] = await db.select().from(affiliates).where(eq(affiliates.referralCode, code));
+    return affiliate;
+  }
+
+  async getAllAffiliates(): Promise<Affiliate[]> {
+    return await db.select().from(affiliates).orderBy(affiliates.createdAt);
+  }
+
+  async updateAffiliate(id: number, updates: Partial<Affiliate>): Promise<Affiliate> {
+    const [affiliate] = await db
+      .update(affiliates)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(affiliates.id, id))
+      .returning();
+    return affiliate;
+  }
+
+  async createInfluencerProfile(profileData: Omit<InsertInfluencerProfile, 'id' | 'createdAt' | 'updatedAt'>): Promise<InfluencerProfile> {
+    const [profile] = await db
+      .insert(influencerProfiles)
+      .values(profileData)
+      .returning();
+    return profile;
+  }
+
+  async getInfluencerProfile(affiliateId: number): Promise<InfluencerProfile | undefined> {
+    const [profile] = await db.select().from(influencerProfiles).where(eq(influencerProfiles.affiliateId, affiliateId));
+    return profile;
+  }
+
+  async getInfluencerProfileByHandle(handle: string): Promise<InfluencerProfile | undefined> {
+    const [profile] = await db.select().from(influencerProfiles).where(eq(influencerProfiles.handle, handle));
+    return profile;
+  }
+
+  async updateInfluencerProfile(id: number, updates: Partial<InfluencerProfile>): Promise<InfluencerProfile> {
+    const [profile] = await db
+      .update(influencerProfiles)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(influencerProfiles.id, id))
+      .returning();
+    return profile;
+  }
+
+  async trackReferralClick(clickData: Omit<InsertReferralClick, 'id' | 'clickedAt'>): Promise<ReferralClick> {
+    const [click] = await db
+      .insert(referralClicks)
+      .values(clickData)
+      .returning();
+    
+    // Update affiliate click count
+    await db
+      .update(affiliates)
+      .set({ 
+        totalClicks: affiliates.totalClicks + 1,
+        updatedAt: new Date() 
+      })
+      .where(eq(affiliates.id, clickData.affiliateId));
+    
+    return click;
+  }
+
+  async createReferralSignup(signupData: Omit<InsertReferralSignup, 'id' | 'attributionDate'>): Promise<ReferralSignup> {
+    const [signup] = await db
+      .insert(referralSignups)
+      .values(signupData)
+      .returning();
+    
+    // Update affiliate signup count and earnings
+    await db
+      .update(affiliates)
+      .set({ 
+        totalSignups: affiliates.totalSignups + 1,
+        totalEarnings: affiliates.totalEarnings + (signupData.commissionEarned || 0),
+        currentBalance: affiliates.currentBalance + (signupData.commissionEarned || 0),
+        updatedAt: new Date() 
+      })
+      .where(eq(affiliates.id, signupData.affiliateId));
+    
+    return signup;
+  }
+
+  async getReferralStats(affiliateId: number): Promise<{ clicks: number; signups: number; earnings: number }> {
+    const affiliate = await this.getAffiliate(affiliateId);
+    if (!affiliate) {
+      return { clicks: 0, signups: 0, earnings: 0 };
+    }
+    
+    return {
+      clicks: affiliate.totalClicks,
+      signups: affiliate.totalSignups,
+      earnings: affiliate.totalEarnings
+    };
+  }
+
+  async createPayoutRequest(requestData: Omit<InsertPayoutRequest, 'id' | 'requestedAt'>): Promise<PayoutRequest> {
+    const [request] = await db
+      .insert(payoutRequests)
+      .values(requestData)
+      .returning();
+    return request;
+  }
+
+  async getPayoutRequests(affiliateId?: number): Promise<PayoutRequest[]> {
+    if (affiliateId) {
+      return await db.select().from(payoutRequests).where(eq(payoutRequests.affiliateId, affiliateId));
+    }
+    return await db.select().from(payoutRequests).orderBy(payoutRequests.requestedAt);
+  }
+
+  async updatePayoutRequest(id: number, updates: Partial<PayoutRequest>): Promise<PayoutRequest> {
+    const [request] = await db
+      .update(payoutRequests)
+      .set({ ...updates, processedAt: updates.status === 'paid' ? new Date() : undefined })
+      .where(eq(payoutRequests.id, id))
+      .returning();
+    return request;
+  }
+
+  private generateReferralCode(): string {
+    return Math.random().toString(36).substring(2, 8).toUpperCase();
+  }
 }
 
 export class MemStorage implements IStorage {
