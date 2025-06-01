@@ -4,7 +4,7 @@ import { Calculator, TrendingUp, Shield, Clock, Users, ArrowRight, CheckCircle, 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import EmailGate from "@/components/email-gate";
-import logoPath from "@assets/Logo 2 imi.png";
+import logoPath from "@assets/circular imi logo (3).png";
 
 export default function ImportIQ() {
   const [showEmailGate, setShowEmailGate] = useState(false);
@@ -72,7 +72,7 @@ export default function ImportIQ() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <img src={logoPath} alt="Immaculate Imports" className="h-8 w-12" />
+              <img src={logoPath} alt="Immaculate Imports" className="h-10 w-10" />
               <div className="text-2xl font-semibold text-white">
                 Import<span className="text-amber-400">IQ</span>
               </div>
