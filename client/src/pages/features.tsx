@@ -219,7 +219,7 @@ export default function Features() {
           <div className="flex flex-wrap justify-center items-center gap-8 text-gray-400 text-sm">
             <div className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5 text-amber-400" />
-              <span>Built by import professionals</span>
+              <span>Built by military logistics expert</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5 text-amber-400" />
@@ -227,7 +227,7 @@ export default function Features() {
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5 text-amber-400" />
-              <span>7-day free trial included</span>
+              <span>AI-powered insights</span>
             </div>
           </div>
         </div>
@@ -272,7 +272,7 @@ export default function Features() {
               </div>
               <h3 className="text-2xl font-semibold text-white mb-6">Expert Support</h3>
               <p className="text-gray-300 leading-relaxed">
-                We've done this 1000+ times — now you don't have to. Access to industry experts and comprehensive guidance throughout your journey.
+                Built on years of military logistics experience and global sourcing expertise. Get guidance from professionals who understand complex supply chains.
               </p>
             </div>
           </div>
