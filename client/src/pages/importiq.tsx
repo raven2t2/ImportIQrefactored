@@ -158,27 +158,27 @@ export default function ImportIQ() {
         {/* Main Tools Grid */}
         <div className="grid lg:grid-cols-3 gap-6 mb-12">
           {/* Core Import Tools */}
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
+          <Card className="bg-card border-brand-gray hover:shadow-lg transition-shadow cursor-pointer group">
             <Link href="/import-calculator">
               <CardHeader>
                 <div className="flex items-center space-x-3">
-                  <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
-                    <Calculator className="h-5 w-5 text-blue-600" />
+                  <div className="flex items-center justify-center w-10 h-10 bg-brand-gold rounded-lg group-hover:bg-brand-gold-dark transition-colors">
+                    <Calculator className="h-5 w-5 text-black" />
                   </div>
                   <div>
-                    <CardTitle className="text-lg">Import Cost Calculator</CardTitle>
-                    <CardDescription className="text-sm">Precise landed cost calculations</CardDescription>
+                    <CardTitle className="text-lg text-brand-white">Import Cost Calculator</CardTitle>
+                    <CardDescription className="text-sm text-brand-gray">Precise landed cost calculations</CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2 mb-4">
-                  <div className="flex items-center text-xs text-gray-600">
-                    <Check className="h-3 w-3 text-green-600 mr-2" />
+                  <div className="flex items-center text-xs text-brand-gray">
+                    <Check className="h-3 w-3 text-brand-gold mr-2" />
                     <span>Real-time shipping rates</span>
                   </div>
-                  <div className="flex items-center text-xs text-gray-600">
-                    <Check className="h-3 w-3 text-green-600 mr-2" />
+                  <div className="flex items-center text-xs text-brand-gray">
+                    <Check className="h-3 w-3 text-brand-gold mr-2" />
                     <span>Regional freight adjustments</span>
                   </div>
                 </div>
@@ -186,16 +186,16 @@ export default function ImportIQ() {
             </Link>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
+          <Card className="bg-card border-brand-gray hover:shadow-lg transition-shadow cursor-pointer group">
             <Link href="/true-cost-explorer">
               <CardHeader>
                 <div className="flex items-center space-x-3">
-                  <div className="flex items-center justify-center w-10 h-10 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
-                    <DollarSign className="h-5 w-5 text-green-600" />
+                  <div className="flex items-center justify-center w-10 h-10 bg-brand-gold rounded-lg group-hover:bg-brand-gold-dark transition-colors">
+                    <DollarSign className="h-5 w-5 text-black" />
                   </div>
                   <div>
-                    <CardTitle className="text-lg">True Cost Explorer</CardTitle>
-                    <CardDescription className="text-sm">Real ownership cost analysis</CardDescription>
+                    <CardTitle className="text-lg text-brand-white">True Cost Explorer</CardTitle>
+                    <CardDescription className="text-sm text-brand-gray">Real ownership cost analysis</CardDescription>
                   </div>
                 </div>
               </CardHeader>
