@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/landing";
 import ImportIQ from "@/pages/importiq";
 import Features from "@/pages/features";
+import About from "@/pages/about";
 import ImportCalculator from "@/pages/import-calculator";
 import ComplianceEstimate from "@/pages/compliance-estimate";
 import ModEstimator from "@/pages/mod-estimator";
@@ -35,6 +36,7 @@ function Router() {
     <Switch>
       <Route path="/" component={ImportIQ} />
       <Route path="/features" component={Features} />
+      <Route path="/about" component={About} />
       <Route path="/import-calculator" component={ImportCalculator} />
       <Route path="/true-cost-explorer" component={TrueCostExplorer} />
       <Route path="/import-timeline" component={ImportTimeline} />
