@@ -22,6 +22,22 @@ export const submissions = pgTable("submissions", {
   serviceFee: decimal("service_fee", { precision: 10, scale: 2 }).notNull(),
   totalCost: decimal("total_cost", { precision: 10, scale: 2 }).notNull(),
   serviceTier: text("service_tier").notNull(),
+  zipCode: text("zip_code"),
+  vehicleMake: text("vehicle_make"),
+  vehicleModel: text("vehicle_model"),
+  vehicleYear: integer("vehicle_year"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const aiRecommendations = pgTable("ai_recommendations", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  budget: integer("budget").notNull(),
+  intendedUse: text("intended_use").notNull(),
+  experience: text("experience").notNull(),
+  preferences: text("preferences").notNull(),
+  timeline: text("timeline").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
