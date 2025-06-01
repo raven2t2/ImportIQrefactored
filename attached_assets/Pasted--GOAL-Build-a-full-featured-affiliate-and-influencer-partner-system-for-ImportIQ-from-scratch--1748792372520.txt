@@ -1,0 +1,106 @@
+🎯 GOAL: Build a full-featured affiliate and influencer partner system for ImportIQ from scratch.
+
+---
+
+🧱 CORE FUNCTIONALITY:
+
+1. **Affiliate Sign-Up Flow**
+   - Public page with "Become an Affiliate" CTA
+   - Simple form: name, email, optional social link
+   - Auto-approve or admin-approved toggle
+   - Generates unique referral link (e.g., `https://importiq.com?ref=abc123`)
+
+2. **Referral Tracking Logic**
+   - Track referrals using cookies or URL params
+   - Attribution persists for at least 30 days
+   - Show affiliate how many signups and conversions they've driven
+   - Store: referral ID, timestamp, user email (if signed up)
+
+3. **Affiliate Dashboard (for Everyone)**
+   - Stats: Clicks, Signups, Paid Conversions, Earnings
+   - Commission Tier Display (e.g., "Starter – 20% recurring")
+   - Current payout balance
+   - Button to request payout (manual PayPal or Stripe Transfer)
+   - Downloadable share assets (logos, banners)
+
+---
+
+👑 INFLUENCER TIER FUNCTIONALITY:
+
+4. **Influencer-Specific Dashboard**
+   - Custom commission tier (e.g., 40% recurring)
+   - Custom referral link + branded landing page
+     - Format: `/partner/michael` or `/boostedby/mike`
+     - Includes influencer profile pic, short testimonial, and styled headline
+   - Content control: video embed, text snippet, CTA to trial
+   - Dashboard shows: signups, conversions, top-performing channels
+
+5. **Influencer Landing Page Generation**
+   - Admin input fields:
+     - Handle, avatar URL, header headline, subheader, brand color
+     - Optional YouTube/TikTok embed
+   - Auto-generated branded page, fast-loading, mobile responsive
+   - Personalized with dynamic CTA (e.g., “Start your import journey with Mike”)
+
+---
+
+⚙️ ADMIN PANEL:
+
+6. **Affiliate & Influencer Management Panel**
+   - View all affiliates + influencers
+   - See total clicks, signups, earnings
+   - Manually upgrade to Influencer Tier
+   - Edit landing page content
+   - Approve or reject payout requests
+   - Manually add payouts/notes
+
+---
+
+🧠 BUSINESS LOGIC:
+
+7. **Commission Tiers**
+   - Starter: 20% recurring (default)
+   - Influencer: 40% recurring
+   - Enterprise Partner: Custom rate (manual override)
+   - All tracked by referral ID, must match to paid user
+
+8. **Attribution Handling**
+   - First-click wins
+   - Referrer ID stored in DB and attached to new signups
+   - Auto-handle edge cases (e.g., user clears cookies)
+
+---
+
+📱 FRONTEND REQUIREMENTS:
+
+- Fully mobile responsive (use Tailwind or similar)
+- Clean UI using your brand colors (#000000 and gold)
+- Fast load times for landing pages
+- Embed-ready influencer media blocks
+- Option to theme affiliate dashboard lightly by user
+
+---
+
+🔒 SECURITY:
+
+- Only allow dashboard access to authenticated users
+- Admin panel protected by role-based auth
+- Obfuscate referral codes if needed for tamper resistance
+
+---
+
+🧪 OPTIONAL BUT NICE:
+
+- Leaderboard for top affiliates
+- Monthly report generation for payouts
+- Slack/email notifications for new signups via referrals
+
+---
+
+🎯 GOAL RECAP:
+
+Make it **easy for anyone** to become an affiliate.
+Make it **powerful for influencers** to promote ImportIQ like it’s their own.
+Track referrals accurately.
+Pay fairly and transparently.
+Let the system grow your user base while you sleep.
