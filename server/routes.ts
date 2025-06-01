@@ -612,6 +612,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // AI Chat Assistant endpoint
+  app.post("/api/ai-chat", async (req, res) => {
+    try {
+      const { message, vehicleContext, userLocation, chatHistory } = req.body;
+
+      if (!message) {
+        return res.status(400).json({ error: "Message is required" });
+      }
+
+      let systemPrompt = `You are an expert AI assistant specializing in vehicle import requirements for Australia. You provide accurate, helpful information about:
+
+- Vehicle import eligibility and compliance requirements
+- State-specific registration processes (NSW, VIC, QLD, SA, WA, TAS, NT, ACT)
+- ADR (Australian Design Rules) compliance
+- VASS (Vehicle Assessment Signatory Scheme) processes
+- Modification regulations and engineering requirements
+- Shipping, customs, and quarantine procedures
+- Cost estimates and timelines
+
+Always provide specific, actionable advice. When discussing state requirements, be precise about which state you're referring to. Use Australian terminology and currency (AUD). Keep responses concise but comprehensive.`;
+
+      if (vehicleContext) {
+        systemPrompt += `\n\nUser's current vehicle context: ${vehicleContext}`;
+      }
+
+      if (userLocation) {
+        systemPrompt += `\n\nUser's location: ${userLocation}`;
+      }
+
+      const messages = [
+        { role: "system", content: systemPrompt },
+        ...(chatHistory || []).map((msg: any) => ({
+          role: msg.role,
+          content: msg.content
+        })),
+        { role: "user", content: message }
+      ];
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+        messages,
+        max_tokens: 500,
+        temperature: 0.7,
+      });
+
+      const aiResponse = response.choices[0].message.content;
+
+      res.json({ 
+        message: aiResponse,
+        success: true 
+      });
+    } catch (error) {
+      console.error("Error in AI chat:", error);
+      res.status(500).json({ error: "Failed to get AI response" });
+    }
+  });
+
   // AI Recommendations endpoint
   app.post("/api/ai-recommendations", async (req, res) => {
     try {
