@@ -74,7 +74,7 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
                 <span className="text-[#D4AF37]">ImportIQ™</span>
               </h1>
               <p className="text-base text-gray-600 font-medium">
-                Brought to you by <a href="https://driveimmaculate.com" target="_blank" className="text-[#D4AF37] hover:underline font-semibold">Drive Immaculate</a>
+                Brought to you by <a href="https://driveimmaculate.com" target="_blank" className="text-[#D4AF37] hover:underline font-semibold">Immaculate Imports</a>
               </p>
             </div>
           </div>
