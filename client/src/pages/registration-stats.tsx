@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { TrendingUp, Car, MapPin, Calendar } from "lucide-react";
+import { TrendingUp, Car, MapPin, Calendar, MessageCircle, HelpCircle } from "lucide-react";
 
 interface RegistrationData {
   year: number;
@@ -79,11 +79,11 @@ export default function RegistrationStats() {
       <div className="container mx-auto px-4">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Customer Vehicle Preferences
+            Australian Registration Statistics
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Real customer preference data from driveimmaculate.com quiz responses. Understand 
-            what vehicles your customers are actually interested in importing.
+            Historical vehicle registration data across Australia. Track registration 
+            trends, popular models, and geographic distribution patterns.
           </p>
         </div>
 
@@ -257,15 +257,34 @@ export default function RegistrationStats() {
             <Card>
               <CardContent className="pt-6">
                 <div className="text-center text-sm text-gray-600 dark:text-gray-300">
-                  <p className="mb-2">
-                    <strong>Data Source:</strong> driveimmaculate.com quiz responses - https://driveimmaculate.com/quiz/
+                  <p className="mb-4">
+                    <strong>Data Source:</strong> Australian Government Open Data - data.vic.gov.au, data.nsw.gov.au
                   </p>
-                  <p className="mb-2">
-                    Customer preference data is updated in real-time from actual quiz submissions.
+                  <p className="mb-4">
+                    Historical registration data to understand market trends and popular vehicle types.
                   </p>
-                  <p>
-                    This data reflects genuine customer interests and can inform inventory and marketing decisions.
-                  </p>
+                  
+                  {/* Contact Actions */}
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center items-center mt-6">
+                    <a
+                      href="https://driveimmaculate.com/contact-us/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                    >
+                      <MessageCircle className="h-4 w-4 mr-2" />
+                      Have Questions? Contact Us
+                    </a>
+                    <a
+                      href="https://driveimmaculate.com/quiz/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                    >
+                      <HelpCircle className="h-4 w-4 mr-2" />
+                      Take Our Vehicle Quiz
+                    </a>
+                  </div>
                 </div>
               </CardContent>
             </Card>

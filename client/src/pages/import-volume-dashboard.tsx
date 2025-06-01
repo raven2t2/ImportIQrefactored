@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, Ship, DollarSign, MapPin, Calendar } from "lucide-react";
+import { TrendingUp, Ship, DollarSign, MapPin, Calendar, MessageCircle, HelpCircle } from "lucide-react";
 
 interface ImportVolumeData {
   year: number;
@@ -91,11 +91,11 @@ export default function ImportVolumeDashboard() {
       <div className="container mx-auto px-4">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Customer Inquiry Analytics
+            Import Volume Dashboard
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Real customer inquiry data from driveimmaculate.com contact forms. Track customer 
-            interest patterns, vehicle requests, and geographic demand distribution.
+            Historical vehicle import statistics from Australian ports. Track import 
+            volumes, values, and port distribution patterns across Australia.
           </p>
         </div>
 
@@ -294,15 +294,34 @@ export default function ImportVolumeDashboard() {
             <Card>
               <CardContent className="pt-6">
                 <div className="text-center text-sm text-gray-600 dark:text-gray-300">
-                  <p className="mb-2">
-                    <strong>Data Source:</strong> driveimmaculate.com contact form submissions - https://driveimmaculate.com/contact-us/
+                  <p className="mb-4">
+                    <strong>Data Source:</strong> National Freight Data Hub - Australian Government Department of Infrastructure
                   </p>
-                  <p className="mb-2">
-                    Customer inquiry data is compiled from actual contact form submissions and service requests.
+                  <p className="mb-4">
+                    Import statistics compiled from customs declarations and port authority records.
                   </p>
-                  <p>
-                    This data provides real customer demand insights to guide business decisions and inventory planning.
-                  </p>
+                  
+                  {/* Contact Actions */}
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center items-center mt-6">
+                    <a
+                      href="https://driveimmaculate.com/contact-us/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                    >
+                      <MessageCircle className="h-4 w-4 mr-2" />
+                      Questions About Import Data? Contact Us
+                    </a>
+                    <a
+                      href="https://driveimmaculate.com/quiz/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                    >
+                      <HelpCircle className="h-4 w-4 mr-2" />
+                      Find Your Perfect Import
+                    </a>
+                  </div>
                 </div>
               </CardContent>
             </Card>
