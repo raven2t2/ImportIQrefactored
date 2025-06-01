@@ -219,15 +219,15 @@ export default function Features() {
           <div className="flex flex-wrap justify-center items-center gap-8 text-gray-400 text-sm">
             <div className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5 text-amber-400" />
-              <span>Trusted by 10,000+ importers</span>
+              <span>Built by import professionals</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5 text-amber-400" />
-              <span>$50M+ in savings generated</span>
+              <span>Real-time government data</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5 text-amber-400" />
-              <span>Industry leading AI accuracy</span>
+              <span>7-day free trial included</span>
             </div>
           </div>
         </div>
@@ -379,50 +379,36 @@ export default function Features() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6 tracking-tight">
-              Real ImportIQ Success Stories
+              Why Import Professionals Choose ImportIQ
             </h2>
-            <p className="text-xl text-gray-300">Actual savings from real customers</p>
+            <p className="text-xl text-gray-300">Built for importers who want transparency and control</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
-                name: "Marcus T.",
-                car: "R34 GT-R V-Spec",
-                story: "Broker quoted $45k total. ImportIQ showed the real costs would be $38k. Saved $7,000 and avoided a compliance nightmare.",
-                savings: "$7,000",
-                issue: "Hidden broker fees"
+                title: "Complete Cost Transparency",
+                description: "Know every dollar upfront - shipping, duties, compliance, registration. No surprises at delivery.",
+                icon: Calculator
               },
               {
-                name: "Sarah M.", 
-                car: "Toyota Supra RZ",
-                story: "Was about to import a flood-damaged car. ImportIQ's AI caught the red flags in the auction history. Dodged a $15k mistake.",
-                savings: "$15,000",
-                issue: "Avoided flood damage"
+                title: "AI-Powered Recommendations", 
+                description: "Machine learning analyzes thousands of vehicles to suggest the best matches for your budget and goals.",
+                icon: Brain
               },
               {
-                name: "James K.",
-                car: "Nissan Skyline R33",
-                story: "ImportIQ's timeline tool caught missing paperwork early. Avoided 3-month delays and $2k in storage fees.",
-                savings: "$2,000",
-                issue: "Paperwork delays"
+                title: "Professional Timeline Management",
+                description: "Track every step from auction to your driveway. Automated notifications keep you informed.",
+                icon: Clock
               }
-            ].map((story, index) => (
+            ].map((feature, index) => (
               <Card key={index} className="bg-gray-900 border-gray-800 hover:border-amber-400/50 transition-all duration-300">
-                <CardContent className="p-8">
-                  <div className="mb-6">
-                    <div className="text-2xl font-bold text-amber-400 mb-1">{story.savings}</div>
-                    <div className="text-sm text-gray-400">saved on {story.car}</div>
+                <CardContent className="p-8 text-center">
+                  <div className="w-16 h-16 bg-amber-400/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <feature.icon className="h-8 w-8 text-amber-400" />
                   </div>
-                  <blockquote className="text-gray-300 mb-6 leading-relaxed">
-                    "{story.story}"
-                  </blockquote>
-                  <div className="flex items-center justify-between">
-                    <div className="font-semibold text-white">{story.name}</div>
-                    <Badge variant="outline" className="text-xs">
-                      {story.issue}
-                    </Badge>
-                  </div>
+                  <h3 className="text-xl font-bold text-white mb-4">{feature.title}</h3>
+                  <p className="text-gray-300 leading-relaxed">{feature.description}</p>
                 </CardContent>
               </Card>
             ))}
