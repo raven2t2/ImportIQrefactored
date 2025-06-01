@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DollarSign, BarChart3, TrendingUp, AlertCircle, Calculator } from "lucide-react";
+import { DollarSign, BarChart3, TrendingUp, AlertCircle, Calculator, FileCheck } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Link } from "wouter";
@@ -44,6 +44,7 @@ interface ValueEstimateResponse {
 
 export default function ValueEstimator() {
   const [results, setResults] = useState<ValueEstimateResponse | null>(null);
+  const [submittedData, setSubmittedData] = useState<ValueEstimatorData | null>(null);
 
   const form = useForm<ValueEstimatorData>({
     resolver: zodResolver(valueEstimatorSchema),
@@ -294,6 +295,49 @@ export default function ValueEstimator() {
                         </li>
                       ))}
                     </ul>
+                  </CardContent>
+                </Card>
+
+                {/* Cross-Tool Actions */}
+                <Card className="shadow-sm bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+                  <CardHeader>
+                    <CardTitle className="text-lg text-blue-900">Next Steps</CardTitle>
+                    <CardDescription className="text-blue-700">
+                      Use this vehicle information with other ImportIQ tools
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <Button
+                        onClick={() => {
+                          const searchParams = new URLSearchParams();
+                          searchParams.set("make", lastSubmittedData?.make || "");
+                          searchParams.set("model", lastSubmittedData?.model || "");
+                          searchParams.set("year", lastSubmittedData?.year?.toString() || "");
+                          searchParams.set("vehiclePrice", results?.estimatedImportTotal?.toString() || "");
+                          window.location.href = `/import-calculator?${searchParams.toString()}`;
+                        }}
+                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+                      >
+                        <Calculator className="h-4 w-4" />
+                        Calculate Import Costs
+                      </Button>
+                      
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          const searchParams = new URLSearchParams();
+                          searchParams.set("make", lastSubmittedData?.make || "");
+                          searchParams.set("model", lastSubmittedData?.model || "");
+                          searchParams.set("year", lastSubmittedData?.year?.toString() || "");
+                          window.location.href = `/compliance-estimate?${searchParams.toString()}`;
+                        }}
+                        className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-50"
+                      >
+                        <FileCheck className="h-4 w-4" />
+                        Check Compliance
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
 

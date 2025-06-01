@@ -197,6 +197,38 @@ export default function VehicleLookup() {
                             }}
                           />
                         </FormControl>
+                        
+                        {/* Popular Chassis Codes */}
+                        <div className="mt-4">
+                          <p className="text-sm text-gray-400 mb-3">Popular JDM Chassis Codes:</p>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                            {[
+                              { code: "JZX100", car: "Toyota Chaser" },
+                              { code: "BNR34", car: "Nissan GT-R R34" },
+                              { code: "FD3S", car: "Mazda RX-7" },
+                              { code: "EK9", car: "Honda Civic Type R" },
+                              { code: "S15", car: "Nissan Silvia" },
+                              { code: "GDB", car: "Subaru WRX STI" },
+                              { code: "JZA80", car: "Toyota Supra" },
+                              { code: "AE86", car: "Toyota Corolla" }
+                            ].map((item) => (
+                              <Button
+                                key={item.code}
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  field.onChange(item.code);
+                                }}
+                                className="text-xs bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700 flex flex-col items-center p-2 h-auto"
+                              >
+                                <span className="font-bold text-yellow-400">{item.code}</span>
+                                <span className="text-xs text-gray-400 mt-1">{item.car}</span>
+                              </Button>
+                            ))}
+                          </div>
+                        </div>
+                        
                         <FormMessage />
                         {inputType && (
                           <p className="text-sm text-gray-400 flex items-center gap-2">
