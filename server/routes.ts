@@ -510,6 +510,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // AI Recommendations endpoint
+  app.post("/api/ai-recommendations", async (req, res) => {
+    try {
+      const validatedData = aiRecommendationSchema.parse(req.body);
+
+      if (!process.env.OPENAI_API_KEY) {
+        return res.status(500).json({ 
+          success: false, 
+          error: "AI service is currently unavailable. Please contact support for vehicle recommendations." 
+        });
+      }
+
+      // Create detailed prompt for OpenAI
+      const prompt = `You are an expert vehicle import advisor for the Australian market. Analyze the following customer profile and provide 3 specific vehicle recommendations with accurate market pricing.
+
+Customer Profile:
+- Name: ${validatedData.name}
+- Budget: $${validatedData.budget.toLocaleString()} AUD (total including all costs)
+- Intended Use: ${validatedData.intendedUse}
+- Experience Level: ${validatedData.experience}
+- Preferences: ${validatedData.preferences}
+- Timeline: ${validatedData.timeline}
+
+Please provide a comprehensive analysis in JSON format with the following structure:
+{
+  "recommendations": [
+    {
+      "vehicleName": "Specific make/model/year",
+      "estimatedPrice": number (total landed cost in AUD),
+      "category": "Sports Car/Luxury/SUV/etc",
+      "reasoning": "Why this vehicle matches their needs",
+      "pros": ["List of 3-4 advantages"],
+      "cons": ["List of 2-3 considerations"],
+      "marketInsight": "Current market conditions for this vehicle",
+      "confidence": number (percentage match score)
+    }
+  ],
+  "budgetAnalysis": "Analysis of their budget and what they can realistically achieve",
+  "marketTrends": ["3-4 current market trends relevant to their preferences"],
+  "personalizedAdvice": "Specific advice for their situation and experience level"
+}
+
+Consider current 2024 market prices for importing to Australia, including vehicle cost, shipping (~$3200 from Japan, ~$4500 from US), customs duty (5%), GST (10%), LCT (33% if over $89,332), compliance (~$3000-5000), and service fees.`;
+
+      // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: "You are an expert automotive import consultant specializing in the Australian market. Provide accurate, helpful recommendations based on real market data and conditions."
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        response_format: { type: "json_object" },
+        max_tokens: 2000,
+        temperature: 0.7
+      });
+
+      const aiResponse = JSON.parse(response.choices[0].message.content || "{}");
+
+      res.json({
+        success: true,
+        ...aiResponse
+      });
+
+    } catch (error: any) {
+      console.error("AI Recommendations error:", error);
+      res.status(500).json({ 
+        success: false, 
+        error: "Unable to generate recommendations at this time. Please try again or contact support." 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
