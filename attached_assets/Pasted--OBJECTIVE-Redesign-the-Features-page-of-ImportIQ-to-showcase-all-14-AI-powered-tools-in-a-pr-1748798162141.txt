@@ -1,0 +1,112 @@
+🎯 OBJECTIVE:
+Redesign the **Features** page of ImportIQ to showcase all 14 AI-powered tools in a premium, modern layout inspired by Apple’s design language — clean, spacious, mobile-first, and confidence-building. Use persuasive copy, brand colors (black/gold/white), subtle motion/scroll effects, and a modular component layout.
+
+---
+
+📌 PAGE STRUCTURE:
+
+1. **Hero Section (Above the Fold)**
+
+- Headline: “Import Smarter. Save Thousands.”
+- Subheadline: “14 professional-grade tools worth $2,000+ individually. Get the complete vehicle import intelligence platform for just $97/month.”
+- CTAs: [Start 7-Day Free Trial] and [Watch Demo]
+- Background: Clean gradient or video loop (cars + tech)
+- Logo Strip: “Trusted by 10,000+ importers · $50M+ in savings · Industry-leading AI accuracy”
+
+---
+
+2. **Why ImportIQ (Sticky Value Section)**
+
+- Headline: “Why ImportIQ?”
+- Icons + Descriptions:
+  - ✅ *Industry-Leading Accuracy*: “Real-time data from gov & private sources”
+  - 🧠 *AI-Powered Insights*: “ML that learns what you want before you do”
+  - 🤝 *Expert Support*: “We’ve done this 1000+ times — now you don’t have to”
+- Add smooth scroll animations or fade-ins
+
+---
+
+3. **Tool Highlights (Modular Grid, Animated on Scroll)**
+
+Use elegant Apple-style 2-column alternating layout:
+- Image or animated preview on left/right
+- Headline + 1-paragraph description + CTA on opposite side
+- Tool Cards (14 in total):
+
+    1. **Import Cost Calculator**
+       - “Know exactly what you'll pay — instantly.”
+    2. **True Cost Explorer**
+       - “Explore every dollar — from shipping to rego.”
+    3. **Import Timeline**
+       - “Never miss a step. Track the whole process.”
+    4. **BuildReady™**
+       - “Get mod-ready with AI compliance planning.”
+    5. **AI Recommendations**
+       - “ML suggests vehicles based on your taste & goals.”
+    6. **Expert Vehicle Picks**
+       - “Top-tier picks from seasoned importers.”
+    7. **Compliance Estimate**
+       - “Understand what it’ll take to comply — before you buy.”
+    8. **Mod Cost Estimator**
+       - “Add it all up — parts, labor, compliance.”
+    9. **Value Estimator**
+       - “Know market value, resale range, and dealer markup.”
+    10. **Vehicle Lookup**
+        - “JDM, Muscle, Euro — everything you need to know.”
+    11. **Registration Stats**
+        - “How rare is it? We’ll show you where it’s landed.”
+    12. **Import Volume Dashboard**
+        - “What’s trending? Know before the masses do.”
+    13. **Auction Sample Explorer**
+        - “See what’s sold, where, and for how much.”
+    14. **Personal Dashboard**
+        - “All your tools and workflows, in one place.”
+
+---
+
+4. **Comparison Table (Optional)**
+
+- Columns: ImportIQ vs Traditional Broker vs DIY
+- Features: Cost Clarity, Data Access, AI Support, Compliance Tools, Community Perks
+- Highlight ImportIQ advantage clearly
+
+---
+
+5. **Testimonials (Optional)**
+
+- Add placeholder testimonials or quote cards with future CMS integration
+- 3 rotating or static testimonials — highlight import wins
+
+---
+
+6. **Sticky Pricing Banner (Final CTA)**
+
+- Reiterate headline: “Start your 7-day free trial”
+- Pricing: $97/month — all 14 tools included
+- Button: [Start Free Trial]
+- Subtext: “Cancel anytime during your trial. No card required.”
+
+---
+
+🖥 DESIGN REQUIREMENTS:
+
+- Apple-inspired typography (San Francisco / Inter)
+- Mobile-first design, stack elements vertically and responsively
+- Use brand colors: black background, gold accents, white text
+- Add hover/tap effects to tool cards
+- Use scroll-triggered animations (fade, slide-in)
+- Ensure load performance stays high on mobile
+
+---
+
+💡 BONUS (Optional for Future Sprint):
+
+- Let users “Try” each tool in a demo mode if not signed in
+- Preview real UI with obfuscated results
+
+---
+
+🎯 GOAL:
+
+Create a *holy sh*t this is premium* experience that blows away importers used to shady Excel sheets or old-school brokers. This is the Tesla of import tools — show it.
+
