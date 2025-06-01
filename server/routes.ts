@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertSubmissionSchema, type CalculationResult } from "@shared/schema";
 import { z } from "zod";
+import OpenAI from "openai";
 
 // Additional schemas for new tools
 const japanValueSchema = z.object({
@@ -22,6 +23,19 @@ const modEstimatorSchema = z.object({
   year: z.number().min(1990).max(new Date().getFullYear()),
   goal: z.enum(["daily", "drift", "show"]),
 });
+
+const aiRecommendationSchema = z.object({
+  name: z.string().min(1),
+  email: z.string().email(),
+  budget: z.number().min(20000).max(500000),
+  intendedUse: z.enum(["daily", "weekend", "track", "show", "investment"]),
+  experience: z.enum(["first-time", "some", "experienced"]),
+  preferences: z.string().min(10),
+  timeline: z.enum(["asap", "3-months", "6-months", "flexible"]),
+});
+
+// Initialize OpenAI
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 function calculateImportCosts(vehiclePrice: number, shippingOrigin: string): CalculationResult {
   // Calculate shipping based on origin
