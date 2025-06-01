@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { z } from "zod";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,8 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { Calculator, DollarSign, TrendingDown, Car, Fuel, Shield } from "lucide-react";
+import { Calculator, DollarSign, TrendingDown, Car, Fuel, Shield, Save, Calendar, CreditCard } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import EmailGate from "@/components/email-gate";
 
 const trueCostSchema = z.object({
   vehiclePrice: z.number().min(1000),
@@ -50,6 +54,28 @@ const fuelCosts = {
 export default function TrueCostExplorer() {
   const [results, setResults] = useState<any>(null);
   const [ownershipYears, setOwnershipYears] = useState([3]);
+  const [userInfo, setUserInfo] = useState<{ name: string; email: string; isReturning: boolean } | null>(null);
+  const { toast } = useToast();
+
+  // Save report mutation
+  const saveReportMutation = useMutation({
+    mutationFn: async (reportData: any) => {
+      return await apiRequest("POST", "/api/save-report", reportData);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Report Saved!",
+        description: "Your true cost analysis has been saved to your dashboard.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Save Failed",
+        description: "Unable to save report. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
 
   const form = useForm<FormData>({
     resolver: zodResolver(trueCostSchema),
@@ -105,9 +131,39 @@ export default function TrueCostExplorer() {
     setResults(breakdown);
   };
 
+  const handleSaveReport = () => {
+    if (results && userInfo) {
+      const reportData = {
+        email: userInfo.email,
+        reportType: "true-cost-explorer",
+        reportTitle: `True Cost Analysis - ${userInfo.name}`,
+        reportData: {
+          ...results,
+          formData: form.getValues(),
+          generatedAt: new Date().toISOString(),
+        }
+      };
+      
+      saveReportMutation.mutate(reportData);
+    }
+  };
+
+  if (!userInfo) {
+    return (
+      <div className="min-h-screen bg-background">
+        <EmailGate
+          onSuccess={setUserInfo}
+          title="True Cost Explorer"
+          description="Calculate the real total ownership costs of your imported vehicle - beyond just the purchase price."
+          buttonText="Start Cost Analysis"
+        />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-6xl mx-auto p-4">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center space-x-3 mb-4">
@@ -332,6 +388,35 @@ export default function TrueCostExplorer() {
                         Based on {form.getValues("yearlyDriving").toLocaleString()} km/year
                       </div>
                     </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="grid md:grid-cols-3 gap-4 mt-6">
+                    <Button 
+                      onClick={handleSaveReport}
+                      disabled={saveReportMutation.isPending}
+                      className="bg-brand-gold hover:bg-brand-gold-dark text-black"
+                    >
+                      <Save className="w-4 h-4 mr-2" />
+                      {saveReportMutation.isPending ? "Saving..." : "Save to Dashboard"}
+                    </Button>
+                    
+                    <Button 
+                      onClick={() => window.location.href = '/booking'}
+                      variant="outline"
+                      className="border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-black"
+                    >
+                      <Calendar className="w-4 h-4 mr-2" />
+                      Book Consultation
+                    </Button>
+                    
+                    <Button 
+                      onClick={() => window.location.href = '/checkout'}
+                      className="bg-brand-gold hover:bg-brand-gold-dark text-black"
+                    >
+                      <CreditCard className="w-4 h-4 mr-2" />
+                      Secure Vehicle - $500
+                    </Button>
                   </div>
                 </div>
               </CardContent>
