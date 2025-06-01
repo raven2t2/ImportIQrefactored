@@ -58,66 +58,74 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="w-full max-w-4xl">
         {/* Hero Section */}
         <div className="text-center mb-8">
-          <div className="flex justify-center mb-6">
-            <div className="flex items-center justify-center w-20 h-20 bg-gradient-to-r from-brand-gold to-amber-500 rounded-full shadow-2xl">
-              <Shield className="h-10 w-10 text-white" />
+          <div className="flex justify-center items-center mb-6">
+            <img 
+              src="/attached_assets/circular imi logo (1).png" 
+              alt="Immaculate Imports" 
+              className="w-16 h-16 mr-4"
+            />
+            <div>
+              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">
+                <span className="bg-gradient-to-r from-brand-gold to-amber-600 bg-clip-text text-transparent">
+                  ImportIQ™
+                </span>
+              </h1>
+              <p className="text-sm text-gray-600 font-medium">
+                Brought to you by <a href="https://immaculateimports.com.au" target="_blank" className="text-brand-gold hover:underline">Immaculate Imports</a>
+              </p>
             </div>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            <span className="bg-gradient-to-r from-brand-gold to-amber-400 bg-clip-text text-transparent">
-              Your Import Intelligence
-            </span>
-            <br />
-            <span className="text-white">Starts Right Here</span>
-          </h1>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
-            Join 847+ smart importers who stopped gambling with expensive "educated guesses" 
-            and started making data-driven decisions that <span className="text-brand-gold font-semibold">save thousands per import</span>
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            Your Import Intelligence Starts Right Here
+          </h2>
+          <p className="text-xl text-gray-700 max-w-3xl mx-auto mb-8">
+            Professional import tools used by smart importers to make data-driven decisions and 
+            <span className="text-brand-gold font-semibold"> avoid costly mistakes</span>
           </p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8 items-start">
           {/* Left Side - Value Props */}
           <div className="space-y-6">
-            <Card className="bg-white/10 backdrop-blur-sm border border-white/20 text-white">
+            <Card className="bg-white border border-gray-200 shadow-lg">
               <CardHeader>
-                <CardTitle className="text-2xl text-white mb-4">
-                  The $50,000+ Problem You're About to Solve
+                <CardTitle className="text-2xl text-gray-900 mb-4">
+                  Stop Making Expensive Import Mistakes
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="bg-red-500/20 border border-red-400/30 rounded-lg p-4">
-                    <div className="font-semibold text-red-300 mb-2">⚠️ Without Complete Intelligence:</div>
-                    <ul className="space-y-2 text-red-200 text-sm">
-                      <li>• Miss compliance deadlines ($8,000+ in delays)</li>
-                      <li>• Unexpected ownership costs ($15,000+ over 5 years)</li>
-                      <li>• Wrong vehicle selection (depreciation nightmares)</li>
-                      <li>• Port congestion surprises (months of waiting)</li>
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div className="font-semibold text-red-800 mb-2">⚠️ Common Costly Mistakes:</div>
+                    <ul className="space-y-2 text-red-700 text-sm">
+                      <li>• Unexpected compliance costs and delays</li>
+                      <li>• Hidden ownership expenses over time</li>
+                      <li>• Poor vehicle selection decisions</li>
+                      <li>• Missing optimal shipping windows</li>
                     </ul>
                   </div>
                   
-                  <div className="bg-green-500/20 border border-green-400/30 rounded-lg p-4">
-                    <div className="font-semibold text-green-300 mb-2">✅ With ImportIQ Intelligence:</div>
-                    <ul className="space-y-2 text-green-200 text-sm">
-                      <li>• Know exact costs before you bid</li>
-                      <li>• Avoid compliance traps that destroy budgets</li>
-                      <li>• Time imports perfectly for maximum savings</li>
-                      <li>• Select vehicles with investment potential</li>
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div className="font-semibold text-green-800 mb-2">✅ With ImportIQ Professional Tools:</div>
+                    <ul className="space-y-2 text-green-700 text-sm">
+                      <li>• Calculate exact costs before you buy</li>
+                      <li>• Plan compliance requirements in advance</li>
+                      <li>• Understand true ownership costs</li>
+                      <li>• Get professional guidance when needed</li>
                     </ul>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-brand-gold/10 backdrop-blur-sm border border-brand-gold/30 text-white">
+            <Card className="bg-gradient-to-br from-brand-gold/10 to-amber-100 border border-brand-gold/30">
               <CardHeader>
-                <CardTitle className="text-xl text-brand-gold">
-                  🚀 What You Get Instant Access To:
+                <CardTitle className="text-xl text-gray-900">
+                  🚀 Professional Import Tools Inside:
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -125,43 +133,43 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
                   <div className="flex items-start space-x-3">
                     <div className="w-2 h-2 bg-brand-gold rounded-full mt-2 flex-shrink-0"></div>
                     <div>
-                      <div className="font-semibold text-white">True Cost Explorer</div>
-                      <div className="text-gray-300 text-sm">5-year ownership cost analysis (insurance, rego, maintenance, depreciation)</div>
+                      <div className="font-semibold text-gray-900">Import Cost Calculator</div>
+                      <div className="text-gray-700 text-sm">Accurate landed costs with duties, GST, LCT and freight</div>
                     </div>
                   </div>
                   <div className="flex items-start space-x-3">
                     <div className="w-2 h-2 bg-brand-gold rounded-full mt-2 flex-shrink-0"></div>
                     <div>
-                      <div className="font-semibold text-white">AI Market Intelligence</div>
-                      <div className="text-gray-300 text-sm">Real auction data analysis with investment potential scoring</div>
+                      <div className="font-semibold text-gray-900">AI Vehicle Recommendations</div>
+                      <div className="text-gray-700 text-sm">Smart suggestions based on your budget and preferences</div>
                     </div>
                   </div>
                   <div className="flex items-start space-x-3">
                     <div className="w-2 h-2 bg-brand-gold rounded-full mt-2 flex-shrink-0"></div>
                     <div>
-                      <div className="font-semibold text-white">Import Timeline Simulator</div>
-                      <div className="text-gray-300 text-sm">Visual Gantt charts with port congestion modeling</div>
+                      <div className="font-semibold text-gray-900">Import Timeline Planner</div>
+                      <div className="text-gray-700 text-sm">Visual timeline with realistic delivery estimates</div>
                     </div>
                   </div>
                   <div className="flex items-start space-x-3">
                     <div className="w-2 h-2 bg-brand-gold rounded-full mt-2 flex-shrink-0"></div>
                     <div>
-                      <div className="font-semibold text-white">Build & Comply</div>
-                      <div className="text-gray-300 text-sm">State-specific compliance mapping and engineering requirements</div>
+                      <div className="font-semibold text-gray-900">Compliance Guide</div>
+                      <div className="text-gray-700 text-sm">State-specific requirements and modification planning</div>
                     </div>
                   </div>
                   <div className="flex items-start space-x-3">
                     <div className="w-2 h-2 bg-brand-gold rounded-full mt-2 flex-shrink-0"></div>
                     <div>
-                      <div className="font-semibold text-white">AI Import Assistant</div>
-                      <div className="text-gray-300 text-sm">24/7 compliance expert that answers complex questions instantly</div>
+                      <div className="font-semibold text-gray-900">AI Import Assistant</div>
+                      <div className="text-gray-700 text-sm">Get expert answers to your import questions</div>
                     </div>
                   </div>
                   <div className="flex items-start space-x-3">
                     <div className="w-2 h-2 bg-brand-gold rounded-full mt-2 flex-shrink-0"></div>
                     <div>
-                      <div className="font-semibold text-white">Expert Picks</div>
-                      <div className="text-gray-300 text-sm">Battle-tested scenarios from professionals who've imported 500+ vehicles</div>
+                      <div className="font-semibold text-gray-900">Expert Scenarios</div>
+                      <div className="text-gray-700 text-sm">Pre-configured import strategies that work</div>
                     </div>
                   </div>
                 </div>
