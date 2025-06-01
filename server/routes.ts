@@ -1267,6 +1267,50 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
+  // Save report to dashboard and email
+  app.post("/api/save-report", async (req, res) => {
+    try {
+      const { email, reportType, reportTitle, reportData } = req.body;
+
+      // Save report to database
+      const report = await storage.saveReport({
+        email,
+        reportType,
+        reportTitle,
+        reportData,
+        emailSent: false
+      });
+
+      // Here you can add email functionality with SendGrid
+      // For now, just saving to dashboard
+      
+      res.json({ 
+        success: true, 
+        message: "Report saved to your ImportIQ dashboard",
+        reportId: report.id 
+      });
+    } catch (error) {
+      console.error("Save report error:", error);
+      res.status(500).json({ success: false, message: "Failed to save report" });
+    }
+  });
+
+  // Get user reports for dashboard
+  app.get("/api/user-reports", async (req, res) => {
+    try {
+      const { email } = req.query;
+      if (!email) {
+        return res.status(400).json({ message: "Email required" });
+      }
+
+      const reports = await storage.getUserReports(email as string);
+      res.json({ success: true, reports });
+    } catch (error) {
+      console.error("Get user reports error:", error);
+      res.status(500).json({ success: false, message: "Failed to get reports" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
