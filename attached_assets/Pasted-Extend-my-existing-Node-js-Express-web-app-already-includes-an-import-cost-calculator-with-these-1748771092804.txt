@@ -1,0 +1,70 @@
+Extend my existing Node.js + Express web app (already includes an import cost calculator) with these 3 new tools:
+
+---
+
+🛠 1. “What’s My Car Worth in Japan?” Tool:
+
+- Create a new route `/japan-value` with a form asking for:
+  - Make
+  - Model
+  - Year
+- When submitted, use sample data scraped from:
+  - https://www.goo-net-exchange.com/
+  - https://www.tradecarview.com/
+  - https://www.beforward.jp/
+- Return 3 real-world listings with price estimates and photos (mock these with dummy data or JSON if scraping is blocked).
+- Add a 20% broker markup to final values shown.
+- Show a note: “Prices are estimates. Real quotes available upon consultation.”
+
+---
+
+📅 2. “Compliance Timeline Estimator”:
+
+- Create a new route `/compliance-estimate` with form inputs:
+  - Year of manufacture
+  - Vehicle category (e.g., Passenger, SUV, Kei, Commercial)
+- Logic:
+  - If car is over 25 years: estimate 4–6 weeks
+  - If car is newer but SEVS eligible: 8–12 weeks
+  - Otherwise: “Compliance may not be possible or will take 12+ weeks”
+- Output text explanation based on logic above.
+- Show real-world factors that affect timing (port backlog, inspector availability).
+
+---
+
+🔧 3. “Mod Package Estimator”:
+
+- New route `/mod-estimator` with form inputs:
+  - Car model + year
+  - Goal: Daily | Drift | Show
+- Return breakdown of Stage 1, Stage 2, and Stage 3 mods:
+  - Stage 1: Intake, coilovers, wheels/tyres (~$3,000 AUD)
+  - Stage 2: Turbo/supercharger, brakes, tune (~$8,000 AUD)
+  - Stage 3: Widebody, interior, full respray, cage (~$15,000 AUD+)
+- Output includes:
+  - Estimated cost per stage
+  - Recommended service tier from Immaculate Imports (Essentials, Concierge, Elite)
+  - Copy from the following marketing text:
+
+---
+**Your Dream Car, Delivered.**
+From Japan and the U.S. to your driveway — fully compliant, mod-ready, and road-tested.
+
+At Immaculate Imports, we don’t sell cars — we source, verify, and deliver them with the accuracy of a logistics operation and the care of a collector.
+
+Mod support includes:
+✔️ Sourcing + install via our partner shops
+✔️ Tuned for Aussie roads
+✔️ Cosmetic & performance options
+✔️ Documentation for insurance/resale
+✔️ Project tracking via your client portal
+
+---
+
+📁 Folder structure:
+- `server.js` (Express routes)
+- `views/*.html` (each tool page: `japan-value.html`, `compliance-estimate.html`, `mod-estimator.html`)
+- `public/style.css` (shared styling)
+- `data/listings.json` (mock car listing examples)
+
+Make sure each route loads its own HTML view, and users stay on the same page. Use dummy data where real APIs aren’t available. No DB, just simple JSON mock files.

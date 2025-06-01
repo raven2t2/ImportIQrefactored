@@ -4,6 +4,25 @@ import { storage } from "./storage";
 import { insertSubmissionSchema, type CalculationResult } from "@shared/schema";
 import { z } from "zod";
 
+// Additional schemas for new tools
+const japanValueSchema = z.object({
+  make: z.string().min(1),
+  model: z.string().min(1),
+  year: z.number().min(1990).max(new Date().getFullYear()),
+});
+
+const complianceSchema = z.object({
+  year: z.number().min(1970).max(new Date().getFullYear()),
+  category: z.enum(["passenger", "suv", "kei", "commercial"]),
+});
+
+const modEstimatorSchema = z.object({
+  make: z.string().min(1),
+  model: z.string().min(1),
+  year: z.number().min(1990).max(new Date().getFullYear()),
+  goal: z.enum(["daily", "drift", "show"]),
+});
+
 function calculateImportCosts(vehiclePrice: number, shippingOrigin: string): CalculationResult {
   // Calculate shipping based on origin
   const shipping = shippingOrigin === "japan" ? 3200 : 4500;
