@@ -80,7 +80,6 @@ export default function ImportIQ() {
             
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#tools" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Tools</a>
               <a href="#features" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Features</a>
               <a href="#pricing" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Pricing</a>
               <a href="/affiliate-signup" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Partners</a>
@@ -110,7 +109,6 @@ export default function ImportIQ() {
           {mobileMenuOpen && (
             <div className="md:hidden py-6 border-t border-gray-800/50">
               <div className="flex flex-col space-y-4">
-                <a href="#tools" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium">Tools</a>
                 <a href="#features" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium">Features</a>
                 <a href="#pricing" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium">Pricing</a>
                 <a href="/affiliate-signup" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium">Partners</a>
