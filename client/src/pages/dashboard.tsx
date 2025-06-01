@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { BarChart3, Users, Calculator, Brain, FileText, Download, Calendar, Clock, Phone, Mail } from "lucide-react";
+import { Plus, Eye } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -123,10 +124,13 @@ export default function Dashboard() {
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="calculator">Calculator Leads</TabsTrigger>
             <TabsTrigger value="ai-recs">AI Recommendations</TabsTrigger>
+            <TabsTrigger value="garage">My Garage</TabsTrigger>
+            <TabsTrigger value="watchlist">Parts Watchlist</TabsTrigger>
+            <TabsTrigger value="events">Car Events</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -315,6 +319,68 @@ export default function Dashboard() {
                     ))}
                   </TableBody>
                 </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="garage" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>My Vehicle Builds</CardTitle>
+                <p className="text-sm text-muted-foreground">Track your imported vehicles and modification projects</p>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <Card className="border-dashed border-2 border-gray-300 hover:border-brand-gold transition-colors">
+                    <CardContent className="flex flex-col items-center justify-center h-40 text-center">
+                      <div className="w-12 h-12 rounded-full bg-brand-gold/10 flex items-center justify-center mb-3">
+                        <Plus className="h-6 w-6 text-brand-gold" />
+                      </div>
+                      <h3 className="font-medium text-gray-900 mb-1">Add New Build</h3>
+                      <p className="text-sm text-gray-500">Document your next import project</p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="watchlist" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Parts Watchlist</CardTitle>
+                <p className="text-sm text-muted-foreground">Track prices on parts you want for your builds</p>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                    <Eye className="h-8 w-8 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No parts in watchlist</h3>
+                  <p className="text-gray-500 mb-4">Add parts to track their prices and get alerts when they drop</p>
+                  <Button className="bg-brand-gold hover:bg-brand-gold/90">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add First Part
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="events" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Upcoming Car Events</CardTitle>
+                <p className="text-sm text-muted-foreground">Discover car meets, shows, and events near you</p>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                    <Calendar className="h-8 w-8 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No events found</h3>
+                  <p className="text-gray-500 mb-4">Check back later for car events in your area</p>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
