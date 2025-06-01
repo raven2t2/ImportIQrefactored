@@ -70,30 +70,30 @@ export default function ImportIQ() {
     <div className="min-h-screen bg-black">
       {/* Header */}
       <header className="bg-card shadow-sm border-b border-brand-gray">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center space-x-3">
-              <div className="flex items-center justify-center w-12 h-12 bg-brand-gold rounded-xl">
-                <Zap className="h-6 w-6 text-black" />
+              <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-brand-gold rounded-xl">
+                <Zap className="h-5 w-5 sm:h-6 sm:w-6 text-black" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-brand-white">ImportIQ</h1>
-                <p className="text-sm text-brand-gray">Complete Vehicle Import Intelligence Platform</p>
+                <h1 className="text-2xl sm:text-3xl font-bold text-brand-white">ImportIQ</h1>
+                <p className="text-xs sm:text-sm text-brand-gray">Complete Vehicle Import Intelligence Platform</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
               {trialStatus && trialStatus.isActive ? (
-                <Badge className="bg-brand-gold text-black border-brand-gold">
+                <Badge className="bg-brand-gold text-black border-brand-gold text-xs sm:text-sm w-fit">
                   <Clock className="h-3 w-3 mr-1" />
                   {trialStatus.daysRemaining} Days Remaining
                 </Badge>
               ) : (
-                <Badge className="bg-brand-gold text-black border-brand-gold">
+                <Badge className="bg-brand-gold text-black border-brand-gold text-xs sm:text-sm w-fit">
                   <Clock className="h-3 w-3 mr-1" />
                   Trial Active
                 </Badge>
               )}
-              <div className="text-right">
+              <div className="text-left sm:text-right">
                 <p className="text-sm font-medium text-brand-white">Welcome, {userInfo.name}</p>
                 <p className="text-xs text-brand-gray">{userInfo.email}</p>
               </div>
@@ -102,16 +102,16 @@ export default function ImportIQ() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto px-4 py-6 sm:py-8">
         {/* Hero Section */}
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-brand-white mb-4">
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-brand-white mb-3 sm:mb-4 px-2">
             Everything You Need to Import Vehicles Like a Pro
           </h2>
-          <p className="text-xl text-brand-gray mb-6 max-w-3xl mx-auto">
+          <p className="text-base sm:text-lg lg:text-xl text-brand-gray mb-4 sm:mb-6 max-w-3xl mx-auto px-2">
             From AI-powered vehicle recommendations to precise cost calculations - ImportIQ gives you the intelligence to make smart import decisions and maximize your ROI.
           </p>
-          <div className="flex items-center justify-center space-x-6 text-sm text-brand-gray">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 text-sm text-brand-gray">
             <div className="flex items-center">
               <Check className="h-4 w-4 text-brand-gold mr-2" />
               <span>Real auction data</span>
@@ -128,35 +128,35 @@ export default function ImportIQ() {
         </div>
 
         {/* Quick Access Tools */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
           <Link href="/import-calculator">
-            <Button className="w-full h-20 bg-brand-gold hover:bg-brand-gold-dark text-black flex flex-col items-center justify-center space-y-2">
-              <Calculator className="h-6 w-6" />
-              <span className="text-sm font-medium">Import Calculator</span>
+            <Button className="w-full h-16 sm:h-20 bg-brand-gold hover:bg-brand-gold-dark text-black flex flex-col items-center justify-center space-y-1 sm:space-y-2 touch-manipulation">
+              <Calculator className="h-5 w-5 sm:h-6 sm:w-6" />
+              <span className="text-xs sm:text-sm font-medium text-center leading-tight">Import Calculator</span>
             </Button>
           </Link>
           <Link href="/ai-recommendations">
-            <Button className="w-full h-20 bg-brand-gold hover:bg-brand-gold-dark text-black flex flex-col items-center justify-center space-y-2">
-              <Brain className="h-6 w-6" />
-              <span className="text-sm font-medium">AI Recommendations</span>
+            <Button className="w-full h-16 sm:h-20 bg-brand-gold hover:bg-brand-gold-dark text-black flex flex-col items-center justify-center space-y-1 sm:space-y-2 touch-manipulation">
+              <Brain className="h-5 w-5 sm:h-6 sm:w-6" />
+              <span className="text-xs sm:text-sm font-medium text-center leading-tight">AI Recommendations</span>
             </Button>
           </Link>
           <Link href="/true-cost-explorer">
-            <Button className="w-full h-20 bg-brand-gold hover:bg-brand-gold-dark text-black flex flex-col items-center justify-center space-y-2">
-              <DollarSign className="h-6 w-6" />
-              <span className="text-sm font-medium">True Cost Explorer</span>
+            <Button className="w-full h-16 sm:h-20 bg-brand-gold hover:bg-brand-gold-dark text-black flex flex-col items-center justify-center space-y-1 sm:space-y-2 touch-manipulation">
+              <DollarSign className="h-5 w-5 sm:h-6 sm:w-6" />
+              <span className="text-xs sm:text-sm font-medium text-center leading-tight">True Cost Explorer</span>
             </Button>
           </Link>
           <Link href="/vehicle-lookup">
-            <Button className="w-full h-20 bg-brand-gold hover:bg-brand-gold-dark text-black flex flex-col items-center justify-center space-y-2">
-              <Search className="h-6 w-6" />
-              <span className="text-sm font-medium">Vehicle Lookup</span>
+            <Button className="w-full h-16 sm:h-20 bg-brand-gold hover:bg-brand-gold-dark text-black flex flex-col items-center justify-center space-y-1 sm:space-y-2 touch-manipulation">
+              <Search className="h-5 w-5 sm:h-6 sm:w-6" />
+              <span className="text-xs sm:text-sm font-medium text-center leading-tight">Vehicle Lookup</span>
             </Button>
           </Link>
         </div>
 
         {/* Main Tools Grid */}
-        <div className="grid lg:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
           {/* Core Import Tools */}
           <Card className="bg-card border-brand-gray hover:shadow-lg transition-shadow cursor-pointer group">
             <Link href="/import-calculator">
