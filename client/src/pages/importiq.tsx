@@ -4,7 +4,7 @@ import { Calculator, TrendingUp, Shield, Clock, Users, ArrowRight, CheckCircle, 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import EmailGate from "@/components/email-gate";
-import logoPath from "@assets/circular imi logo (1).png";
+import logoPath from "@assets/Logo 2 imi.png";
 
 export default function ImportIQ() {
   const [showEmailGate, setShowEmailGate] = useState(false);
@@ -72,7 +72,7 @@ export default function ImportIQ() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <img src={logoPath} alt="Immaculate Imports" className="h-10 w-10" />
+              <img src={logoPath} alt="Immaculate Imports" className="h-8 w-12" />
               <div className="text-2xl font-semibold text-white">
                 Import<span className="text-amber-400">IQ</span>
               </div>
@@ -205,12 +205,12 @@ export default function ImportIQ() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-8 tracking-tight">
-              14 Professional Tools.
+              14 AI-Powered Tools.
               <br />
-              <span className="text-yellow-400">One Platform.</span>
+              <span className="text-amber-400">One Platform.</span>
             </h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto font-light">
-              Everything you need to import vehicles successfully, from cost calculations to compliance guidance.
+              Everything you need to import vehicles successfully, from ML-powered cost calculations to AI compliance guidance.
             </p>
           </div>
 
@@ -218,18 +218,18 @@ export default function ImportIQ() {
             {tools.map((tool, index) => (
               <Card 
                 key={tool.name}
-                className="group cursor-pointer bg-black border border-gray-800 hover:border-yellow-400/50 transition-all duration-500 hover:shadow-2xl hover:shadow-yellow-400/10 hover:-translate-y-2 rounded-2xl overflow-hidden"
+                className="group cursor-pointer bg-black border border-gray-800 hover:border-amber-400/50 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-400/10 hover:-translate-y-2 rounded-2xl overflow-hidden"
                 onClick={() => handleToolAccess(tool.name, tool.path)}
               >
                 <CardContent className="p-8">
                   <div className="mb-6">
-                    <div className="w-14 h-14 bg-gray-800 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-yellow-400 transition-all duration-500 group-hover:scale-110">
-                      <tool.icon className="h-7 w-7 text-yellow-400 group-hover:text-black transition-colors duration-500" />
+                    <div className="w-14 h-14 bg-gray-800 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-amber-400 transition-all duration-500 group-hover:scale-110">
+                      <tool.icon className="h-7 w-7 text-amber-400 group-hover:text-black transition-colors duration-500" />
                     </div>
-                    <h3 className="text-xl font-semibold text-white mb-3 group-hover:text-yellow-400 transition-colors duration-300">{tool.name}</h3>
+                    <h3 className="text-xl font-semibold text-white mb-3 group-hover:text-amber-400 transition-colors duration-300">{tool.name}</h3>
                     <p className="text-gray-400 text-sm leading-relaxed">{tool.description}</p>
                   </div>
-                  <div className="flex items-center text-yellow-400 text-sm font-medium group-hover:translate-x-2 transition-all duration-300">
+                  <div className="flex items-center text-amber-400 text-sm font-medium group-hover:translate-x-2 transition-all duration-300">
                     Try it now
                     <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
                   </div>
@@ -299,33 +299,33 @@ export default function ImportIQ() {
           <div className="bg-black border border-gray-800 rounded-3xl p-12 max-w-lg mx-auto">
             <h3 className="text-3xl font-bold text-white mb-6">Professional</h3>
             <div className="mb-8">
-              <span className="text-6xl font-bold text-yellow-400">$97</span>
+              <span className="text-6xl font-bold text-amber-400">$97</span>
               <span className="text-gray-300 ml-3 text-xl">/month</span>
             </div>
             <ul className="text-left space-y-4 mb-10">
               <li className="flex items-center">
-                <CheckCircle className="h-6 w-6 text-yellow-400 mr-4 flex-shrink-0" />
-                <span className="text-gray-300">Access to all 14 tools</span>
+                <CheckCircle className="h-6 w-6 text-amber-400 mr-4 flex-shrink-0" />
+                <span className="text-gray-300">Access to all 14 AI tools</span>
               </li>
               <li className="flex items-center">
-                <CheckCircle className="h-6 w-6 text-yellow-400 mr-4 flex-shrink-0" />
+                <CheckCircle className="h-6 w-6 text-amber-400 mr-4 flex-shrink-0" />
                 <span className="text-gray-300">Unlimited calculations</span>
               </li>
               <li className="flex items-center">
-                <CheckCircle className="h-6 w-6 text-yellow-400 mr-4 flex-shrink-0" />
-                <span className="text-gray-300">AI recommendations</span>
+                <CheckCircle className="h-6 w-6 text-amber-400 mr-4 flex-shrink-0" />
+                <span className="text-gray-300">ML-powered recommendations</span>
               </li>
               <li className="flex items-center">
-                <CheckCircle className="h-6 w-6 text-yellow-400 mr-4 flex-shrink-0" />
+                <CheckCircle className="h-6 w-6 text-amber-400 mr-4 flex-shrink-0" />
                 <span className="text-gray-300">Expert support</span>
               </li>
               <li className="flex items-center">
-                <CheckCircle className="h-6 w-6 text-yellow-400 mr-4 flex-shrink-0" />
+                <CheckCircle className="h-6 w-6 text-amber-400 mr-4 flex-shrink-0" />
                 <span className="text-gray-300">Priority updates</span>
               </li>
             </ul>
             <Button 
-              className="w-full bg-yellow-400 hover:bg-yellow-500 text-black py-4 text-lg rounded-full font-medium transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
+              className="w-full bg-amber-400 hover:bg-amber-500 text-black py-4 text-lg rounded-full font-medium transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
               onClick={() => setShowEmailGate(true)}
             >
               Start 7-Day Free Trial
