@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { Calculator, TrendingUp, Shield, Clock, Users, ArrowRight, CheckCircle, Menu, X, Star, Globe, Zap, Brain, BarChart3 } from "lucide-react";
+import { Calculator, TrendingUp, Shield, Clock, Users, ArrowRight, CheckCircle, Menu, X, Star, Globe, Zap, Brain, BarChart3, Package, Settings } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import EmailGate from "@/components/email-gate";
@@ -193,19 +193,36 @@ export default function ImportIQ() {
             </a>
           </div>
 
-          {/* Professional Credibility */}
-          <div className="flex flex-wrap justify-center items-center gap-8 text-gray-400 text-sm">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-amber-400" />
-              <span>Professional-grade analysis</span>
+          {/* Benefits Section */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <div className="text-center p-6 bg-gray-900/50 rounded-2xl border border-gray-800/50 shadow-lg">
+              <div className="mb-4">
+                <Package className="h-8 w-8 text-amber-400 mx-auto" />
+              </div>
+              <h3 className="text-lg font-bold text-white mb-2">Real Cost Clarity</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Landed cost, GST, duty, LCT & compliance — all calculated in one click.
+              </p>
             </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-amber-400" />
-              <span>Real-time market data</span>
+            
+            <div className="text-center p-6 bg-gray-900/50 rounded-2xl border border-gray-800/50 shadow-lg">
+              <div className="mb-4">
+                <Settings className="h-8 w-8 text-amber-400 mx-auto" />
+              </div>
+              <h3 className="text-lg font-bold text-white mb-2">Built for Compliance</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Understand what's legal, what needs certification, and what won't pass.
+              </p>
             </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-amber-400" />
-              <span>Built by import experts</span>
+            
+            <div className="text-center p-6 bg-gray-900/50 rounded-2xl border border-gray-800/50 shadow-lg">
+              <div className="mb-4">
+                <BarChart3 className="h-8 w-8 text-amber-400 mx-auto" />
+              </div>
+              <h3 className="text-lg font-bold text-white mb-2">Powered by Importers</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Tools modeled after how pros plan — refined through real-world experience.
+              </p>
             </div>
           </div>
         </div>
