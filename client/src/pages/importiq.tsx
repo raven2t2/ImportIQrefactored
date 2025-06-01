@@ -1,416 +1,355 @@
-import { useState, useEffect } from "react";
-import { Link } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Brain, Calculator, Clock, Shield, Truck, FileText, TrendingUp, Star, Check, Zap, AlertCircle, DollarSign, Calendar, Settings, Search } from "lucide-react";
-import EmailGate from "@/components/email-gate";
-import AIChatAssistant from "@/components/ai-chat-assistant";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Calculator, TrendingUp, Shield, Clock, Users, ArrowRight, CheckCircle, Menu, X, Star, Globe, Zap } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import EmailGate from "@/components/email-gate";
 
 export default function ImportIQ() {
-  const [userInfo, setUserInfo] = useState<{ name: string; email: string; isReturning: boolean } | null>(null);
+  const [showEmailGate, setShowEmailGate] = useState(false);
+  const [selectedTool, setSelectedTool] = useState<string>("");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Fetch trial status when user info is available
+  // Check trial status
   const { data: trialStatus } = useQuery({
-    queryKey: [`/api/trial-status/${userInfo?.email}`],
-    enabled: !!userInfo?.email,
+    queryKey: ["/api/trial-status"],
+    enabled: false,
   });
 
-  // Handle email gate success
-  const handleEmailGateSuccess = (userData: { name: string; email: string; isReturning: boolean }) => {
-    setUserInfo(userData);
+  const tools = [
+    { name: "Import Cost Calculator", path: "/import-calculator", icon: Calculator, description: "Get accurate import costs instantly" },
+    { name: "True Cost Explorer", path: "/true-cost-explorer", icon: TrendingUp, description: "Explore total ownership costs" },
+    { name: "Import Timeline", path: "/import-timeline", icon: Clock, description: "Plan your import timeline" },
+    { name: "Build & Comply", path: "/build-comply", icon: Shield, description: "Ensure compliance requirements" },
+    { name: "AI Recommendations", path: "/ai-recommendations", icon: Zap, description: "AI-powered vehicle suggestions" },
+    { name: "Expert Vehicle Picks", path: "/expert-picks", icon: Star, description: "Curated expert recommendations" },
+    { name: "Compliance Estimate", path: "/compliance-estimate", icon: Shield, description: "Estimate compliance costs" },
+    { name: "Mod Cost Estimator", path: "/mod-estimator", icon: Calculator, description: "Calculate modification costs" },
+    { name: "Value Estimator", path: "/value-estimator", icon: TrendingUp, description: "Estimate vehicle values" },
+    { name: "Vehicle Lookup", path: "/vehicle-lookup", icon: Globe, description: "Comprehensive vehicle database" },
+    { name: "Registration Stats", path: "/registration-stats", icon: Users, description: "Market registration data" },
+    { name: "Import Volume Dashboard", path: "/import-volume-dashboard", icon: TrendingUp, description: "Track import volumes" },
+    { name: "Auction Sample Explorer", path: "/auction-sample-explorer", icon: Globe, description: "Explore auction samples" },
+    { name: "Dashboard", path: "/dashboard", icon: Users, description: "Your personal dashboard" }
+  ];
+
+  const handleToolAccess = (toolName: string, toolPath: string) => {
+    setSelectedTool(toolName);
+    
+    if (trialStatus?.isActive) {
+      window.location.href = toolPath;
+    } else {
+      setShowEmailGate(true);
+    }
   };
 
-  // Show email gate if user hasn't provided contact info yet
-  if (!userInfo) {
+  const handleEmailSuccess = (userData: { name: string; email: string; isReturning: boolean }) => {
+    setShowEmailGate(false);
+    const tool = tools.find(t => t.name === selectedTool);
+    if (tool) {
+      setTimeout(() => {
+        window.location.href = tool.path;
+      }, 500);
+    }
+  };
+
+  if (showEmailGate) {
     return (
       <EmailGate
-        title="Start Your 14-Day ImportIQ Trial"
-        description="The complete vehicle import intelligence platform. Get AI recommendations, cost calculators, compliance estimates, and mod planning tools - all in one place. No credit card required for your free trial."
+        onSuccess={handleEmailSuccess}
+        title={`Unlock ${selectedTool}`}
+        description="Start your 7-day free trial to access all ImportIQ tools"
         buttonText="Start Free Trial"
-        onSuccess={handleEmailGateSuccess}
       />
-    );
-  }
-
-  // Show trial expired message if trial is inactive
-  if (trialStatus && !trialStatus.isActive) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <Card className="max-w-md mx-auto text-center bg-card border-brand-gray">
-          <CardHeader>
-            <div className="flex items-center justify-center mb-4">
-              <AlertCircle className="h-12 w-12 text-brand-gold" />
-            </div>
-            <CardTitle className="text-2xl text-brand-white">Trial Expired</CardTitle>
-            <CardDescription className="text-brand-gray">
-              Your 14-day ImportIQ trial has ended. Subscribe to continue accessing all tools.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <p className="text-sm text-gray-600">
-                Ready to unlock the full power of ImportIQ?
-              </p>
-              <Button className="w-full bg-brand-gold hover:bg-amber-600 text-white">
-                Subscribe for $97/month
-              </Button>
-              <p className="text-xs text-gray-500">
-                Cancel anytime • Full access to all tools
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-black">
-      {/* Header */}
-      <header className="bg-card shadow-sm border-b border-brand-gray">
-        <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center space-x-3">
-              <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-brand-gold rounded-xl">
-                <Zap className="h-5 w-5 sm:h-6 sm:w-6 text-black" />
-              </div>
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-brand-white">ImportIQ</h1>
-                <p className="text-xs sm:text-sm text-brand-gray">Complete Vehicle Import Intelligence Platform</p>
-              </div>
+      {/* Navigation */}
+      <nav className="fixed top-0 left-0 right-0 bg-black/95 backdrop-blur-xl border-b border-gray-800/50 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="text-2xl font-semibold text-white">
+              Import<span className="text-yellow-400">IQ</span>
             </div>
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
-              {trialStatus && trialStatus.isActive ? (
-                <Badge className="bg-brand-gold text-black border-brand-gold text-xs sm:text-sm w-fit">
-                  <Clock className="h-3 w-3 mr-1" />
-                  {trialStatus.daysRemaining} Days Remaining
-                </Badge>
-              ) : (
-                <Badge className="bg-brand-gold text-black border-brand-gold text-xs sm:text-sm w-fit">
-                  <Clock className="h-3 w-3 mr-1" />
-                  Trial Active
-                </Badge>
-              )}
-              <div className="text-left sm:text-right">
-                <p className="text-sm font-medium text-brand-white">Welcome, {userInfo.name}</p>
-                <p className="text-xs text-brand-gray">{userInfo.email}</p>
-              </div>
+            
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-8">
+              <a href="#tools" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Tools</a>
+              <a href="#features" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Features</a>
+              <a href="#pricing" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Pricing</a>
+              <a href="/affiliate-signup" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Partners</a>
+              <Button 
+                className="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-2 rounded-full transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
+                onClick={() => setShowEmailGate(true)}
+              >
+                Start Free Trial
+              </Button>
+            </div>
+
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="rounded-full text-white hover:bg-gray-800"
+              >
+                {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </Button>
             </div>
           </div>
-        </div>
-      </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-6 sm:py-8">
-        {/* Hero Section */}
-        <div className="text-center mb-8 sm:mb-12">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-brand-white mb-3 sm:mb-4 px-2">
-            Everything You Need to Import Vehicles Like a Pro
-          </h2>
-          <p className="text-base sm:text-lg lg:text-xl text-brand-gray mb-4 sm:mb-6 max-w-3xl mx-auto px-2">
-            From AI-powered vehicle recommendations to precise cost calculations - ImportIQ gives you the intelligence to make smart import decisions and maximize your ROI.
+          {/* Mobile Navigation */}
+          {mobileMenuOpen && (
+            <div className="md:hidden py-6 border-t border-gray-800/50">
+              <div className="flex flex-col space-y-4">
+                <a href="#tools" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium">Tools</a>
+                <a href="#features" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium">Features</a>
+                <a href="#pricing" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium">Pricing</a>
+                <a href="/affiliate-signup" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium">Partners</a>
+                <Button 
+                  className="bg-yellow-400 hover:bg-yellow-500 text-black w-full rounded-full mt-4 font-medium"
+                  onClick={() => setShowEmailGate(true)}
+                >
+                  Start Free Trial
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </nav>
+
+      {/* Trial Status Banner */}
+      {trialStatus?.isActive && (
+        <div className="bg-yellow-400/10 text-yellow-400 py-3 px-4 text-center text-sm font-medium mt-16 border-b border-yellow-400/20">
+          Free Trial Active - {trialStatus.daysRemaining} days remaining
+        </div>
+      )}
+
+      {/* Hero Section */}
+      <div className={`${trialStatus?.isActive ? 'pt-8' : 'pt-32'} pb-20`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-8 tracking-tight leading-none">
+            Import Smarter.
+            <br />
+            <span className="text-yellow-400">Save Thousands.</span>
+          </h1>
+          <p className="text-xl sm:text-2xl text-gray-300 max-w-4xl mx-auto mb-12 leading-relaxed font-light">
+            The complete vehicle import intelligence platform trusted by Australia's top importers and automotive professionals.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 text-sm text-brand-gray">
-            <div className="flex items-center">
-              <Check className="h-4 w-4 text-brand-gold mr-2" />
-              <span>Real auction data</span>
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
+            <Button 
+              size="lg" 
+              className="bg-yellow-400 hover:bg-yellow-500 text-black px-12 py-4 text-lg rounded-full transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 font-medium"
+              onClick={() => setShowEmailGate(true)}
+            >
+              Start Free Trial
+            </Button>
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="border-2 border-gray-600 text-white hover:bg-gray-800 hover:border-gray-500 px-12 py-4 text-lg rounded-full transition-all duration-300 font-medium"
+            >
+              Watch Demo
+            </Button>
+          </div>
+
+          {/* Social Proof */}
+          <div className="flex flex-wrap justify-center items-center gap-8 text-gray-400 text-sm">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="h-5 w-5 text-yellow-400" />
+              <span>Trusted by 10,000+ importers</span>
             </div>
-            <div className="flex items-center">
-              <Check className="h-4 w-4 text-brand-gold mr-2" />
-              <span>Accurate cost modeling</span>
+            <div className="flex items-center gap-2">
+              <CheckCircle className="h-5 w-5 text-yellow-400" />
+              <span>$50M+ in savings generated</span>
             </div>
-            <div className="flex items-center">
-              <Check className="h-4 w-4 text-brand-gold mr-2" />
-              <span>AI market insights</span>
+            <div className="flex items-center gap-2">
+              <CheckCircle className="h-5 w-5 text-yellow-400" />
+              <span>Industry leading accuracy</span>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Quick Access Tools */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-          <Link href="/import-calculator">
-            <Button className="w-full h-16 sm:h-20 bg-brand-gold hover:bg-brand-gold-dark text-black flex flex-col items-center justify-center space-y-1 sm:space-y-2 touch-manipulation">
-              <Calculator className="h-5 w-5 sm:h-6 sm:w-6" />
-              <span className="text-xs sm:text-sm font-medium text-center leading-tight">Import Calculator</span>
-            </Button>
-          </Link>
-          <Link href="/ai-recommendations">
-            <Button className="w-full h-16 sm:h-20 bg-brand-gold hover:bg-brand-gold-dark text-black flex flex-col items-center justify-center space-y-1 sm:space-y-2 touch-manipulation">
-              <Brain className="h-5 w-5 sm:h-6 sm:w-6" />
-              <span className="text-xs sm:text-sm font-medium text-center leading-tight">AI Recommendations</span>
-            </Button>
-          </Link>
-          <Link href="/true-cost-explorer">
-            <Button className="w-full h-16 sm:h-20 bg-brand-gold hover:bg-brand-gold-dark text-black flex flex-col items-center justify-center space-y-1 sm:space-y-2 touch-manipulation">
-              <DollarSign className="h-5 w-5 sm:h-6 sm:w-6" />
-              <span className="text-xs sm:text-sm font-medium text-center leading-tight">True Cost Explorer</span>
-            </Button>
-          </Link>
-          <Link href="/vehicle-lookup">
-            <Button className="w-full h-16 sm:h-20 bg-brand-gold hover:bg-brand-gold-dark text-black flex flex-col items-center justify-center space-y-1 sm:space-y-2 touch-manipulation">
-              <Search className="h-5 w-5 sm:h-6 sm:w-6" />
-              <span className="text-xs sm:text-sm font-medium text-center leading-tight">Vehicle Lookup</span>
-            </Button>
-          </Link>
+      {/* Tools Grid */}
+      <div id="tools" className="py-20 bg-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-8 tracking-tight">
+              14 Professional Tools.
+              <br />
+              <span className="text-yellow-400">One Platform.</span>
+            </h2>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto font-light">
+              Everything you need to import vehicles successfully, from cost calculations to compliance guidance.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {tools.map((tool, index) => (
+              <Card 
+                key={tool.name}
+                className="group cursor-pointer bg-black border border-gray-800 hover:border-yellow-400/50 transition-all duration-500 hover:shadow-2xl hover:shadow-yellow-400/10 hover:-translate-y-2 rounded-2xl overflow-hidden"
+                onClick={() => handleToolAccess(tool.name, tool.path)}
+              >
+                <CardContent className="p-8">
+                  <div className="mb-6">
+                    <div className="w-14 h-14 bg-gray-800 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-yellow-400 transition-all duration-500 group-hover:scale-110">
+                      <tool.icon className="h-7 w-7 text-yellow-400 group-hover:text-black transition-colors duration-500" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-white mb-3 group-hover:text-yellow-400 transition-colors duration-300">{tool.name}</h3>
+                    <p className="text-gray-400 text-sm leading-relaxed">{tool.description}</p>
+                  </div>
+                  <div className="flex items-center text-yellow-400 text-sm font-medium group-hover:translate-x-2 transition-all duration-300">
+                    Try it now
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
+      </div>
 
-        {/* Main Tools Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
-          {/* Core Import Tools */}
-          <Card className="bg-card border-brand-gray hover:shadow-lg transition-shadow cursor-pointer group">
-            <Link href="/import-calculator">
-              <CardHeader>
-                <div className="flex items-center space-x-3">
-                  <div className="flex items-center justify-center w-10 h-10 bg-brand-gold rounded-lg group-hover:bg-brand-gold-dark transition-colors">
-                    <Calculator className="h-5 w-5 text-black" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg text-brand-white">Import Cost Calculator</CardTitle>
-                    <CardDescription className="text-sm text-brand-gray">Know your landed cost before you commit.</CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center text-xs text-brand-gray">
-                    <Check className="h-3 w-3 text-brand-gold mr-2" />
-                    <span>Real-time shipping rates</span>
-                  </div>
-                  <div className="flex items-center text-xs text-brand-gray">
-                    <Check className="h-3 w-3 text-brand-gold mr-2" />
-                    <span>Regional freight adjustments</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Link>
-          </Card>
+      {/* Features Section */}
+      <div id="features" className="py-20 bg-black">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-8 tracking-tight">
+              Why Import<span className="text-yellow-400">IQ</span>?
+            </h2>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto font-light">
+              Built by industry experts for professionals who demand accuracy and reliability.
+            </p>
+          </div>
 
-          <Card className="bg-card border-brand-gray hover:shadow-lg transition-shadow cursor-pointer group">
-            <Link href="/true-cost-explorer">
-              <CardHeader>
-                <div className="flex items-center space-x-3">
-                  <div className="flex items-center justify-center w-10 h-10 bg-brand-gold rounded-lg group-hover:bg-brand-gold-dark transition-colors">
-                    <DollarSign className="h-5 w-5 text-black" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg text-brand-white">True Cost Explorer</CardTitle>
-                    <CardDescription className="text-sm text-brand-gray">The total cost of ownership, uncovered.</CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center text-xs text-gray-600">
-                    <Check className="h-3 w-3 text-green-600 mr-2" />
-                    <span>Multi-year ownership costs</span>
-                  </div>
-                  <div className="flex items-center text-xs text-gray-600">
-                    <Check className="h-3 w-3 text-green-600 mr-2" />
-                    <span>State-specific calculations</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Link>
-          </Card>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <div className="text-center group">
+              <div className="w-20 h-20 bg-gray-800 rounded-3xl flex items-center justify-center mx-auto mb-8 group-hover:bg-yellow-400 transition-all duration-500 group-hover:scale-110">
+                <Shield className="h-10 w-10 text-yellow-400 group-hover:text-black transition-colors duration-500" />
+              </div>
+              <h3 className="text-2xl font-semibold text-white mb-6">Industry Leading Accuracy</h3>
+              <p className="text-gray-300 leading-relaxed">
+                Real-time data from government sources and industry databases ensures you get the most accurate calculations every time.
+              </p>
+            </div>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
-            <Link href="/import-timeline">
-              <CardHeader>
-                <div className="flex items-center space-x-3">
-                  <div className="flex items-center justify-center w-10 h-10 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
-                    <Calendar className="h-5 w-5 text-purple-600" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg">Import Timeline</CardTitle>
-                    <CardDescription className="text-sm">Realistic delivery expectations from port to plate.</CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center text-xs text-gray-600">
-                    <Check className="h-3 w-3 text-green-600 mr-2" />
-                    <span>Port-specific processing</span>
-                  </div>
-                  <div className="flex items-center text-xs text-gray-600">
-                    <Check className="h-3 w-3 text-green-600 mr-2" />
-                    <span>Seasonal delay factors</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Link>
-          </Card>
+            <div className="text-center group">
+              <div className="w-20 h-20 bg-gray-800 rounded-3xl flex items-center justify-center mx-auto mb-8 group-hover:bg-yellow-400 transition-all duration-500 group-hover:scale-110">
+                <Zap className="h-10 w-10 text-yellow-400 group-hover:text-black transition-colors duration-500" />
+              </div>
+              <h3 className="text-2xl font-semibold text-white mb-6">AI-Powered Insights</h3>
+              <p className="text-gray-300 leading-relaxed">
+                Advanced AI analyzes market trends and provides personalized recommendations for your import projects.
+              </p>
+            </div>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
-            <Link href="/build-comply">
-              <CardHeader>
-                <div className="flex items-center space-x-3">
-                  <div className="flex items-center justify-center w-10 h-10 bg-orange-100 rounded-lg group-hover:bg-orange-200 transition-colors">
-                    <Settings className="h-5 w-5 text-orange-600" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg">BuildReady™</CardTitle>
-                    <CardDescription className="text-sm">Make your dream build road-legal.</CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center text-xs text-gray-600">
-                    <Check className="h-3 w-3 text-green-600 mr-2" />
-                    <span>State compliance requirements</span>
-                  </div>
-                  <div className="flex items-center text-xs text-gray-600">
-                    <Check className="h-3 w-3 text-green-600 mr-2" />
-                    <span>Engineering certificate paths</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Link>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
-            <Link href="/ai-recommendations">
-              <CardHeader>
-                <div className="flex items-center space-x-3">
-                  <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
-                    <Brain className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg">AI Recommendations</CardTitle>
-                    <CardDescription className="text-sm">Smart vehicle matching</CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center text-xs text-gray-600">
-                    <Check className="h-3 w-3 text-green-600 mr-2" />
-                    <span>Market trend analysis</span>
-                  </div>
-                  <div className="flex items-center text-xs text-gray-600">
-                    <Check className="h-3 w-3 text-green-600 mr-2" />
-                    <span>Investment potential forecasts</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Link>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
-            <Link href="/expert-picks">
-              <CardHeader>
-                <div className="flex items-center space-x-3">
-                  <div className="flex items-center justify-center w-10 h-10 bg-brand-gold rounded-lg group-hover:bg-amber-200 transition-colors">
-                    <Star className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg">Expert Picks</CardTitle>
-                    <CardDescription className="text-sm">Pre-configured scenarios</CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center text-xs text-gray-600">
-                    <Check className="h-3 w-3 text-green-600 mr-2" />
-                    <span>Professional import strategies</span>
-                  </div>
-                  <div className="flex items-center text-xs text-gray-600">
-                    <Check className="h-3 w-3 text-green-600 mr-2" />
-                    <span>Instant calculator setup</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Link>
-          </Card>
+            <div className="text-center group">
+              <div className="w-20 h-20 bg-gray-800 rounded-3xl flex items-center justify-center mx-auto mb-8 group-hover:bg-yellow-400 transition-all duration-500 group-hover:scale-110">
+                <Users className="h-10 w-10 text-yellow-400 group-hover:text-black transition-colors duration-500" />
+              </div>
+              <h3 className="text-2xl font-semibold text-white mb-6">Expert Support</h3>
+              <p className="text-gray-300 leading-relaxed">
+                Access to industry experts and comprehensive guidance throughout your entire import journey.
+              </p>
+            </div>
+          </div>
         </div>
+      </div>
 
-        {/* AI Assistant Promotion */}
-        <div className="mb-8">
-          <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center justify-center w-12 h-12 bg-blue-600 rounded-full">
-                    <Brain className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">AI Import Assistant Available</h3>
-                    <p className="text-sm text-gray-600">
-                      Get instant answers about eligibility, compliance, and state requirements
-                    </p>
-                  </div>
-                </div>
-                <Badge className="bg-blue-600 text-white animate-pulse">
-                  Ask Anything
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
+      {/* Pricing Section */}
+      <div id="pricing" className="py-20 bg-gray-900">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-8 tracking-tight">
+            Simple Pricing.
+          </h2>
+          <p className="text-xl text-gray-300 mb-16 font-light">
+            Start with a free trial, then choose the plan that works for you.
+          </p>
+
+          <div className="bg-black border border-gray-800 rounded-3xl p-12 max-w-lg mx-auto">
+            <h3 className="text-3xl font-bold text-white mb-6">Professional</h3>
+            <div className="mb-8">
+              <span className="text-6xl font-bold text-yellow-400">$97</span>
+              <span className="text-gray-300 ml-3 text-xl">/month</span>
+            </div>
+            <ul className="text-left space-y-4 mb-10">
+              <li className="flex items-center">
+                <CheckCircle className="h-6 w-6 text-yellow-400 mr-4 flex-shrink-0" />
+                <span className="text-gray-300">Access to all 14 tools</span>
+              </li>
+              <li className="flex items-center">
+                <CheckCircle className="h-6 w-6 text-yellow-400 mr-4 flex-shrink-0" />
+                <span className="text-gray-300">Unlimited calculations</span>
+              </li>
+              <li className="flex items-center">
+                <CheckCircle className="h-6 w-6 text-yellow-400 mr-4 flex-shrink-0" />
+                <span className="text-gray-300">AI recommendations</span>
+              </li>
+              <li className="flex items-center">
+                <CheckCircle className="h-6 w-6 text-yellow-400 mr-4 flex-shrink-0" />
+                <span className="text-gray-300">Expert support</span>
+              </li>
+              <li className="flex items-center">
+                <CheckCircle className="h-6 w-6 text-yellow-400 mr-4 flex-shrink-0" />
+                <span className="text-gray-300">Priority updates</span>
+              </li>
+            </ul>
+            <Button 
+              className="w-full bg-yellow-400 hover:bg-yellow-500 text-black py-4 text-lg rounded-full font-medium transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
+              onClick={() => setShowEmailGate(true)}
+            >
+              Start 7-Day Free Trial
+            </Button>
+          </div>
         </div>
+      </div>
 
-        {/* Pricing Section */}
-        <div className="text-center">
-          <Card className="max-w-md mx-auto bg-gradient-to-br from-brand-gold to-amber-500 text-white">
-            <CardHeader>
-              <div className="flex items-center justify-center mb-4">
-                <Star className="h-8 w-8" />
+      {/* Footer */}
+      <footer className="bg-black border-t border-gray-800 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <div className="text-2xl font-semibold text-white mb-4">
+                Import<span className="text-yellow-400">IQ</span>
               </div>
-              <CardTitle className="text-2xl text-white">ImportIQ Pro</CardTitle>
-              <CardDescription className="text-amber-100">
-                Full access to all tools and AI insights
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center mb-6">
-                <div className="text-4xl font-bold mb-2">$97</div>
-                <div className="text-amber-100">per month</div>
-                <div className="text-sm text-amber-200 mt-2">
-                  14-day free trial • No credit card required
-                </div>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Australia's premier vehicle import intelligence platform.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-white mb-6">Product</h4>
+              <div className="space-y-3 text-sm">
+                <a href="#tools" className="text-gray-400 hover:text-yellow-400 transition-colors block">Tools</a>
+                <a href="#features" className="text-gray-400 hover:text-yellow-400 transition-colors block">Features</a>
+                <a href="#pricing" className="text-gray-400 hover:text-yellow-400 transition-colors block">Pricing</a>
               </div>
-              <div className="space-y-3 mb-6 text-left">
-                <div className="flex items-center text-sm">
-                  <Check className="h-4 w-4 mr-2 flex-shrink-0" />
-                  <span>Unlimited import cost calculations</span>
-                </div>
-                <div className="flex items-center text-sm">
-                  <Check className="h-4 w-4 mr-2 flex-shrink-0" />
-                  <span>AI vehicle recommendations</span>
-                </div>
-                <div className="flex items-center text-sm">
-                  <Check className="h-4 w-4 mr-2 flex-shrink-0" />
-                  <span>Compliance timeline estimates</span>
-                </div>
-                <div className="flex items-center text-sm">
-                  <Check className="h-4 w-4 mr-2 flex-shrink-0" />
-                  <span>Modification planning tools</span>
-                </div>
-                <div className="flex items-center text-sm">
-                  <Check className="h-4 w-4 mr-2 flex-shrink-0" />
-                  <span>Real-time market data access</span>
-                </div>
-                <div className="flex items-center text-sm">
-                  <Check className="h-4 w-4 mr-2 flex-shrink-0" />
-                  <span>Priority email support</span>
-                </div>
+            </div>
+            <div>
+              <h4 className="font-semibold text-white mb-6">Company</h4>
+              <div className="space-y-3 text-sm">
+                <a href="/affiliate-signup" className="text-gray-400 hover:text-yellow-400 transition-colors block">Partners</a>
+                <a href="#" className="text-gray-400 hover:text-yellow-400 transition-colors block">About</a>
+                <a href="#" className="text-gray-400 hover:text-yellow-400 transition-colors block">Contact</a>
               </div>
-              <div className="text-center text-sm text-amber-200 bg-white/10 p-3 rounded-lg">
-                <strong>Trial Active:</strong> You have full access to all ImportIQ tools for 14 days. 
-                Explore everything risk-free.
+            </div>
+            <div>
+              <h4 className="font-semibold text-white mb-6">Support</h4>
+              <div className="space-y-3 text-sm">
+                <a href="#" className="text-gray-400 hover:text-yellow-400 transition-colors block">Help Center</a>
+                <a href="#" className="text-gray-400 hover:text-yellow-400 transition-colors block">Documentation</a>
+                <a href="#" className="text-gray-400 hover:text-yellow-400 transition-colors block">API</a>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400 text-sm">
+            © 2025 ImportIQ. All rights reserved.
+          </div>
         </div>
-      </main>
-
-      {/* AI Chat Assistant */}
-      <AIChatAssistant 
-        vehicleContext="ImportIQ Dashboard"
-        userLocation="Australia"
-      />
+      </footer>
     </div>
   );
 }
