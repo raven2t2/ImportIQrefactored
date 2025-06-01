@@ -99,8 +99,8 @@ export default function ImportCalculator() {
               <Calculator className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Vehicle Import Calculator</h1>
-              <p className="text-sm text-gray-600">Calculate total landed costs for importing vehicles to Australia</p>
+              <h1 className="text-2xl font-bold text-gray-900">Immaculate Imports Calculator</h1>
+              <p className="text-sm text-gray-600">Your Dream Car, Delivered - Calculate total landed costs for importing vehicles to Australia</p>
             </div>
           </div>
         </div>
@@ -288,7 +288,7 @@ export default function ImportCalculator() {
                   <div className="flex justify-between items-center py-2 border-b border-gray-100">
                     <div className="flex items-center space-x-2">
                       <span className="text-gray-700 font-medium">Service Fee</span>
-                      <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">10%</span>
+                      <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">{calculations.serviceTier}</span>
                     </div>
                     <span className="font-semibold text-gray-900">{formatCurrency(calculations.serviceFee)}</span>
                   </div>
@@ -311,9 +311,9 @@ export default function ImportCalculator() {
                       <p className="text-sm text-gray-700">{calculations.serviceTierDescription}</p>
                       <div className="mt-2 text-xs text-gray-600">
                         <span className="font-medium">
-                          {calculations.serviceTier === "Essentials" && "Recommended for vehicles under $65,000 AUD"}
-                          {calculations.serviceTier === "Concierge" && "Recommended for vehicles $65,000-$100,000 AUD"}
-                          {calculations.serviceTier === "Elite" && "Recommended for vehicles over $100,000 AUD"}
+                          {calculations.serviceTier === "Essentials" && "Service Fee: $3,000 AUD - For confident buyers"}
+                          {calculations.serviceTier === "Concierge" && "Service Fee: $5,000 AUD - For hands-on project management"}
+                          {calculations.serviceTier === "Elite" && "Service Fee: $10,000 AUD - For collectors & complex builds"}
                         </span>
                       </div>
                     </div>

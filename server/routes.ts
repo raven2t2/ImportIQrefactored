@@ -23,27 +23,30 @@ function calculateImportCosts(vehiclePrice: number, shippingOrigin: string): Cal
   // Fixed inspection fee
   const inspection = 2000;
   
-  // Calculate service fee (10% of total before service fee)
-  const preServiceTotal = vehiclePrice + shipping + customsDuty + gst + lct + inspection;
-  const serviceFee = preServiceTotal * 0.10;
+  // Calculate base landed cost (before service fee)
+  const baseLandedCost = vehiclePrice + shipping + customsDuty + gst + lct + inspection;
   
-  // Calculate total cost
-  const totalCost = preServiceTotal + serviceFee;
-  
-  // Determine service tier
+  // Determine service tier and fee based on base landed cost
   let serviceTier: string;
   let serviceTierDescription: string;
+  let serviceFee: number;
   
-  if (totalCost < 65000) {
+  if (baseLandedCost < 65000) {
     serviceTier = "Essentials";
-    serviceTierDescription = "Standard import service with basic documentation, customs clearance, and delivery coordination.";
-  } else if (totalCost <= 100000) {
+    serviceFee = 3000;
+    serviceTierDescription = "For confident buyers who just want clean sourcing and smooth delivery. Verified partner referrals, transparent costs, progress tracking.";
+  } else if (baseLandedCost <= 100000) {
     serviceTier = "Concierge";
-    serviceTierDescription = "Enhanced service with priority processing, vehicle inspection reports, and dedicated support throughout the import process.";
+    serviceFee = 5000;
+    serviceTierDescription = "For busy professionals or first-timers who want hands-on project management. Includes mod shop liaison, priority sourcing, enhanced updates.";
   } else {
     serviceTier = "Elite";
-    serviceTierDescription = "Premium white-glove service including dedicated account manager, priority processing, comprehensive vehicle preparation, and premium delivery options.";
+    serviceFee = 10000;
+    serviceTierDescription = "For collectors and complex builds that turn heads. Exclusive sourcing, full build coordination, white-glove delivery experience.";
   }
+  
+  // Calculate total cost including service fee
+  const totalCost = baseLandedCost + serviceFee;
   
   return {
     vehiclePrice,
