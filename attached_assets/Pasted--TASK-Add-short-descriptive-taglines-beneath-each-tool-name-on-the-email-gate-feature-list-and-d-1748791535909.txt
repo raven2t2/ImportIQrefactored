@@ -1,0 +1,66 @@
+🎯 TASK: Add short, descriptive taglines beneath each tool name on the email gate feature list and dashboard module cards to improve clarity and perceived value.
+
+📍 Location:
+- client/src/components/email-gate.tsx
+- client/src/components/dashboard/ToolCard.tsx (or equivalent component for tool list tiles)
+
+🧠 Purpose:
+These taglines are meant to explain what each tool does in plain English — especially for older or less tech-native users. They should display beneath the tool name in a smaller font (e.g., `text-sm` or `text-xs`, muted color like `text-gray-500`).
+
+---
+
+🧩 Taglines to Implement:
+
+1. **Import Cost Calculator**  
+   _"Know your landed cost before you commit."_
+
+2. **True Cost Explorer**  
+   _"The total cost of ownership, uncovered."_
+
+3. **BuildReady™**  
+   _"Make your dream build road-legal."_
+
+4. **Import Timeline**  
+   _"Realistic delivery expectations from port to plate."_
+
+5. **AI Vehicle Recommendations**  
+   _"Smarter suggestions based on your goals."_
+
+6. **Expert Picks**  
+   _"Pre-screened imports worth a closer look."_
+
+7. **Compliance Estimate**  
+   _"Know if your build will pass — and how much it’ll cost."_
+
+8. **Mod Estimator**  
+   _"Estimate costs for tuning, mods, and compliance."_
+
+9. **Vehicle Lookup**  
+   _"VIN or chassis code? We’ll break it down."_
+
+10. **Registration Stats**  
+   _"See what’s already on Aussie roads."_
+
+11. **Import Volume Dashboard**  
+   _"What’s entering the country — and from where."_
+
+12. **Auction Sample Explorer**  
+   _"Recent comps from Japanese auctions."_
+
+13. **AI Import Assistant**  
+   _"Ask anything about your import journey."_
+
+14. **Value Estimator**  
+   _"Know what your car’s worth — now and later."_
+
+---
+
+💄 Styling Notes:
+- Use a soft-muted font color (`text-gray-500` or `text-muted`)
+- Small but readable font size (`text-sm` or `text-xs`)
+- Consistent vertical spacing between tool title and tagline
+
+---
+
+🚀 Outcome:
+This small enhancement adds clarity, builds trust, and helps users understand the *why* behind each feature, especially important for older users, first-time importers, and dealers unfamiliar with tech products.

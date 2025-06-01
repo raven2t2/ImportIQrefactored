@@ -167,7 +167,7 @@ export default function ImportIQ() {
                   </div>
                   <div>
                     <CardTitle className="text-lg text-brand-white">Import Cost Calculator</CardTitle>
-                    <CardDescription className="text-sm text-brand-gray">Precise landed cost calculations</CardDescription>
+                    <CardDescription className="text-sm text-brand-gray">Know your landed cost before you commit.</CardDescription>
                   </div>
                 </div>
               </CardHeader>
@@ -195,7 +195,7 @@ export default function ImportIQ() {
                   </div>
                   <div>
                     <CardTitle className="text-lg text-brand-white">True Cost Explorer</CardTitle>
-                    <CardDescription className="text-sm text-brand-gray">Real ownership cost analysis</CardDescription>
+                    <CardDescription className="text-sm text-brand-gray">The total cost of ownership, uncovered.</CardDescription>
                   </div>
                 </div>
               </CardHeader>
@@ -223,7 +223,7 @@ export default function ImportIQ() {
                   </div>
                   <div>
                     <CardTitle className="text-lg">Import Timeline</CardTitle>
-                    <CardDescription className="text-sm">Visual delivery timeline</CardDescription>
+                    <CardDescription className="text-sm">Realistic delivery expectations from port to plate.</CardDescription>
                   </div>
                 </div>
               </CardHeader>
@@ -251,7 +251,7 @@ export default function ImportIQ() {
                   </div>
                   <div>
                     <CardTitle className="text-lg">BuildReady™</CardTitle>
-                    <CardDescription className="text-sm">Modification compliance planning</CardDescription>
+                    <CardDescription className="text-sm">Make your dream build road-legal.</CardDescription>
                   </div>
                 </div>
               </CardHeader>
