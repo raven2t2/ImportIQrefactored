@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Shield, Mail, User } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import logoPath from "@assets/circular imi logo (1).png";
 
 const emailGateSchema = z.object({
   name: z.string().min(2, "Please enter your full name"),
@@ -64,7 +65,7 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
         <div className="text-center mb-12">
           <div className="flex justify-center items-center mb-8">
             <img 
-              src="/attached_assets/circular imi logo (1).png" 
+              src={logoPath} 
               alt="Immaculate Imports" 
               className="w-20 h-20 mr-6"
             />
