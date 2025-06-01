@@ -10,13 +10,13 @@ import Stripe from "stripe";
 const valueEstimatorSchema = z.object({
   make: z.string().min(1),
   model: z.string().min(1),
-  year: z.number().min(1970).max(new Date().getFullYear()),
+  year: z.number().min(1945).max(new Date().getFullYear()),
   country: z.enum(["japan", "usa"]),
   condition: z.enum(["excellent", "good", "fair"]).optional(),
 });
 
 const complianceSchema = z.object({
-  year: z.number().min(1970).max(new Date().getFullYear()),
+  year: z.number().min(1945).max(new Date().getFullYear()),
   category: z.enum(["passenger", "suv", "kei", "commercial"]),
 });
 
