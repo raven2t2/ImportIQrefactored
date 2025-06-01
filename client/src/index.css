@@ -65,6 +65,37 @@
   body {
     @apply font-sans antialiased bg-background text-foreground;
     font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  
+  /* Prevent horizontal scroll on mobile */
+  html, body {
+    overflow-x: hidden;
+  }
+  
+  /* Ensure minimum touch targets */
+  button, 
+  input,
+  select,
+  textarea,
+  [role="button"],
+  [role="tab"],
+  .touch-manipulation {
+    touch-action: manipulation;
+    min-height: 44px;
+  }
+  
+  /* Better focus states for mobile */
+  @media (max-width: 768px) {
+    input:focus,
+    select:focus,
+    textarea:focus,
+    button:focus {
+      outline: 2px solid #FFD700;
+      outline-offset: 2px;
+    }
   }
 }
 
@@ -111,4 +142,31 @@
 
 .hover\:text-brand-gold:hover {
   color: #FFD700;
+}
+
+/* Mobile-specific utility classes */
+@layer utilities {
+  .mobile-padding {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+  
+  .mobile-text {
+    @apply text-sm sm:text-base;
+  }
+  
+  .mobile-heading {
+    @apply text-xl sm:text-2xl lg:text-3xl;
+  }
+  
+  .mobile-touch {
+    @apply min-h-[44px] touch-manipulation;
+  }
+  
+  .mobile-grid-cols {
+    @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
+  }
+  
+  .mobile-stack {
+    @apply flex-col sm:flex-row;
+  }
 }
