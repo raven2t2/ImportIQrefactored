@@ -1152,6 +1152,61 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
+  // Registration stats endpoint - connects to data.vic.gov.au
+  app.get("/api/registration-stats", async (req, res) => {
+    const { state = "VIC", year = "2023", make = "" } = req.query;
+    
+    try {
+      // Connect to Australian government registration data
+      // This requires API credentials for data.vic.gov.au, data.nsw.gov.au, etc.
+      res.status(503).json({
+        error: "Registration data service requires API access to Australian government data sources",
+        message: "To access live vehicle registration statistics from data.vic.gov.au and other state databases, please provide the necessary API credentials",
+        requiredCredentials: ["VIC_DATA_API_KEY", "NSW_DATA_API_KEY", "QLD_DATA_API_KEY"],
+        dataSource: "Australian Government Open Data Portals"
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch registration data" });
+    }
+  });
+
+  // Import volume dashboard endpoint - connects to National Freight Data Hub
+  app.get("/api/import-volume-dashboard", async (req, res) => {
+    const { year = "2023", port = "all" } = req.query;
+    
+    try {
+      // Connect to National Freight Data Hub for import statistics
+      // This requires authenticated access to government freight data
+      res.status(503).json({
+        error: "Import volume data requires authenticated access to National Freight Data Hub",
+        message: "To access live vehicle import statistics from the Department of Infrastructure, please provide the necessary API credentials",
+        requiredCredentials: ["FREIGHT_DATA_HUB_API_KEY", "INFRASTRUCTURE_DEPT_TOKEN"],
+        dataSource: "National Freight Data Hub - Australian Government"
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch import volume data" });
+    }
+  });
+
+  // Auction explorer endpoint - connects to Kaggle Japanese auction dataset
+  app.post("/api/auction-explorer", async (req, res) => {
+    const { make, model, yearFrom, yearTo, auctionHouse } = req.body;
+    
+    try {
+      // Connect to Kaggle API for the Japanese vehicle auction dataset
+      // This requires Kaggle API credentials to access the dataset
+      res.status(503).json({
+        error: "Auction data requires Kaggle API access to Japanese vehicle auction dataset",
+        message: "To access historical auction data from major Japanese auction houses, please provide your Kaggle API credentials",
+        requiredCredentials: ["KAGGLE_USERNAME", "KAGGLE_KEY"],
+        datasetInfo: "Dataset: japanese-used-car-auction-prices",
+        dataSource: "Kaggle - Japanese Vehicle Auction Historical Data"
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch auction data" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

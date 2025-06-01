@@ -69,7 +69,9 @@ export default function VehicleLookup() {
 
   const lookupMutation = useMutation({
     mutationFn: async (data: FormData): Promise<LookupResponse> => {
-      return await apiRequest("POST", "/api/vehicle-lookup", data);
+      const response = await apiRequest("POST", "/api/vehicle-lookup", data);
+      const result = await response.json();
+      return result;
     },
     onSuccess: (data) => {
       setResult(data);
