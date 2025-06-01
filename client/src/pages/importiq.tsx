@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Calculator, TrendingUp, Shield, Clock, Users, ArrowRight, CheckCircle, Menu, X, Star, Globe, Zap, Brain, BarChart3 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -80,10 +81,11 @@ export default function ImportIQ() {
             
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Features</a>
+              <Link href="/" className="text-amber-400 text-sm font-medium">Home</Link>
+              <Link href="/features" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Features</Link>
               <a href="#pricing" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Pricing</a>
-              <a href="/affiliate-signup" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Partners</a>
-              <a href="/about" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Our Mission</a>
+              <Link href="/affiliate-signup" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Partners</Link>
+              <Link href="/about" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Our Mission</Link>
               <Button 
                 className="bg-amber-400 hover:bg-amber-500 text-black px-6 py-2 rounded-full transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
                 onClick={() => setShowEmailGate(true)}
@@ -109,12 +111,13 @@ export default function ImportIQ() {
           {mobileMenuOpen && (
             <div className="md:hidden py-6 border-t border-gray-800/50">
               <div className="flex flex-col space-y-4">
-                <a href="#features" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium">Features</a>
+                <Link href="/" className="text-amber-400 py-3 text-sm font-medium">Home</Link>
+                <Link href="/features" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium">Features</Link>
                 <a href="#pricing" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium">Pricing</a>
-                <a href="/affiliate-signup" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium">Partners</a>
-                <a href="/about" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium">Our Mission</a>
+                <Link href="/affiliate-signup" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium">Partners</Link>
+                <Link href="/about" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium">Our Mission</Link>
                 <Button 
-                  className="bg-yellow-400 hover:bg-yellow-500 text-black w-full rounded-full mt-4 font-medium"
+                  className="bg-amber-400 hover:bg-amber-500 text-black w-full rounded-full mt-4 font-medium"
                   onClick={() => setShowEmailGate(true)}
                 >
                   Start Free Trial
