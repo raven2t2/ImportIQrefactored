@@ -58,156 +58,123 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-4xl">
+    <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center p-4 font-sans">
+      <div className="w-full max-w-6xl">
         {/* Hero Section */}
-        <div className="text-center mb-8">
-          <div className="flex justify-center items-center mb-6">
+        <div className="text-center mb-12">
+          <div className="flex justify-center items-center mb-8">
             <img 
               src="/attached_assets/circular imi logo (1).png" 
               alt="Immaculate Imports" 
-              className="w-16 h-16 mr-4"
+              className="w-20 h-20 mr-6"
             />
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">
-                <span className="bg-gradient-to-r from-brand-gold to-amber-600 bg-clip-text text-transparent">
-                  ImportIQ™
-                </span>
+              <h1 className="text-5xl md:text-6xl font-bold text-[#1E1E1E] mb-3">
+                <span className="text-[#D4AF37]">ImportIQ™</span>
               </h1>
-              <p className="text-sm text-gray-600 font-medium">
-                Brought to you by <a href="https://immaculateimports.com.au" target="_blank" className="text-brand-gold hover:underline">Immaculate Imports</a>
+              <p className="text-base text-gray-600 font-medium">
+                Brought to you by <a href="https://immaculateimports.com.au" target="_blank" className="text-[#D4AF37] hover:underline font-semibold">Immaculate Imports</a>
               </p>
             </div>
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Your Import Intelligence Starts Right Here
+          <h2 className="text-4xl md:text-5xl font-bold text-[#1E1E1E] mb-6 leading-tight">
+            Professional Import Intelligence Platform
           </h2>
-          <p className="text-xl text-gray-700 max-w-3xl mx-auto mb-8">
-            Professional import tools used by smart importers to make data-driven decisions and 
-            <span className="text-brand-gold font-semibold"> avoid costly mistakes</span>
+          <p className="text-xl text-gray-700 max-w-4xl mx-auto mb-12 leading-relaxed">
+            Stop guessing and start planning with professional-grade tools that save you 
+            <span className="text-[#D4AF37] font-semibold"> thousands on every import</span>
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8 items-start">
+        <div className="flex flex-col lg:flex-row gap-12 items-start">
           {/* Left Side - Value Props */}
-          <div className="space-y-6">
-            <Card className="bg-white border border-gray-200 shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-2xl text-gray-900 mb-4">
-                  Stop Making Expensive Import Mistakes
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                    <div className="font-semibold text-red-800 mb-2">⚠️ Common Costly Mistakes:</div>
-                    <ul className="space-y-2 text-red-700 text-sm">
-                      <li>• Unexpected compliance costs and delays</li>
-                      <li>• Hidden ownership expenses over time</li>
-                      <li>• Poor vehicle selection decisions</li>
-                      <li>• Missing optimal shipping windows</li>
-                    </ul>
-                  </div>
-                  
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <div className="font-semibold text-green-800 mb-2">✅ With ImportIQ Professional Tools:</div>
-                    <ul className="space-y-2 text-green-700 text-sm">
-                      <li>• Calculate exact costs before you buy</li>
-                      <li>• Plan compliance requirements in advance</li>
-                      <li>• Understand true ownership costs</li>
-                      <li>• Get professional guidance when needed</li>
-                    </ul>
-                  </div>
+          <div className="flex-1 space-y-8">
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h3 className="text-2xl font-bold text-[#1E1E1E] mb-6">
+                Stop Making Expensive Import Mistakes
+              </h3>
+              
+              <div className="space-y-6">
+                <div className="bg-[#FEF3C7] border border-[#D9822B]/20 rounded-xl p-6">
+                  <div className="font-semibold text-[#D9822B] mb-3">⚠️ Common Costly Mistakes:</div>
+                  <ul className="space-y-2 text-[#92400e] text-sm leading-relaxed">
+                    <li>• Unexpected compliance costs and delays</li>
+                    <li>• Hidden ownership expenses over time</li>
+                    <li>• Poor vehicle selection decisions</li>
+                    <li>• Missing optimal shipping windows</li>
+                  </ul>
                 </div>
-              </CardContent>
-            </Card>
+                
+                <div className="bg-[#ECFDF5] border border-[#10B981]/20 rounded-xl p-6">
+                  <div className="font-semibold text-[#10B981] mb-3">✅ With ImportIQ Professional Tools:</div>
+                  <ul className="space-y-2 text-[#065F46] text-sm leading-relaxed">
+                    <li>• Calculate exact costs before you buy</li>
+                    <li>• Plan compliance requirements in advance</li>
+                    <li>• Understand true ownership costs</li>
+                    <li>• Get professional guidance when needed</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
 
-            <Card className="bg-gradient-to-br from-brand-gold/10 to-amber-100 border border-brand-gold/30">
-              <CardHeader>
-                <CardTitle className="text-xl text-gray-900">
-                  🚀 Professional Import Tools Inside:
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-3">
-                  <div className="flex items-start space-x-3">
-                    <div className="w-2 h-2 bg-brand-gold rounded-full mt-2 flex-shrink-0"></div>
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h3 className="text-xl font-bold text-[#1E1E1E] mb-6">
+                🚀 Professional Import Tools Inside:
+              </h3>
+              
+              <div className="space-y-4">
+                {[
+                  { name: "Import Cost Calculator", desc: "Accurate landed costs with duties, GST, LCT and freight" },
+                  { name: "AI Vehicle Recommendations", desc: "Smart suggestions based on your budget and preferences" },
+                  { name: "Import Timeline Planner", desc: "Visual timeline with realistic delivery estimates" },
+                  { name: "Compliance Guide", desc: "State-specific requirements and modification planning" },
+                  { name: "AI Import Assistant", desc: "Get expert answers to your import questions" },
+                  { name: "Expert Scenarios", desc: "Pre-configured import strategies that work" }
+                ].map((tool, index) => (
+                  <div key={index} className="flex items-start space-x-4">
+                    <div className="w-2 h-2 bg-[#D4AF37] rounded-full mt-2 flex-shrink-0"></div>
                     <div>
-                      <div className="font-semibold text-gray-900">Import Cost Calculator</div>
-                      <div className="text-gray-700 text-sm">Accurate landed costs with duties, GST, LCT and freight</div>
+                      <div className="font-semibold text-[#1E1E1E]">{tool.name}</div>
+                      <div className="text-gray-600 text-sm">{tool.desc}</div>
                     </div>
                   </div>
-                  <div className="flex items-start space-x-3">
-                    <div className="w-2 h-2 bg-brand-gold rounded-full mt-2 flex-shrink-0"></div>
-                    <div>
-                      <div className="font-semibold text-gray-900">AI Vehicle Recommendations</div>
-                      <div className="text-gray-700 text-sm">Smart suggestions based on your budget and preferences</div>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-3">
-                    <div className="w-2 h-2 bg-brand-gold rounded-full mt-2 flex-shrink-0"></div>
-                    <div>
-                      <div className="font-semibold text-gray-900">Import Timeline Planner</div>
-                      <div className="text-gray-700 text-sm">Visual timeline with realistic delivery estimates</div>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-3">
-                    <div className="w-2 h-2 bg-brand-gold rounded-full mt-2 flex-shrink-0"></div>
-                    <div>
-                      <div className="font-semibold text-gray-900">Compliance Guide</div>
-                      <div className="text-gray-700 text-sm">State-specific requirements and modification planning</div>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-3">
-                    <div className="w-2 h-2 bg-brand-gold rounded-full mt-2 flex-shrink-0"></div>
-                    <div>
-                      <div className="font-semibold text-gray-900">AI Import Assistant</div>
-                      <div className="text-gray-700 text-sm">Get expert answers to your import questions</div>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-3">
-                    <div className="w-2 h-2 bg-brand-gold rounded-full mt-2 flex-shrink-0"></div>
-                    <div>
-                      <div className="font-semibold text-gray-900">Expert Scenarios</div>
-                      <div className="text-gray-700 text-sm">Pre-configured import strategies that work</div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* Right Side - Form */}
-          <Card className="bg-white shadow-2xl">
-            <CardHeader className="text-center">
-              <CardTitle className="text-3xl font-bold text-gray-900 mb-2">
-                Start Your Free Trial
-              </CardTitle>
-              <CardDescription className="text-gray-600 text-lg">
-                No credit card required • Full access for 14 days • Cancel anytime
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+          <div className="flex-1 lg:max-w-md">
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <div className="text-center mb-8">
+                <h3 className="text-3xl font-bold text-[#1E1E1E] mb-3">
+                  Start Your Free Trial
+                </h3>
+                <p className="text-gray-600 text-base">
+                  No credit card required • Full access for 14 days • Cancel anytime
+                </p>
+              </div>
+
               {/* Urgency Alert */}
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <div className="text-red-800 font-semibold mb-2 text-center">⚠️ Import Costs Rising</div>
-                <div className="text-red-700 text-sm text-center">
-                  Shipping rates up 40% this quarter. Smart importers are locking in their intelligence advantage now.
+              <div className="mb-8 p-4 bg-[#FEF3C7] border border-[#D9822B]/20 rounded-xl">
+                <div className="text-[#D9822B] font-semibold mb-2 text-center">⚠️ Import Costs Rising</div>
+                <div className="text-[#92400e] text-sm text-center">
+                  Shipping rates increasing. Smart importers are securing their advantage now.
                 </div>
               </div>
 
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-sm font-medium text-gray-700">
+                  <Label htmlFor="name" className="text-sm font-medium text-[#1E1E1E]">
                     Full Name
                   </Label>
                   <div className="relative">
-                    <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <User className="absolute left-3 top-4 h-4 w-4 text-gray-400" />
                     <Input
                       id="name"
                       type="text"
                       placeholder="Enter your full name"
-                      className="pl-10 h-12"
+                      className="pl-10 h-14 rounded-xl border-gray-200 focus:border-[#D4AF37] focus:ring-[#D4AF37]"
                       {...form.register("name")}
                     />
                   </div>
@@ -217,16 +184,16 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                  <Label htmlFor="email" className="text-sm font-medium text-[#1E1E1E]">
                     Email Address
                   </Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Mail className="absolute left-3 top-4 h-4 w-4 text-gray-400" />
                     <Input
                       id="email"
                       type="email"
                       placeholder="Enter your email address"
-                      className="pl-10 h-12"
+                      className="pl-10 h-14 rounded-xl border-gray-200 focus:border-[#D4AF37] focus:ring-[#D4AF37]"
                       {...form.register("email")}
                     />
                   </div>
@@ -237,7 +204,7 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
 
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-brand-gold to-amber-500 hover:from-amber-500 hover:to-brand-gold text-white font-bold py-4 text-lg shadow-xl transform hover:scale-105 transition-all duration-200"
+                  className="w-full bg-[#0A84FF] hover:bg-[#007AEB] text-white font-bold py-4 text-lg rounded-xl transition-colors duration-200"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? "ACTIVATING YOUR ACCOUNT..." : "START FREE TRIAL NOW"}
@@ -245,11 +212,11 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
               </form>
 
               {/* Trust Signals */}
-              <div className="mt-6 space-y-4">
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className="mt-8 space-y-6">
+                <div className="bg-[#ECFDF5] border border-[#10B981]/20 rounded-xl p-4">
                   <div className="text-center">
-                    <div className="font-semibold text-green-800 mb-2">✅ What Happens Next:</div>
-                    <div className="text-green-700 text-sm space-y-1">
+                    <div className="font-semibold text-[#10B981] mb-3">✅ What Happens Next:</div>
+                    <div className="text-[#065F46] text-sm space-y-1">
                       <div>• Instant access to all 6 professional tools</div>
                       <div>• Your personalized import intelligence dashboard</div>
                       <div>• Start calculating and saving money immediately</div>
@@ -257,18 +224,18 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
                   </div>
                 </div>
                 
-                <div className="text-center text-xs text-gray-500 space-y-2">
+                <div className="text-center text-sm text-gray-500 space-y-3">
                   <div className="flex items-center justify-center space-x-2">
-                    <Shield className="h-3 w-3" />
+                    <Shield className="h-4 w-4" />
                     <span>Bank-level security • Your data is never shared</span>
                   </div>
                   <div className="text-gray-600">
-                    Used by 847+ professional importers • Cancel anytime in 30 seconds
+                    Used by professional importers • Cancel anytime in 30 seconds
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
     </div>
