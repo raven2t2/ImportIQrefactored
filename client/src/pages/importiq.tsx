@@ -138,48 +138,37 @@ export default function ImportIQ() {
       {/* Hero Section */}
       <div className={`${trialStatus?.isActive ? 'pt-8' : 'pt-32'} pb-20`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="mb-6">
-            <div className="inline-flex items-center bg-amber-400/10 border border-amber-400/20 rounded-full px-6 py-2 text-amber-400 text-sm font-medium">
-              <Brain className="h-4 w-4 mr-2" />
-              AI & Machine Learning Powered
-            </div>
-          </div>
-          
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-8 tracking-tight leading-none">
-            Import Smarter.
-            <br />
-            <span className="text-amber-400">Save Thousands.</span>
-          </h1>
-          
-          <p className="text-xl sm:text-2xl text-gray-300 max-w-4xl mx-auto mb-6 leading-relaxed font-light">
-            14 professional-grade tools worth $2,000+ individually. Get the complete vehicle import intelligence platform for just $97/month.
-          </p>
-          
-          {/* No Credit Card Required Badge */}
-          <div className="mb-8">
-            <div className="inline-flex items-center bg-green-400/10 border border-green-400/20 rounded-full px-6 py-2 text-green-400 text-sm font-medium">
-              <Shield className="h-4 w-4 mr-2" />
-              No Credit Card Required • Start Free Today
-            </div>
-          </div>
-          
+          {/* Bold High-Conviction Statement */}
           <div className="mb-12">
-            <p className="text-gray-400 text-sm mb-2">Brought to you by</p>
-            <a 
-              href="https://driveimmaculate.com" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="inline-flex items-center text-amber-400 hover:text-amber-300 transition-colors duration-300 font-medium"
-            >
-              <img src={logoPath} alt="Immaculate Imports" className="h-6 w-6 mr-2" />
-              Immaculate Imports
-            </a>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-8 tracking-tight leading-tight">
+              In every gold rush, some people find gold.
+              <br />
+              <span className="text-amber-400">The smart ones sold maps, gear, and guarantees.</span>
+            </h1>
+            
+            <div className="max-w-4xl mx-auto">
+              <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-6 leading-tight">
+                Welcome to <span className="text-amber-400">ImportIQ</span>.
+              </p>
+              <p className="text-xl sm:text-2xl text-gray-300 mb-8 font-light leading-relaxed">
+                We don't sell you a dream car — we make sure you don't get wrecked chasing it.
+              </p>
+            </div>
+          </div>
+
+          {/* Key Benefit */}
+          <div className="mb-10">
+            <div className="inline-flex items-center bg-amber-400/10 border border-amber-400/20 rounded-full px-8 py-3 text-amber-400 text-lg font-medium">
+              <CheckCircle className="h-5 w-5 mr-3" />
+              All-in-one AI-powered import toolkit
+            </div>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-4">
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-6">
             <Button 
               size="lg" 
-              className="bg-amber-400 hover:bg-amber-500 text-black px-12 py-4 text-lg rounded-full transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 font-medium"
+              className="bg-amber-400 hover:bg-amber-500 text-black px-12 py-4 text-lg rounded-full transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 font-semibold"
               onClick={() => setShowEmailGate(true)}
             >
               Start 7-Day Free Trial
@@ -193,11 +182,24 @@ export default function ImportIQ() {
             </Button>
           </div>
 
-          {/* No Credit Card Required Text */}
-          <div className="mb-16">
+          {/* Trust Elements */}
+          <div className="mb-8">
             <p className="text-gray-400 text-sm">
               No credit card required • Cancel anytime during trial
             </p>
+          </div>
+
+          <div className="mb-16">
+            <p className="text-gray-400 text-sm mb-2">Brought to you by</p>
+            <a 
+              href="https://driveimmaculate.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center text-amber-400 hover:text-amber-300 transition-colors duration-300 font-medium"
+            >
+              <img src={logoPath} alt="Immaculate Imports" className="h-6 w-6 mr-2" />
+              Immaculate Imports
+            </a>
           </div>
 
           {/* Social Proof */}
