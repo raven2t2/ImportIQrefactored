@@ -407,7 +407,7 @@ export default function AuctionSampleExplorer() {
                   className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
                 >
                   <HelpCircle className="h-4 w-4 mr-2" />
-                  What Should I Import?
+                  ImportIQ Pathfinder™ Quiz
                 </a>
               </div>
             </div>
