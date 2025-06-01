@@ -13,15 +13,15 @@
   --card-foreground: 20 14.3% 4.1%;
   --border: 20 5.9% 90%;
   --input: 20 5.9% 90%;
-  --primary: 217 91% 60%; /* #2563EB - brand-blue */
-  --primary-foreground: 210 40% 98%;
+  --primary: 41 72% 58%; /* Gold from logo */
+  --primary-foreground: 0 0% 98%;
   --secondary: 60 4.8% 95.9%;
   --secondary-foreground: 24 9.8% 10%;
   --accent: 60 4.8% 95.9%;
   --accent-foreground: 24 9.8% 10%;
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 60 9.1% 97.8%;
-  --ring: 217 91% 60%; /* #2563EB - brand-blue */
+  --ring: 41 72% 58%; /* Gold from logo */
   --radius: 0.5rem;
   --chart-1: 12 76% 61%;
   --chart-2: 173 58% 39%;
@@ -31,25 +31,25 @@
 }
 
 .dark {
-  --background: 240 10% 3.9%;
-  --foreground: 0 0% 98%;
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-  --popover: 240 10% 3.9%;
-  --popover-foreground: 0 0% 98%;
-  --card: 240 10% 3.9%;
-  --card-foreground: 0 0% 98%;
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
-  --primary: 217 91% 60%; /* #2563EB - brand-blue */
-  --primary-foreground: 210 40% 98%;
-  --secondary: 240 3.7% 15.9%;
-  --secondary-foreground: 0 0% 98%;
-  --accent: 240 3.7% 15.9%;
-  --accent-foreground: 0 0% 98%;
+  --background: 0 0% 8%; /* Dark background from logo */
+  --foreground: 41 72% 58%; /* Gold text */
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 65%;
+  --popover: 0 0% 8%;
+  --popover-foreground: 41 72% 58%;
+  --card: 0 0% 12%;
+  --card-foreground: 41 72% 58%;
+  --border: 0 0% 20%;
+  --input: 0 0% 20%;
+  --primary: 41 72% 58%; /* Gold from logo */
+  --primary-foreground: 0 0% 8%;
+  --secondary: 0 0% 15%;
+  --secondary-foreground: 41 72% 58%;
+  --accent: 0 0% 15%;
+  --accent-foreground: 41 72% 58%;
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 0 0% 98%;
-  --ring: 217 91% 60%; /* #2563EB - brand-blue */
+  --ring: 41 72% 58%; /* Gold from logo */
   --chart-1: 220 70% 50%;
   --chart-2: 160 60% 45%;
   --chart-3: 30 80% 55%;
@@ -69,30 +69,34 @@
 }
 
 /* Custom styles for brand colors */
-.bg-brand-blue {
-  background-color: #2563EB;
+.bg-brand-gold {
+  background-color: #D4AF37;
 }
 
-.bg-brand-blue-dark {
-  background-color: #1D4ED8;
+.bg-brand-gold-dark {
+  background-color: #B8941F;
 }
 
-.text-brand-blue {
-  color: #2563EB;
+.bg-brand-dark {
+  background-color: #1A1A1A;
+}
+
+.text-brand-gold {
+  color: #D4AF37;
 }
 
 .text-brand-gray {
   color: #64748B;
 }
 
-.border-brand-blue {
-  border-color: #2563EB;
+.border-brand-gold {
+  border-color: #D4AF37;
 }
 
-.hover\:bg-brand-blue-dark:hover {
-  background-color: #1D4ED8;
+.hover\:bg-brand-gold-dark:hover {
+  background-color: #B8941F;
 }
 
-.hover\:text-brand-blue-dark:hover {
-  color: #1D4ED8;
+.hover\:text-brand-gold-dark:hover {
+  color: #B8941F;
 }

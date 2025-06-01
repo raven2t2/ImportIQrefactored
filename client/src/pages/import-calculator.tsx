@@ -136,7 +136,7 @@ export default function ImportCalculator() {
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-4 py-6">
           <div className="flex items-center space-x-3">
-            <div className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-lg">
+            <div className="flex items-center justify-center w-10 h-10 bg-brand-gold rounded-lg">
               <Calculator className="h-5 w-5 text-white" />
             </div>
             <div>
