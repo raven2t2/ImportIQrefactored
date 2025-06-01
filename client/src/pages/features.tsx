@@ -349,7 +349,7 @@ export default function Features() {
       </div>
 
       {/* Sticky Pricing Banner */}
-      <div className="py-20 bg-gradient-to-br from-amber-400 to-yellow-500">
+      <div id="pricing" className="py-20 bg-gradient-to-br from-amber-400 to-yellow-500">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl font-bold text-black mb-6">
             Start Your 7-Day Free Trial
