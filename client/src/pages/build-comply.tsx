@@ -517,37 +517,104 @@ export default function BuildComply() {
                 </CardHeader>
                 <CardContent>
                   {/* Machine Learning Risk Analysis */}
-                  <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200">
-                    <div className="flex items-center space-x-2 mb-3">
-                      <Brain className="h-5 w-5 text-purple-600" />
-                      <span className="font-semibold text-purple-900">Smart Risk Prediction</span>
+                  <div className="mb-6 p-6 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl border border-purple-200">
+                    <div className="flex items-center space-x-2 mb-4">
+                      <Brain className="h-6 w-6 text-purple-600" />
+                      <span className="font-bold text-lg text-purple-900">Smart Risk Prediction</span>
                       <Badge className="text-xs bg-purple-100 text-purple-800">ML-Powered</Badge>
                     </div>
-                    <div className="grid grid-cols-3 gap-4">
-                      <div className={`p-3 rounded-lg border ${getRiskColor(results.overallRisk)}`}>
-                        <div className="flex items-center space-x-2">
+                    
+                    <div className="grid grid-cols-3 gap-4 mb-6">
+                      <div className={`p-4 rounded-lg border-2 ${getRiskColor(results.overallRisk)}`}>
+                        <div className="flex items-center space-x-2 mb-2">
                           {getRiskIcon(results.overallRisk)}
-                          <span className="font-medium capitalize">{results.overallRisk} Risk</span>
+                          <span className="font-bold text-lg capitalize">{results.overallRisk} Risk</span>
                         </div>
-                        <div className="text-xs mt-1">ML Risk Score: {results.mlRiskScore}/20</div>
+                        <div className="text-sm font-medium">ML Risk Score: {results.mlRiskScore}/20</div>
+                        <div className="text-xs text-gray-600 mt-1">
+                          {results.overallRisk === "red" && "High complexity detected"}
+                          {results.overallRisk === "yellow" && "Moderate challenges expected"}
+                          {results.overallRisk === "green" && "Low complexity predicted"}
+                        </div>
                       </div>
-                      <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
-                        <div className="text-lg font-bold text-blue-600">{results.confidence}%</div>
-                        <div className="text-xs text-blue-700">Prediction Confidence</div>
+                      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <div className="text-2xl font-bold text-blue-600">{results.confidence}%</div>
+                        <div className="text-sm font-medium text-blue-700">Prediction Confidence</div>
+                        <div className="text-xs text-blue-600 mt-1">Based on historical data</div>
                       </div>
-                      <div className="bg-green-50 p-3 rounded-lg border border-green-200">
-                        <div className="text-sm font-bold text-green-600">{results.mlRecommendation}</div>
-                        <div className="text-xs text-green-700">AI Recommendation</div>
+                      <div className={`p-4 rounded-lg border-2 ${
+                        results.overallRisk === "red" ? "bg-red-50 border-red-300" :
+                        results.overallRisk === "yellow" ? "bg-yellow-50 border-yellow-300" :
+                        "bg-green-50 border-green-300"
+                      }`}>
+                        <div className={`text-sm font-bold ${
+                          results.overallRisk === "red" ? "text-red-700" :
+                          results.overallRisk === "yellow" ? "text-yellow-700" :
+                          "text-green-700"
+                        }`}>
+                          {results.mlRecommendation}
+                        </div>
+                        <div className={`text-xs mt-1 ${
+                          results.overallRisk === "red" ? "text-red-600" :
+                          results.overallRisk === "yellow" ? "text-yellow-600" :
+                          "text-green-600"
+                        }`}>
+                          AI Recommendation
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Why This Risk Level */}
+                    <div className="mb-4 p-4 bg-white rounded-lg border">
+                      <h4 className="text-sm font-bold text-gray-900 mb-3 flex items-center">
+                        <AlertCircle className="h-4 w-4 mr-2" />
+                        Why {results.overallRisk.toUpperCase()} Risk?
+                      </h4>
+                      <div className="text-sm text-gray-800 space-y-2">
+                        {results.overallRisk === "red" && (
+                          <div>
+                            <p className="font-medium text-red-700">High compliance complexity detected due to:</p>
+                            <ul className="mt-2 ml-4 space-y-1 text-red-600">
+                              <li>• Risk score of {results.mlRiskScore}/20 exceeds safe threshold (10+)</li>
+                              <li>• Multiple high-risk modifications selected</li>
+                              <li>• State compliance requirements are strict</li>
+                              <li>• Timeline or budget constraints may increase rejection risk</li>
+                            </ul>
+                          </div>
+                        )}
+                        {results.overallRisk === "yellow" && (
+                          <div>
+                            <p className="font-medium text-yellow-700">Moderate compliance challenges expected:</p>
+                            <ul className="mt-2 ml-4 space-y-1 text-yellow-600">
+                              <li>• Risk score of {results.mlRiskScore}/20 in caution zone (4-10)</li>
+                              <li>• Some modifications require engineering certification</li>
+                              <li>• State compliance requirements need careful attention</li>
+                              <li>• Additional documentation or approvals may be needed</li>
+                              <li>• Professional guidance recommended for complex items</li>
+                            </ul>
+                          </div>
+                        )}
+                        {results.overallRisk === "green" && (
+                          <div>
+                            <p className="font-medium text-green-700">Low compliance complexity predicted:</p>
+                            <ul className="mt-2 ml-4 space-y-1 text-green-600">
+                              <li>• Risk score of {results.mlRiskScore}/20 in safe zone (≤4)</li>
+                              <li>• Selected modifications are generally compliant</li>
+                              <li>• State requirements are favorable for your build</li>
+                              <li>• Timeline and budget appear adequate</li>
+                            </ul>
+                          </div>
+                        )}
                       </div>
                     </div>
                     
                     {/* Risk Factors */}
-                    <div className="mt-4">
-                      <h4 className="text-sm font-medium text-gray-900 mb-2">Risk Factors Analyzed:</h4>
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-900 mb-3">Machine Learning Analysis Factors:</h4>
                       <div className="grid grid-cols-1 gap-2">
                         {results.riskFactors.map((factor: string, index: number) => (
-                          <div key={index} className="flex items-start space-x-2 text-xs">
-                            <div className="w-1 h-1 bg-purple-600 rounded-full mt-2"></div>
+                          <div key={index} className="flex items-start space-x-3 text-sm p-2 bg-white rounded border-l-4 border-purple-400">
+                            <div className="w-2 h-2 bg-purple-600 rounded-full mt-2 flex-shrink-0"></div>
                             <span className="text-gray-700">{factor}</span>
                           </div>
                         ))}
@@ -673,11 +740,33 @@ export default function BuildComply() {
                   <div className="mt-6 space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <Button
-                        onClick={() => saveReport()}
+                        onClick={() => {
+                          const reportData = {
+                            type: 'BuildReady™ Plan',
+                            title: `${results.vehicle} Compliance Analysis`,
+                            data: {
+                              vehicle: results.vehicle,
+                              state: results.state.name,
+                              riskLevel: results.overallRisk,
+                              mlRiskScore: results.mlRiskScore,
+                              confidence: results.confidence,
+                              modifications: results.modifications,
+                              estimatedCost: results.estimatedCost,
+                              estimatedTime: results.estimatedTime,
+                              compliancePath: results.compliancePath,
+                              mlRecommendation: results.mlRecommendation,
+                              riskFactors: results.riskFactors,
+                              engineeringRequired: results.engineeringRequired,
+                              vassRequired: results.vassRequired
+                            }
+                          };
+                          saveReportMutation.mutate(reportData);
+                        }}
+                        disabled={saveReportMutation.isPending}
                         className="w-full bg-green-600 hover:bg-green-700 text-white"
                       >
                         <Save className="h-4 w-4 mr-2" />
-                        Save to Dashboard
+                        {saveReportMutation.isPending ? 'Saving...' : 'Save to Dashboard'}
                       </Button>
                       <Button
                         onClick={() => window.open('https://driveimmaculate.com/howitworks', '_blank')}
