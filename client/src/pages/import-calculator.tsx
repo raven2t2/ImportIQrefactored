@@ -1,0 +1,427 @@
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { Calculator, Ship, Crown, FileText, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import { insertSubmissionSchema, type CalculationResult } from "@shared/schema";
+import type { z } from "zod";
+
+type FormData = z.infer<typeof insertSubmissionSchema>;
+
+interface CalculationResponse {
+  success: boolean;
+  calculations: CalculationResult;
+  submission: any;
+}
+
+export default function ImportCalculator() {
+  const [calculations, setCalculations] = useState<CalculationResult | null>(null);
+  const { toast } = useToast();
+
+  const form = useForm<FormData>({
+    resolver: zodResolver(insertSubmissionSchema),
+    defaultValues: {
+      fullName: "",
+      email: "",
+      vehiclePrice: 0,
+      shippingOrigin: undefined,
+    },
+  });
+
+  const calculateMutation = useMutation({
+    mutationFn: async (data: FormData): Promise<CalculationResponse> => {
+      const response = await apiRequest("POST", "/api/calculate", data);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setCalculations(data.calculations);
+      toast({
+        title: "Calculation Complete",
+        description: "Your import costs have been calculated successfully.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Calculation Failed",
+        description: error.message || "An error occurred while calculating costs.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const onSubmit = (data: FormData) => {
+    calculateMutation.mutate(data);
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("en-AU", {
+      style: "currency",
+      currency: "AUD",
+    }).format(amount);
+  };
+
+  const getServiceTierColor = (tier: string) => {
+    switch (tier) {
+      case "Essentials":
+        return "from-blue-50 to-blue-100 border-blue-200";
+      case "Concierge":
+        return "from-purple-50 to-purple-100 border-purple-200";
+      case "Elite":
+        return "from-amber-50 to-orange-50 border-amber-200";
+      default:
+        return "from-gray-50 to-gray-100 border-gray-200";
+    }
+  };
+
+  const getServiceTierIcon = (tier: string) => {
+    switch (tier) {
+      case "Elite":
+        return <Crown className="h-4 w-4 text-amber-600" />;
+      default:
+        return <Calculator className="h-4 w-4 text-blue-600" />;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-4xl mx-auto px-4 py-6">
+          <div className="flex items-center space-x-3">
+            <div className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-lg">
+              <Calculator className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Vehicle Import Calculator</h1>
+              <p className="text-sm text-gray-600">Calculate total landed costs for importing vehicles to Australia</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-4xl mx-auto px-4 py-8">
+        <div className="grid lg:grid-cols-2 gap-8">
+          {/* Form Section */}
+          <Card className="shadow-sm">
+            <CardContent className="p-6">
+              <div className="mb-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">Vehicle Information</h2>
+                <p className="text-sm text-gray-600">Enter your vehicle details to calculate import costs</p>
+              </div>
+
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                  <FormField
+                    control={form.control}
+                    name="fullName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium text-gray-700">
+                          Full Name <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="Enter your full name"
+                            className="w-full"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium text-gray-700">
+                          Email Address <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="email"
+                            placeholder="your.email@example.com"
+                            className="w-full"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="vehiclePrice"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium text-gray-700">
+                          Vehicle Price (AUD) <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">$</span>
+                            <Input
+                              {...field}
+                              type="number"
+                              min="1000"
+                              step="100"
+                              placeholder="85,000"
+                              className="pl-8"
+                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                            />
+                          </div>
+                        </FormControl>
+                        <p className="text-xs text-gray-600">Enter the purchase price of the vehicle in Australian Dollars</p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="shippingOrigin"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium text-gray-700">
+                          Shipping Origin <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select shipping origin" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="japan">Japan</SelectItem>
+                            <SelectItem value="usa">United States</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-blue-600 hover:bg-blue-700"
+                    disabled={calculateMutation.isPending}
+                  >
+                    <Calculator className="h-4 w-4 mr-2" />
+                    {calculateMutation.isPending ? "Calculating..." : "Calculate Import Costs"}
+                  </Button>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+
+          {/* Results Section */}
+          {calculations && (
+            <Card className="shadow-sm">
+              <CardContent className="p-6">
+                <div className="mb-6">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-2">Cost Breakdown</h2>
+                  <p className="text-sm text-gray-600">Detailed breakdown of all import costs</p>
+                </div>
+
+                <div className="space-y-4">
+                  {/* Vehicle Cost */}
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span className="text-gray-700 font-medium">Vehicle Price</span>
+                    <span className="font-semibold text-gray-900">{formatCurrency(calculations.vehiclePrice)}</span>
+                  </div>
+
+                  {/* Shipping Cost */}
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-gray-700 font-medium">Shipping</span>
+                      <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                        from {form.getValues("shippingOrigin") === "japan" ? "Japan" : "USA"}
+                      </span>
+                    </div>
+                    <span className="font-semibold text-gray-900">{formatCurrency(calculations.shipping)}</span>
+                  </div>
+
+                  {/* Customs Duty */}
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-gray-700 font-medium">Customs Duty</span>
+                      <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">5%</span>
+                    </div>
+                    <span className="font-semibold text-gray-900">{formatCurrency(calculations.customsDuty)}</span>
+                  </div>
+
+                  {/* GST */}
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-gray-700 font-medium">GST</span>
+                      <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">10%</span>
+                    </div>
+                    <span className="font-semibold text-gray-900">{formatCurrency(calculations.gst)}</span>
+                  </div>
+
+                  {/* LCT */}
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-gray-700 font-medium">Luxury Car Tax (LCT)</span>
+                      <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">33%</span>
+                    </div>
+                    <span className="font-semibold text-gray-900">{formatCurrency(calculations.lct)}</span>
+                  </div>
+
+                  {/* Inspection */}
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span className="text-gray-700 font-medium">Inspection Fee</span>
+                    <span className="font-semibold text-gray-900">{formatCurrency(calculations.inspection)}</span>
+                  </div>
+
+                  {/* Service Fee */}
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-gray-700 font-medium">Service Fee</span>
+                      <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">10%</span>
+                    </div>
+                    <span className="font-semibold text-gray-900">{formatCurrency(calculations.serviceFee)}</span>
+                  </div>
+
+                  {/* Total */}
+                  <div className="flex justify-between items-center py-4 mt-4 bg-gray-50 rounded-lg px-4 border-2 border-blue-600">
+                    <span className="text-lg font-bold text-gray-900">Total Landed Cost</span>
+                    <span className="text-2xl font-bold text-blue-600">{formatCurrency(calculations.totalCost)}</span>
+                  </div>
+                </div>
+
+                {/* Service Tier Recommendation */}
+                <div className={`mt-6 p-4 bg-gradient-to-r ${getServiceTierColor(calculations.serviceTier)} border rounded-lg`}>
+                  <div className="flex items-start space-x-3">
+                    <div className="flex items-center justify-center w-8 h-8 bg-white rounded-full flex-shrink-0 mt-1">
+                      {getServiceTierIcon(calculations.serviceTier)}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 mb-1">{calculations.serviceTier} Service Tier</h3>
+                      <p className="text-sm text-gray-700">{calculations.serviceTierDescription}</p>
+                      <div className="mt-2 text-xs text-gray-600">
+                        <span className="font-medium">
+                          {calculations.serviceTier === "Essentials" && "Recommended for vehicles under $65,000 AUD"}
+                          {calculations.serviceTier === "Concierge" && "Recommended for vehicles $65,000-$100,000 AUD"}
+                          {calculations.serviceTier === "Elite" && "Recommended for vehicles over $100,000 AUD"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="mt-6 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+                  <Button className="flex-1 bg-blue-600 hover:bg-blue-700">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Generate Quote
+                  </Button>
+                  <Button className="flex-1 bg-green-600 hover:bg-green-700">
+                    <ArrowRight className="h-4 w-4 mr-2" />
+                    Start Import
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/* Calculation Details */}
+        <Card className="mt-8 shadow-sm">
+          <CardContent className="p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">How We Calculate Your Costs</h3>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Calculation Method */}
+              <div className="space-y-4">
+                <div className="flex items-start space-x-3">
+                  <div className="flex items-center justify-center w-6 h-6 bg-blue-600 rounded-full flex-shrink-0 mt-0.5">
+                    <span className="text-white text-xs font-bold">1</span>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900">Base Costs</h4>
+                    <p className="text-sm text-gray-600">Vehicle price + shipping fees based on origin country</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start space-x-3">
+                  <div className="flex items-center justify-center w-6 h-6 bg-blue-600 rounded-full flex-shrink-0 mt-0.5">
+                    <span className="text-white text-xs font-bold">2</span>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900">Import Duties & Taxes</h4>
+                    <p className="text-sm text-gray-600">Customs duty (5%) + GST (10%) + LCT if applicable (33%)</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start space-x-3">
+                  <div className="flex items-center justify-center w-6 h-6 bg-blue-600 rounded-full flex-shrink-0 mt-0.5">
+                    <span className="text-white text-xs font-bold">3</span>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900">Processing Fees</h4>
+                    <p className="text-sm text-gray-600">Inspection ($2,000) + our service fee (10% of total)</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Shipping Info */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h4 className="font-medium text-gray-900 mb-3 flex items-center space-x-2">
+                  <Ship className="h-4 w-4 text-blue-600" />
+                  <span>Shipping Costs</span>
+                </h4>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">From Japan:</span>
+                    <span className="font-medium text-gray-900">$3,200 AUD</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">From USA:</span>
+                    <span className="font-medium text-gray-900">$4,500 AUD</span>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-600 mt-3">
+                  Includes container shipping, port handling, and basic transit insurance
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-white border-t border-gray-200 mt-12">
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <div className="text-center md:text-left">
+              <p className="text-sm text-gray-600">© 2024 Vehicle Import Calculator. All calculations are estimates.</p>
+              <p className="text-xs text-gray-600 mt-1">Consult with customs brokers for official import duties and taxes.</p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                Privacy Policy
+              </button>
+              <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                Terms of Service
+              </button>
+              <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                Contact Support
+              </button>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
