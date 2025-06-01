@@ -217,6 +217,69 @@ export default function AffiliateSignup() {
 
   return (
     <div className="min-h-screen bg-black text-brand-white">
+      {/* Navigation Header */}
+      <nav className="bg-black border-b border-gray-800 sticky top-0 z-50 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo */}
+            <Link href="/" className="flex items-center space-x-3" onClick={() => window.scrollTo(0, 0)}>
+              <img 
+                src={logoPath} 
+                alt="ImportIQ" 
+                className="h-8 w-8 rounded-full"
+              />
+              <span className="text-xl font-bold text-white">ImportIQ</span>
+            </Link>
+
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-6">
+              <Link href="/" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Home</Link>
+              <Link href="/features" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Features</Link>
+              <Link href="/pricing" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Pricing</Link>
+              <Link href="/about" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Our Mission</Link>
+              <Link href="/affiliate-signup" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Refer & Earn</Link>
+              <Button 
+                className="bg-amber-400 hover:bg-amber-500 text-black px-6 py-2 rounded-full transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
+                onClick={() => window.location.href = '/?trial=true'}
+              >
+                Start Free Trial
+              </Button>
+            </div>
+
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="text-white hover:text-amber-400"
+              >
+                {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </Button>
+            </div>
+          </div>
+
+          {/* Mobile Navigation Menu */}
+          {mobileMenuOpen && (
+            <div className="md:hidden bg-gray-900 border-t border-gray-800">
+              <div className="px-2 pt-2 pb-3 space-y-1">
+                <Link href="/" className="block px-3 py-2 text-gray-300 hover:text-white transition-colors duration-300" onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}>Home</Link>
+                <Link href="/features" className="block px-3 py-2 text-gray-300 hover:text-white transition-colors duration-300" onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}>Features</Link>
+                <Link href="/pricing" className="block px-3 py-2 text-gray-300 hover:text-white transition-colors duration-300" onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}>Pricing</Link>
+                <Link href="/about" className="block px-3 py-2 text-gray-300 hover:text-white transition-colors duration-300" onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}>Our Mission</Link>
+                <Link href="/affiliate-signup" className="block px-3 py-2 text-gray-300 hover:text-white transition-colors duration-300" onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}>Refer & Earn</Link>
+                <Button 
+                  className="w-full mt-2 bg-amber-400 hover:bg-amber-500 text-black font-medium"
+                  onClick={() => { setMobileMenuOpen(false); window.location.href = '/?trial=true'; }}
+                >
+                  Start Free Trial
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </nav>
+
       <div className="mobile-padding py-8">
         <div className="max-w-6xl mx-auto">
           {/* Hero Section */}
