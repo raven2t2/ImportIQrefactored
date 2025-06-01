@@ -103,6 +103,17 @@ export const carEvents = pgTable("car_events", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const reports = pgTable("reports", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id"),
+  email: varchar("email").notNull(),
+  reportType: varchar("report_type").notNull(),
+  reportTitle: varchar("report_title").notNull(),
+  reportData: jsonb("report_data").notNull(),
+  emailSent: boolean("email_sent").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,

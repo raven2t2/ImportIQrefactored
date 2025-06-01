@@ -26,6 +26,8 @@ export interface IStorage {
   awardBadge(userId: string, badgeId: string, badgeName: string): Promise<void>;
   getUserAchievements(userId: string): Promise<any[]>;
   getNearbyCarEvents(postcode: string): Promise<any[]>;
+  saveReport(reportData: any): Promise<any>;
+  getUserReports(email: string): Promise<any[]>;
 }
 
 export class DatabaseStorage implements IStorage {
