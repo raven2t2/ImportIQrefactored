@@ -1,0 +1,71 @@
+🎯 TASK: Enhance the BuildReady™ tool to provide tailored compliance strategies based on the selected Australian state or territory.
+
+---
+
+✅ FEATURE: Dual-Path Compliance Planning
+For each build plan, generate **two strategies** depending on user’s state selection:
+
+1. **Import-Ready Plan (Pre-Reg Compliance)**
+   - Only include mods that can pass initial registration inspections for that state
+   - Highlight high-risk mods that should be avoided pre-reg (e.g., turbo/supercharger, coilovers, engine swaps)
+   - Display specific inspection site name (e.g., Regency Park for SA)
+
+2. **Post-Reg Build Plan (Mod After Registration)**
+   - Show recommended path for registering vehicle first, then applying mods
+   - Include required certifications (e.g., VSCCS for NSW, Engineer Sign-off for SA)
+   - Show common post-reg requirements (e.g., ICV, noise/emissions check)
+
+---
+
+✅ CUSTOMIZE BY STATE:
+
+Each state/territory has its own compliance strictness and logic:
+
+- **South Australia**:
+  - High risk
+  - Pre-reg inspections at Regency Park
+  - Recommend keeping vehicles near stock
+  - Engineer sign-off often required post-reg for suspension, engine, turbo
+
+- **New South Wales**:
+  - Medium strictness
+  - VSCCS system allows more flexibility post-reg
+  - ICV and brake testing more common
+
+- **Victoria**:
+  - Medium-high strictness
+  - Noise limits and emissions tests key
+  - Pre-reg turbo mods are discouraged
+
+- **Queensland**:
+  - More lenient
+  - Can register some modded cars pre-reg if documentation is strong
+  - Mod Plate system works well post-reg
+
+- **Western Australia / NT / TAS / ACT**:
+  - Generally more flexible
+  - Post-reg mods easier to get through with engineer sign-off
+
+---
+
+📦 IMPLEMENTATION DETAILS:
+
+- On state selection, update risk and recommendations for each mod
+- Visually tag:
+   - ✅ "Recommended for Pre-Reg"
+   - 🟡 "Post-Reg with Cert"
+   - ❌ "High-Risk Pre-Reg"
+
+- Add optional toggle:  
+   > “Show Pre-Reg Plan” | “Show Post-Reg Plan”
+
+- Include state-specific compliance authority in summary (e.g., “Authority: DPTI SA” or “System: VSCCS NSW”)
+
+---
+
+🔎 PURPOSE:
+
+This creates highly tailored compliance planning guidance based on user location and intended mod sequence. It positions ImportIQ as the most context-aware and trusted import planning platform in Australia.
+
+Bonus: Use this logic to suggest *ideal states to register in* based on mods (e.g., “Want coilovers and a turbo? Register in QLD or NSW first.”)
+

@@ -16,9 +16,13 @@ import { apiRequest } from "@/lib/queryClient";
 import CTASection from "@/components/cta-section";
 
 const buildComplySchema = z.object({
-  vehicle: z.string(),
-  state: z.string(),
+  email: z.string().email("Valid email required"),
+  vehicle: z.string().min(1, "Vehicle selection required"),
+  state: z.string().min(1, "State selection required"),
+  budget: z.string().min(1, "Budget range required"),
+  timeline: z.string().min(1, "Timeline required"),
   modifications: z.array(z.string()),
+  planType: z.enum(["pre-reg", "post-reg"]).default("pre-reg"),
 });
 
 type FormData = z.infer<typeof buildComplySchema>;
