@@ -119,9 +119,12 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
             </div>
 
             <div className="bg-gradient-to-br from-[#D4AF37]/10 to-amber-50 border-2 border-[#D4AF37]/30 rounded-xl shadow-sm p-6">
-              <h3 className="text-xl font-bold text-[#1E1E1E] mb-6 text-center">
-                ✅ What You Get With ImportIQ
-              </h3>
+              <div className="text-center mb-6">
+                <div className="text-3xl font-bold text-[#1E1E1E] mb-2">Total Value: $15,000+</div>
+                <h3 className="text-xl font-bold text-[#1E1E1E]">
+                  ✅ All 14 Professional Tools Included
+                </h3>
+              </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {[
@@ -151,8 +154,8 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
               
               <div className="mt-6 pt-4 border-t border-[#D4AF37]/20">
                 <div className="text-center">
-                  <div className="text-lg font-bold text-[#1E1E1E] mb-1">All 14 Professional Tools</div>
-                  <div className="text-2xl font-bold text-[#D4AF37] mb-2">Your Price: $97/mo</div>
+                  <div className="text-lg text-gray-600 mb-1">Professional Value: $15,000+</div>
+                  <div className="text-3xl font-bold text-[#D4AF37] mb-2">Your Price: $97/mo</div>
                   <div className="text-sm font-semibold text-red-600 bg-red-50 p-2 rounded-lg">
                     🔒 Lock in $97/month for life — offer expires at end of trial
                   </div>
