@@ -1,4 +1,4 @@
-import { users, submissions, aiRecommendations, emailCache, trials, userProjects, userAchievements, carEvents, reports, bookings, type User, type InsertUser, type Submission, type InsertSubmission, type Booking, type InsertBooking } from "@shared/schema";
+import { users, submissions, aiRecommendations, emailCache, trials, userProjects, userAchievements, carEvents, reports, bookings, affiliates, influencerProfiles, referralClicks, referralSignups, payoutRequests, type User, type InsertUser, type Submission, type InsertSubmission, type Booking, type InsertBooking, type Affiliate, type InsertAffiliate, type InfluencerProfile, type InsertInfluencerProfile, type ReferralClick, type InsertReferralClick, type ReferralSignup, type InsertReferralSignup, type PayoutRequest, type InsertPayoutRequest } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import fs from 'fs';
@@ -31,6 +31,27 @@ export interface IStorage {
   createBooking(booking: Omit<Booking, 'id' | 'createdAt'>): Promise<Booking>;
   getAllBookings(): Promise<Booking[]>;
   updateBookingStatus(id: number, status: string): Promise<Booking>;
+  
+  // Affiliate System Methods
+  createAffiliate(affiliate: Omit<InsertAffiliate, 'id' | 'createdAt' | 'updatedAt'>): Promise<Affiliate>;
+  getAffiliate(id: number): Promise<Affiliate | undefined>;
+  getAffiliateByEmail(email: string): Promise<Affiliate | undefined>;
+  getAffiliateByReferralCode(code: string): Promise<Affiliate | undefined>;
+  getAllAffiliates(): Promise<Affiliate[]>;
+  updateAffiliate(id: number, updates: Partial<Affiliate>): Promise<Affiliate>;
+  
+  createInfluencerProfile(profile: Omit<InsertInfluencerProfile, 'id' | 'createdAt' | 'updatedAt'>): Promise<InfluencerProfile>;
+  getInfluencerProfile(affiliateId: number): Promise<InfluencerProfile | undefined>;
+  getInfluencerProfileByHandle(handle: string): Promise<InfluencerProfile | undefined>;
+  updateInfluencerProfile(id: number, updates: Partial<InfluencerProfile>): Promise<InfluencerProfile>;
+  
+  trackReferralClick(click: Omit<InsertReferralClick, 'id' | 'clickedAt'>): Promise<ReferralClick>;
+  createReferralSignup(signup: Omit<InsertReferralSignup, 'id' | 'attributionDate'>): Promise<ReferralSignup>;
+  getReferralStats(affiliateId: number): Promise<{ clicks: number; signups: number; earnings: number }>;
+  
+  createPayoutRequest(request: Omit<InsertPayoutRequest, 'id' | 'requestedAt'>): Promise<PayoutRequest>;
+  getPayoutRequests(affiliateId?: number): Promise<PayoutRequest[]>;
+  updatePayoutRequest(id: number, updates: Partial<PayoutRequest>): Promise<PayoutRequest>;
 }
 
 export class DatabaseStorage implements IStorage {

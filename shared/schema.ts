@@ -128,6 +128,73 @@ export const bookings = pgTable("bookings", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Affiliate System Tables
+export const affiliates = pgTable("affiliates", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull().unique(),
+  socialLink: varchar("social_link", { length: 500 }),
+  referralCode: varchar("referral_code", { length: 50 }).notNull().unique(),
+  tier: varchar("tier", { length: 50 }).default("starter"), // starter, influencer, enterprise
+  commissionRate: integer("commission_rate").default(20), // percentage
+  status: varchar("status", { length: 50 }).default("active"), // active, suspended, pending
+  totalClicks: integer("total_clicks").default(0),
+  totalSignups: integer("total_signups").default(0),
+  totalEarnings: integer("total_earnings").default(0), // in cents
+  currentBalance: integer("current_balance").default(0), // in cents
+  isInfluencer: boolean("is_influencer").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const influencerProfiles = pgTable("influencer_profiles", {
+  id: serial("id").primaryKey(),
+  affiliateId: integer("affiliate_id").references(() => affiliates.id).notNull(),
+  handle: varchar("handle", { length: 100 }).notNull().unique(),
+  avatarUrl: varchar("avatar_url", { length: 500 }),
+  headerHeadline: varchar("header_headline", { length: 200 }),
+  subheader: text("subheader"),
+  brandColor: varchar("brand_color", { length: 7 }).default("#FFD700"),
+  testimonial: text("testimonial"),
+  videoEmbedUrl: varchar("video_embed_url", { length: 500 }),
+  customCta: varchar("custom_cta", { length: 100 }),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const referralClicks = pgTable("referral_clicks", {
+  id: serial("id").primaryKey(),
+  affiliateId: integer("affiliate_id").references(() => affiliates.id).notNull(),
+  ipAddress: varchar("ip_address", { length: 45 }),
+  userAgent: text("user_agent"),
+  referer: varchar("referer", { length: 500 }),
+  clickedAt: timestamp("clicked_at").defaultNow(),
+});
+
+export const referralSignups = pgTable("referral_signups", {
+  id: serial("id").primaryKey(),
+  affiliateId: integer("affiliate_id").references(() => affiliates.id).notNull(),
+  userEmail: varchar("user_email", { length: 255 }).notNull(),
+  signupSource: varchar("signup_source", { length: 100 }), // trial, subscription, etc
+  conversionValue: integer("conversion_value").default(0), // in cents
+  commissionEarned: integer("commission_earned").default(0), // in cents
+  attributionDate: timestamp("attribution_date").defaultNow(),
+  conversionDate: timestamp("conversion_date"),
+});
+
+export const payoutRequests = pgTable("payout_requests", {
+  id: serial("id").primaryKey(),
+  affiliateId: integer("affiliate_id").references(() => affiliates.id).notNull(),
+  amount: integer("amount").notNull(), // in cents
+  paymentMethod: varchar("payment_method", { length: 50 }).notNull(), // paypal, stripe
+  paymentDetails: jsonb("payment_details"), // email, account info
+  status: varchar("status", { length: 50 }).default("pending"), // pending, approved, paid, rejected
+  notes: text("notes"),
+  requestedAt: timestamp("requested_at").defaultNow(),
+  processedAt: timestamp("processed_at"),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -155,6 +222,42 @@ export type InsertSubmission = z.infer<typeof insertSubmissionSchema>;
 export type Submission = typeof submissions.$inferSelect;
 export type Booking = typeof bookings.$inferSelect;
 export type InsertBooking = typeof bookings.$inferInsert;
+
+// Affiliate System Types
+export type Affiliate = typeof affiliates.$inferSelect;
+export type InsertAffiliate = typeof affiliates.$inferInsert;
+export type InfluencerProfile = typeof influencerProfiles.$inferSelect;
+export type InsertInfluencerProfile = typeof influencerProfiles.$inferInsert;
+export type ReferralClick = typeof referralClicks.$inferSelect;
+export type InsertReferralClick = typeof referralClicks.$inferInsert;
+export type ReferralSignup = typeof referralSignups.$inferSelect;
+export type InsertReferralSignup = typeof referralSignups.$inferInsert;
+export type PayoutRequest = typeof payoutRequests.$inferSelect;
+export type InsertPayoutRequest = typeof payoutRequests.$inferInsert;
+
+// Affiliate schema for forms
+export const insertAffiliateSchema = createInsertSchema(affiliates).pick({
+  name: true,
+  email: true,
+  socialLink: true,
+});
+
+export const insertInfluencerProfileSchema = createInsertSchema(influencerProfiles).pick({
+  handle: true,
+  avatarUrl: true,
+  headerHeadline: true,
+  subheader: true,
+  brandColor: true,
+  testimonial: true,
+  videoEmbedUrl: true,
+  customCta: true,
+});
+
+export const insertPayoutRequestSchema = createInsertSchema(payoutRequests).pick({
+  amount: true,
+  paymentMethod: true,
+  paymentDetails: true,
+});
 
 export interface CalculationResult {
   vehiclePrice: number;
