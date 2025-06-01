@@ -37,7 +37,7 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
 
   const emailCheckMutation = useMutation({
     mutationFn: async (data: EmailGateData) => {
-      return await apiRequest("/api/check-email", "POST", data);
+      return await apiRequest("POST", "/api/check-email", data);
     },
     onSuccess: (response: any) => {
       setIsSubmitting(false);
