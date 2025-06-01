@@ -10,66 +10,43 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 export default function UserDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
 
-  // Mock user data for now - will connect to real user endpoints
+  // For demo purposes, using a test email - in production this would come from authentication
+  const userEmail = "mragland@driveimmaculate.com";
+  const userId = "user_123"; // Would come from auth session
+
+  // Real API calls to fetch user's actual data
+  const { data: userCalculations = [] } = useQuery({
+    queryKey: ["/api/user/my-calculations", userEmail],
+    queryFn: () => fetch(`/api/user/my-calculations?email=${userEmail}`).then(res => res.json()),
+  });
+
+  const { data: userRecommendations = [] } = useQuery({
+    queryKey: ["/api/user/my-recommendations", userEmail],
+    queryFn: () => fetch(`/api/user/my-recommendations?email=${userEmail}`).then(res => res.json()),
+  });
+
+  const { data: userBuilds = [] } = useQuery({
+    queryKey: ["/api/user/my-builds", userId],
+    queryFn: () => fetch(`/api/user/my-builds?userId=${userId}`).then(res => res.json()),
+  });
+
+  const { data: userWatchlist = [] } = useQuery({
+    queryKey: ["/api/user/my-watchlist", userId],
+    queryFn: () => fetch(`/api/user/my-watchlist?userId=${userId}`).then(res => res.json()),
+  });
+
+  const { data: dashboardStats } = useQuery({
+    queryKey: ["/api/user/dashboard-stats", userEmail, userId],
+    queryFn: () => fetch(`/api/user/dashboard-stats?email=${userEmail}&userId=${userId}`).then(res => res.json()),
+  });
+
+  // User profile data (would come from auth in production)
   const userData = {
-    name: "Alex",
-    email: "alex@example.com", 
+    name: userEmail.split('@')[0].charAt(0).toUpperCase() + userEmail.split('@')[0].slice(1),
+    email: userEmail,
     avatar: null,
-    joinDate: "2024-01-15",
-    totalCalculations: 3,
-    totalBuilds: 1,
-    watchlistItems: 2
+    joinDate: "2024-01-15"
   };
-
-  const recentCalculations = [
-    {
-      id: 1,
-      vehicleName: "2019 Toyota Supra",
-      totalCost: 89500,
-      origin: "Japan",
-      date: "2024-01-20",
-      status: "completed"
-    },
-    {
-      id: 2, 
-      vehicleName: "2020 BMW M2 Competition",
-      totalCost: 76300,
-      origin: "USA",
-      date: "2024-01-18",
-      status: "completed"
-    }
-  ];
-
-  const myBuilds = [
-    {
-      id: 1,
-      name: "Project Supra",
-      vehicle: "2019 Toyota Supra",
-      stage: "Planning",
-      targetMods: ["Intake", "Exhaust", "Tune"],
-      budget: 15000,
-      image: null
-    }
-  ];
-
-  const watchlistItems = [
-    {
-      id: 1,
-      partName: "HKS Intake System",
-      vehicle: "Toyota Supra",
-      targetPrice: 1200,
-      currentPrice: 1450,
-      priceAlert: true
-    },
-    {
-      id: 2,
-      partName: "Akrapovic Exhaust",
-      vehicle: "Toyota Supra", 
-      targetPrice: 3500,
-      currentPrice: 3800,
-      priceAlert: false
-    }
-  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -125,7 +102,7 @@ export default function UserDashboard() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-blue-600 text-sm font-medium">Import Calculations</p>
-                      <p className="text-3xl font-bold text-blue-900">{userData.totalCalculations}</p>
+                      <p className="text-3xl font-bold text-blue-900">{dashboardStats?.totalCalculations || 0}</p>
                     </div>
                     <Calculator className="h-8 w-8 text-blue-600" />
                   </div>
@@ -137,7 +114,7 @@ export default function UserDashboard() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-green-600 text-sm font-medium">Vehicle Builds</p>
-                      <p className="text-3xl font-bold text-green-900">{userData.totalBuilds}</p>
+                      <p className="text-3xl font-bold text-green-900">{dashboardStats?.totalBuilds || 0}</p>
                     </div>
                     <Car className="h-8 w-8 text-green-600" />
                   </div>
@@ -149,7 +126,7 @@ export default function UserDashboard() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-amber-600 text-sm font-medium">Parts Watching</p>
-                      <p className="text-3xl font-bold text-amber-900">{userData.watchlistItems}</p>
+                      <p className="text-3xl font-bold text-amber-900">{dashboardStats?.watchlistItems || 0}</p>
                     </div>
                     <Heart className="h-8 w-8 text-amber-600" />
                   </div>
@@ -170,25 +147,31 @@ export default function UserDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {recentCalculations.map((calc) => (
-                    <div key={calc.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-brand-gold/10 rounded-lg flex items-center justify-center">
-                          <Car className="h-5 w-5 text-brand-gold" />
+                  {userCalculations.length > 0 ? (
+                    userCalculations.slice(0, 3).map((calc: any) => (
+                      <div key={calc.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-brand-gold/10 rounded-lg flex items-center justify-center">
+                            <Car className="h-5 w-5 text-brand-gold" />
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-gray-900">{calc.vehicleMake} {calc.vehicleModel} {calc.vehicleYear}</h4>
+                            <p className="text-sm text-gray-600">From {calc.shippingOrigin} • {new Date(calc.createdAt).toLocaleDateString()}</p>
+                          </div>
                         </div>
-                        <div>
-                          <h4 className="font-medium text-gray-900">{calc.vehicleName}</h4>
-                          <p className="text-sm text-gray-600">From {calc.origin} • {new Date(calc.date).toLocaleDateString()}</p>
+                        <div className="text-right">
+                          <p className="font-semibold text-gray-900">${parseFloat(calc.totalCost).toLocaleString()}</p>
+                          <Badge variant="secondary" className="text-xs">
+                            Completed
+                          </Badge>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-semibold text-gray-900">${calc.totalCost.toLocaleString()}</p>
-                        <Badge variant="secondary" className="text-xs">
-                          {calc.status}
-                        </Badge>
-                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-gray-500">No calculations yet. Start with your first import cost calculation!</p>
                     </div>
-                  ))}
+                  )}
                 </div>
               </CardContent>
             </Card>
