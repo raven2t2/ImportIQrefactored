@@ -83,7 +83,7 @@ interface CarEvent {
   externalLink?: string;
 }
 
-export default function EnhancedDashboard() {
+function EnhancedDashboard() {
   const { user, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("garage");
@@ -697,3 +697,5 @@ export default function EnhancedDashboard() {
     </div>
   );
 }
+
+export default EnhancedDashboard;
