@@ -151,6 +151,28 @@ function calculateImportCosts(vehiclePrice: number, shippingOrigin: string, zipC
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Email checking endpoint for smart gating
+  app.post("/api/check-email", async (req, res) => {
+    try {
+      const { name, email } = req.body;
+      
+      if (!name || !email) {
+        return res.status(400).json({ error: "Name and email are required" });
+      }
+
+      const exists = await storage.checkEmailExists(email);
+      await storage.updateEmailCache(email, name);
+      
+      res.json({ 
+        exists,
+        message: exists ? "Welcome back!" : "Welcome to Immaculate Imports!"
+      });
+    } catch (error) {
+      console.error("Error checking email:", error);
+      res.status(500).json({ error: "Failed to process email" });
+    }
+  });
+
   // Calculate import costs endpoint
   app.post("/api/calculate", async (req, res) => {
     try {
