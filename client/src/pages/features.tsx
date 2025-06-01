@@ -138,7 +138,7 @@ export default function Features() {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            setVisibleTools(prev => new Set([...prev, entry.target.id]));
+            setVisibleTools(prev => new Set([...Array.from(prev), entry.target.id]));
           }
         });
       },

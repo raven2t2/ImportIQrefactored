@@ -305,11 +305,27 @@ export default function ImportIQ() {
       <div id="pricing" className="py-20 bg-gray-900">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-8 tracking-tight">
-            Simple Pricing.
+            Save $5,000+ Per Import
           </h2>
-          <p className="text-xl text-gray-300 mb-16 font-light">
-            Start with a free trial, then choose the plan that works for you.
+          <p className="text-xl text-gray-300 mb-8 font-light">
+            Members typically save more in their first month than a full year subscription costs.
           </p>
+          <div className="bg-amber-400/10 border border-amber-400/20 rounded-2xl p-6 mb-16 max-w-2xl mx-auto">
+            <div className="grid grid-cols-3 gap-6 text-center">
+              <div>
+                <div className="text-2xl font-bold text-amber-400">$3,200</div>
+                <div className="text-sm text-gray-300">Broker markup avoided</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-amber-400">$2,800</div>
+                <div className="text-sm text-gray-300">Compliance savings</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-amber-400">$4,500</div>
+                <div className="text-sm text-gray-300">Better vehicle selection</div>
+              </div>
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {/* Monthly Plan */}
