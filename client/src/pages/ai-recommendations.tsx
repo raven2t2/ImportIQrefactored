@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { Brain, Car, DollarSign, Target, Sparkles, ArrowRight } from "lucide-react";
+import { Brain, Car, DollarSign, Target, Sparkles, ArrowRight, Save, Calendar, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -150,18 +150,18 @@ export default function AIRecommendations() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-black">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-card shadow-sm border-b border-brand-gray">
         <div className="max-w-6xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="flex items-center justify-center w-10 h-10 bg-brand-gold rounded-lg">
-                <Brain className="h-5 w-5 text-white" />
+                <Brain className="h-5 w-5 text-black" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Immaculate AI Vehicle Matcher</h1>
-                <p className="text-sm text-gray-600">Military-precision sourcing intel meets advanced AI — find your perfect import</p>
+                <h1 className="text-2xl font-bold text-brand-white">Immaculate AI Vehicle Matcher</h1>
+                <p className="text-sm text-brand-gray">Military-precision sourcing intel meets advanced AI — find your perfect import</p>
               </div>
             </div>
             <div className="flex space-x-2">
