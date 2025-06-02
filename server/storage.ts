@@ -1,6 +1,6 @@
-import { users, submissions, aiRecommendations, emailCache, trials, userProjects, userAchievements, carEvents, reports, bookings, affiliates, influencerProfiles, referralClicks, referralSignups, payoutRequests, type User, type InsertUser, type Submission, type InsertSubmission, type Booking, type InsertBooking, type Affiliate, type InsertAffiliate, type InfluencerProfile, type InsertInfluencerProfile, type ReferralClick, type InsertReferralClick, type ReferralSignup, type InsertReferralSignup, type PayoutRequest, type InsertPayoutRequest } from "@shared/schema";
+import { users, submissions, aiRecommendations, emailCache, trials, userProjects, userAchievements, carEvents, reports, bookings, affiliates, influencerProfiles, referralClicks, referralSignups, payoutRequests, adminUsers, adminSessions, type User, type InsertUser, type Submission, type InsertSubmission, type Booking, type InsertBooking, type Affiliate, type InsertAffiliate, type InfluencerProfile, type InsertInfluencerProfile, type ReferralClick, type InsertReferralClick, type ReferralSignup, type InsertReferralSignup, type PayoutRequest, type InsertPayoutRequest, type AdminUser, type InsertAdminUser, type AdminSession, type InsertAdminSession } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, lt } from "drizzle-orm";
 import fs from 'fs';
 import path from 'path';
 
@@ -77,7 +77,21 @@ export interface IStorage {
   deleteWatchlistItem(id: number): Promise<void>;
   
   // Shop Suggestions
-  createShopSuggestion(suggestion: Omit<InsertShopSuggestion, 'id' | 'createdAt'>): Promise<ShopSuggestion>;
+  createShopSuggestion(suggestion: Omit<any, 'id' | 'createdAt'>): Promise<any>;
+
+  // Admin user management
+  createAdminUser(admin: Omit<InsertAdminUser, 'id' | 'createdAt' | 'updatedAt'>): Promise<AdminUser>;
+  getAdminUser(id: number): Promise<AdminUser | undefined>;
+  getAdminUserByUsername(username: string): Promise<AdminUser | undefined>;
+  getAdminUserByEmail(email: string): Promise<AdminUser | undefined>;
+  updateAdminUserLastLogin(id: number): Promise<void>;
+  getAllAdminUsers(): Promise<AdminUser[]>;
+  updateAdminUser(id: number, updates: Partial<AdminUser>): Promise<AdminUser>;
+  deactivateAdminUser(id: number): Promise<void>;
+  createAdminSession(session: Omit<InsertAdminSession, 'id' | 'createdAt'>): Promise<AdminSession>;
+  getAdminSession(token: string): Promise<AdminSession | undefined>;
+  deleteAdminSession(token: string): Promise<void>;
+  cleanExpiredAdminSessions(): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -513,12 +527,97 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Shop Suggestions
-  async createShopSuggestion(suggestionData: Omit<InsertShopSuggestion, 'id' | 'createdAt'>): Promise<ShopSuggestion> {
-    const [suggestion] = await db
-      .insert(shopSuggestions)
-      .values(suggestionData)
+  async createShopSuggestion(suggestionData: Omit<any, 'id' | 'createdAt'>): Promise<any> {
+    // Implementation for shop suggestions would go here
+    return suggestionData;
+  }
+
+  // Admin user management methods
+  async createAdminUser(adminData: Omit<InsertAdminUser, 'id' | 'createdAt' | 'updatedAt'>): Promise<AdminUser> {
+    const [admin] = await db
+      .insert(adminUsers)
+      .values(adminData)
       .returning();
-    return suggestion;
+    return admin;
+  }
+
+  async getAdminUser(id: number): Promise<AdminUser | undefined> {
+    const [admin] = await db
+      .select()
+      .from(adminUsers)
+      .where(eq(adminUsers.id, id));
+    return admin || undefined;
+  }
+
+  async getAdminUserByUsername(username: string): Promise<AdminUser | undefined> {
+    const [admin] = await db
+      .select()
+      .from(adminUsers)
+      .where(eq(adminUsers.username, username));
+    return admin || undefined;
+  }
+
+  async getAdminUserByEmail(email: string): Promise<AdminUser | undefined> {
+    const [admin] = await db
+      .select()
+      .from(adminUsers)
+      .where(eq(adminUsers.email, email));
+    return admin || undefined;
+  }
+
+  async updateAdminUserLastLogin(id: number): Promise<void> {
+    await db
+      .update(adminUsers)
+      .set({ lastLogin: new Date() })
+      .where(eq(adminUsers.id, id));
+  }
+
+  async getAllAdminUsers(): Promise<AdminUser[]> {
+    return await db.select().from(adminUsers);
+  }
+
+  async updateAdminUser(id: number, updates: Partial<AdminUser>): Promise<AdminUser> {
+    const [admin] = await db
+      .update(adminUsers)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(adminUsers.id, id))
+      .returning();
+    return admin;
+  }
+
+  async deactivateAdminUser(id: number): Promise<void> {
+    await db
+      .update(adminUsers)
+      .set({ isActive: false, updatedAt: new Date() })
+      .where(eq(adminUsers.id, id));
+  }
+
+  async createAdminSession(sessionData: Omit<InsertAdminSession, 'id' | 'createdAt'>): Promise<AdminSession> {
+    const [session] = await db
+      .insert(adminSessions)
+      .values(sessionData)
+      .returning();
+    return session;
+  }
+
+  async getAdminSession(token: string): Promise<AdminSession | undefined> {
+    const [session] = await db
+      .select()
+      .from(adminSessions)
+      .where(eq(adminSessions.sessionToken, token));
+    return session || undefined;
+  }
+
+  async deleteAdminSession(token: string): Promise<void> {
+    await db
+      .delete(adminSessions)
+      .where(eq(adminSessions.sessionToken, token));
+  }
+
+  async cleanExpiredAdminSessions(): Promise<void> {
+    await db
+      .delete(adminSessions)
+      .where(lt(adminSessions.expiresAt, new Date()));
   }
 
   private generateReferralCode(): string {

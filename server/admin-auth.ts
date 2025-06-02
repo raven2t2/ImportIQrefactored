@@ -13,6 +13,58 @@ export class AdminAuthService {
   private static readonly SESSION_DURATION = 8 * 60 * 60 * 1000; // 8 hours
   private static readonly BCRYPT_ROUNDS = 12;
 
+  // Role-based permissions
+  private static readonly ROLE_PERMISSIONS = {
+    super_admin: {
+      canViewFinancials: true,
+      canManageUsers: true,
+      canExportData: true,
+      canManageAffiliates: true,
+      canViewAnalytics: true,
+      canManageSystem: true,
+    },
+    manager: {
+      canViewFinancials: true,
+      canManageUsers: false,
+      canExportData: true,
+      canManageAffiliates: true,
+      canViewAnalytics: true,
+      canManageSystem: false,
+    },
+    sales: {
+      canViewFinancials: false,
+      canManageUsers: false,
+      canExportData: true,
+      canManageAffiliates: true,
+      canViewAnalytics: true,
+      canManageSystem: false,
+    },
+    marketing: {
+      canViewFinancials: false,
+      canManageUsers: false,
+      canExportData: true,
+      canManageAffiliates: true,
+      canViewAnalytics: true,
+      canManageSystem: false,
+    },
+    finance: {
+      canViewFinancials: true,
+      canManageUsers: false,
+      canExportData: true,
+      canManageAffiliates: false,
+      canViewAnalytics: true,
+      canManageSystem: false,
+    },
+    viewer: {
+      canViewFinancials: false,
+      canManageUsers: false,
+      canExportData: false,
+      canManageAffiliates: false,
+      canViewAnalytics: true,
+      canManageSystem: false,
+    },
+  };
+
   static async hashPassword(password: string): Promise<string> {
     return bcrypt.hash(password, this.BCRYPT_ROUNDS);
   }
