@@ -30,6 +30,7 @@ import Checkout from "@/pages/checkout";
 import BookingCalendar from "@/pages/booking-calendar";
 import AffiliateSignup from "@/pages/affiliate-signup";
 import AffiliateDashboard from "@/pages/affiliate-dashboard";
+import TrialDashboard from "@/pages/trial-dashboard";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -61,6 +62,7 @@ function Router() {
       <Route path="/booking" component={BookingCalendar} />
       <Route path="/affiliate-signup" component={AffiliateSignup} />
       <Route path="/affiliate-dashboard" component={AffiliateDashboard} />
+      <Route path="/trial-dashboard" component={TrialDashboard} />
       <Route component={NotFound} />
     </Switch>
   );
