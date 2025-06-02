@@ -184,8 +184,8 @@ export default function VehicleLookup() {
                     )}
                   </div>
                 </div>
-                {errors.query && (
-                  <p className="text-red-400 text-sm mt-1">{errors.query.message}</p>
+                {errors.identifier && (
+                  <p className="text-red-400 text-sm mt-1">{errors.identifier.message}</p>
                 )}
               </div>
               
