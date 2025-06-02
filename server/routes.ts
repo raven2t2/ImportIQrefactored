@@ -1218,11 +1218,34 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
+  // Define admin auth middleware first
+  const requireAdminAuth = async (req: any, res: any, next: any) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const token = authHeader.substring(7);
+      const result = await AdminAuthService.validateSession(token);
+      
+      if (!result.success) {
+        return res.status(401).json({ error: result.error });
+      }
+
+      req.adminUser = result.adminUser;
+      next();
+    } catch (error) {
+      console.error("Admin auth error:", error);
+      res.status(500).json({ error: "Authentication failed" });
+    }
+  };
+
   // Comprehensive analytics for all 14 ImportIQ tools
   app.get("/api/admin/comprehensive-analytics", requireAdminAuth, async (req: any, res) => {
     try {
       const submissions = await storage.getAllSubmissions();
-      const users = await storage.getAllUsers();
+      const emailCache = await storage.getAllEmailCache();
       const trials = await storage.getAllTrials();
       const affiliates = await storage.getAllAffiliates();
       const aiRecommendations = await storage.getAllAIRecommendations();
@@ -2433,6 +2456,16 @@ Respond with a JSON object containing your recommendations.`;
   };
 
   // Protected admin routes
+  app.get("/api/admin/current-user", requireAdminAuth, async (req: any, res) => {
+    try {
+      const { passwordHash, ...safeUser } = req.adminUser;
+      res.json(safeUser);
+    } catch (error) {
+      console.error("Error fetching current user:", error);
+      res.status(500).json({ error: "Failed to fetch current user" });
+    }
+  });
+
   app.get("/api/admin/users", requireAdminAuth, async (req: any, res) => {
     try {
       if (!req.adminUser.canManageUsers && req.adminUser.role !== 'super_admin') {
@@ -2482,6 +2515,142 @@ Respond with a JSON object containing your recommendations.`;
     } catch (error) {
       console.error("Error creating admin user:", error);
       res.status(500).json({ error: "Failed to create admin user" });
+    }
+  });
+
+  // Update admin user profile
+  app.put("/api/admin/users/:id", requireAdminAuth, async (req: any, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const { email, firstName, lastName, department, jobTitle } = req.body;
+
+      // Users can update their own profile, or super admins can update anyone
+      if (req.adminUser.id !== userId && req.adminUser.role !== 'super_admin') {
+        return res.status(403).json({ error: "Insufficient permissions" });
+      }
+
+      const updatedUser = await storage.updateAdminUser(userId, {
+        email,
+        firstName,
+        lastName,
+        department,
+        jobTitle,
+        updatedAt: new Date()
+      });
+
+      if (!updatedUser) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const { passwordHash, ...safeUser } = updatedUser;
+      res.json(safeUser);
+
+    } catch (error) {
+      console.error("Error updating admin user:", error);
+      res.status(500).json({ error: "Failed to update admin user" });
+    }
+  });
+
+  // Change admin password
+  app.put("/api/admin/change-password", requireAdminAuth, async (req: any, res) => {
+    try {
+      const { currentPassword, newPassword, targetUserId } = req.body;
+
+      // If targeting another user, must be super admin
+      if (targetUserId && targetUserId !== req.adminUser.id && req.adminUser.role !== 'super_admin') {
+        return res.status(403).json({ error: "Insufficient permissions" });
+      }
+
+      const userId = targetUserId || req.adminUser.id;
+
+      // If changing own password, verify current password
+      if (userId === req.adminUser.id && currentPassword) {
+        const isValid = await AdminAuthService.verifyPassword(currentPassword, req.adminUser.passwordHash);
+        if (!isValid) {
+          return res.status(400).json({ error: "Current password is incorrect" });
+        }
+      }
+
+      // Hash new password
+      const hashedPassword = await AdminAuthService.hashPassword(newPassword);
+
+      // Update password in database
+      const updated = await storage.updateAdminUserPassword(userId, hashedPassword);
+      
+      if (!updated) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      res.json({ success: true, message: "Password updated successfully" });
+
+    } catch (error) {
+      console.error("Error changing password:", error);
+      res.status(500).json({ error: "Failed to change password" });
+    }
+  });
+
+  // Update user role (super admin only)
+  app.put("/api/admin/users/:id/role", requireAdminAuth, async (req: any, res) => {
+    try {
+      if (req.adminUser.role !== 'super_admin') {
+        return res.status(403).json({ error: "Only super admins can change roles" });
+      }
+
+      const userId = parseInt(req.params.id);
+      const { role } = req.body;
+
+      // Prevent changing own role
+      if (userId === req.adminUser.id) {
+        return res.status(400).json({ error: "Cannot change your own role" });
+      }
+
+      const updatedUser = await storage.updateAdminUserRole(userId, role);
+      
+      if (!updatedUser) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const { passwordHash, ...safeUser } = updatedUser;
+      res.json(safeUser);
+
+    } catch (error) {
+      console.error("Error updating user role:", error);
+      res.status(500).json({ error: "Failed to update user role" });
+    }
+  });
+
+  // Deactivate admin user
+  app.put("/api/admin/users/:id/deactivate", requireAdminAuth, async (req: any, res) => {
+    try {
+      if (req.adminUser.role !== 'super_admin') {
+        return res.status(403).json({ error: "Only super admins can deactivate users" });
+      }
+
+      const userId = parseInt(req.params.id);
+
+      // Prevent deactivating own account
+      if (userId === req.adminUser.id) {
+        return res.status(400).json({ error: "Cannot deactivate your own account" });
+      }
+
+      const updatedUser = await storage.updateAdminUser(userId, {
+        isActive: false,
+        updatedAt: new Date()
+      });
+
+      if (!updatedUser) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      // Invalidate all sessions for this user
+      await storage.deleteAdminSessionsByUserId(userId);
+
+      const { passwordHash, ...safeUser } = updatedUser;
+      res.json(safeUser);
+
+    } catch (error) {
+      console.error("Error deactivating user:", error);
+      res.status(500).json({ error: "Failed to deactivate user" });
     }
   });
 
