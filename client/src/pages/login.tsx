@@ -14,6 +14,7 @@ import logoPath from "@assets/circular imi logo (3).png";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 type LoginData = z.infer<typeof loginSchema>;
@@ -26,6 +27,7 @@ export default function Login() {
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
+      password: "",
     },
   });
 
@@ -114,6 +116,23 @@ export default function Login() {
               </div>
               {form.formState.errors.email && (
                 <p className="text-sm text-red-600">{form.formState.errors.email.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <div className="relative">
+                <Shield className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Enter your password"
+                  className="pl-10"
+                  {...form.register("password")}
+                />
+              </div>
+              {form.formState.errors.password && (
+                <p className="text-sm text-red-600">{form.formState.errors.password.message}</p>
               )}
             </div>
 
