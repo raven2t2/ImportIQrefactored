@@ -1,473 +1,366 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
-import { Search, RefreshCw, Car, Flag, Info, DollarSign } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Search, Car, Flag, AlertCircle, CheckCircle, RefreshCw, DollarSign, Calendar, Gauge, Wrench, Database } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { z } from "zod";
-import { Link } from "wouter";
 
-const vehicleLookupSchema = z.object({
-  identifier: z.string().min(1, "Please enter a VIN or chassis code"),
+const lookupSchema = z.object({
+  query: z.string().min(1, "Please enter a VIN or chassis code"),
 });
 
-type FormData = z.infer<typeof vehicleLookupSchema>;
+type FormData = z.infer<typeof lookupSchema>;
 
-interface VinResult {
+interface VehicleResult {
+  type: 'vin' | 'chassis';
   make: string;
   model: string;
-  year: string;
-  trim?: string;
+  year?: string;
+  yearRange?: string;
   engine?: string;
+  engineCode?: string;
   fuelType?: string;
-}
-
-interface JdmResult {
-  make: string;
-  model: string;
-  years: string;
-  engine: string;
-  compliance_notes: string;
-}
-
-interface AuctionSample {
-  year: number;
-  mileage: string;
-  auctionHouse: string;
-  priceJpy: string;
-  priceAud: string;
-}
-
-interface LookupResponse {
-  success: boolean;
-  type: "vin" | "jdm";
-  data?: VinResult | JdmResult;
-  error?: string;
-  auctionSamples?: AuctionSample[];
-  suggestions?: Array<{
-    code: string;
-    description: string;
-  }>;
+  trim?: string;
+  complianceNotes?: string;
+  auctionData?: {
+    averagePrice: number;
+    currency: string;
+    sampleCount: number;
+    priceRange: string;
+    popularAuctions: string[];
+  };
 }
 
 export default function VehicleLookup() {
+  const [result, setResult] = useState<VehicleResult | null>(null);
   const { toast } = useToast();
-  const [result, setResult] = useState<LookupResponse | null>(null);
 
   const form = useForm<FormData>({
-    resolver: zodResolver(vehicleLookupSchema),
+    resolver: zodResolver(lookupSchema),
     defaultValues: {
-      identifier: "",
+      query: "",
     },
   });
 
-  const lookupMutation = useMutation({
-    mutationFn: async (data: FormData): Promise<LookupResponse> => {
+  const { register, handleSubmit, watch, formState: { errors } } = form;
+
+  const mutation = useMutation({
+    mutationFn: async (data: FormData) => {
       const response = await apiRequest("POST", "/api/vehicle-lookup", data);
-      const result = await response.json();
-      return result;
+      return response.json();
     },
     onSuccess: (data) => {
-      setResult(data);
-      if (!data.success) {
+      if (data.success) {
+        setResult(data.result);
+      } else {
         toast({
-          title: "Lookup Failed",
-          description: data.error || "Could not find vehicle information",
+          title: "Vehicle Not Found",
+          description: data.message || "Unable to find information for this vehicle",
           variant: "destructive",
         });
+        setResult(null);
       }
     },
     onError: (error) => {
       toast({
-        title: "Error",
-        description: "Failed to lookup vehicle information",
+        title: "Lookup Failed",
+        description: "Unable to search for vehicle information",
         variant: "destructive",
       });
-      console.error("Lookup error:", error);
     },
   });
 
   const onSubmit = (data: FormData) => {
-    lookupMutation.mutate(data);
+    mutation.mutate(data);
   };
 
-  const handleUseThisInfo = () => {
-    if (!result?.data) return;
-    
-    // Navigate to import calculator with pre-filled data
-    const searchParams = new URLSearchParams();
-    
-    if (result.type === "vin") {
-      const vinData = result.data as VinResult;
-      searchParams.set("make", vinData.make);
-      searchParams.set("model", vinData.model);
-      searchParams.set("year", vinData.year);
-    } else {
-      const jdmData = result.data as JdmResult;
-      searchParams.set("make", jdmData.make);
-      searchParams.set("model", jdmData.model);
-      // Extract first year from range like "1996–2001"
-      const yearMatch = jdmData.years.match(/(\d{4})/);
-      if (yearMatch) {
-        searchParams.set("year", yearMatch[1]);
-      }
-    }
-    
-    window.location.href = `/import-calculator?${searchParams.toString()}`;
+  const query = watch("query");
+  const isVIN = query.length === 17;
+  const isChassisCode = query.length > 0 && query.length < 17;
+
+  const getVehicleTypeIcon = () => {
+    if (result?.type === 'vin') return <span className="text-lg">🇺🇸</span>;
+    if (result?.type === 'chassis') return <span className="text-lg">🇯🇵</span>;
+    return <Car className="h-5 w-5" />;
   };
 
-  const detectInputType = (value: string) => {
-    if (value.length === 17 && /^[A-HJ-NPR-Z0-9]{17}$/i.test(value)) {
-      return "vin";
-    }
-    return "jdm";
+  const useThisInfo = () => {
+    if (!result) return;
+    
+    // Store vehicle info in localStorage for other tools to use
+    const vehicleInfo = {
+      make: result.make,
+      model: result.model,
+      year: result.year || result.yearRange?.split('–')[0],
+      engine: result.engine || result.engineCode,
+      lastLookup: new Date().toISOString()
+    };
+    
+    localStorage.setItem('selectedVehicle', JSON.stringify(vehicleInfo));
+    
+    toast({
+      title: "Vehicle Info Saved",
+      description: "This vehicle's details can now be used in other ImportIQ tools",
+    });
   };
-
-  const currentInput = form.watch("identifier");
-  const inputType = currentInput ? detectInputType(currentInput) : null;
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <div className="container mx-auto px-4 py-12">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
-              Instant Vehicle Lookup
-            </h1>
-            <p className="text-xl text-gray-300 mb-6 max-w-3xl mx-auto">
-              Easily decode U.S. VINs or JDM chassis codes to get vehicle specs, year ranges, engine info, 
-              and compliance insights — all in one place. Whether you're researching a Skyline, Chaser, 
-              or WRX, this tool gives you clarity <em>before</em> you commit.
-            </p>
-            
-            <div className="flex justify-center items-center gap-8 text-sm text-gray-400">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>No guessing</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>No spreadsheet browsing</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>Just type, and ImportIQ figures it out</span>
-              </div>
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <div className="flex items-center justify-center mb-6">
+            <div className="w-16 h-16 bg-amber-400 rounded-full flex items-center justify-center mr-4">
+              <Database className="h-8 w-8 text-black" />
+            </div>
+            <div>
+              <h1 className="text-4xl font-bold text-white mb-2">
+                Instant Vehicle Lookup
+              </h1>
+              <p className="text-xl text-gray-400">
+                Decode VINs or JDM chassis codes instantly
+              </p>
             </div>
           </div>
+          
+          <p className="text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            Easily decode U.S. VINs or JDM chassis codes to get vehicle specs, year ranges, engine info, 
+            and compliance insights — all in one place. Whether you're researching a Skyline, Chaser, or WRX, 
+            this tool gives you clarity before you commit.
+          </p>
+          
+          <div className="flex flex-wrap justify-center gap-6 mt-6 text-sm text-gray-400">
+            <div className="flex items-center">
+              <CheckCircle className="h-4 w-4 text-green-400 mr-2" />
+              No guessing
+            </div>
+            <div className="flex items-center">
+              <CheckCircle className="h-4 w-4 text-green-400 mr-2" />
+              No spreadsheet browsing
+            </div>
+            <div className="flex items-center">
+              <CheckCircle className="h-4 w-4 text-green-400 mr-2" />
+              Just type, and ImportIQ figures it out
+            </div>
+          </div>
+        </div>
 
-          {/* Search Form */}
-          <Card className="bg-gray-900 border-gray-700 mb-8">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-white">
-                <Car className="h-5 w-5" />
-                Vehicle Search
-                {inputType && (
-                  <Badge variant="outline" className="ml-2">
-                    {inputType === "vin" ? "🇺🇸 VIN Mode" : "🇯🇵 JDM Mode"}
-                  </Badge>
+        {/* Search Form */}
+        <Card className="border border-amber-400/20 bg-gray-900/50 backdrop-blur-sm mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center text-white">
+              <Search className="h-5 w-5 mr-2" />
+              Vehicle Search
+            </CardTitle>
+            <CardDescription className="text-gray-400">
+              Enter a 17-character VIN or JDM chassis code (e.g., R34, JZX100, AE86)
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <div>
+                <div className="relative">
+                  <Input
+                    {...register("query")}
+                    placeholder="Enter VIN or JDM Chassis Code..."
+                    className="bg-black border-amber-400/30 text-white placeholder:text-gray-500 pr-20"
+                  />
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
+                    {query.length > 0 && (
+                      <Badge variant="outline" className={`text-xs ${
+                        isVIN ? 'border-blue-400 text-blue-400' : 
+                        isChassisCode ? 'border-green-400 text-green-400' : 
+                        'border-gray-400 text-gray-400'
+                      }`}>
+                        {isVIN ? '🇺🇸 VIN' : isChassisCode ? '🇯🇵 JDM' : 'Type...'}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+                {errors.query && (
+                  <p className="text-red-400 text-sm mt-1">{errors.query.message}</p>
                 )}
+              </div>
+              
+              <Button 
+                type="submit" 
+                size="lg" 
+                className="w-full bg-amber-400 text-black hover:bg-amber-500 font-medium"
+                disabled={mutation.isPending}
+              >
+                {mutation.isPending ? (
+                  <>
+                    <RefreshCw className="h-5 w-5 mr-2 animate-spin" />
+                    Searching...
+                  </>
+                ) : (
+                  <>
+                    <Search className="h-5 w-5 mr-2" />
+                    Lookup Vehicle
+                  </>
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* Results */}
+        {result && (
+          <Card className="border border-green-400/20 bg-green-950/20 backdrop-blur-sm mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center text-white">
+                {getVehicleTypeIcon()}
+                <span className="ml-3">Vehicle Information</span>
+                <Badge className="ml-auto" variant="outline">
+                  {result.type === 'vin' ? 'NHTSA Database' : 'JDM Database'}
+                </Badge>
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  <FormField
-                    control={form.control}
-                    name="identifier"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-white">
-                          Enter VIN or JDM Chassis Code
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="e.g., 1HGCM82633A123456 or JZA80"
-                            className="text-lg py-3 bg-gray-800 border-gray-600 text-white placeholder-gray-400"
-                            onChange={(e) => {
-                              field.onChange(e.target.value.toUpperCase());
-                            }}
-                          />
-                        </FormControl>
-                        
-                        {/* Popular Chassis Codes */}
-                        <div className="mt-4">
-                          <p className="text-sm text-gray-400 mb-3">Popular JDM Chassis Codes:</p>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                            {[
-                              { code: "JZX100", car: "Toyota Chaser" },
-                              { code: "BNR34", car: "Nissan GT-R R34" },
-                              { code: "FD3S", car: "Mazda RX-7" },
-                              { code: "EK9", car: "Honda Civic Type R" },
-                              { code: "S15", car: "Nissan Silvia" },
-                              { code: "GDB", car: "Subaru WRX STI" },
-                              { code: "JZA80", car: "Toyota Supra" },
-                              { code: "AE86", car: "Toyota Corolla" }
-                            ].map((item) => (
-                              <Button
-                                key={item.code}
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                  field.onChange(item.code);
-                                }}
-                                className="text-xs bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700 flex flex-col items-center p-2 h-auto"
-                              >
-                                <span className="font-bold text-yellow-400">{item.code}</span>
-                                <span className="text-xs text-gray-400 mt-1">{item.car}</span>
-                              </Button>
-                            ))}
-                          </div>
+            <CardContent className="space-y-6">
+              {/* Basic Info */}
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-white mb-3">Vehicle Details</h3>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Make:</span>
+                        <span className="text-white font-medium">{result.make}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Model:</span>
+                        <span className="text-white font-medium">{result.model}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Year:</span>
+                        <span className="text-white font-medium">
+                          {result.year || result.yearRange}
+                        </span>
+                      </div>
+                      {result.trim && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Trim:</span>
+                          <span className="text-white font-medium">{result.trim}</span>
                         </div>
-                        
-                        <FormMessage />
-                        {inputType && (
-                          <p className="text-sm text-gray-400 flex items-center gap-2">
-                            <Flag className="h-4 w-4" />
-                            {inputType === "vin" 
-                              ? "Detected: 17-character VIN (will use NHTSA database)" 
-                              : "Detected: JDM chassis code (will search internal database)"
-                            }
-                          </p>
-                        )}
-                      </FormItem>
-                    )}
-                  />
-
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-yellow-600 hover:bg-yellow-700 text-black font-semibold"
-                    disabled={lookupMutation.isPending}
-                  >
-                    <Search className="h-4 w-4 mr-2" />
-                    {lookupMutation.isPending ? "Looking up..." : "Lookup Vehicle"}
-                  </Button>
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
-
-          {/* Results */}
-          {result && (
-            <Card className="bg-gray-900 border-gray-700 mb-8">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-white">
-                  <Car className="h-5 w-5" />
-                  Vehicle Information
-                  <Badge variant="outline">
-                    {result.type === "vin" ? "🇺🇸 VIN Decoded" : "🇯🇵 JDM Lookup"}
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {result.success && result.data ? (
-                  <div className="space-y-6">
-                    {result.type === "vin" ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {(() => {
-                          const vinData = result.data as VinResult;
-                          return (
-                            <>
-                              <div>
-                                <p className="text-sm text-gray-400">Make</p>
-                                <p className="text-lg font-semibold text-white">{vinData.make}</p>
-                              </div>
-                              <div>
-                                <p className="text-sm text-gray-400">Model</p>
-                                <p className="text-lg font-semibold text-white">{vinData.model}</p>
-                              </div>
-                              <div>
-                                <p className="text-sm text-gray-400">Year</p>
-                                <p className="text-lg font-semibold text-white">{vinData.year}</p>
-                              </div>
-                              {vinData.trim && (
-                                <div>
-                                  <p className="text-sm text-gray-400">Trim</p>
-                                  <p className="text-lg font-semibold text-white">{vinData.trim}</p>
-                                </div>
-                              )}
-                              {vinData.engine && (
-                                <div>
-                                  <p className="text-sm text-gray-400">Engine</p>
-                                  <p className="text-lg font-semibold text-white">{vinData.engine}</p>
-                                </div>
-                              )}
-                              {vinData.fuelType && (
-                                <div>
-                                  <p className="text-sm text-gray-400">Fuel Type</p>
-                                  <p className="text-lg font-semibold text-white">{vinData.fuelType}</p>
-                                </div>
-                              )}
-                            </>
-                          );
-                        })()}
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        {(() => {
-                          const jdmData = result.data as JdmResult;
-                          return (
-                            <>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                  <p className="text-sm text-gray-400">Make</p>
-                                  <p className="text-lg font-semibold text-white">{jdmData.make}</p>
-                                </div>
-                                <div>
-                                  <p className="text-sm text-gray-400">Model</p>
-                                  <p className="text-lg font-semibold text-white">{jdmData.model}</p>
-                                </div>
-                                <div>
-                                  <p className="text-sm text-gray-400">Year Range</p>
-                                  <p className="text-lg font-semibold text-white">{jdmData.years}</p>
-                                </div>
-                                <div>
-                                  <p className="text-sm text-gray-400">Engine Code</p>
-                                  <p className="text-lg font-semibold text-white">{jdmData.engine}</p>
-                                </div>
-                              </div>
-                              
-                              <div className="bg-blue-900/20 border border-blue-700 rounded-lg p-4">
-                                <div className="flex items-start gap-2">
-                                  <Info className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
-                                  <div>
-                                    <p className="text-sm text-blue-400 font-medium mb-1">Compliance Notes</p>
-                                    <p className="text-sm text-gray-300">{jdmData.compliance_notes}</p>
-                                  </div>
-                                </div>
-                              </div>
-                            </>
-                          );
-                        })()}
-                      </div>
-                    )}
-
-                    <Button 
-                      onClick={handleUseThisInfo}
-                      className="w-full bg-yellow-600 hover:bg-yellow-700 text-black font-semibold"
-                    >
-                      <RefreshCw className="h-4 w-4 mr-2" />
-                      🔄 Use This Info in Import Calculator
-                    </Button>
+                      )}
+                    </div>
                   </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <p className="text-red-400 mb-2">Lookup Failed</p>
-                    <p className="text-gray-400">{result.error}</p>
-                    
-                    {/* Display suggestions when lookup fails */}
-                    {result.suggestions && result.suggestions.length > 0 && (
-                      <div className="mt-6">
-                        <p className="text-yellow-400 mb-3 font-medium">Try these similar vehicles:</p>
-                        <div className="space-y-2">
-                          {result.suggestions.map((suggestion, index) => (
-                            <button
-                              key={index}
-                              onClick={() => {
-                                form.setValue("identifier", suggestion.code);
-                                const formData = { identifier: suggestion.code };
-                                lookupMutation.mutate(formData);
-                              }}
-                              className="block w-full text-left p-3 bg-gray-800 hover:bg-gray-700 rounded border border-gray-600 transition-colors"
-                            >
-                              <div className="flex justify-between items-center">
-                                <span className="text-yellow-400 font-mono">{suggestion.code}</span>
-                                <span className="text-gray-300 text-sm">{suggestion.description}</span>
-                              </div>
-                            </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-white mb-3">Engine & Performance</h3>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Engine:</span>
+                        <span className="text-white font-medium">
+                          {result.engine || result.engineCode || 'N/A'}
+                        </span>
+                      </div>
+                      {result.fuelType && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Fuel Type:</span>
+                          <span className="text-white font-medium">{result.fuelType}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Compliance Notes */}
+              {result.complianceNotes && (
+                <>
+                  <Separator className="bg-amber-400/20" />
+                  <div>
+                    <h3 className="text-lg font-semibold text-white mb-3 flex items-center">
+                      <AlertCircle className="h-5 w-5 text-amber-400 mr-2" />
+                      Compliance Notes
+                    </h3>
+                    <div className="p-4 bg-amber-400/10 rounded-lg border border-amber-400/20">
+                      <p className="text-amber-100">{result.complianceNotes}</p>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Auction Data */}
+              {result.auctionData && (
+                <>
+                  <Separator className="bg-blue-400/20" />
+                  <div>
+                    <h3 className="text-lg font-semibold text-white mb-3 flex items-center">
+                      <DollarSign className="h-5 w-5 text-blue-400 mr-2" />
+                      Historical Auction Reference Data
+                    </h3>
+                    <p className="text-sm text-blue-300 mb-4">
+                      Based on historical Japanese auction records. Prices are reference only and actual market values may vary.
+                    </p>
+                    <div className="grid md:grid-cols-3 gap-4">
+                      <div className="p-4 bg-blue-950/20 rounded-lg border border-blue-400/20">
+                        <div className="text-blue-400 text-sm font-medium mb-1">Average Price</div>
+                        <div className="text-white text-lg font-bold">
+                          ¥{result.auctionData.averagePrice.toLocaleString()}
+                        </div>
+                      </div>
+                      <div className="p-4 bg-blue-950/20 rounded-lg border border-blue-400/20">
+                        <div className="text-blue-400 text-sm font-medium mb-1">Price Range</div>
+                        <div className="text-white text-lg font-bold">{result.auctionData.priceRange}</div>
+                      </div>
+                      <div className="p-4 bg-blue-950/20 rounded-lg border border-blue-400/20">
+                        <div className="text-blue-400 text-sm font-medium mb-1">Sample Size</div>
+                        <div className="text-white text-lg font-bold">{result.auctionData.sampleCount} vehicles</div>
+                      </div>
+                    </div>
+                    {result.auctionData.popularAuctions && result.auctionData.popularAuctions.length > 0 && (
+                      <div className="mt-4">
+                        <div className="text-sm text-gray-400 mb-2">Popular Auction Houses:</div>
+                        <div className="flex flex-wrap gap-2">
+                          {result.auctionData.popularAuctions.map((auction, index) => (
+                            <Badge key={index} variant="outline" className="text-blue-400 border-blue-400/50">
+                              {auction}
+                            </Badge>
                           ))}
                         </div>
                       </div>
                     )}
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
+                </>
+              )}
 
-          {/* Auction Sample Explorer */}
-          {result && result.success && result.auctionSamples && result.auctionSamples.length > 0 && (
-            <Card className="bg-gray-900 border-gray-700 mb-8">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-white">
-                  <DollarSign className="h-5 w-5" />
-                  Auction Sample Explorer
-                  <Badge variant="outline" className="ml-2">
-                    🇯🇵 Historical Data
-                  </Badge>
-                </CardTitle>
-                <p className="text-gray-400">
-                  See how recent vehicles like yours performed at Japanese auctions:
-                </p>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {result.auctionSamples.map((sample, index) => (
-                    <div key={index} className="bg-gray-800 rounded-lg p-4 border border-gray-700">
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div>
-                          <p className="text-sm text-gray-400">Year</p>
-                          <p className="text-lg font-semibold text-white">{sample.year}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-400">Mileage</p>
-                          <p className="text-lg font-semibold text-white">{sample.mileage}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-400">Auction House</p>
-                          <p className="text-lg font-semibold text-white">{sample.auctionHouse}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-400">Sample Auction Price</p>
-                          <div className="space-y-1">
-                            <p className="text-sm text-gray-300">{sample.priceJpy}</p>
-                            <p className="text-lg font-semibold text-yellow-400">{sample.priceAud}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                
-                <div className="mt-6 bg-blue-900/20 border border-blue-700 rounded-lg p-4">
-                  <p className="text-sm text-blue-400 font-medium mb-2">Important Notice</p>
-                  <p className="text-sm text-gray-300">
-                    These are historical auction samples—not live feeds. Use for planning only. 
-                    Actual auction prices vary based on condition, market demand, and specific vehicle features.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+              {/* Action Button */}
+              <Separator className="bg-gray-600" />
+              <div className="flex justify-center">
+                <Button
+                  onClick={useThisInfo}
+                  size="lg"
+                  className="bg-amber-400 text-black hover:bg-amber-500 font-medium"
+                >
+                  <RefreshCw className="h-5 w-5 mr-2" />
+                  Use This Info in Other Tools
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-
-
-          {/* Disclaimer */}
-          <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 text-center">
-            <p className="text-sm text-gray-400">
-              <strong>Disclaimer:</strong> ImportIQ uses official VIN registries and curated JDM reference data. 
-              Information is accurate to the best of our ability but does not replace physical inspection or formal compliance approval.
+        {/* Disclaimer */}
+        <Card className="border border-gray-600 bg-gray-900/30">
+          <CardContent className="p-4">
+            <p className="text-sm text-gray-400 text-center">
+              ImportIQ uses official VIN registries and curated JDM reference data. 
+              Information is accurate to the best of our ability but does not replace 
+              physical inspection or formal compliance approval.
             </p>
-          </div>
-
-          {/* Navigation */}
-          <div className="mt-8 text-center">
-            <Link href="/importiq">
-              <Button variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-800">
-                ← Back to ImportIQ Tools
-              </Button>
-            </Link>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
