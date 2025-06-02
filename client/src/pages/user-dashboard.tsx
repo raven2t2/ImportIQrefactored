@@ -63,6 +63,12 @@ export default function UserDashboard() {
     },
   });
 
+  // Fetch real market intelligence data
+  const { data: marketData, isLoading: marketLoading } = useQuery({
+    queryKey: ["/api/market-intelligence"],
+    refetchInterval: 300000, // Refresh every 5 minutes
+  });
+
   // Your personalized profile data
   const userData = {
     name: userName,
@@ -397,39 +403,59 @@ export default function UserDashboard() {
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <span>📊 Market Intelligence</span>
-                  <Badge variant="secondary">PREVIEW</Badge>
+                  <Badge variant="outline">LIVE DATA</Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8">
-                  <div className="mb-6">
-                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <span className="text-2xl">📈</span>
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Live Market Intelligence Coming Soon</h3>
-                    <p className="text-gray-600 mb-4 max-w-md mx-auto">
-                      Get real-time auction prices, exchange rates, compliance updates, and shipping insights from live data sources.
-                    </p>
+                {marketLoading ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4" />
+                    <p className="text-gray-600">Loading market data...</p>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
-                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                      <h4 className="font-medium text-gray-900 mb-1">Live Auction Data</h4>
-                      <p className="text-sm text-gray-600">Real-time pricing from Japanese auctions</p>
-                    </div>
-                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                      <h4 className="font-medium text-gray-900 mb-1">Exchange Rates</h4>
-                      <p className="text-sm text-gray-600">AUD/JPY and AUD/USD live rates</p>
-                    </div>
-                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                      <h4 className="font-medium text-gray-900 mb-1">Compliance Alerts</h4>
-                      <p className="text-sm text-gray-600">Government regulation updates</p>
-                    </div>
-                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                      <h4 className="font-medium text-gray-900 mb-1">Shipping Intelligence</h4>
-                      <p className="text-sm text-gray-600">Port delays and delivery insights</p>
+                ) : marketData ? (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Exchange Rates */}
+                      {marketData.exchangeRates && (
+                        <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                          <h3 className="font-semibold text-blue-900 mb-2">Exchange Rates</h3>
+                          <p className="text-sm text-blue-700 mb-1">
+                            AUD/JPY: ¥{marketData.exchangeRates.audJpy} 
+                            {marketData.exchangeRates.change24h > 0 ? ' ↗' : ' ↘'} 
+                            {Math.abs(marketData.exchangeRates.change24h)}%
+                          </p>
+                          <p className="text-sm text-blue-700 mb-2">
+                            AUD/USD: ${marketData.exchangeRates.audUsd}
+                          </p>
+                          <p className="text-xs text-blue-600">Updated: {new Date(marketData.exchangeRates.timestamp).toLocaleDateString()}</p>
+                        </div>
+                      )}
+
+                      {/* Shipping Insights */}
+                      <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
+                        <h3 className="font-semibold text-orange-900 mb-2">Shipping Status</h3>
+                        <p className="text-sm text-orange-700 mb-1">
+                          Average delivery: {marketData.shippingInsights.averageDeliveryDays} days
+                        </p>
+                        <p className="text-sm text-orange-700 mb-2">{marketData.shippingInsights.portStatus}</p>
+                        <p className="text-xs text-orange-600">Updated: {marketData.shippingInsights.lastUpdated}</p>
+                      </div>
+
+                      {/* Compliance Updates */}
+                      {marketData.complianceUpdates.map((update, index) => (
+                        <div key={index} className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                          <h3 className="font-semibold text-purple-900 mb-2">{update.title}</h3>
+                          <p className="text-sm text-purple-700 mb-2">{update.summary}</p>
+                          <p className="text-xs text-purple-600">{update.source} • {update.date}</p>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-gray-600">Unable to load market data</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
 

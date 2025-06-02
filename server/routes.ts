@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertSubmissionSchema, type CalculationResult } from "@shared/schema";
 import { AdminAuthService } from "./admin-auth";
+import { getMarketIntelligence } from "./market-data";
 import { z } from "zod";
 import OpenAI from "openai";
 import Stripe from "stripe";
@@ -1253,6 +1254,17 @@ Respond with a JSON object containing your recommendations.`;
     } catch (error) {
       console.error("Error fetching member deals:", error);
       res.status(500).json({ error: "Failed to fetch member deals" });
+    }
+  });
+
+  // Market intelligence endpoint - real data from public sources
+  app.get("/api/market-intelligence", async (req, res) => {
+    try {
+      const marketData = await getMarketIntelligence();
+      res.json(marketData);
+    } catch (error) {
+      console.error("Error fetching market intelligence:", error);
+      res.status(500).json({ error: "Failed to fetch market data" });
     }
   });
 
