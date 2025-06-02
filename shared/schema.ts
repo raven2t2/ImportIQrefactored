@@ -264,6 +264,20 @@ export const modShopPartners = pgTable("mod_shop_partners", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Member-exclusive mod shop deals (for JV partnerships)
+export const modShopDeals = pgTable("mod_shop_deals", {
+  id: serial("id").primaryKey(),
+  shopName: varchar("shop_name").notNull(),
+  discount: integer("discount").notNull(), // percentage
+  description: text("description").notNull(),
+  code: varchar("code").notNull().unique(),
+  validUntil: timestamp("valid_until").notNull(),
+  category: varchar("category"), // Performance, JDM Parts, Wheels, etc.
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Parts Watchlist
 export const partsWatchlist = pgTable("parts_watchlist", {
   id: serial("id").primaryKey(),
@@ -342,6 +356,9 @@ export type InsertVehicleBuild = typeof vehicleBuilds.$inferInsert;
 
 export type ModShopPartner = typeof modShopPartners.$inferSelect;
 export type InsertModShopPartner = typeof modShopPartners.$inferInsert;
+
+export type ModShopDeal = typeof modShopDeals.$inferSelect;
+export type InsertModShopDeal = typeof modShopDeals.$inferInsert;
 
 export type PartsWatchlistItem = typeof partsWatchlist.$inferSelect;
 export type InsertPartsWatchlistItem = typeof partsWatchlist.$inferInsert;

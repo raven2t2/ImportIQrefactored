@@ -339,27 +339,19 @@ export default function UserDashboard() {
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <span>🔥 Member-Only Mod Shop Deals</span>
-                  <Badge className="bg-red-500">EXCLUSIVE</Badge>
+                  <Badge variant="outline">COMING SOON</Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg border border-orange-200">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-semibold text-gray-900">HKS Performance</h4>
-                      <Badge variant="destructive">15% OFF</Badge>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-3">Turbo kits, exhaust systems, and suspension upgrades</p>
-                    <Button size="sm" className="w-full">Claim Discount</Button>
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 rounded-full bg-brand-gold/10 flex items-center justify-center mx-auto mb-4">
+                    <Heart className="h-8 w-8 text-brand-gold" />
                   </div>
-                  <div className="p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-lg border border-green-200">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-semibold text-gray-900">Spoon Sports</h4>
-                      <Badge variant="destructive">20% OFF</Badge>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-3">Authentic JDM parts and racing components</p>
-                    <Button size="sm" className="w-full">Claim Discount</Button>
-                  </div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Exclusive Partnerships in Development</h3>
+                  <p className="text-gray-600 mb-4">We're negotiating exclusive discounts with premium mod shops for ImportIQ members. Be the first to know when deals go live!</p>
+                  <Button className="bg-brand-gold hover:bg-brand-gold/90">
+                    Notify Me When Available
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -405,24 +397,17 @@ export default function UserDashboard() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-                    <h4 className="font-semibold text-gray-900 mb-2">AI Import Advisor</h4>
-                    <p className="text-sm text-gray-600 mb-3">Get personalized import recommendations based on your preferences and budget</p>
-                    <Button size="sm" variant="outline" className="w-full">
-                      Join Waitlist
-                    </Button>
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-200">
                     <h4 className="font-semibold text-gray-900 mb-2">Live Auction Tracker</h4>
                     <p className="text-sm text-gray-600 mb-3">Real-time notifications for Japanese auction houses with your dream cars</p>
                     <Button size="sm" variant="outline" className="w-full">
-                      Early Access
+                      Join Early Access
                     </Button>
                   </div>
                   <div className="p-4 bg-pink-50 rounded-lg border border-pink-200">
-                    <h4 className="font-semibold text-gray-900 mb-2">Mod Shop Network</h4>
-                    <p className="text-sm text-gray-600 mb-3">Connect with trusted workshops and get exclusive member pricing</p>
+                    <h4 className="font-semibold text-gray-900 mb-2">Mobile App</h4>
+                    <p className="text-sm text-gray-600 mb-3">Access all ImportIQ tools on-the-go with push notifications for price alerts</p>
                     <Button size="sm" variant="outline" className="w-full">
                       Get Notified
                     </Button>

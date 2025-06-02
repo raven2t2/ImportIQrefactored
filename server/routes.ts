@@ -1240,55 +1240,78 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
-  // Get member-exclusive mod shop deals
+  // Get member-exclusive mod shop deals (real deals from database)
   app.get("/api/user/member-deals", async (req: any, res) => {
     try {
-      const memberDeals = [
-        {
-          id: 1,
-          shopName: "HKS Performance",
-          discount: 15,
-          description: "Turbo kits, exhaust systems, and suspension upgrades",
-          code: "IMPORTIQ15",
-          validUntil: "2024-12-31",
-          category: "Performance"
-        },
-        {
-          id: 2,
-          shopName: "Spoon Sports",
-          discount: 20,
-          description: "Authentic JDM parts and racing components",
-          code: "IMPORTIQ20",
-          validUntil: "2024-12-31",
-          category: "JDM Parts"
-        },
-        {
-          id: 3,
-          shopName: "Work Wheels Australia",
-          discount: 12,
-          description: "Premium Japanese wheels and accessories",
-          code: "IMPORTIQ12",
-          validUntil: "2024-11-30",
-          category: "Wheels"
-        },
-        {
-          id: 4,
-          shopName: "Bride Racing Seats",
-          discount: 18,
-          description: "Professional racing seats and harnesses",
-          code: "IMPORTIQ18",
-          validUntil: "2024-12-15",
-          category: "Interior"
-        }
-      ];
+      const activeDeals = await storage.getActiveModShopDeals();
       
       res.json({
         success: true,
-        deals: memberDeals
+        deals: activeDeals,
+        hasDeals: activeDeals.length > 0
       });
     } catch (error) {
       console.error("Error fetching member deals:", error);
       res.status(500).json({ error: "Failed to fetch member deals" });
+    }
+  });
+
+  // Admin: Manage mod shop deals
+  app.get("/api/admin/mod-shop-deals", async (req: any, res) => {
+    try {
+      const deals = await storage.getAllModShopDeals();
+      res.json({ success: true, deals });
+    } catch (error) {
+      console.error("Error fetching deals:", error);
+      res.status(500).json({ error: "Failed to fetch deals" });
+    }
+  });
+
+  app.post("/api/admin/mod-shop-deals", async (req: any, res) => {
+    try {
+      const { shopName, discount, description, code, validUntil, category, isActive } = req.body;
+      
+      const newDeal = await storage.createModShopDeal({
+        shopName,
+        discount,
+        description,
+        code,
+        validUntil: new Date(validUntil),
+        category,
+        isActive: isActive !== false
+      });
+      
+      res.json({ success: true, deal: newDeal });
+    } catch (error) {
+      console.error("Error creating deal:", error);
+      res.status(500).json({ error: "Failed to create deal" });
+    }
+  });
+
+  app.put("/api/admin/mod-shop-deals/:id", async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      
+      const updatedDeal = await storage.updateModShopDeal(parseInt(id), updates);
+      
+      res.json({ success: true, deal: updatedDeal });
+    } catch (error) {
+      console.error("Error updating deal:", error);
+      res.status(500).json({ error: "Failed to update deal" });
+    }
+  });
+
+  app.delete("/api/admin/mod-shop-deals/:id", async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      
+      await storage.deleteModShopDeal(parseInt(id));
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting deal:", error);
+      res.status(500).json({ error: "Failed to delete deal" });
     }
   });
 
