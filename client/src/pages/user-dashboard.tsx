@@ -1,19 +1,30 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Car, Calculator, Heart, Calendar, User, Camera, Settings, Plus } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Car, Calculator, Heart, Calendar, User, Camera, Settings, Plus, LogOut } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { apiRequest } from "@/lib/queryClient";
 
 export default function UserDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
   const [showWatchlistForm, setShowWatchlistForm] = useState(false);
   const queryClient = useQueryClient();
+
+  // Logout function
+  const handleLogout = () => {
+    // Clear local storage
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('trialData');
+    
+    // Redirect to homepage
+    window.location.href = '/';
+  };
 
   // Your actual user credentials - personalized for you
   const userEmail = "mragland@driveimmaculate.com";
@@ -105,7 +116,7 @@ export default function UserDashboard() {
 
       <main className="max-w-6xl mx-auto px-6 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4 mb-8">
+          <TabsList className="grid w-full grid-cols-5 mb-8">
             <TabsTrigger value="overview" className="flex items-center space-x-2">
               <User className="h-4 w-4" />
               <span>Overview</span>
@@ -121,6 +132,10 @@ export default function UserDashboard() {
             <TabsTrigger value="events" className="flex items-center space-x-2">
               <Calendar className="h-4 w-4" />
               <span>Events</span>
+            </TabsTrigger>
+            <TabsTrigger value="profile" className="flex items-center space-x-2">
+              <Settings className="h-4 w-4" />
+              <span>Profile</span>
             </TabsTrigger>
           </TabsList>
 
@@ -547,6 +562,152 @@ export default function UserDashboard() {
               </div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">No events found</h3>
               <p className="text-gray-500 mb-4">Check back later for car events in your area</p>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="profile" className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Profile Settings</h2>
+              <p className="text-gray-600">Manage your account details and preferences</p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Profile Photo */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Profile Photo</CardTitle>
+                  <CardDescription>Upload or update your profile picture</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center space-x-4">
+                    <Avatar className="h-20 w-20">
+                      <AvatarFallback className="bg-brand-gold text-white text-2xl font-medium">
+                        {userData.name.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <input
+                        type="file"
+                        id="profile-photo"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            console.log("Photo selected:", file.name);
+                            // TODO: Handle photo upload
+                          }
+                        }}
+                      />
+                      <label htmlFor="profile-photo">
+                        <Button variant="outline" className="cursor-pointer">
+                          Upload Photo
+                        </Button>
+                      </label>
+                      <p className="text-xs text-gray-500 mt-1">JPG, PNG or GIF. Max 5MB.</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Account Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Account Information</CardTitle>
+                  <CardDescription>Update your email and personal details</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="profile-name">Full Name</Label>
+                    <Input
+                      id="profile-name"
+                      value={userData.name}
+                      onChange={(e) => {
+                        // TODO: Handle name update
+                        console.log("Name updated:", e.target.value);
+                      }}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="profile-email">Email Address</Label>
+                    <Input
+                      id="profile-email"
+                      type="email"
+                      value={userData.email}
+                      onChange={(e) => {
+                        // TODO: Handle email update
+                        console.log("Email updated:", e.target.value);
+                      }}
+                    />
+                  </div>
+                  <Button className="w-full bg-brand-gold hover:bg-brand-gold/90">
+                    Save Changes
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Change Password */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Change Password</CardTitle>
+                  <CardDescription>Update your account password</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="current-password">Current Password</Label>
+                    <Input
+                      id="current-password"
+                      type="password"
+                      placeholder="Enter current password"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="new-password">New Password</Label>
+                    <Input
+                      id="new-password"
+                      type="password"
+                      placeholder="Enter new password"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm-password">Confirm New Password</Label>
+                    <Input
+                      id="confirm-password"
+                      type="password"
+                      placeholder="Confirm new password"
+                    />
+                  </div>
+                  <Button className="w-full bg-brand-gold hover:bg-brand-gold/90">
+                    Update Password
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Trial Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Trial Status</CardTitle>
+                  <CardDescription>Your current subscription details</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200">
+                    <div>
+                      <h4 className="font-medium text-green-900">7-Day Trial Active</h4>
+                      <p className="text-sm text-green-700">Expires June 9, 2025</p>
+                    </div>
+                    <Badge variant="outline" className="border-green-300 text-green-700">
+                      5 days left
+                    </Badge>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => window.location.href = '/pricing'}
+                  >
+                    Upgrade to Premium
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
         </Tabs>

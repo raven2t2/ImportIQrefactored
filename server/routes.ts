@@ -338,6 +338,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Profile update endpoints
+  app.put("/api/profile/name", async (req, res) => {
+    try {
+      const { email, name } = req.body;
+      
+      if (!email || !name) {
+        return res.status(400).json({ error: "Email and name are required" });
+      }
+
+      await storage.updateTrialName(email, name);
+      res.json({ success: true, message: "Name updated successfully" });
+    } catch (error) {
+      console.error("Error updating name:", error);
+      res.status(500).json({ error: "Failed to update name" });
+    }
+  });
+
+  app.put("/api/profile/email", async (req, res) => {
+    try {
+      const { currentEmail, newEmail } = req.body;
+      
+      if (!currentEmail || !newEmail) {
+        return res.status(400).json({ error: "Current and new email are required" });
+      }
+
+      // Check if new email already exists
+      const exists = await storage.checkEmailExists(newEmail);
+      if (exists) {
+        return res.status(400).json({ error: "Email already in use" });
+      }
+
+      await storage.updateTrialEmail(currentEmail, newEmail);
+      res.json({ success: true, message: "Email updated successfully" });
+    } catch (error) {
+      console.error("Error updating email:", error);
+      res.status(500).json({ error: "Failed to update email" });
+    }
+  });
+
+  app.put("/api/profile/password", async (req, res) => {
+    try {
+      const { email, currentPassword, newPassword } = req.body;
+      
+      if (!email || !currentPassword || !newPassword) {
+        return res.status(400).json({ error: "All password fields are required" });
+      }
+
+      // Verify current password
+      const storedPasswordHash = await storage.getPasswordHash(email);
+      if (!storedPasswordHash || !await bcrypt.compare(currentPassword, storedPasswordHash)) {
+        return res.status(401).json({ error: "Current password is incorrect" });
+      }
+
+      // Hash new password
+      const saltRounds = 10;
+      const newPasswordHash = await bcrypt.hash(newPassword, saltRounds);
+      
+      await storage.updateTrialPassword(email, newPasswordHash);
+      res.json({ success: true, message: "Password updated successfully" });
+    } catch (error) {
+      console.error("Error updating password:", error);
+      res.status(500).json({ error: "Failed to update password" });
+    }
+  });
+
+  app.post("/api/profile/photo", async (req, res) => {
+    try {
+      const { email, photoUrl } = req.body;
+      
+      if (!email || !photoUrl) {
+        return res.status(400).json({ error: "Email and photo URL are required" });
+      }
+
+      await storage.updateTrialPhoto(email, photoUrl);
+      res.json({ success: true, message: "Profile photo updated successfully" });
+    } catch (error) {
+      console.error("Error updating profile photo:", error);
+      res.status(500).json({ error: "Failed to update profile photo" });
+    }
+  });
+
   // Trial status endpoint
   app.get("/api/trial-status/:email", async (req, res) => {
     try {
