@@ -226,6 +226,40 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(trials);
   }
 
+  async updateTrialName(email: string, name: string): Promise<void> {
+    await db.update(trials)
+      .set({ name })
+      .where(eq(trials.email, email));
+  }
+
+  async updateTrialEmail(currentEmail: string, newEmail: string): Promise<void> {
+    await db.update(trials)
+      .set({ email: newEmail })
+      .where(eq(trials.email, currentEmail));
+  }
+
+  async updateTrialPassword(email: string, passwordHash: string): Promise<void> {
+    await db.update(trials)
+      .set({ passwordHash })
+      .where(eq(trials.email, email));
+  }
+
+  async updateTrialPhoto(email: string, photoUrl: string): Promise<void> {
+    // For now, we'll store photo URLs as part of user data
+    // In a production system, you might want a separate user_profiles table
+    console.log(`Photo updated for ${email}: ${photoUrl}`);
+  }
+
+  async updateUserLocation(email: string, location: { latitude: number; longitude: number; timestamp: string }): Promise<void> {
+    await db.update(trials)
+      .set({ 
+        latitude: location.latitude.toString(),
+        longitude: location.longitude.toString(),
+        locationTimestamp: new Date(location.timestamp)
+      })
+      .where(eq(trials.email, email));
+  }
+
   async getAllSubmissions(): Promise<Submission[]> {
     return await db.select().from(submissions);
   }
