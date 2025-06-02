@@ -19,8 +19,9 @@ export interface IStorage {
   checkEmailExists(email: string): Promise<boolean>;
   updateEmailCache(email: string, name: string): Promise<void>;
   getEmailInfo(email: string): Promise<{ name: string; submissionCount: number } | null>;
-  createTrial(email: string, name: string): Promise<any>;
+  createTrial(email: string, name: string, passwordHash?: string): Promise<any>;
   getTrialStatus(email: string): Promise<{ isActive: boolean; daysRemaining: number; status: string } | null>;
+  getPasswordHash(email: string): Promise<string | null>;
   createUserProject(userId: string, project: any): Promise<any>;
   getUserProjects(userId: string): Promise<any[]>;
   awardBadge(userId: string, badgeId: string, badgeName: string): Promise<void>;
@@ -147,7 +148,7 @@ export class DatabaseStorage implements IStorage {
     return cached ? { name: cached.name, submissionCount: cached.submissionCount } : null;
   }
 
-  async createTrial(email: string, name: string): Promise<any> {
+  async createTrial(email: string, name: string, passwordHash?: string): Promise<any> {
     const trialEndDate = new Date();
     trialEndDate.setDate(trialEndDate.getDate() + 7); // 7 days from now
 
@@ -156,6 +157,7 @@ export class DatabaseStorage implements IStorage {
       .values({
         email,
         name,
+        passwordHash,
         trialEndDate,
         isActive: true,
         subscriptionStatus: "trial"
@@ -164,6 +166,7 @@ export class DatabaseStorage implements IStorage {
         target: trials.email,
         set: {
           name,
+          passwordHash,
           trialEndDate,
           isActive: true,
           subscriptionStatus: "trial"
@@ -187,6 +190,11 @@ export class DatabaseStorage implements IStorage {
       daysRemaining,
       status: trial.subscriptionStatus
     };
+  }
+
+  async getPasswordHash(email: string): Promise<string | null> {
+    const [trial] = await db.select().from(trials).where(eq(trials.email, email));
+    return trial?.passwordHash || null;
   }
 
   async getAllSubmissions(): Promise<Submission[]> {
