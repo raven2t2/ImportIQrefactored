@@ -351,10 +351,10 @@ export default function TrialDashboard() {
       <div className="py-16 bg-gradient-to-r from-amber-600 to-orange-600">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            Love ImportIQ? Continue After Your Trial
+            Ready to Unlock Full Access?
           </h2>
           <p className="text-xl text-amber-100 mb-4">
-            Join thousands of successful importers. Get unlimited access to all tools for just $97/month.
+            Join thousands of successful importers with unlimited access to all 14 premium tools.
           </p>
           <div className="bg-white/10 rounded-lg p-4 mb-8 border border-white/20">
             <p className="text-white font-medium mb-2">
