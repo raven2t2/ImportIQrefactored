@@ -2607,14 +2607,14 @@ Respond with a JSON object containing your recommendations.`;
   app.post("/api/vehicle-lookup", async (req, res) => {
     try {
       console.log("Vehicle lookup request body:", req.body);
-      const { query } = req.body;
+      const { identifier } = req.body;
       
-      if (!query || typeof query !== 'string') {
-        console.log("Validation failed - query:", query, "type:", typeof query);
-        return res.status(400).json({ success: false, message: "Query is required" });
+      if (!identifier || typeof identifier !== 'string') {
+        console.log("Validation failed - identifier:", identifier, "type:", typeof identifier);
+        return res.status(400).json({ success: false, message: "Identifier is required" });
       }
 
-      const searchQuery = query.trim().toUpperCase();
+      const searchQuery = identifier.trim().toUpperCase();
       
       // Determine if it's a VIN (17 characters) or chassis code
       if (searchQuery.length === 17) {
