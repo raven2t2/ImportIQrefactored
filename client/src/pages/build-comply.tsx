@@ -76,7 +76,7 @@ export default function BuildComply() {
     handleSubmit,
     watch,
     setValue,
-    formState: { errors, isValid }
+    formState: { errors }
   } = useForm<FormData>({
     resolver: zodResolver(buildComplySchema),
     defaultValues: {
@@ -145,6 +145,19 @@ export default function BuildComply() {
 
   const onSubmit = (data: FormData) => {
     mutation.mutate(data);
+  };
+
+  // Custom validation to check if form is ready
+  const isFormValid = () => {
+    const watchedValues = watch();
+    return (
+      watchedValues.email &&
+      watchedValues.vehicle &&
+      watchedValues.state &&
+      watchedValues.budget &&
+      watchedValues.timeline &&
+      selectedMods.length > 0
+    );
   };
 
   const getRiskColor = (risk: string) => {
@@ -586,7 +599,7 @@ export default function BuildComply() {
               <div className="pt-6">
                 <Button
                   type="submit"
-                  disabled={mutation.isPending || !isValid}
+                  disabled={mutation.isPending || !isFormValid()}
                   className="w-full h-14 bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-black font-medium text-lg rounded-xl shadow-lg"
                 >
                   {mutation.isPending ? (
