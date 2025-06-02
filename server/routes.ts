@@ -280,6 +280,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Login endpoint for existing users
+  app.post("/api/login", async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ error: "Email is required" });
+      }
+
+      const trialStatus = await storage.getTrialStatus(email);
+      const emailInfo = await storage.getEmailInfo(email);
+      
+      if (!trialStatus && !emailInfo) {
+        return res.json({ 
+          exists: false,
+          message: "No account found with that email."
+        });
+      }
+      
+      if (trialStatus) {
+        return res.json({ 
+          exists: true,
+          hasActiveTrial: trialStatus.isActive,
+          trialDaysRemaining: trialStatus.daysRemaining,
+          name: emailInfo?.name || "User",
+          email: email,
+          message: trialStatus.isActive ? 
+            `Welcome back! You have ${trialStatus.daysRemaining} days left in your trial.` :
+            "Your trial has expired."
+        });
+      }
+      
+      res.json({ 
+        exists: true,
+        hasActiveTrial: false,
+        name: emailInfo?.name || "User",
+        email: email,
+        message: "Account found but no active trial."
+      });
+    } catch (error) {
+      console.error("Error during login:", error);
+      res.status(500).json({ error: "Failed to process login" });
+    }
+  });
+
   // Trial status endpoint
   app.get("/api/trial-status/:email", async (req, res) => {
     try {
