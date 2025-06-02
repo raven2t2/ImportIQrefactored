@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -29,6 +29,20 @@ export default function ImportCalculator() {
   const [selectedServiceTier, setSelectedServiceTier] = useState<string | null>(null);
   const [userInfo, setUserInfo] = useState<{ name: string; email: string; isReturning: boolean } | null>(null);
   const { toast } = useToast();
+
+  // Check for existing trial login status
+  useEffect(() => {
+    const trialUserName = localStorage.getItem('trial_user_name');
+    const trialUserEmail = localStorage.getItem('trial_user_email');
+    
+    if (trialUserName && trialUserEmail) {
+      setUserInfo({
+        name: trialUserName,
+        email: trialUserEmail,
+        isReturning: true
+      });
+    }
+  }, []);
 
   // Save report mutation
   const saveReportMutation = useMutation({
