@@ -22,6 +22,8 @@ export interface IStorage {
   createTrial(email: string, name: string, passwordHash?: string): Promise<any>;
   getTrialStatus(email: string): Promise<{ isActive: boolean; daysRemaining: number; status: string } | null>;
   getPasswordHash(email: string): Promise<string | null>;
+  getAllEmailCache(): Promise<any[]>;
+  getAllTrials(): Promise<any[]>;
   createUserProject(userId: string, project: any): Promise<any>;
   getUserProjects(userId: string): Promise<any[]>;
   awardBadge(userId: string, badgeId: string, badgeName: string): Promise<void>;
@@ -195,6 +197,14 @@ export class DatabaseStorage implements IStorage {
   async getPasswordHash(email: string): Promise<string | null> {
     const [trial] = await db.select().from(trials).where(eq(trials.email, email));
     return trial?.passwordHash || null;
+  }
+
+  async getAllEmailCache(): Promise<any[]> {
+    return await db.select().from(emailCache);
+  }
+
+  async getAllTrials(): Promise<any[]> {
+    return await db.select().from(trials);
   }
 
   async getAllSubmissions(): Promise<Submission[]> {

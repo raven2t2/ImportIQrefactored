@@ -1154,6 +1154,25 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
+  // Admin authentication endpoint
+  app.post("/api/admin/login", async (req, res) => {
+    try {
+      const { password } = req.body;
+      
+      // Simple admin password check - in production, use environment variable
+      const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
+      
+      if (password === adminPassword) {
+        res.json({ success: true });
+      } else {
+        res.status(401).json({ error: "Invalid admin password" });
+      }
+    } catch (error) {
+      console.error("Error during admin login:", error);
+      res.status(500).json({ error: "Failed to process admin login" });
+    }
+  });
+
   // Dashboard API endpoints
   app.get("/api/admin/submissions", async (req, res) => {
     try {
