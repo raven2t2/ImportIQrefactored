@@ -351,17 +351,17 @@ export default function TrialDashboard() {
       <div className="py-16 bg-gradient-to-r from-amber-600 to-orange-600">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            Love ImportIQ? Lock In Your Trial Price
+            Love ImportIQ? Continue After Your Trial
           </h2>
           <p className="text-xl text-amber-100 mb-4">
             Join thousands of successful importers. Get unlimited access to all tools for just $97/month.
           </p>
           <div className="bg-white/10 rounded-lg p-4 mb-8 border border-white/20">
             <p className="text-white font-medium mb-2">
-              🎯 Trial Member Exclusive: Lock in $97/month pricing
+              🎯 Trial Member Bonus: Get 5% off your first month
             </p>
             <p className="text-amber-100 text-sm">
-              Standard pricing increases to $127/month after your trial period. Upgrade now to secure your discount forever.
+              Upgrade during your trial and pay only $92.15 for your first month. Save $4.85 and start your import journey today.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -370,7 +370,7 @@ export default function TrialDashboard() {
               className="bg-white text-amber-600 hover:bg-gray-100 px-8 py-3 rounded-full font-bold"
               onClick={() => window.location.href = '/pricing'}
             >
-              Lock In $97/Month Price
+              Claim 5% Trial Bonus
             </Button>
             <Button 
               variant="outline"
