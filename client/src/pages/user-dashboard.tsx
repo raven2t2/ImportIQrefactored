@@ -397,31 +397,36 @@ export default function UserDashboard() {
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <span>📊 Market Intelligence</span>
-                  <Badge variant="outline">AUTO-UPDATED</Badge>
+                  <Badge variant="secondary">PREVIEW</Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                      <h3 className="font-semibold text-green-900 mb-2">Trending Imports</h3>
-                      <p className="text-sm text-green-700 mb-2">GT-R R34s up 15% this month</p>
-                      <p className="text-xs text-green-600">Based on live auction data</p>
+                <div className="text-center py-8">
+                  <div className="mb-6">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <span className="text-2xl">📈</span>
                     </div>
-                    <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                      <h3 className="font-semibold text-blue-900 mb-2">Exchange Rate Alert</h3>
-                      <p className="text-sm text-blue-700 mb-2">AUD/JPY at 96.2 (+2.1%)</p>
-                      <p className="text-xs text-blue-600">Good time to buy from Japan</p>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Live Market Intelligence Coming Soon</h3>
+                    <p className="text-gray-600 mb-4 max-w-md mx-auto">
+                      Get real-time auction prices, exchange rates, compliance updates, and shipping insights from live data sources.
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                      <h4 className="font-medium text-gray-900 mb-1">Live Auction Data</h4>
+                      <p className="text-sm text-gray-600">Real-time pricing from Japanese auctions</p>
                     </div>
-                    <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-                      <h3 className="font-semibold text-purple-900 mb-2">Compliance Updates</h3>
-                      <p className="text-sm text-purple-700 mb-2">New 25-year rule exemptions</p>
-                      <p className="text-xs text-purple-600">2000 models now eligible</p>
+                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                      <h4 className="font-medium text-gray-900 mb-1">Exchange Rates</h4>
+                      <p className="text-sm text-gray-600">AUD/JPY and AUD/USD live rates</p>
                     </div>
-                    <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
-                      <h3 className="font-semibold text-orange-900 mb-2">Shipping Insights</h3>
-                      <p className="text-sm text-orange-700 mb-2">Port delays reduced 40%</p>
-                      <p className="text-xs text-orange-600">Average 3-4 week delivery</p>
+                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                      <h4 className="font-medium text-gray-900 mb-1">Compliance Alerts</h4>
+                      <p className="text-sm text-gray-600">Government regulation updates</p>
+                    </div>
+                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                      <h4 className="font-medium text-gray-900 mb-1">Shipping Intelligence</h4>
+                      <p className="text-sm text-gray-600">Port delays and delivery insights</p>
                     </div>
                   </div>
                 </div>
