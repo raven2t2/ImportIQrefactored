@@ -212,6 +212,16 @@ export default function TrialDashboard() {
                 <span>Day {8 - trialDaysLeft} of 7</span>
               </div>
               <Progress value={(8 - trialDaysLeft) / 7 * 100} className="h-2" />
+              
+              {/* Trial Member Exclusive Offer */}
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4">
+                <p className="text-amber-800 font-medium text-sm mb-1">
+                  🎯 Trial Member Exclusive: First month only $77
+                </p>
+                <p className="text-amber-700 text-xs">
+                  Subscribe during your trial and save $20 on your first month. This offer expires when your trial ends.
+                </p>
+              </div>
             </div>
 
             {/* Quick Actions */}
@@ -358,10 +368,10 @@ export default function TrialDashboard() {
           </p>
           <div className="bg-white/10 rounded-lg p-4 mb-8 border border-white/20">
             <p className="text-white font-medium mb-2">
-              🎯 Trial Member Exclusive: First month only $77
+              Ready to continue? Subscribe for $97/month
             </p>
             <p className="text-amber-100 text-sm">
-              Subscribe now and save $20 on your first month. Then continue at $97/month to keep all tools active.
+              Keep all 14 tools active beyond your trial period and continue your import success.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -370,7 +380,7 @@ export default function TrialDashboard() {
               className="bg-white text-amber-600 hover:bg-gray-100 px-8 py-3 rounded-full font-bold"
               onClick={() => window.location.href = '/pricing'}
             >
-              Get First Month for $77
+              Subscribe for $97/month
             </Button>
             <Button 
               variant="outline"
