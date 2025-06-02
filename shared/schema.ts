@@ -14,11 +14,19 @@ export const adminUsers = pgTable("admin_users", {
   username: text("username").notNull().unique(),
   email: text("email").notNull().unique(),
   passwordHash: text("password_hash").notNull(),
-  role: text("role").notNull().default("admin"), // super_admin, admin, viewer
+  role: text("role").notNull().default("viewer"), // super_admin, manager, sales, marketing, finance, viewer
+  department: text("department"), // sales, marketing, finance, operations, executive
   firstName: text("first_name"),
   lastName: text("last_name"),
+  jobTitle: text("job_title"),
+  phoneNumber: text("phone_number"),
   isActive: boolean("is_active").default(true),
+  canViewFinancials: boolean("can_view_financials").default(false),
+  canManageUsers: boolean("can_manage_users").default(false),
+  canExportData: boolean("can_export_data").default(false),
+  canManageAffiliates: boolean("can_manage_affiliates").default(false),
   lastLogin: timestamp("last_login"),
+  createdBy: integer("created_by"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
