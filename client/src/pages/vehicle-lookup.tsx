@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
 const lookupSchema = z.object({
-  query: z.string().min(1, "Please enter a VIN or chassis code"),
+  identifier: z.string().min(1, "Please enter a VIN or chassis code"),
 });
 
 type FormData = z.infer<typeof lookupSchema>;
@@ -45,7 +45,7 @@ export default function VehicleLookup() {
   const form = useForm<FormData>({
     resolver: zodResolver(lookupSchema),
     defaultValues: {
-      query: "",
+      identifier: "",
     },
   });
 
@@ -81,9 +81,9 @@ export default function VehicleLookup() {
     mutation.mutate(data);
   };
 
-  const query = watch("query");
-  const isVIN = query.length === 17;
-  const isChassisCode = query.length > 0 && query.length < 17;
+  const identifier = watch("identifier");
+  const isVIN = identifier.length === 17;
+  const isChassisCode = identifier.length > 0 && identifier.length < 17;
 
   const getVehicleTypeIcon = () => {
     if (result?.type === 'vin') return <span className="text-lg">🇺🇸</span>;
@@ -168,12 +168,12 @@ export default function VehicleLookup() {
               <div>
                 <div className="relative">
                   <Input
-                    {...register("query")}
+                    {...register("identifier")}
                     placeholder="Enter VIN or JDM Chassis Code..."
                     className="bg-black border-amber-400/30 text-white placeholder:text-gray-500 pr-20"
                   />
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
-                    {query.length > 0 && (
+                    {identifier && identifier.length > 0 && (
                       <Badge variant="outline" className={`text-xs ${
                         isVIN ? 'border-blue-400 text-blue-400' : 
                         isChassisCode ? 'border-green-400 text-green-400' : 
