@@ -419,6 +419,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User location endpoint
+  app.post("/api/user/location", async (req, res) => {
+    try {
+      const { email, latitude, longitude, timestamp } = req.body;
+      
+      if (!email || !latitude || !longitude) {
+        return res.status(400).json({ error: "Email, latitude, and longitude are required" });
+      }
+
+      await storage.updateUserLocation(email, {
+        latitude: parseFloat(latitude),
+        longitude: parseFloat(longitude),
+        timestamp: timestamp || new Date().toISOString()
+      });
+
+      res.json({ success: true, message: "Location updated successfully" });
+    } catch (error) {
+      console.error("Error updating location:", error);
+      res.status(500).json({ error: "Failed to update location" });
+    }
+  });
+
   // Trial status endpoint
   app.get("/api/trial-status/:email", async (req, res) => {
     try {

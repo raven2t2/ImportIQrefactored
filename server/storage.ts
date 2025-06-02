@@ -22,6 +22,11 @@ export interface IStorage {
   createTrial(email: string, name: string, passwordHash?: string): Promise<any>;
   getTrialStatus(email: string): Promise<{ isActive: boolean; daysRemaining: number; status: string } | null>;
   getPasswordHash(email: string): Promise<string | null>;
+  updateTrialName(email: string, name: string): Promise<void>;
+  updateTrialEmail(currentEmail: string, newEmail: string): Promise<void>;
+  updateTrialPassword(email: string, passwordHash: string): Promise<void>;
+  updateTrialPhoto(email: string, photoUrl: string): Promise<void>;
+  updateUserLocation(email: string, location: { latitude: number; longitude: number; timestamp: string }): Promise<void>;
   getAllEmailCache(): Promise<any[]>;
   getAllTrials(): Promise<any[]>;
   createUserProject(userId: string, project: any): Promise<any>;

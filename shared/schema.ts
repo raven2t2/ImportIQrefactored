@@ -93,6 +93,9 @@ export const trials = pgTable("trials", {
   trialEndDate: timestamp("trial_end_date").notNull(),
   isActive: boolean("is_active").default(true).notNull(),
   subscriptionStatus: text("subscription_status").default("trial").notNull(), // trial, active, expired, cancelled
+  latitude: decimal("latitude", { precision: 10, scale: 8 }),
+  longitude: decimal("longitude", { precision: 11, scale: 8 }),
+  locationTimestamp: timestamp("location_timestamp"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
