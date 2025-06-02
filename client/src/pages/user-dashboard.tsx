@@ -444,12 +444,15 @@ export default function UserDashboard() {
                             </div>
                           </div>
                           <div className="mt-3 p-3 bg-blue-100 rounded-lg">
-                            <p className="text-xs text-blue-800 font-medium mb-1">💡 Import Strategy:</p>
-                            <p className="text-xs text-blue-800">
+                            <p className="text-xs text-blue-800 font-medium mb-1">💡 Smart Buying Tip:</p>
+                            <p className="text-xs text-blue-800 mb-2">
                               {marketData.exchangeRates.change24h > 0 
-                                ? 'Japanese cars are more expensive today due to weaker AUD. Consider US imports or wait for better rates.'
-                                : 'Great time for Japanese imports! The stronger AUD gives you more buying power for JDM vehicles.'}
+                                ? 'Japanese cars cost more AUD today. Consider waiting for better rates or explore US muscle cars.'
+                                : 'Excellent time to buy from Japan! Your AUD goes further on JDM classics and sports cars.'}
                             </p>
+                            <a href="/import-calculator" className="text-blue-600 underline text-xs hover:text-blue-800">
+                              Calculate your total import costs →
+                            </a>
                           </div>
                           <p className="text-xs text-blue-600 mt-2">Updated: {new Date(marketData.exchangeRates.timestamp).toLocaleDateString()}</p>
                         </div>
@@ -469,12 +472,15 @@ export default function UserDashboard() {
                           </div>
                         </div>
                         <div className="mt-3 p-3 bg-orange-100 rounded-lg">
-                          <p className="text-xs text-orange-800 font-medium mb-1">📦 Planning Tip:</p>
-                          <p className="text-xs text-orange-800">
+                          <p className="text-xs text-orange-800 font-medium mb-1">📦 Delivery Timeline:</p>
+                          <p className="text-xs text-orange-800 mb-2">
                             {marketData.shippingInsights.averageDeliveryDays <= 25 
-                              ? 'Faster than average shipping! Good time to place orders with quicker turnaround expected.'
-                              : 'Slower shipping period. Add 1-2 extra weeks to your timeline and communicate delays to buyers.'}
+                              ? 'Faster than usual! Your car could arrive sooner than expected. Great time to place an order.'
+                              : 'Expect longer delivery times. Plan for extra weeks when scheduling compliance and pickup.'}
                           </p>
+                          <a href="/timeline-tracker" className="text-orange-600 underline text-xs hover:text-orange-800">
+                            Track your import timeline →
+                          </a>
                         </div>
                         <p className="text-xs text-orange-600 mt-2">Updated: {marketData.shippingInsights.lastUpdated}</p>
                       </div>
@@ -485,9 +491,14 @@ export default function UserDashboard() {
                           <h3 className="font-semibold text-purple-900 mb-2">{update.title}</h3>
                           <p className="text-sm text-purple-700 mb-3">{update.summary}</p>
                           <div className="p-2 bg-purple-100 rounded text-xs text-purple-800">
-                            <strong>Action Required:</strong> {index === 0 
-                              ? 'Review ADR compliance for all vehicle imports to ensure safety standards are met.'
-                              : 'Check updated duty rates before finalizing any vehicle purchases to avoid unexpected costs.'}
+                            <strong>What this means for you:</strong> {index === 0 
+                              ? 'New safety requirements may affect your import. Use our BuildReady tool to check compliance for your specific vehicle.'
+                              : 'Import duties have changed. Use our cost calculator to get updated total import costs.'}
+                          </div>
+                          <div className="mt-2">
+                            <a href={index === 0 ? "/buildready" : "/import-calculator"} className="text-purple-600 underline text-xs hover:text-purple-800">
+                              {index === 0 ? "Check vehicle compliance →" : "Calculate new import costs →"}
+                            </a>
                           </div>
                           <p className="text-xs text-purple-600 mt-2">{update.source} • {update.date}</p>
                         </div>
