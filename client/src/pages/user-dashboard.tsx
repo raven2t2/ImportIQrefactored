@@ -1,15 +1,19 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Car, Calculator, Heart, Calendar, User, Camera, Settings, Plus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function UserDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
   const [showWatchlistForm, setShowWatchlistForm] = useState(false);
+  const queryClient = useQueryClient();
 
   // Your actual user credentials - personalized for you
   const userEmail = "mragland@driveimmaculate.com";
@@ -46,6 +50,17 @@ export default function UserDashboard() {
   const { data: savedReports = [] } = useQuery({
     queryKey: ["/api/user-reports", userEmail],
     queryFn: () => fetch(`/api/user-reports?email=${userEmail}`).then(res => res.json()),
+  });
+
+  // Watchlist mutation
+  const createWatchlistMutation = useMutation({
+    mutationFn: async (itemData: any) => {
+      return await apiRequest("POST", "/api/user/my-watchlist", itemData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/user/my-watchlist", userId] });
+      setShowWatchlistForm(false);
+    },
   });
 
   // Your personalized profile data
@@ -331,7 +346,24 @@ export default function UserDashboard() {
                       <p className="text-sm text-gray-600">Share your location to get notified about nearby car meets, track days, and mod workshops in your area</p>
                     </div>
                   </div>
-                  <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                  <Button 
+                    onClick={() => {
+                      if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(
+                          (position) => {
+                            // Location successfully obtained
+                            alert("Location enabled! You'll now see local car events and workshops in your area.");
+                          },
+                          (error) => {
+                            alert("Location access denied. You can still use all other features.");
+                          }
+                        );
+                      } else {
+                        alert("Geolocation is not supported by this browser.");
+                      }
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
                     Enable Location
                   </Button>
                 </div>
@@ -391,6 +423,51 @@ export default function UserDashboard() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Watchlist Form */}
+            {showWatchlistForm && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Add to Price Watchlist</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={(e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target as HTMLFormElement);
+                    createWatchlistMutation.mutate({
+                      userId,
+                      partName: formData.get('partName'),
+                      targetPrice: parseInt(formData.get('targetPrice') as string) || null,
+                      source: formData.get('source'),
+                      notes: formData.get('notes'),
+                    });
+                  }}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <Input name="partName" placeholder="Part Name (e.g., Front Bumper)" className="bg-white" required />
+                      <Input name="targetPrice" type="number" placeholder="Target Price ($)" className="bg-white" />
+                      <Input name="source" placeholder="Source (eBay, Yahoo JP, etc.)" className="bg-white" />
+                    </div>
+                    <Textarea name="notes" placeholder="Notes (vehicle, condition preferences, etc.)" className="bg-white mb-4" />
+                    <div className="flex space-x-2">
+                      <Button 
+                        type="submit" 
+                        className="bg-brand-gold hover:bg-brand-gold/90"
+                        disabled={createWatchlistMutation.isPending}
+                      >
+                        {createWatchlistMutation.isPending ? "Adding..." : "Add to Watchlist"}
+                      </Button>
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => setShowWatchlistForm(false)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </form>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Coming Soon Features */}
             <Card>
