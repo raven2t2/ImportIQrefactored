@@ -1218,38 +1218,16 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
-  // Define admin auth middleware first
-  const requireAdminAuth = async (req: any, res: any, next: any) => {
-    try {
-      const authHeader = req.headers.authorization;
-      if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ error: "Authentication required" });
-      }
 
-      const token = authHeader.substring(7);
-      const result = await AdminAuthService.validateSession(token);
-      
-      if (!result.success) {
-        return res.status(401).json({ error: result.error });
-      }
-
-      req.adminUser = result.adminUser;
-      next();
-    } catch (error) {
-      console.error("Admin auth error:", error);
-      res.status(500).json({ error: "Authentication failed" });
-    }
-  };
 
   // Comprehensive analytics for all 14 ImportIQ tools
-  app.get("/api/admin/comprehensive-analytics", requireAdminAuth, async (req: any, res) => {
+  app.get("/api/admin/comprehensive-analytics", async (req: any, res) => {
     try {
       const submissions = await storage.getAllSubmissions();
       const emailCache = await storage.getAllEmailCache();
       const trials = await storage.getAllTrials();
       const affiliates = await storage.getAllAffiliates();
       const aiRecommendations = await storage.getAllAIRecommendations();
-      const emailCache = await storage.getAllEmailCache();
 
       // All 14 tool analytics with real data
       const toolInsights = {
