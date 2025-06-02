@@ -90,7 +90,16 @@ export default function VehicleLookup() {
       if (data.success) {
         // Handle different response structures
         const resultData = data.result || data.data;
-        setResult(resultData);
+        // Map API response fields to expected frontend fields
+        const mappedResult = {
+          ...resultData,
+          yearRange: resultData.years,
+          complianceNotes: resultData.compliance_notes,
+          engine: resultData.engine,
+          type: data.type
+        };
+        setResult(mappedResult);
+        setAuctionData(data.auctionSamples || []);
       } else {
         toast({
           title: "Vehicle Not Found",
@@ -98,6 +107,7 @@ export default function VehicleLookup() {
           variant: "destructive",
         });
         setResult(null);
+        setAuctionData([]);
       }
     },
     onError: (error) => {
