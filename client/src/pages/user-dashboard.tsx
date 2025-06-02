@@ -106,9 +106,13 @@ export default function UserDashboard() {
                 <p className="text-gray-600">Your import garage dashboard</p>
               </div>
             </div>
-            <Button variant="outline" className="flex items-center space-x-2">
-              <Settings className="h-4 w-4" />
-              <span>Settings</span>
+            <Button 
+              variant="outline" 
+              onClick={handleLogout}
+              className="flex items-center space-x-2"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>Logout</span>
             </Button>
           </div>
         </div>
