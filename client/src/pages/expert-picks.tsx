@@ -220,7 +220,7 @@ export default function ExpertPicks() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          {!showPreferences ? (
+          {!showPreferences && (
             <Button 
               variant="ghost" 
               size="sm" 
@@ -230,13 +230,6 @@ export default function ExpertPicks() {
               <ArrowLeft className="h-4 w-4 mr-2" />
               New Search
             </Button>
-          ) : (
-            <Link href="/">
-              <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Dashboard
-              </Button>
-            </Link>
           )}
           <div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-amber-400 via-orange-500 to-red-500 bg-clip-text text-transparent">
