@@ -154,10 +154,14 @@ export default function BuildComply() {
     mutationFn: async () => {
       const reportData = {
         type: "compliance-report",
+        email: watch("email"),
         vehicle: watch("vehicle"),
         state: watch("state"),
         modifications: selectedMods,
         planType: watch("planType"),
+        riskLevel: getRiskLevel(),
+        estimatedCost: getEstimatedEngineeringCost(),
+        timeline: getEstimatedTimeline(),
         generatedAt: new Date().toISOString()
       };
       const response = await apiRequest("POST", "/api/save-report", reportData);
