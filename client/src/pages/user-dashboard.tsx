@@ -237,7 +237,7 @@ export default function UserDashboard() {
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <span>Recent Calculations</span>
-                  <Button size="sm" className="bg-brand-gold hover:bg-brand-gold/90">
+                  <Button size="sm" className="bg-brand-gold hover:bg-brand-gold/90" onClick={() => window.location.href = '/calculator'}>
                     <Plus className="h-4 w-4 mr-2" />
                     New Calculation
                   </Button>
@@ -450,7 +450,7 @@ export default function UserDashboard() {
                                 ? 'Japanese cars cost more AUD today. Consider waiting for better rates or explore US muscle cars.'
                                 : 'Excellent time to buy from Japan! Your AUD goes further on JDM classics and sports cars.'}
                             </p>
-                            <a href="/import-calculator" className="text-blue-600 underline text-xs hover:text-blue-800">
+                            <a href="/calculator" className="text-blue-600 underline text-xs hover:text-blue-800">
                               Calculate your total import costs →
                             </a>
                           </div>
@@ -478,7 +478,7 @@ export default function UserDashboard() {
                               ? 'Faster than usual! Your car could arrive sooner than expected. Great time to place an order.'
                               : 'Expect longer delivery times. Plan for extra weeks when scheduling compliance and pickup.'}
                           </p>
-                          <a href="/timeline-tracker" className="text-orange-600 underline text-xs hover:text-orange-800">
+                          <a href="/timeline" className="text-orange-600 underline text-xs hover:text-orange-800">
                             Track your import timeline →
                           </a>
                         </div>
@@ -496,7 +496,7 @@ export default function UserDashboard() {
                               : 'Import duties have changed. Use our cost calculator to get updated total import costs.'}
                           </div>
                           <div className="mt-2">
-                            <a href={index === 0 ? "/buildready" : "/import-calculator"} className="text-purple-600 underline text-xs hover:text-purple-800">
+                            <a href={index === 0 ? "/compliance" : "/calculator"} className="text-purple-600 underline text-xs hover:text-purple-800">
                               {index === 0 ? "Check vehicle compliance →" : "Calculate new import costs →"}
                             </a>
                           </div>
