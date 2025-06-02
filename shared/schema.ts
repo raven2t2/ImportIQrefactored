@@ -54,6 +54,7 @@ export const trials = pgTable("trials", {
   id: serial("id").primaryKey(),
   email: text("email").unique().notNull(),
   name: text("name").notNull(),
+  passwordHash: text("password_hash"),
   trialStartDate: timestamp("trial_start_date").defaultNow().notNull(),
   trialEndDate: timestamp("trial_end_date").notNull(),
   isActive: boolean("is_active").default(true).notNull(),

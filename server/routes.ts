@@ -5,6 +5,7 @@ import { insertSubmissionSchema, type CalculationResult } from "@shared/schema";
 import { z } from "zod";
 import OpenAI from "openai";
 import Stripe from "stripe";
+import bcrypt from "bcrypt";
 
 // Additional schemas for new tools
 const valueEstimatorSchema = z.object({
