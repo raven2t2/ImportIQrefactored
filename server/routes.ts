@@ -2606,9 +2606,11 @@ Respond with a JSON object containing your recommendations.`;
   // Vehicle Lookup endpoint
   app.post("/api/vehicle-lookup", async (req, res) => {
     try {
+      console.log("Vehicle lookup request body:", req.body);
       const { query } = req.body;
       
       if (!query || typeof query !== 'string') {
+        console.log("Validation failed - query:", query, "type:", typeof query);
         return res.status(400).json({ success: false, message: "Query is required" });
       }
 
