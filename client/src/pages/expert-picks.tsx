@@ -37,420 +37,474 @@ interface ExpertPick {
   imageUrl?: string;
 }
 
-const expertPicks: ExpertPick[] = [
-  {
-    id: "1",
-    make: "Nissan",
-    model: "Skyline R32 GT-R",
-    year: "1989-1994",
-    category: "Legends",
-    expertRating: 9.2,
-    importDifficulty: "Medium",
-    estimatedCost: 85000,
-    popularity: 95,
-    reasons: ["Iconic status", "Strong aftermarket", "Investment potential"],
-    pros: ["Legendary performance", "Strong community", "Appreciating value"],
-    cons: ["High maintenance", "Parts can be expensive", "Right-hand drive only"],
-    expertTip: "Look for examples with documented service history. The RB26 engine is bulletproof when maintained properly.",
-    expertName: "Marcus Chen"
-  },
-  {
-    id: "2",
-    make: "Toyota",
-    model: "Supra A80",
-    year: "1993-1998",
-    category: "Performance",
-    expertRating: 9.5,
-    importDifficulty: "Medium",
-    estimatedCost: 120000,
-    popularity: 98,
-    reasons: ["2JZ engine potential", "Timeless design", "Pop culture icon"],
-    pros: ["Legendary engine", "Excellent build quality", "Strong resale"],
-    cons: ["Very expensive", "Hard to find clean examples", "High insurance"],
-    expertTip: "The 2JZ-GTE engine can handle massive power. Focus on finding rust-free examples over low mileage.",
-    expertName: "David Kim"
-  },
-  {
-    id: "3",
-    make: "Honda",
-    model: "NSX NA1/NA2",
-    year: "1990-2005",
-    category: "Supercars",
-    expertRating: 9.0,
-    importDifficulty: "Hard",
-    estimatedCost: 180000,
-    popularity: 88,
-    reasons: ["F1 heritage", "Daily usable supercar", "Honda reliability"],
-    pros: ["Supercar performance", "Honda reliability", "Excellent handling"],
-    cons: ["Very expensive", "Limited availability", "Complex maintenance"],
-    expertTip: "Early cars (1990-1996) are more affordable. Check for timing belt service - it's critical on these engines.",
-    expertName: "Sarah Mitchell"
-  },
-  {
-    id: "4",
-    make: "Mazda",
-    model: "RX-7 FD3S",
-    year: "1992-2002",
-    category: "Enthusiast",
-    expertRating: 8.8,
-    importDifficulty: "Hard",
-    estimatedCost: 65000,
-    popularity: 92,
-    reasons: ["Rotary engine unique", "Perfect weight balance", "Racing pedigree"],
-    pros: ["Unique rotary engine", "Exceptional handling", "Affordable entry"],
-    cons: ["Rotary maintenance", "Not reliable daily driver", "Fuel consumption"],
-    expertTip: "Find an expert rotary mechanic before buying. These engines need specialized knowledge and frequent maintenance.",
-    expertName: "Tom Rodriguez"
-  },
-  {
-    id: "5",
-    make: "Subaru",
-    model: "Impreza STI (22B)",
-    year: "1998",
-    category: "Rally Legends",
-    expertRating: 9.8,
-    importDifficulty: "Hard",
-    estimatedCost: 250000,
-    popularity: 85,
-    reasons: ["Ultra rare", "Rally heritage", "Perfect condition examples"],
-    pros: ["Extreme rarity", "Rally DNA", "Collector status"],
-    cons: ["Extremely expensive", "Very hard to find", "High maintenance"],
-    expertTip: "Only 424 were made. Verify authenticity carefully - many replicas exist. Documentation is everything.",
-    expertName: "Mike Johnson"
-  },
-  {
-    id: "6",
-    make: "Mitsubishi",
-    model: "Lancer Evolution IV-IX",
-    year: "1996-2006",
-    category: "Performance",
-    expertRating: 8.7,
-    importDifficulty: "Medium",
-    estimatedCost: 45000,
-    popularity: 89,
-    reasons: ["Rally heritage", "AWD system", "Modification potential"],
-    pros: ["Advanced AWD", "Strong aftermarket", "Rally proven"],
-    cons: ["Harsh ride", "Interior quality", "Maintenance intensive"],
-    expertTip: "Evolution VI is the sweet spot for value and performance. Check for rust in rear quarters.",
-    expertName: "James Lee"
-  }
-];
-
-const categories = ["All", "Legends", "Performance", "Supercars", "Enthusiast", "Rally Legends"];
-
 export default function ExpertPicks() {
+  const [showPreferences, setShowPreferences] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState("rating");
-  const [budget, setBudget] = useState("");
-  const [experience, setExperience] = useState("");
-  const [showPreferences, setShowPreferences] = useState(true);
+  const [userBudget, setUserBudget] = useState("");
+  const [userExperience, setUserExperience] = useState("");
 
-  const filteredPicks = expertPicks
-    .filter(pick => {
-      // Only show picks that match category filter
-      const categoryMatch = selectedCategory === "All" || pick.category === selectedCategory;
-      
-      // Only show picks within budget if budget is specified
-      const budgetMatch = !budget || pick.estimatedCost <= parseInt(budget);
-      
-      return categoryMatch && budgetMatch;
-    })
-    .sort((a, b) => {
-      if (sortBy === "rating") return b.expertRating - a.expertRating;
-      if (sortBy === "cost") return a.estimatedCost - b.estimatedCost;
-      if (sortBy === "popularity") return b.popularity - a.popularity;
-      return 0;
+  const categories = ["All", "Sports Cars", "SUVs", "Sedans", "Wagons", "Trucks", "Classics"];
+
+  // Expert picks data with realistic Australian import costs
+  const expertPicks: ExpertPick[] = [
+    {
+      id: "1",
+      make: "Toyota",
+      model: "Supra RZ",
+      year: "1997",
+      category: "Sports Cars",
+      expertRating: 4.8,
+      importDifficulty: "Medium",
+      estimatedCost: 45000,
+      popularity: 95,
+      reasons: ["Legendary 2JZ engine", "Strong aftermarket support", "Proven reliability"],
+      pros: ["Massive tuning potential", "Parts readily available", "Strong resale value"],
+      cons: ["High purchase price", "Finding unmolested examples difficult"],
+      expertTip: "Look for factory twin-turbo models with service history. Avoid heavily modified examples for first-time imports.",
+      expertName: "Michael Chen",
+      imageUrl: "/api/placeholder/400/250"
+    },
+    {
+      id: "2", 
+      make: "Nissan",
+      model: "Skyline GT-R",
+      year: "1999",
+      category: "Sports Cars",
+      expertRating: 4.9,
+      importDifficulty: "Hard",
+      estimatedCost: 65000,
+      popularity: 98,
+      reasons: ["AWD system", "RB26 engine", "Racing heritage"],
+      pros: ["Exceptional performance", "Collector value increasing", "Track-proven"],
+      cons: ["Expensive maintenance", "Complex AWD system", "High insurance costs"],
+      expertTip: "V-Spec models command premium but worth it. Check for rust in rear quarters and service history.",
+      expertName: "Sarah Williams",
+      imageUrl: "/api/placeholder/400/250"
+    },
+    {
+      id: "3",
+      make: "Honda",
+      model: "NSX Type R",
+      year: "1995",
+      category: "Sports Cars", 
+      expertRating: 4.7,
+      importDifficulty: "Medium",
+      estimatedCost: 85000,
+      popularity: 88,
+      reasons: ["Mid-engine layout", "Honda reliability", "Track-focused"],
+      pros: ["Daily driveable supercar", "Appreciating asset", "Low maintenance"],
+      cons: ["Limited cargo space", "Very expensive", "Hard to find"],
+      expertTip: "Type R variants are investment grade. Regular NSX still excellent choice for half the price.",
+      expertName: "David Park",
+      imageUrl: "/api/placeholder/400/250"
+    },
+    {
+      id: "4",
+      make: "Mitsubishi",
+      model: "Lancer Evolution VI",
+      year: "2000",
+      category: "Sedans",
+      expertRating: 4.6,
+      importDifficulty: "Easy",
+      estimatedCost: 35000,
+      popularity: 92,
+      reasons: ["Rally-bred AWD", "Practical 4-door", "Tuneable 4G63"],
+      pros: ["Practical daily driver", "Strong community", "Parts available"],
+      cons: ["Interior quality", "Fuel consumption", "Can be modified heavily"],
+      expertTip: "VI is sweet spot for price/performance. Check for rust and verify engine rebuild history.",
+      expertName: "Alex Thompson",
+      imageUrl: "/api/placeholder/400/250"
+    },
+    {
+      id: "5",
+      make: "Subaru",
+      model: "Impreza WRX STI",
+      year: "1998",
+      category: "Sedans",
+      expertRating: 4.5,
+      importDifficulty: "Easy", 
+      estimatedCost: 28000,
+      popularity: 89,
+      reasons: ["Boxer engine", "Rally heritage", "AWD grip"],
+      pros: ["Reliable platform", "Great in all conditions", "Strong aftermarket"],
+      cons: ["Interior wear", "Rust issues", "Engine rebuild intervals"],
+      expertTip: "22B is holy grail but any Version 5/6 STI is excellent. Check for rust in rear arches.",
+      expertName: "Emma Rodriguez",
+      imageUrl: "/api/placeholder/400/250"
+    },
+    {
+      id: "6",
+      make: "Mazda",
+      model: "RX-7 Type R",
+      year: "1999",
+      category: "Sports Cars",
+      expertRating: 4.4,
+      importDifficulty: "Hard",
+      estimatedCost: 42000,
+      popularity: 85,
+      reasons: ["Rotary engine", "Perfect balance", "Unique character"],
+      pros: ["Incredible handling", "Lightweight", "Distinctive sound"],
+      cons: ["Engine rebuilds needed", "Fuel consumption", "Requires expertise"],
+      expertTip: "Buy the best example you can afford. Budget for engine rebuild within 100k km.",
+      expertName: "James Liu",
+      imageUrl: "/api/placeholder/400/250"
+    }
+  ];
+
+  // Filter picks based on user preferences
+  const getFilteredPicks = () => {
+    if (showPreferences) return [];
+    
+    let filtered = expertPicks;
+    
+    // Filter by budget if provided
+    if (userBudget) {
+      const budgetNum = parseInt(userBudget);
+      filtered = filtered.filter(pick => pick.estimatedCost <= budgetNum);
+    }
+    
+    // Filter by experience level
+    if (userExperience) {
+      if (userExperience === "beginner") {
+        filtered = filtered.filter(pick => pick.importDifficulty === "Easy");
+      } else if (userExperience === "intermediate") {
+        filtered = filtered.filter(pick => pick.importDifficulty === "Easy" || pick.importDifficulty === "Medium");
+      }
+      // Advanced users see all difficulty levels
+    }
+    
+    // Filter by category
+    if (selectedCategory !== "All") {
+      filtered = filtered.filter(pick => pick.category === selectedCategory);
+    }
+    
+    // Sort the results
+    return filtered.sort((a, b) => {
+      switch (sortBy) {
+        case "rating":
+          return b.expertRating - a.expertRating;
+        case "cost":
+          return a.estimatedCost - b.estimatedCost;
+        case "difficulty":
+          const difficultyOrder = { "Easy": 1, "Medium": 2, "Hard": 3 };
+          return difficultyOrder[a.importDifficulty] - difficultyOrder[b.importDifficulty];
+        case "popularity":
+          return b.popularity - a.popularity;
+        default:
+          return 0;
+      }
     });
+  };
+
+  const filteredPicks = getFilteredPicks();
+
+  const handlePreferencesSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (userBudget && userExperience) {
+      setShowPreferences(false);
+    }
+  };
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case "Easy": return "bg-green-500/20 text-green-400 border-green-500/30";
-      case "Medium": return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
+      case "Medium": return "bg-amber-500/20 text-amber-400 border-amber-500/30";
       case "Hard": return "bg-red-500/20 text-red-400 border-red-500/30";
       default: return "bg-gray-500/20 text-gray-400 border-gray-500/30";
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-AU', {
-      style: 'currency',
-      currency: 'AUD',
-      maximumFractionDigits: 0
-    }).format(amount);
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
+      <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <Link to="/dashboard">
-              <Button variant="ghost" size="sm" className="text-white hover:bg-white/10">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Dashboard
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-                <Star className="h-8 w-8 text-amber-400" />
-                Expert Vehicle Picks
-              </h1>
-              <p className="text-gray-300 mt-2">Top-tier selections from seasoned import professionals</p>
-            </div>
+        <div className="flex items-center gap-4 mb-8">
+          <Link href="/">
+            <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Dashboard
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-amber-400 via-orange-500 to-red-500 bg-clip-text text-transparent">
+              Expert Picks
+            </h1>
+            <p className="text-gray-400 mt-2">Curated recommendations from import professionals</p>
           </div>
-          <Badge variant="secondary" className="bg-amber-400/20 text-amber-400 border-amber-400/30">
-            Expert Curation
-          </Badge>
         </div>
 
-        {/* Budget & Preferences Input */}
+        {/* User Preferences Form */}
         {showPreferences && (
-          <Card className="mb-8 bg-gray-800/50 border-gray-700">
+          <Card className="bg-black/40 border-gray-700 mb-8">
             <CardHeader>
-              <CardTitle className="text-white">Your Preferences</CardTitle>
-              <CardDescription>Tell us your budget and experience level for personalized recommendations</CardDescription>
+              <CardTitle className="text-white flex items-center gap-2">
+                <Users className="h-5 w-5 text-amber-400" />
+                Tell Us About Your Import Goals
+              </CardTitle>
+              <CardDescription className="text-gray-400">
+                Help us recommend vehicles that match your budget and experience level
+              </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="budget" className="text-gray-300">Budget (AUD)</Label>
-                  <Input
-                    id="budget"
-                    type="number"
-                    placeholder="e.g. 50000"
-                    value={budget}
-                    onChange={(e) => setBudget(e.target.value)}
-                    className="bg-gray-700 border-gray-600 text-white"
-                  />
+            <CardContent>
+              <form onSubmit={handlePreferencesSubmit} className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="budget" className="text-white">Maximum Budget (AUD)</Label>
+                    <Input
+                      id="budget"
+                      type="number"
+                      placeholder="e.g., 50000"
+                      value={userBudget}
+                      onChange={(e) => setUserBudget(e.target.value)}
+                      className="bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="experience" className="text-white">Import Experience</Label>
+                    <Select value={userExperience} onValueChange={setUserExperience} required>
+                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                        <SelectValue placeholder="Select your experience level" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="beginner">Beginner - First time importing</SelectItem>
+                        <SelectItem value="intermediate">Intermediate - Some experience</SelectItem>
+                        <SelectItem value="advanced">Advanced - Very experienced</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-                <div>
-                  <Label htmlFor="experience" className="text-gray-300">Experience Level</Label>
-                  <Select value={experience} onValueChange={setExperience}>
-                    <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
-                      <SelectValue placeholder="Select experience" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-600">
-                      <SelectItem value="beginner">Beginner</SelectItem>
-                      <SelectItem value="intermediate">Intermediate</SelectItem>
-                      <SelectItem value="expert">Expert</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex items-end">
-                  <Button 
-                    onClick={() => setShowPreferences(false)}
-                    className="w-full bg-yellow-600 hover:bg-yellow-700"
-                  >
-                    Get Recommendations
-                  </Button>
-                </div>
-              </div>
+                <Button 
+                  type="submit" 
+                  className="w-full bg-amber-400 text-black hover:bg-amber-500 font-medium"
+                  disabled={!userBudget || !userExperience}
+                >
+                  <Zap className="h-4 w-4 mr-2" />
+                  Get My Personalized Recommendations
+                </Button>
+              </form>
             </CardContent>
           </Card>
         )}
 
-        {/* Filters - Only show after preferences submitted */}
+        {/* Recommendations Section - Only show after preferences submitted */}
         {!showPreferences && (
-          <div className="flex flex-wrap gap-4 mb-8">
-          <div className="flex gap-2">
-            {categories.map((category) => (
-              <Button
-                key={category}
-                variant={selectedCategory === category ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedCategory(category)}
-                className={`rounded-full ${
-                  selectedCategory === category 
-                    ? "bg-amber-400 text-black hover:bg-amber-500" 
-                    : "border-gray-600 text-gray-300 hover:bg-gray-800"
-                }`}
-              >
-                {category}
-              </Button>
-            ))}
-          </div>
-          
-          <div className="flex gap-2 ml-auto">
-            <Button
-              variant={sortBy === "rating" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSortBy("rating")}
-              className={sortBy === "rating" ? "bg-amber-400 text-black" : "border-gray-600 text-gray-300"}
-            >
-              <Star className="h-4 w-4 mr-1" />
-              Rating
-            </Button>
-            <Button
-              variant={sortBy === "cost" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSortBy("cost")}
-              className={sortBy === "cost" ? "bg-amber-400 text-black" : "border-gray-600 text-gray-300"}
-            >
-              <DollarSign className="h-4 w-4 mr-1" />
-              Cost
-            </Button>
-            <Button
-              variant={sortBy === "popularity" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSortBy("popularity")}
-              className={sortBy === "popularity" ? "bg-amber-400 text-black" : "border-gray-600 text-gray-300"}
-            >
-              <TrendingUp className="h-4 w-4 mr-1" />
-              Popularity
-            </Button>
-          </div>
-        </div>
-        )}
+          <>
+            {/* Filters */}
+            <div className="flex flex-wrap gap-4 mb-8">
+              <div className="flex gap-2">
+                {categories.map((category) => (
+                  <Button
+                    key={category}
+                    variant={selectedCategory === category ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSelectedCategory(category)}
+                    className={`rounded-full ${
+                      selectedCategory === category 
+                        ? "bg-amber-400 text-black hover:bg-amber-500" 
+                        : "border-gray-600 text-gray-300 hover:bg-gray-800"
+                    }`}
+                  >
+                    {category}
+                  </Button>
+                ))}
+              </div>
 
-        {/* Expert Picks Grid - Only show after preferences submitted */}
-        {!showPreferences && (
-        <div className="grid lg:grid-cols-2 gap-6">
-          {filteredPicks.map((pick) => (
-            <Card key={pick.id} className="bg-black/40 border-gray-700 hover:border-amber-400/50 transition-colors">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-white text-xl">
-                      {pick.make} {pick.model}
-                    </CardTitle>
-                    <CardDescription className="text-gray-400">
-                      {pick.year} • {pick.category}
-                    </CardDescription>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center bg-amber-400/20 px-2 py-1 rounded-full">
-                      <Star className="h-4 w-4 text-amber-400 mr-1" />
-                      <span className="text-amber-400 font-bold">{pick.expertRating}</span>
-                    </div>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Key Stats */}
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="text-center">
-                    <div className="text-gray-400 text-xs">Import Difficulty</div>
-                    <Badge variant="outline" className={getDifficultyColor(pick.importDifficulty)}>
-                      {pick.importDifficulty}
-                    </Badge>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-gray-400 text-xs">Est. Total Cost</div>
-                    <div className="text-white font-bold">{formatCurrency(pick.estimatedCost)}</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-gray-400 text-xs">Popularity</div>
-                    <div className="flex items-center justify-center">
-                      <Users className="h-4 w-4 text-gray-400 mr-1" />
-                      <span className="text-white font-bold">{pick.popularity}%</span>
-                    </div>
-                  </div>
-                </div>
+              <div className="flex gap-2">
+                <Button
+                  variant={sortBy === "rating" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSortBy("rating")}
+                  className={sortBy === "rating" ? "bg-amber-400 text-black" : "border-gray-600 text-gray-300"}
+                >
+                  <Star className="h-4 w-4 mr-1" />
+                  Rating
+                </Button>
+                <Button
+                  variant={sortBy === "difficulty" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSortBy("difficulty")}
+                  className={sortBy === "difficulty" ? "bg-amber-400 text-black" : "border-gray-600 text-gray-300"}
+                >
+                  <Shield className="h-4 w-4 mr-1" />
+                  Difficulty
+                </Button>
+                <Button
+                  variant={sortBy === "cost" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSortBy("cost")}
+                  className={sortBy === "cost" ? "bg-amber-400 text-black" : "border-gray-600 text-gray-300"}
+                >
+                  <DollarSign className="h-4 w-4 mr-1" />
+                  Cost
+                </Button>
+                <Button
+                  variant={sortBy === "popularity" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSortBy("popularity")}
+                  className={sortBy === "popularity" ? "bg-amber-400 text-black" : "border-gray-600 text-gray-300"}
+                >
+                  <TrendingUp className="h-4 w-4 mr-1" />
+                  Popularity
+                </Button>
+              </div>
+            </div>
 
-                {/* Why Experts Pick This */}
-                <div>
-                  <div className="text-white font-medium mb-2">Why Experts Pick This:</div>
-                  <div className="flex flex-wrap gap-2">
-                    {pick.reasons.map((reason, index) => (
-                      <Badge key={index} variant="outline" className="bg-blue-500/20 text-blue-400 border-blue-500/30">
-                        {reason}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Pros and Cons */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <div className="text-green-400 font-medium mb-2 flex items-center">
-                      <Shield className="h-4 w-4 mr-1" />
-                      Pros
-                    </div>
-                    <ul className="space-y-1">
-                      {pick.pros.map((pro, index) => (
-                        <li key={index} className="text-gray-300 text-sm flex items-start">
-                          <span className="text-green-400 mr-2">•</span>
-                          {pro}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <div className="text-red-400 font-medium mb-2 flex items-center">
-                      <Clock className="h-4 w-4 mr-1" />
-                      Cons
-                    </div>
-                    <ul className="space-y-1">
-                      {pick.cons.map((con, index) => (
-                        <li key={index} className="text-gray-300 text-sm flex items-start">
-                          <span className="text-red-400 mr-2">•</span>
-                          {con}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                {/* Expert Tip */}
-                <div className="bg-amber-400/10 border border-amber-400/30 rounded-lg p-4">
-                  <div className="flex items-start gap-3">
-                    <Award className="h-5 w-5 text-amber-400 mt-0.5" />
-                    <div>
-                      <div className="text-amber-400 font-medium">Expert Tip from {pick.expertName}</div>
-                      <div className="text-gray-300 text-sm mt-1">{pick.expertTip}</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex gap-2 pt-2">
-                  <Link to="/true-cost-explorer" className="flex-1">
-                    <Button variant="outline" className="w-full border-gray-600 text-gray-300 hover:bg-gray-800">
-                      <Calculator className="h-4 w-4 mr-2" />
-                      Calculate Costs
-                    </Button>
-                  </Link>
-                  <Link to="/buildready" className="flex-1">
-                    <Button variant="outline" className="w-full border-gray-600 text-gray-300 hover:bg-gray-800">
-                      <Shield className="h-4 w-4 mr-2" />
-                      Check Compliance
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Expert Disclaimer */}
-        <div className="mt-12 bg-gray-800/50 border border-gray-700 rounded-lg p-6">
-          <div className="flex items-start gap-3">
-            <Star className="h-6 w-6 text-amber-400 mt-1" />
-            <div>
-              <h3 className="text-white font-bold text-lg mb-2">About Our Expert Picks</h3>
-              <p className="text-gray-300 mb-4">
-                Our expert picks are curated by experienced import professionals with decades of combined experience. 
-                These recommendations are based on factors including reliability, parts availability, modification potential, 
-                resale value, and overall ownership experience.
+            {/* Results Summary */}
+            <div className="mb-6">
+              <p className="text-gray-400">
+                Showing {filteredPicks.length} recommendations for your budget of ${parseInt(userBudget || "0").toLocaleString()} AUD
+                {userExperience && ` • ${userExperience} level`}
               </p>
-              <div className="grid md:grid-cols-3 gap-4 text-sm">
+            </div>
+
+            {/* Expert Picks Grid */}
+            <div className="grid lg:grid-cols-2 gap-6">
+              {filteredPicks.map((pick) => (
+                <Card key={pick.id} className="bg-black/40 border-gray-700 hover:border-amber-400/50 transition-colors">
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <CardTitle className="text-white text-xl">
+                          {pick.make} {pick.model}
+                        </CardTitle>
+                        <CardDescription className="text-gray-400">
+                          {pick.year} • {pick.category}
+                        </CardDescription>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center bg-amber-400/20 px-2 py-1 rounded-full">
+                          <Star className="h-4 w-4 text-amber-400 mr-1" />
+                          <span className="text-amber-400 font-bold">{pick.expertRating}</span>
+                        </div>
+                        <Badge className={getDifficultyColor(pick.importDifficulty)}>
+                          {pick.importDifficulty}
+                        </Badge>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="text-2xl font-bold text-white">
+                        ${pick.estimatedCost.toLocaleString()}
+                      </div>
+                      <div className="flex items-center text-gray-400">
+                        <TrendingUp className="h-4 w-4 mr-1" />
+                        {pick.popularity}% popularity
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="text-amber-400 font-medium mb-2">Why Experts Recommend</h4>
+                      <ul className="text-gray-300 text-sm space-y-1">
+                        {pick.reasons.map((reason, index) => (
+                          <li key={index} className="flex items-start">
+                            <span className="text-amber-400 mr-2">•</span>
+                            {reason}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <h5 className="text-green-400 font-medium text-sm mb-1">Pros</h5>
+                        <ul className="text-gray-300 text-xs space-y-1">
+                          {pick.pros.slice(0, 2).map((pro, index) => (
+                            <li key={index}>• {pro}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <h5 className="text-red-400 font-medium text-sm mb-1">Cons</h5>
+                        <ul className="text-gray-300 text-xs space-y-1">
+                          {pick.cons.slice(0, 2).map((con, index) => (
+                            <li key={index}>• {con}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="bg-gray-800/50 p-3 rounded-lg">
+                      <div className="flex items-start gap-2">
+                        <Award className="h-4 w-4 text-amber-400 mt-0.5" />
+                        <div>
+                          <div className="text-amber-400 text-sm font-medium">Expert Tip</div>
+                          <div className="text-gray-300 text-sm">{pick.expertTip}</div>
+                          <div className="text-gray-500 text-xs mt-1">— {pick.expertName}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2 pt-2">
+                      <Link href="/true-cost-explorer">
+                        <Button size="sm" className="bg-amber-400 text-black hover:bg-amber-500">
+                          <Calculator className="h-4 w-4 mr-1" />
+                          Calculate Costs
+                        </Button>
+                      </Link>
+                      <Link href="/compliance-checker">
+                        <Button size="sm" variant="outline" className="border-gray-600 text-gray-300">
+                          <Shield className="h-4 w-4 mr-1" />
+                          Check Compliance
+                        </Button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* No Results Message */}
+            {filteredPicks.length === 0 && (
+              <Card className="bg-black/40 border-gray-700 text-center py-12">
+                <CardContent>
+                  <div className="text-gray-400 mb-4">
+                    <Clock className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <h3 className="text-lg font-medium text-white mb-2">No vehicles found</h3>
+                    <p>Try adjusting your budget or experience level to see more recommendations.</p>
+                  </div>
+                  <Button 
+                    onClick={() => setShowPreferences(true)}
+                    className="bg-amber-400 text-black hover:bg-amber-500"
+                  >
+                    Update Preferences
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Expert Disclaimer */}
+            <div className="mt-12 bg-gray-800/50 border border-gray-700 rounded-lg p-6">
+              <div className="flex items-start gap-3">
+                <Star className="h-6 w-6 text-amber-400 mt-1" />
                 <div>
-                  <div className="text-amber-400 font-medium">Expert Panel</div>
-                  <div className="text-gray-400">6 seasoned professionals</div>
-                </div>
-                <div>
-                  <div className="text-amber-400 font-medium">Experience</div>
-                  <div className="text-gray-400">Combined 50+ years</div>
-                </div>
-                <div>
-                  <div className="text-amber-400 font-medium">Updates</div>
-                  <div className="text-gray-400">Monthly market reviews</div>
+                  <h3 className="text-white font-bold text-lg mb-2">About Our Expert Picks</h3>
+                  <p className="text-gray-300 mb-4">
+                    Our expert picks are curated by experienced import professionals with decades of combined experience. 
+                    These recommendations are based on factors including reliability, parts availability, modification potential, 
+                    resale value, and overall ownership experience.
+                  </p>
+                  <div className="grid md:grid-cols-3 gap-4 text-sm">
+                    <div>
+                      <div className="text-amber-400 font-medium">Expert Panel</div>
+                      <div className="text-gray-400">6 seasoned professionals</div>
+                    </div>
+                    <div>
+                      <div className="text-amber-400 font-medium">Experience</div>
+                      <div className="text-gray-400">Combined 50+ years</div>
+                    </div>
+                    <div>
+                      <div className="text-amber-400 font-medium">Updates</div>
+                      <div className="text-gray-400">Monthly market reviews</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
     </div>
   );
