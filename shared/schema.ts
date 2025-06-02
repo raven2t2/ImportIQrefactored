@@ -8,6 +8,32 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
 });
 
+// Admin users table for secure admin access
+export const adminUsers = pgTable("admin_users", {
+  id: serial("id").primaryKey(),
+  username: text("username").notNull().unique(),
+  email: text("email").notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  role: text("role").notNull().default("admin"), // super_admin, admin, viewer
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  isActive: boolean("is_active").default(true),
+  lastLogin: timestamp("last_login"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Admin sessions for secure session management
+export const adminSessions = pgTable("admin_sessions", {
+  id: serial("id").primaryKey(),
+  adminUserId: integer("admin_user_id").notNull(),
+  sessionToken: text("session_token").notNull().unique(),
+  expiresAt: timestamp("expires_at").notNull(),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const submissions = pgTable("submissions", {
   id: serial("id").primaryKey(),
   fullName: text("full_name").notNull(),
@@ -296,6 +322,12 @@ export type ReferralSignup = typeof referralSignups.$inferSelect;
 export type InsertReferralSignup = typeof referralSignups.$inferInsert;
 export type PayoutRequest = typeof payoutRequests.$inferSelect;
 export type InsertPayoutRequest = typeof payoutRequests.$inferInsert;
+
+export type AdminUser = typeof adminUsers.$inferSelect;
+export type InsertAdminUser = typeof adminUsers.$inferInsert;
+
+export type AdminSession = typeof adminSessions.$inferSelect;
+export type InsertAdminSession = typeof adminSessions.$inferInsert;
 
 export type VehicleBuild = typeof vehicleBuilds.$inferSelect;
 export type InsertVehicleBuild = typeof vehicleBuilds.$inferInsert;
