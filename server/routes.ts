@@ -1215,6 +1215,119 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
+  // Enhanced business analytics endpoint
+  app.get("/api/admin/business-insights", async (req, res) => {
+    try {
+      const submissions = await storage.getAllSubmissions();
+      const trials = await storage.getAllTrials();
+      const emailCache = await storage.getAllEmailCache();
+
+      // Calculate business metrics
+      const totalImportValue = submissions.reduce((sum, sub) => sum + parseFloat(sub.totalCost || "0"), 0);
+      const avgImportValue = submissions.length > 0 ? totalImportValue / submissions.length : 0;
+      
+      // Service tier analysis
+      const tierDistribution = submissions.reduce((acc, sub) => {
+        acc[sub.serviceTier] = (acc[sub.serviceTier] || 0) + 1;
+        return acc;
+      }, {});
+
+      // Market analysis
+      const originDistribution = submissions.reduce((acc, sub) => {
+        acc[sub.shippingOrigin] = (acc[sub.shippingOrigin] || 0) + 1;
+        return acc;
+      }, {});
+
+      // Time-based analysis
+      const now = new Date();
+      const thisWeek = submissions.filter(sub => {
+        const submissionDate = new Date(sub.createdAt);
+        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        return submissionDate > weekAgo;
+      });
+
+      const thisMonth = submissions.filter(sub => {
+        const submissionDate = new Date(sub.createdAt);
+        return submissionDate.getMonth() === now.getMonth() && 
+               submissionDate.getFullYear() === now.getFullYear();
+      });
+
+      // Conversion metrics
+      const conversionRate = emailCache.length > 0 ? (trials.filter(t => t.isActive).length / emailCache.length) * 100 : 0;
+      
+      // Top performing metrics
+      const topTier = Object.entries(tierDistribution).sort(([,a], [,b]) => b - a)[0]?.[0] || "N/A";
+      const topOrigin = Object.entries(originDistribution).sort(([,a], [,b]) => b - a)[0]?.[0] || "N/A";
+
+      // Growth metrics
+      const lastWeekSubmissions = submissions.filter(sub => {
+        const submissionDate = new Date(sub.createdAt);
+        const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+        const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        return submissionDate > twoWeeksAgo && submissionDate <= oneWeekAgo;
+      });
+
+      const weeklyGrowth = lastWeekSubmissions.length > 0 ? 
+        ((thisWeek.length - lastWeekSubmissions.length) / lastWeekSubmissions.length) * 100 : 0;
+
+      res.json({
+        financialMetrics: {
+          totalImportValue,
+          avgImportValue,
+          potentialCommission: totalImportValue * 0.05, // 5% commission estimate
+          estimatedLifetimeValue: avgImportValue * 1.3 // Repeat customer factor
+        },
+        userEngagement: {
+          conversionRate,
+          totalUsers: emailCache.length,
+          activeTrials: trials.filter(t => t.isActive).length,
+          trialConversionRate: trials.length > 0 ? (trials.filter(t => t.isActive).length / trials.length) * 100 : 0
+        },
+        marketInsights: {
+          topServiceTier: topTier,
+          topImportOrigin: topOrigin,
+          tierDistribution,
+          originDistribution
+        },
+        timeBasedMetrics: {
+          thisWeekSubmissions: thisWeek.length,
+          thisMonthSubmissions: thisMonth.length,
+          weeklyGrowthRate: weeklyGrowth,
+          avgDailySubmissions: thisWeek.length / 7
+        },
+        actionableInsights: [
+          {
+            metric: "Top Service Tier",
+            value: topTier,
+            insight: `${topTier} service is most popular - consider promoting premium features`,
+            priority: "high"
+          },
+          {
+            metric: "Import Market Focus",
+            value: topOrigin.toUpperCase(),
+            insight: `${topOrigin.toUpperCase()} market shows strong demand - expand partnerships`,
+            priority: "medium"
+          },
+          {
+            metric: "Conversion Opportunity",
+            value: `${conversionRate.toFixed(1)}%`,
+            insight: conversionRate < 15 ? "Low conversion rate - optimize trial experience" : "Good conversion rate - scale marketing",
+            priority: conversionRate < 15 ? "high" : "low"
+          },
+          {
+            metric: "Weekly Growth",
+            value: `${weeklyGrowth > 0 ? '+' : ''}${weeklyGrowth.toFixed(1)}%`,
+            insight: weeklyGrowth > 0 ? "Positive growth trend - maintain momentum" : "Negative growth - review marketing strategy",
+            priority: weeklyGrowth < 0 ? "high" : "medium"
+          }
+        ]
+      });
+    } catch (error) {
+      console.error("Error fetching business insights:", error);
+      res.status(500).json({ error: "Failed to fetch business insights" });
+    }
+  });
+
   // Stripe subscription endpoint
   app.post("/api/create-subscription", async (req, res) => {
     try {
