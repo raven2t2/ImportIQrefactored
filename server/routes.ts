@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertSubmissionSchema, type CalculationResult } from "@shared/schema";
+import { AdminAuthService } from "./admin-auth";
 import { z } from "zod";
 import OpenAI from "openai";
 import Stripe from "stripe";
@@ -2078,6 +2079,167 @@ Respond with a JSON object containing your recommendations.`;
     } catch (error) {
       console.error("Error fetching user dashboard stats:", error);
       res.status(500).json({ error: "Failed to fetch dashboard stats" });
+    }
+  });
+
+  // Admin Authentication Routes
+  app.post("/api/admin/login", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ error: "Username and password required" });
+      }
+
+      const result = await AdminAuthService.authenticateAdmin(
+        username, 
+        password, 
+        req.ip, 
+        req.get('User-Agent')
+      );
+
+      if (!result.success) {
+        return res.status(401).json({ error: result.error });
+      }
+
+      // Set session token in cookie
+      res.cookie('admin_session', result.sessionToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 8 * 60 * 60 * 1000, // 8 hours
+        sameSite: 'strict'
+      });
+
+      res.json({ 
+        success: true, 
+        user: result.adminUser,
+        permissions: AdminAuthService.getRolePermissions(result.adminUser.role)
+      });
+
+    } catch (error) {
+      console.error("Admin login error:", error);
+      res.status(500).json({ error: "Login failed" });
+    }
+  });
+
+  app.post("/api/admin/logout", async (req, res) => {
+    try {
+      const sessionToken = req.cookies.admin_session;
+      
+      if (sessionToken) {
+        await AdminAuthService.logout(sessionToken);
+      }
+
+      res.clearCookie('admin_session');
+      res.json({ success: true });
+
+    } catch (error) {
+      console.error("Admin logout error:", error);
+      res.status(500).json({ error: "Logout failed" });
+    }
+  });
+
+  app.get("/api/admin/me", async (req, res) => {
+    try {
+      const sessionToken = req.cookies.admin_session;
+      
+      if (!sessionToken) {
+        return res.status(401).json({ error: "No session found" });
+      }
+
+      const result = await AdminAuthService.validateSession(sessionToken);
+      
+      if (!result.success) {
+        res.clearCookie('admin_session');
+        return res.status(401).json({ error: result.error });
+      }
+
+      res.json({ 
+        user: result.adminUser,
+        permissions: AdminAuthService.getRolePermissions(result.adminUser.role)
+      });
+
+    } catch (error) {
+      console.error("Admin session validation error:", error);
+      res.status(500).json({ error: "Session validation failed" });
+    }
+  });
+
+  // Admin middleware for protected routes
+  const requireAdminAuth = async (req: any, res: any, next: any) => {
+    try {
+      const sessionToken = req.cookies.admin_session;
+      
+      if (!sessionToken) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const result = await AdminAuthService.validateSession(sessionToken);
+      
+      if (!result.success) {
+        res.clearCookie('admin_session');
+        return res.status(401).json({ error: "Invalid session" });
+      }
+
+      req.adminUser = result.adminUser;
+      next();
+
+    } catch (error) {
+      console.error("Admin auth middleware error:", error);
+      res.status(500).json({ error: "Authentication failed" });
+    }
+  };
+
+  // Protected admin routes
+  app.get("/api/admin/users", requireAdminAuth, async (req: any, res) => {
+    try {
+      if (!req.adminUser.canManageUsers && req.adminUser.role !== 'super_admin') {
+        return res.status(403).json({ error: "Insufficient permissions" });
+      }
+
+      const adminUsers = await storage.getAllAdminUsers();
+      const safeUsers = adminUsers.map(user => {
+        const { passwordHash, ...safeUser } = user;
+        return safeUser;
+      });
+
+      res.json(safeUsers);
+
+    } catch (error) {
+      console.error("Error fetching admin users:", error);
+      res.status(500).json({ error: "Failed to fetch admin users" });
+    }
+  });
+
+  app.post("/api/admin/users", requireAdminAuth, async (req: any, res) => {
+    try {
+      if (!req.adminUser.canManageUsers && req.adminUser.role !== 'super_admin') {
+        return res.status(403).json({ error: "Insufficient permissions" });
+      }
+
+      const { username, email, password, firstName, lastName, role, department, jobTitle } = req.body;
+
+      const result = await AdminAuthService.createAdminUser({
+        username,
+        email,
+        password,
+        firstName,
+        lastName,
+        role: role || 'viewer',
+        department,
+        jobTitle
+      });
+
+      if (!result.success) {
+        return res.status(400).json({ error: result.error });
+      }
+
+      const { passwordHash, ...safeUser } = result.adminUser;
+      res.status(201).json(safeUser);
+
+    } catch (error) {
+      console.error("Error creating admin user:", error);
+      res.status(500).json({ error: "Failed to create admin user" });
     }
   });
 
