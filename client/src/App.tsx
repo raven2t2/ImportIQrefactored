@@ -11,6 +11,7 @@ import About from "@/pages/about";
 import ImportCalculator from "@/pages/import-calculator";
 import ComplianceEstimate from "@/pages/compliance-estimate";
 import ModEstimator from "@/pages/mod-estimator";
+import ModCostEstimator from "@/pages/mod-cost-estimator";
 import AIRecommendations from "@/pages/ai-recommendations";
 import TrueCostExplorer from "@/pages/true-cost-explorer";
 import BuildComply from "@/pages/build-comply";
@@ -54,6 +55,7 @@ function Router() {
       <Route path="/expert-picks" component={ExpertPicks} />
       <Route path="/compliance-estimate" component={ComplianceEstimate} />
       <Route path="/mod-estimator" component={ModEstimator} />
+      <Route path="/mod-cost-estimator" component={ModCostEstimator} />
       <Route path="/value-estimator" component={ValueEstimator} />
       <Route path="/vehicle-lookup" component={VehicleLookup} />
       <Route path="/registration-stats" component={RegistrationStats} />
