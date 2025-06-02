@@ -227,9 +227,9 @@ export default function TrialDashboard() {
                 variant="outline"
                 size="lg"
                 className="border-gray-600 text-white hover:bg-gray-800 px-8 py-3 rounded-full font-medium"
-                onClick={() => window.open('https://driveimmaculate.com', '_blank')}
+                onClick={() => window.location.href = '/garage'}
               >
-                Contact Support
+                My Garage
               </Button>
             </div>
           </div>
@@ -368,9 +368,9 @@ export default function TrialDashboard() {
               variant="outline"
               size="lg"
               className="border-white text-white hover:bg-white/10 px-8 py-3 rounded-full font-medium"
-              onClick={() => window.location.href = '/affiliate-signup'}
+              onClick={() => window.location.href = '/garage'}
             >
-              Refer & Earn 20%
+              Build My Garage
             </Button>
           </div>
         </div>
