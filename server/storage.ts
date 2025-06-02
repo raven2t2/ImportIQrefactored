@@ -620,6 +620,44 @@ export class DatabaseStorage implements IStorage {
       .where(lt(adminSessions.expiresAt, new Date()));
   }
 
+  async updateAdminUserPassword(id: number, passwordHash: string): Promise<boolean> {
+    const result = await db
+      .update(adminUsers)
+      .set({ passwordHash, updatedAt: new Date() })
+      .where(eq(adminUsers.id, id));
+    return result.rowCount > 0;
+  }
+
+  async updateAdminUserRole(id: number, role: string): Promise<AdminUser | undefined> {
+    const rolePermissions = {
+      viewer: { canViewFinancials: false, canManageUsers: false, canExportData: false, canManageAffiliates: false },
+      sales: { canViewFinancials: false, canManageUsers: false, canExportData: true, canManageAffiliates: false },
+      marketing: { canViewFinancials: false, canManageUsers: false, canExportData: true, canManageAffiliates: true },
+      finance: { canViewFinancials: true, canManageUsers: false, canExportData: true, canManageAffiliates: false },
+      manager: { canViewFinancials: true, canManageUsers: true, canExportData: true, canManageAffiliates: true },
+      super_admin: { canViewFinancials: true, canManageUsers: true, canExportData: true, canManageAffiliates: true }
+    };
+
+    const permissions = rolePermissions[role as keyof typeof rolePermissions] || rolePermissions.viewer;
+
+    const [user] = await db
+      .update(adminUsers)
+      .set({
+        role,
+        ...permissions,
+        updatedAt: new Date()
+      })
+      .where(eq(adminUsers.id, id))
+      .returning();
+    return user;
+  }
+
+  async deleteAdminSessionsByUserId(userId: number): Promise<void> {
+    await db
+      .delete(adminSessions)
+      .where(eq(adminSessions.adminUserId, userId));
+  }
+
   private generateReferralCode(): string {
     return Math.random().toString(36).substring(2, 8).toUpperCase();
   }

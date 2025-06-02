@@ -36,6 +36,7 @@ import AdminDashboard from "@/pages/admin";
 import SecureAdminDashboard from "@/pages/secure-admin";
 import AdminLogin from "@/pages/admin-login";
 import AdminUserManagement from "@/pages/admin-user-management";
+import AdminProfile from "@/pages/admin-profile";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -64,6 +65,7 @@ function Router() {
       <Route path="/secure-admin-panel-iq2025" component={SecureAdminDashboard} />
       <Route path="/admin-login" component={AdminLogin} />
       <Route path="/admin-users" component={AdminUserManagement} />
+      <Route path="/admin-profile" component={AdminProfile} />
       <Route path="/garage" component={EnhancedDashboard} />
       <Route path="/subscribe" component={Subscribe} />
       <Route path="/checkout" component={Checkout} />
