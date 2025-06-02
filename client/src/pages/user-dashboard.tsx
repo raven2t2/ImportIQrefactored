@@ -327,8 +327,8 @@ export default function UserDashboard() {
           <TabsContent value="watchlist" className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">Your Intelligence Hub</h2>
-                <p className="text-gray-600">Live market insights, compliance updates, and member benefits</p>
+                <h2 className="text-2xl font-bold text-gray-900">Market Intelligence Hub</h2>
+                <p className="text-gray-600">Live exchange rates, compliance updates, and shipping intelligence</p>
               </div>
               <Button 
                 onClick={() => window.location.href = '/features'}
@@ -338,6 +338,67 @@ export default function UserDashboard() {
                 Explore Tools
               </Button>
             </div>
+
+            {/* Market Intelligence - Primary Feature */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <span>📊 Live Market Data</span>
+                  <Badge variant="outline">LIVE</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {marketLoading ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4" />
+                    <p className="text-gray-600">Loading market data...</p>
+                  </div>
+                ) : marketData ? (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Exchange Rates */}
+                      {marketData.exchangeRates && (
+                        <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                          <h3 className="font-semibold text-blue-900 mb-2">Exchange Rates</h3>
+                          <p className="text-sm text-blue-700 mb-1">
+                            AUD/JPY: ¥{marketData.exchangeRates.audJpy} 
+                            {marketData.exchangeRates.change24h > 0 ? ' ↗' : ' ↘'} 
+                            {Math.abs(marketData.exchangeRates.change24h)}%
+                          </p>
+                          <p className="text-sm text-blue-700 mb-2">
+                            AUD/USD: ${marketData.exchangeRates.audUsd}
+                          </p>
+                          <p className="text-xs text-blue-600">Updated: {new Date(marketData.exchangeRates.timestamp).toLocaleDateString()}</p>
+                        </div>
+                      )}
+
+                      {/* Shipping Insights */}
+                      <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
+                        <h3 className="font-semibold text-orange-900 mb-2">Shipping Status</h3>
+                        <p className="text-sm text-orange-700 mb-1">
+                          Average delivery: {marketData.shippingInsights.averageDeliveryDays} days
+                        </p>
+                        <p className="text-sm text-orange-700 mb-2">{marketData.shippingInsights.portStatus}</p>
+                        <p className="text-xs text-orange-600">Updated: {marketData.shippingInsights.lastUpdated}</p>
+                      </div>
+
+                      {/* Compliance Updates */}
+                      {marketData.complianceUpdates.map((update: any, index: number) => (
+                        <div key={index} className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                          <h3 className="font-semibold text-purple-900 mb-2">{update.title}</h3>
+                          <p className="text-sm text-purple-700 mb-2">{update.summary}</p>
+                          <p className="text-xs text-purple-600">{update.source} • {update.date}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-gray-600">Unable to load market data</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
             {/* Location Permission Banner */}
             <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200">
@@ -398,66 +459,7 @@ export default function UserDashboard() {
               </CardContent>
             </Card>
 
-            {/* Market Intelligence */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <span>📊 Market Intelligence</span>
-                  <Badge variant="outline">LIVE DATA</Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {marketLoading ? (
-                  <div className="text-center py-8">
-                    <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4" />
-                    <p className="text-gray-600">Loading market data...</p>
-                  </div>
-                ) : marketData ? (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* Exchange Rates */}
-                      {marketData.exchangeRates && (
-                        <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                          <h3 className="font-semibold text-blue-900 mb-2">Exchange Rates</h3>
-                          <p className="text-sm text-blue-700 mb-1">
-                            AUD/JPY: ¥{marketData.exchangeRates.audJpy} 
-                            {marketData.exchangeRates.change24h > 0 ? ' ↗' : ' ↘'} 
-                            {Math.abs(marketData.exchangeRates.change24h)}%
-                          </p>
-                          <p className="text-sm text-blue-700 mb-2">
-                            AUD/USD: ${marketData.exchangeRates.audUsd}
-                          </p>
-                          <p className="text-xs text-blue-600">Updated: {new Date(marketData.exchangeRates.timestamp).toLocaleDateString()}</p>
-                        </div>
-                      )}
 
-                      {/* Shipping Insights */}
-                      <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
-                        <h3 className="font-semibold text-orange-900 mb-2">Shipping Status</h3>
-                        <p className="text-sm text-orange-700 mb-1">
-                          Average delivery: {marketData.shippingInsights.averageDeliveryDays} days
-                        </p>
-                        <p className="text-sm text-orange-700 mb-2">{marketData.shippingInsights.portStatus}</p>
-                        <p className="text-xs text-orange-600">Updated: {marketData.shippingInsights.lastUpdated}</p>
-                      </div>
-
-                      {/* Compliance Updates */}
-                      {marketData.complianceUpdates.map((update, index) => (
-                        <div key={index} className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-                          <h3 className="font-semibold text-purple-900 mb-2">{update.title}</h3>
-                          <p className="text-sm text-purple-700 mb-2">{update.summary}</p>
-                          <p className="text-xs text-purple-600">{update.source} • {update.date}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <p className="text-gray-600">Unable to load market data</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
 
             {/* Watchlist Form */}
             {showWatchlistForm && (
