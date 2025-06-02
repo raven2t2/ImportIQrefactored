@@ -2684,7 +2684,10 @@ Respond with a JSON object containing your recommendations.`;
           "ZZT231": { make: "Toyota", model: "Celica (7th Gen)", years: "1999–2006", engine: "2ZZ-GE", compliance_notes: "VVTL-i engines require verified ECU for emissions" }
         };
 
+        console.log("Searching for chassis code:", searchQuery);
+        console.log("Available codes:", Object.keys(jdmDatabase));
         const vehicleInfo = jdmDatabase[searchQuery as keyof typeof jdmDatabase];
+        console.log("Found vehicle info:", vehicleInfo);
         
         if (vehicleInfo) {
           // Get auction data from your Japanese car data for this make/model
