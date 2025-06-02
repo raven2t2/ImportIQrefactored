@@ -48,6 +48,7 @@ interface VehicleResult {
 
 export default function VehicleLookup() {
   const [result, setResult] = useState<VehicleResult | null>(null);
+  const [auctionData, setAuctionData] = useState<any[]>([]);
   const { toast } = useToast();
 
   const form = useForm<FormData>({
@@ -99,15 +100,22 @@ export default function VehicleLookup() {
           type: data.type
         };
         setResult(mappedResult);
-        setAuctionData(data.auctionSamples || []);
-      } else {
+      } else if (data.error && data.suggestions) {
+        // Handle JDM chassis code not found with suggestions
         toast({
-          title: "Vehicle Not Found",
-          description: data.message || "Unable to find information for this vehicle",
+          title: "Chassis Code Not Found",
+          description: `${data.error}. Try one of the suggested codes instead.`,
           variant: "destructive",
         });
         setResult(null);
-        setAuctionData([]);
+      } else {
+        // Handle other errors
+        toast({
+          title: "Vehicle Not Found",
+          description: data.message || data.error || "Unable to find information for this vehicle",
+          variant: "destructive",
+        });
+        setResult(null);
       }
     },
     onError: (error) => {
