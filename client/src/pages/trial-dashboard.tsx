@@ -250,9 +250,9 @@ export default function TrialDashboard() {
                 variant="outline"
                 size="lg"
                 className="border-gray-600 text-white hover:bg-gray-800 px-8 py-3 rounded-full font-medium"
-                onClick={() => window.location.href = '/garage'}
+                onClick={() => window.location.href = '/dashboard'}
               >
-                My Garage
+                My Dashboard
               </Button>
             </div>
           </div>
