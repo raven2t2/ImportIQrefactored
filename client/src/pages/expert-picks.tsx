@@ -146,7 +146,15 @@ export default function ExpertPicks() {
   const [showPreferences, setShowPreferences] = useState(true);
 
   const filteredPicks = expertPicks
-    .filter(pick => selectedCategory === "All" || pick.category === selectedCategory)
+    .filter(pick => {
+      // Only show picks that match category filter
+      const categoryMatch = selectedCategory === "All" || pick.category === selectedCategory;
+      
+      // Only show picks within budget if budget is specified
+      const budgetMatch = !budget || pick.estimatedCost <= parseInt(budget);
+      
+      return categoryMatch && budgetMatch;
+    })
     .sort((a, b) => {
       if (sortBy === "rating") return b.expertRating - a.expertRating;
       if (sortBy === "cost") return a.estimatedCost - b.estimatedCost;
@@ -242,8 +250,9 @@ export default function ExpertPicks() {
           </Card>
         )}
 
-        {/* Filters */}
-        <div className="flex flex-wrap gap-4 mb-8">
+        {/* Filters - Only show after preferences submitted */}
+        {!showPreferences && (
+          <div className="flex flex-wrap gap-4 mb-8">
           <div className="flex gap-2">
             {categories.map((category) => (
               <Button
@@ -292,8 +301,10 @@ export default function ExpertPicks() {
             </Button>
           </div>
         </div>
+        )}
 
-        {/* Expert Picks Grid */}
+        {/* Expert Picks Grid - Only show after preferences submitted */}
+        {!showPreferences && (
         <div className="grid lg:grid-cols-2 gap-6">
           {filteredPicks.map((pick) => (
             <Card key={pick.id} className="bg-black/40 border-gray-700 hover:border-amber-400/50 transition-colors">
