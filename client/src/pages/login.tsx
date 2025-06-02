@@ -33,12 +33,15 @@ export default function Login() {
 
   const loginMutation = useMutation({
     mutationFn: async (data: LoginData) => {
-      return await apiRequest("POST", "/api/login", data);
+      const response = await apiRequest("POST", "/api/login", data);
+      return await response.json();
     },
     onSuccess: (response: any) => {
       setIsSubmitting(false);
       
-      if (response.hasActiveTrial) {
+      console.log('Login response:', response); // Debug log
+      
+      if (response.exists && response.hasActiveTrial) {
         toast({
           title: "Welcome back!",
           description: `You have ${response.trialDaysRemaining} days left in your trial.`,
@@ -49,7 +52,7 @@ export default function Login() {
         setTimeout(() => {
           window.location.href = `/trial-dashboard?name=${encodeURIComponent(response.name)}&email=${encodeURIComponent(response.email)}`;
         }, 1000);
-      } else if (response.exists) {
+      } else if (response.exists && !response.hasActiveTrial) {
         toast({
           title: "Trial Expired",
           description: "Your trial has ended. Let's get you set up with a subscription!",
