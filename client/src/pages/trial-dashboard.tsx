@@ -351,17 +351,17 @@ export default function TrialDashboard() {
       <div className="py-16 bg-gradient-to-r from-amber-600 to-orange-600">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            Ready to Unlock Full Access?
+            Continue Your Import Journey
           </h2>
           <p className="text-xl text-amber-100 mb-4">
-            Join thousands of successful importers with unlimited access to all 14 premium tools.
+            Keep using all 14 premium tools beyond your trial period for just $97/month.
           </p>
           <div className="bg-white/10 rounded-lg p-4 mb-8 border border-white/20">
             <p className="text-white font-medium mb-2">
-              🎯 Trial Member Exclusive: Get your first month for $77
+              🎯 Trial Member Exclusive: First month only $77
             </p>
             <p className="text-amber-100 text-sm">
-              Upgrade during your trial and save $20 on your first month. Then continue at regular $97/month.
+              Subscribe now and save $20 on your first month. Then continue at $97/month to keep all tools active.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
