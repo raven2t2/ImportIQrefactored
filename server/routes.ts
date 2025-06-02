@@ -245,10 +245,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Email checking endpoint for smart gating
   app.post("/api/check-email", async (req, res) => {
     try {
-      const { name, email } = req.body;
+      const { name, email, password } = req.body;
       
-      if (!name || !email) {
-        return res.status(400).json({ error: "Name and email are required" });
+      if (!name || !email || !password) {
+        return res.status(400).json({ error: "Name, email and password are required" });
       }
 
       const exists = await storage.checkEmailExists(email);
@@ -267,8 +267,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       await storage.updateEmailCache(email, name);
       
-      // Start trial for ImportIQ automatically
-      await storage.createTrial(email, name);
+      // Hash password before storing
+      const saltRounds = 10;
+      const passwordHash = await bcrypt.hash(password, saltRounds);
+      
+      // Start trial for ImportIQ automatically with hashed password
+      await storage.createTrial(email, name, passwordHash);
       
       res.json({ 
         exists,
@@ -284,10 +288,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Login endpoint for existing users
   app.post("/api/login", async (req, res) => {
     try {
-      const { email } = req.body;
+      const { email, password } = req.body;
       
-      if (!email) {
-        return res.status(400).json({ error: "Email is required" });
+      if (!email || !password) {
+        return res.status(400).json({ error: "Email and password are required" });
       }
 
       const trialStatus = await storage.getTrialStatus(email);
@@ -301,6 +305,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       if (trialStatus) {
+        // Verify password
+        const storedPasswordHash = await storage.getPasswordHash(email);
+        if (!storedPasswordHash || !await bcrypt.compare(password, storedPasswordHash)) {
+          return res.status(401).json({ error: "Invalid password" });
+        }
+        
         return res.json({ 
           exists: true,
           hasActiveTrial: trialStatus.isActive,
