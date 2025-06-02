@@ -358,10 +358,10 @@ export default function TrialDashboard() {
           </p>
           <div className="bg-white/10 rounded-lg p-4 mb-8 border border-white/20">
             <p className="text-white font-medium mb-2">
-              🎯 Trial Member Bonus: Get 5% off your first month
+              🎯 Trial Member Exclusive: Get your first month for $67
             </p>
             <p className="text-amber-100 text-sm">
-              Upgrade during your trial and pay only $92.15 for your first month. Save $4.85 and start your import journey today.
+              Upgrade during your trial and save $30 on your first month. That's 30% off to get you started with all premium tools.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -370,7 +370,7 @@ export default function TrialDashboard() {
               className="bg-white text-amber-600 hover:bg-gray-100 px-8 py-3 rounded-full font-bold"
               onClick={() => window.location.href = '/pricing'}
             >
-              Claim 5% Trial Bonus
+              Get First Month for $67
             </Button>
             <Button 
               variant="outline"
