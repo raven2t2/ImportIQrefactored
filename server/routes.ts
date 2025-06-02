@@ -1328,6 +1328,168 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
+  // Advanced analytics with AI/ML insights for ad targeting
+  app.get("/api/admin/advanced-analytics", async (req, res) => {
+    try {
+      const submissions = await storage.getAllSubmissions();
+      const trials = await storage.getAllTrials();
+      const emailCache = await storage.getAllEmailCache();
+
+      // Time pattern analysis
+      const timePatterns = submissions.reduce((acc, sub) => {
+        const date = new Date(sub.createdAt);
+        const hour = date.getHours();
+        const dayOfWeek = date.getDay();
+        const month = date.getMonth();
+        
+        acc.hourly[hour] = (acc.hourly[hour] || 0) + 1;
+        acc.daily[dayOfWeek] = (acc.daily[dayOfWeek] || 0) + 1;
+        acc.monthly[month] = (acc.monthly[month] || 0) + 1;
+        
+        return acc;
+      }, { hourly: {}, daily: {}, monthly: {} });
+
+      // Location analysis (based on zipCode when available)
+      const locationAnalysis = submissions.reduce((acc, sub) => {
+        if (sub.zipCode) {
+          // Australian state identification based on postcode patterns
+          const postcode = parseInt(sub.zipCode);
+          let state = "Unknown";
+          
+          if (postcode >= 1000 && postcode <= 2599) state = "NSW";
+          else if (postcode >= 2600 && postcode <= 2899) state = "ACT";
+          else if (postcode >= 2900 && postcode <= 2999) state = "NSW";
+          else if (postcode >= 3000 && postcode <= 3999) state = "VIC";
+          else if (postcode >= 4000 && postcode <= 4999) state = "QLD";
+          else if (postcode >= 5000 && postcode <= 5999) state = "SA";
+          else if (postcode >= 6000 && postcode <= 6797) state = "WA";
+          else if (postcode >= 6800 && postcode <= 6999) state = "WA";
+          else if (postcode >= 7000 && postcode <= 7999) state = "TAS";
+          else if (postcode >= 800 && postcode <= 999) state = "NT";
+          
+          acc.states[state] = (acc.states[state] || 0) + 1;
+          acc.postcodes[sub.zipCode] = (acc.postcodes[sub.zipCode] || 0) + 1;
+        }
+        return acc;
+      }, { states: {}, postcodes: {} });
+
+      // Vehicle preference analysis
+      const vehicleAnalysis = submissions.reduce((acc, sub) => {
+        if (sub.vehicleMake) {
+          acc.makes[sub.vehicleMake.toLowerCase()] = (acc.makes[sub.vehicleMake.toLowerCase()] || 0) + 1;
+        }
+        if (sub.vehicleModel) {
+          acc.models[sub.vehicleModel.toLowerCase()] = (acc.models[sub.vehicleModel.toLowerCase()] || 0) + 1;
+        }
+        if (sub.vehicleYear) {
+          const yearRange = Math.floor(sub.vehicleYear / 10) * 10;
+          acc.yearRanges[`${yearRange}s`] = (acc.yearRanges[`${yearRange}s`] || 0) + 1;
+        }
+        return acc;
+      }, { makes: {}, models: {}, yearRanges: {} });
+
+      // Budget analysis
+      const budgetAnalysis = submissions.reduce((acc, sub) => {
+        const cost = parseFloat(sub.totalCost || "0");
+        if (cost < 50000) acc.budget_ranges["Under $50k"] = (acc.budget_ranges["Under $50k"] || 0) + 1;
+        else if (cost < 100000) acc.budget_ranges["$50k-$100k"] = (acc.budget_ranges["$50k-$100k"] || 0) + 1;
+        else if (cost < 200000) acc.budget_ranges["$100k-$200k"] = (acc.budget_ranges["$100k-$200k"] || 0) + 1;
+        else acc.budget_ranges["$200k+"] = (acc.budget_ranges["$200k+"] || 0) + 1;
+        
+        acc.avg_budget += cost;
+        return acc;
+      }, { budget_ranges: {}, avg_budget: 0 });
+      
+      budgetAnalysis.avg_budget = submissions.length > 0 ? budgetAnalysis.avg_budget / submissions.length : 0;
+
+      // Peak activity identification
+      const peakHour = Object.entries(timePatterns.hourly).sort(([,a], [,b]) => b - a)[0]?.[0] || "12";
+      const peakDay = Object.entries(timePatterns.daily).sort(([,a], [,b]) => b - a)[0]?.[0] || "1";
+      const peakState = Object.entries(locationAnalysis.states).sort(([,a], [,b]) => b - a)[0]?.[0] || "NSW";
+
+      // Generate AI-powered ad targeting suggestions
+      const adTargetingSuggestions = [
+        {
+          category: "Optimal Timing",
+          recommendation: `Peak activity at ${peakHour}:00 - Schedule ads 1-2 hours before (${parseInt(peakHour) - 2}:00-${parseInt(peakHour) - 1}:00)`,
+          confidence: "High",
+          data_support: `${Math.round((timePatterns.hourly[peakHour] / submissions.length) * 100)}% of submissions occur during this hour`,
+          implementation: "Facebook/Google Ads dayparting"
+        },
+        {
+          category: "Geographic Targeting",
+          recommendation: `Focus ad spend on ${peakState} - highest conversion state`,
+          confidence: "High",
+          data_support: `${Math.round((locationAnalysis.states[peakState] / submissions.length) * 100)}% of users from ${peakState}`,
+          implementation: "State-level geo-targeting with +30% bid adjustment"
+        },
+        {
+          category: "Interest Targeting",
+          recommendation: `Target ${Object.entries(vehicleAnalysis.makes).sort(([,a], [,b]) => b - a)[0]?.[0]} enthusiasts`,
+          confidence: "Medium",
+          data_support: `Most popular vehicle brand among users`,
+          implementation: "Interest-based targeting + lookalike audiences"
+        },
+        {
+          category: "Budget-Based Audiences",
+          recommendation: `Create separate campaigns for ${Object.entries(budgetAnalysis.budget_ranges).sort(([,a], [,b]) => b - a)[0]?.[0]} segment`,
+          confidence: "Medium",
+          data_support: `Largest user segment by budget range`,
+          implementation: "Income-based targeting with tailored messaging"
+        },
+        {
+          category: "Seasonal Optimization",
+          recommendation: submissions.length > 30 ? "Increase ad spend during peak months" : "Collect more data for seasonal patterns",
+          confidence: submissions.length > 30 ? "Medium" : "Low",
+          data_support: "Based on monthly submission patterns",
+          implementation: "Budget scheduling with seasonal multipliers"
+        }
+      ];
+
+      // Conversion funnel analysis
+      const funnelAnalysis = {
+        visitors: emailCache.length,
+        trial_signups: trials.length,
+        active_trials: trials.filter(t => t.isActive).length,
+        calculations: submissions.length,
+        visitor_to_trial: trials.length > 0 ? (trials.length / emailCache.length) * 100 : 0,
+        trial_to_calculation: submissions.length > 0 ? (submissions.length / trials.length) * 100 : 0,
+        overall_conversion: emailCache.length > 0 ? (trials.filter(t => t.isActive).length / emailCache.length) * 100 : 0
+      };
+
+      // Customer lifetime value prediction
+      const clvAnalysis = {
+        avg_calculation_value: budgetAnalysis.avg_budget,
+        estimated_monthly_value: budgetAnalysis.avg_budget * 0.05, // 5% commission
+        predicted_6_month_clv: budgetAnalysis.avg_budget * 0.05 * 3, // Assuming 3 calculations per 6 months
+        high_value_threshold: budgetAnalysis.avg_budget * 1.5
+      };
+
+      res.json({
+        timePatterns,
+        locationAnalysis,
+        vehicleAnalysis,
+        budgetAnalysis,
+        funnelAnalysis,
+        clvAnalysis,
+        adTargetingSuggestions,
+        peakActivity: {
+          bestHour: parseInt(peakHour),
+          bestDay: parseInt(peakDay),
+          bestState: peakState
+        },
+        recommendations: {
+          immediate_actions: adTargetingSuggestions.filter(s => s.confidence === "High"),
+          test_opportunities: adTargetingSuggestions.filter(s => s.confidence === "Medium"),
+          data_collection_needed: adTargetingSuggestions.filter(s => s.confidence === "Low")
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching advanced analytics:", error);
+      res.status(500).json({ error: "Failed to fetch advanced analytics" });
+    }
+  });
+
   // Stripe subscription endpoint
   app.post("/api/create-subscription", async (req, res) => {
     try {

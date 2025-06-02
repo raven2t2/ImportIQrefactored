@@ -87,6 +87,16 @@ export default function SecureAdminDashboard() {
     enabled: isAuthenticated,
   });
 
+  const { data: businessInsights, isLoading: insightsLoading } = useQuery({
+    queryKey: ["/api/admin/business-insights"],
+    enabled: isAuthenticated,
+  });
+
+  const { data: advancedAnalytics, isLoading: analyticsLoading } = useQuery({
+    queryKey: ["/api/admin/advanced-analytics"],
+    enabled: isAuthenticated,
+  });
+
   const handleAdminLogin = async () => {
     try {
       const response = await fetch("/api/admin/login", {
@@ -230,6 +240,14 @@ export default function SecureAdminDashboard() {
             <TabsTrigger value="insights" className="data-[state=active]:bg-amber-600">
               <TrendingUp className="w-4 h-4 mr-2" />
               Insights
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="data-[state=active]:bg-amber-600">
+              <BarChart3 className="w-4 h-4 mr-2" />
+              Advanced Analytics
+            </TabsTrigger>
+            <TabsTrigger value="targeting" className="data-[state=active]:bg-amber-600">
+              <Target className="w-4 h-4 mr-2" />
+              Ad Targeting AI
             </TabsTrigger>
           </TabsList>
 
