@@ -47,12 +47,16 @@ export default function ImportIQ() {
 
   const handleEmailSuccess = (userData: { name: string; email: string; isReturning: boolean }) => {
     setShowEmailGate(false);
-    const tool = tools.find(t => t.name === selectedTool);
-    if (tool) {
-      setTimeout(() => {
-        window.location.href = tool.path;
-      }, 500);
-    }
+    
+    // Store user data for trial dashboard
+    localStorage.setItem('trial_user_name', userData.name);
+    localStorage.setItem('trial_user_email', userData.email);
+    localStorage.setItem('trial_start_date', new Date().toISOString());
+    
+    // Redirect to trial dashboard with user data
+    setTimeout(() => {
+      window.location.href = `/trial-dashboard?name=${encodeURIComponent(userData.name)}&email=${encodeURIComponent(userData.email)}`;
+    }, 500);
   };
 
   if (showEmailGate) {
@@ -88,7 +92,10 @@ export default function ImportIQ() {
               <Link href="/affiliate-signup" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Refer & Earn</Link>
               <Button 
                 className="bg-amber-400 hover:bg-amber-500 text-black px-6 py-2 rounded-full transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
-                onClick={() => setShowEmailGate(true)}
+                onClick={() => {
+                  setSelectedTool("ImportIQ Platform");
+                  setShowEmailGate(true);
+                }}
               >
                 Start Free Trial
               </Button>
