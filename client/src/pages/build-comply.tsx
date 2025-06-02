@@ -129,6 +129,97 @@ export default function BuildComply() {
     return '2-8 weeks';
   };
 
+  const getStrategicTips = () => {
+    const riskLevel = getRiskLevel();
+    const planType = watch("planType");
+    const hasEngineWork = selectedMods.includes('turbo') || selectedMods.includes('engine');
+    const hasSuspension = selectedMods.includes('suspension');
+    const hasExhaust = selectedMods.includes('exhaust');
+    
+    const tips = [];
+
+    // Registration timing strategy
+    if (riskLevel === 'high' && planType === 'pre-reg') {
+      tips.push({
+        icon: "⚠️",
+        title: "Consider Post-Registration Strategy",
+        description: "High-risk modifications like engine work are often easier to approve after initial registration. Register the vehicle first, then modify.",
+        type: "warning"
+      });
+    }
+
+    // Modification order strategy
+    if (hasSuspension && hasEngineWork) {
+      tips.push({
+        icon: "🔧",
+        title: "Modification Order Matters",
+        description: "Complete suspension work before engine modifications. This allows proper weight distribution calculations during engineering assessment.",
+        type: "info"
+      });
+    }
+
+    // Documentation strategy
+    if (riskLevel === 'medium' || riskLevel === 'high') {
+      tips.push({
+        icon: "📋",
+        title: "Pre-Approval Documentation",
+        description: "Get engineering pre-approval quotes before purchasing parts. Some modifications may require specific brand/model components for compliance.",
+        type: "info"
+      });
+    }
+
+    // Cost-saving strategy
+    if (selectedMods.length >= 3) {
+      tips.push({
+        icon: "💰",
+        title: "Bundle Engineering Assessments",
+        description: "Combine multiple modifications into a single engineering assessment to reduce overall compliance costs by 20-40%.",
+        type: "success"
+      });
+    }
+
+    // State-specific strategy
+    const state = watch("state");
+    if (state === 'qld' && hasEngineWork) {
+      tips.push({
+        icon: "🏛️",
+        title: "Queensland Engine Work Tip",
+        description: "QLD requires emissions testing for engine modifications. Book testing slots early as wait times can exceed 6 weeks.",
+        type: "warning"
+      });
+    }
+
+    // Exhaust strategy
+    if (hasExhaust && riskLevel !== 'high') {
+      tips.push({
+        icon: "🔊",
+        title: "Exhaust Compliance Strategy",
+        description: "Install exhaust modifications early in the build process. Sound testing is required and some exhausts may need modification to pass ADR standards.",
+        type: "info"
+      });
+    }
+
+    return (
+      <div className="space-y-4">
+        {tips.map((tip, index) => (
+          <div key={index} className={`p-4 rounded-xl border ${
+            tip.type === 'warning' ? 'bg-red-950/20 border-red-500/20' :
+            tip.type === 'success' ? 'bg-green-950/20 border-green-500/20' :
+            'bg-blue-950/20 border-blue-500/20'
+          }`}>
+            <div className="flex items-start">
+              <div className="text-2xl mr-3 mt-1">{tip.icon}</div>
+              <div className="flex-1">
+                <h4 className="font-medium text-white mb-2">{tip.title}</h4>
+                <p className="text-sm text-gray-300">{tip.description}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   const mutation = useMutation({
     mutationFn: async (data: FormData) => {
       const response = await apiRequest("POST", "/api/build-comply", data);
@@ -328,6 +419,22 @@ export default function BuildComply() {
               )}
             </Button>
           </div>
+
+          {/* Strategic Compliance Tips */}
+          <Card className="border border-blue-400/20 bg-blue-950/20 backdrop-blur-sm">
+            <CardHeader className="pb-6">
+              <CardTitle className="text-2xl font-semibold text-white flex items-center">
+                <Brain className="h-6 w-6 text-blue-400 mr-3" />
+                Strategic Compliance Tips
+              </CardTitle>
+              <CardDescription className="text-gray-400">
+                Smart approaches based on your risk profile and selected modifications
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {getStrategicTips()}
+            </CardContent>
+          </Card>
 
           {/* Results Grid */}
           <div className="space-y-8">
