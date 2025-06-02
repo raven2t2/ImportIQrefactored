@@ -251,6 +251,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const exists = await storage.checkEmailExists(email);
+      const existingTrial = await storage.getTrialStatus(email);
+      
+      if (existingTrial) {
+        return res.json({ 
+          exists: true,
+          hasActiveTrial: existingTrial.isActive,
+          trialDaysRemaining: existingTrial.daysRemaining,
+          message: existingTrial.isActive ? 
+            `Welcome back! You have ${existingTrial.daysRemaining} days left in your trial.` :
+            "Your trial has expired. Ready to subscribe?"
+        });
+      }
+      
       await storage.updateEmailCache(email, name);
       
       // Start trial for ImportIQ automatically
@@ -258,7 +271,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({ 
         exists,
-        message: exists ? "Welcome back!" : "Welcome to ImportIQ!"
+        hasActiveTrial: false,
+        message: "Welcome to ImportIQ! Your 7-day trial is starting now."
       });
     } catch (error) {
       console.error("Error checking email:", error);

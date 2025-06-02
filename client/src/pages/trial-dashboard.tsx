@@ -20,19 +20,32 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import logoPath from "@assets/circular imi logo (3).png";
 
 export default function TrialDashboard() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [trialDaysLeft, setTrialDaysLeft] = useState(7);
   const [userName, setUserName] = useState("User");
+  const [userEmail, setUserEmail] = useState("");
 
   useEffect(() => {
     // Get user data from URL params or localStorage
     const urlParams = new URLSearchParams(window.location.search);
     const name = urlParams.get('name') || localStorage.getItem('trial_user_name') || "User";
+    const email = urlParams.get('email') || localStorage.getItem('trial_user_email') || "";
     setUserName(name);
+    setUserEmail(email);
   }, []);
+
+  // Fetch real trial status from database
+  const { data: trialStatus } = useQuery({
+    queryKey: ['/api/trial-status', userEmail],
+    enabled: !!userEmail,
+    refetchInterval: 60000, // Refresh every minute
+  });
+
+  const trialDaysLeft = trialStatus?.daysRemaining || 7;
 
   const tools = [
     {

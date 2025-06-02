@@ -42,6 +42,22 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
     },
     onSuccess: (response: any) => {
       setIsSubmitting(false);
+      
+      // If user has an existing trial, redirect them to trial dashboard
+      if (response.hasActiveTrial) {
+        localStorage.setItem('trial_user_name', form.getValues("name"));
+        localStorage.setItem('trial_user_email', form.getValues("email"));
+        window.location.href = `/trial-dashboard?name=${encodeURIComponent(form.getValues("name"))}&email=${encodeURIComponent(form.getValues("email"))}`;
+        return;
+      }
+      
+      // If trial expired, redirect to pricing
+      if (response.exists && !response.hasActiveTrial) {
+        window.location.href = '/pricing';
+        return;
+      }
+      
+      // New trial - continue with normal flow
       onSuccess({
         name: form.getValues("name"),
         email: form.getValues("email"),
