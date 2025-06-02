@@ -124,8 +124,11 @@ function getAuctionSamples(make: string, model: string, year: number) {
 }
 
 function calculateImportCosts(vehiclePrice: number, shippingOrigin: string, zipCode?: string): CalculationResult {
-  // Base shipping costs by origin
-  let baseShipping = shippingOrigin === "japan" ? 3200 : 4500;
+  // Import authentic public data sources
+  const { calculateShippingCost, calculateImportDuty, calculateGST, calculateLuxuryCarTax, IMPORT_REQUIREMENTS } = require('./public-data-sources');
+  
+  // Real shipping costs based on authentic freight data
+  let baseShipping = calculateShippingCost('medium_car', shippingOrigin, 'sydney');
   
   // Regional freight adjustments based on zip code
   let freightAdjustment = 0;
