@@ -427,35 +427,69 @@ export default function UserDashboard() {
                       {/* Exchange Rates */}
                       {marketData.exchangeRates && (
                         <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                          <h3 className="font-semibold text-blue-900 mb-2">Exchange Rates</h3>
-                          <p className="text-sm text-blue-700 mb-1">
-                            AUD/JPY: ¥{marketData.exchangeRates.audJpy} 
-                            {marketData.exchangeRates.change24h > 0 ? ' ↗' : ' ↘'} 
-                            {Math.abs(marketData.exchangeRates.change24h)}%
-                          </p>
-                          <p className="text-sm text-blue-700 mb-2">
-                            AUD/USD: ${marketData.exchangeRates.audUsd}
-                          </p>
-                          <p className="text-xs text-blue-600">Updated: {new Date(marketData.exchangeRates.timestamp).toLocaleDateString()}</p>
+                          <h3 className="font-semibold text-blue-900 mb-3">Exchange Rate Impact</h3>
+                          <div className="space-y-3">
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm text-blue-700 font-medium">AUD/JPY:</span>
+                              <span className="font-semibold text-blue-900">
+                                ¥{marketData.exchangeRates.audJpy}
+                                <span className={`ml-2 text-xs ${marketData.exchangeRates.change24h > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                                  {marketData.exchangeRates.change24h > 0 ? '↗' : '↘'} {Math.abs(marketData.exchangeRates.change24h)}%
+                                </span>
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm text-blue-700 font-medium">AUD/USD:</span>
+                              <span className="font-semibold text-blue-900">${marketData.exchangeRates.audUsd}</span>
+                            </div>
+                          </div>
+                          <div className="mt-3 p-3 bg-blue-100 rounded-lg">
+                            <p className="text-xs text-blue-800 font-medium mb-1">💡 Import Strategy:</p>
+                            <p className="text-xs text-blue-800">
+                              {marketData.exchangeRates.change24h > 0 
+                                ? 'Japanese cars are more expensive today due to weaker AUD. Consider US imports or wait for better rates.'
+                                : 'Great time for Japanese imports! The stronger AUD gives you more buying power for JDM vehicles.'}
+                            </p>
+                          </div>
+                          <p className="text-xs text-blue-600 mt-2">Updated: {new Date(marketData.exchangeRates.timestamp).toLocaleDateString()}</p>
                         </div>
                       )}
 
                       {/* Shipping Insights */}
                       <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
-                        <h3 className="font-semibold text-orange-900 mb-2">Shipping Status</h3>
-                        <p className="text-sm text-orange-700 mb-1">
-                          Average delivery: {marketData.shippingInsights.averageDeliveryDays} days
-                        </p>
-                        <p className="text-sm text-orange-700 mb-2">{marketData.shippingInsights.portStatus}</p>
-                        <p className="text-xs text-orange-600">Updated: {marketData.shippingInsights.lastUpdated}</p>
+                        <h3 className="font-semibold text-orange-900 mb-3">Shipping Intelligence</h3>
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-orange-700 font-medium">Current delivery:</span>
+                            <span className="font-semibold text-orange-900">{marketData.shippingInsights.averageDeliveryDays} days</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-orange-700 font-medium">Port operations:</span>
+                            <span className="font-semibold text-orange-900">{marketData.shippingInsights.portStatus}</span>
+                          </div>
+                        </div>
+                        <div className="mt-3 p-3 bg-orange-100 rounded-lg">
+                          <p className="text-xs text-orange-800 font-medium mb-1">📦 Planning Tip:</p>
+                          <p className="text-xs text-orange-800">
+                            {marketData.shippingInsights.averageDeliveryDays <= 25 
+                              ? 'Faster than average shipping! Good time to place orders with quicker turnaround expected.'
+                              : 'Slower shipping period. Add 1-2 extra weeks to your timeline and communicate delays to buyers.'}
+                          </p>
+                        </div>
+                        <p className="text-xs text-orange-600 mt-2">Updated: {marketData.shippingInsights.lastUpdated}</p>
                       </div>
 
                       {/* Compliance Updates */}
                       {marketData.complianceUpdates.map((update: any, index: number) => (
                         <div key={index} className="p-4 bg-purple-50 rounded-lg border border-purple-200">
                           <h3 className="font-semibold text-purple-900 mb-2">{update.title}</h3>
-                          <p className="text-sm text-purple-700 mb-2">{update.summary}</p>
-                          <p className="text-xs text-purple-600">{update.source} • {update.date}</p>
+                          <p className="text-sm text-purple-700 mb-3">{update.summary}</p>
+                          <div className="p-2 bg-purple-100 rounded text-xs text-purple-800">
+                            <strong>Action Required:</strong> {index === 0 
+                              ? 'Review ADR compliance for all vehicle imports to ensure safety standards are met.'
+                              : 'Check updated duty rates before finalizing any vehicle purchases to avoid unexpected costs.'}
+                          </div>
+                          <p className="text-xs text-purple-600 mt-2">{update.source} • {update.date}</p>
                         </div>
                       ))}
                     </div>
