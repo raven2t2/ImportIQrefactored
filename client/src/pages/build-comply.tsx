@@ -10,10 +10,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Settings, AlertTriangle, CheckCircle, AlertCircle, FileText, Shield, ArrowRight, Brain, Calendar, CreditCard, Save, Clock, DollarSign } from "lucide-react";
+import { Settings, AlertTriangle, CheckCircle, AlertCircle, FileText, Shield, ArrowRight, Brain, Calendar, CreditCard, Save, Clock, DollarSign, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import CTASection from "@/components/cta-section";
+import { Link } from "wouter";
 
 const buildComplySchema = z.object({
   email: z.string().email("Valid email required"),
@@ -35,775 +35,527 @@ const modificationData = {
     requirements: ["Must not exceed +3 inch diameter", "Offset within ±25mm", "Load rating adequate"]
   },
   suspension: {
-    name: "Lowered Suspension",
+    name: "Lowered Suspension", 
     risk: "yellow",
     description: "Engineering certificate required",
     requirements: ["Maximum 50mm drop", "Engineer certification", "ICV compliance", "Headlight aim check"]
   },
   exhaust: {
     name: "Aftermarket Exhaust",
-    risk: "yellow",
+    risk: "yellow", 
     description: "Must meet noise regulations",
     requirements: ["ADR 83/00 compliance", "Sound level under 90dB", "Catalytic converter retained"]
   },
   turbo: {
     name: "Turbocharger/Supercharger",
     risk: "red",
-    description: "Major modification requiring full compliance",
-    requirements: ["VASS approval", "Engineer certification", "Emissions testing", "RAWS compliance"]
+    description: "Significant modification requiring extensive compliance",
+    requirements: ["Engineering certificate", "Emissions testing", "ICV plate", "Brake upgrade may be required"]
   },
   engine: {
     name: "Engine Swap",
-    risk: "red",
-    description: "Significant modification with extensive requirements",
-    requirements: ["VASS Category SV", "Complete re-certification", "ADR compliance", "RAWS approval"]
+    risk: "red", 
+    description: "Major modification requiring comprehensive approval",
+    requirements: ["Full engineering report", "Emissions compliance", "ICV approval", "Weight distribution check"]
   },
-  brakes: {
-    name: "Brake Upgrade",
+  bodykit: {
+    name: "Body Kit/Aero",
     risk: "yellow",
-    description: "Performance brakes need verification",
-    requirements: ["Brake performance test", "ABS compatibility", "Engineer approval"]
-  },
-  body: {
-    name: "Body Kit/Spoilers",
-    risk: "green",
-    description: "Visual modifications with minimal requirements",
-    requirements: ["No sharp edges", "Secure mounting", "Ground clearance maintained"]
-  },
-  interior: {
-    name: "Interior Modifications",
-    risk: "green",
-    description: "Usually compliant with basic safety checks",
-    requirements: ["Seat mounting secure", "Airbag compatibility", "Seatbelt functionality"]
-  }
-};
-
-const stateCompliance = {
-  NSW: {
-    name: "New South Wales",
-    authority: "Transport for NSW",
-    strictness: "High",
-    notes: "Strict VSI requirements"
-  },
-  VIC: {
-    name: "Victoria",
-    authority: "VicRoads",
-    strictness: "Medium",
-    notes: "VIV process required"
-  },
-  QLD: {
-    name: "Queensland",
-    authority: "TMR",
-    strictness: "Medium",
-    notes: "QTI compliance needed"
-  },
-  SA: {
-    name: "South Australia",
-    authority: "DPTI",
-    strictness: "High",
-    notes: "Regency Park testing"
-  },
-  WA: {
-    name: "Western Australia",
-    authority: "DoT WA",
-    strictness: "Medium",
-    notes: "DVS inspection required"
-  },
-  TAS: {
-    name: "Tasmania",
-    authority: "Transport Tasmania",
-    strictness: "Low",
-    notes: "Simplified process"
-  },
-  NT: {
-    name: "Northern Territory",
-    authority: "DoI NT",
-    strictness: "Low",
-    notes: "Flexible requirements"
-  },
-  ACT: {
-    name: "Australian Capital Territory",
-    authority: "Access Canberra",
-    strictness: "High",
-    notes: "Follows NSW standards"
+    description: "Moderate risk depending on extent",
+    requirements: ["No sharp edges", "Pedestrian safety compliance", "Ground clearance maintained"]
   }
 };
 
 export default function BuildComply() {
-  const [results, setResults] = useState<any>(null);
+  const [showResults, setShowResults] = useState(false);
   const [selectedMods, setSelectedMods] = useState<string[]>([]);
-  const [planType, setPlanType] = useState<"pre-reg" | "post-reg">("pre-reg");
   const { toast } = useToast();
 
-  const form = useForm<FormData>({
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors, isValid }
+  } = useForm<FormData>({
     resolver: zodResolver(buildComplySchema),
     defaultValues: {
-      email: "",
-      vehicle: "",
-      state: "",
-      budget: "",
-      timeline: "",
       modifications: [],
-      planType: "pre-reg",
-    },
+      planType: "pre-reg"
+    }
   });
 
-  // Save report mutation
-  const saveReportMutation = useMutation({
-    mutationFn: async (reportData: any) => {
-      return await apiRequest("POST", "/api/save-report", reportData);
+  const mutation = useMutation({
+    mutationFn: async (data: FormData) => {
+      const response = await apiRequest("POST", "/api/build-comply", data);
+      return response.json();
     },
     onSuccess: () => {
+      setShowResults(true);
       toast({
-        title: "BuildReady™ Report Saved!",
-        description: "Your compliance plan has been saved to your ImportIQ dashboard.",
+        title: "Analysis Complete",
+        description: "Your compliance strategy has been generated",
       });
     },
-    onError: () => {
+    onError: (error) => {
       toast({
-        title: "Save Failed",
-        description: "Unable to save report. Please try again.",
+        title: "Analysis Failed",
+        description: error.message,
         variant: "destructive",
       });
-    },
+    }
   });
 
   const handleModificationChange = (modId: string, checked: boolean) => {
-    let newMods;
-    if (checked) {
-      newMods = [...selectedMods, modId];
-    } else {
-      newMods = selectedMods.filter(id => id !== modId);
-    }
+    const newMods = checked 
+      ? [...selectedMods, modId]
+      : selectedMods.filter(id => id !== modId);
+    
     setSelectedMods(newMods);
-    form.setValue("modifications", newMods);
-  };
-
-  const handleSaveReport = () => {
-    if (results) {
-      const reportData = {
-        email: form.getValues("email"),
-        reportType: "buildready-compliance",
-        reportTitle: `BuildReady™ Plan - ${results.vehicle} (${results.state.name})`,
-        reportData: {
-          ...results,
-          planType,
-          generatedAt: new Date().toISOString(),
-        }
-      };
-      
-      saveReportMutation.mutate(reportData);
-    }
-  };
-
-  // Smart compliance risk prediction using machine learning
-  const calculateSmartRisk = (modifications: any[], state: any, planType: string, budget: string, timeline: string) => {
-    let riskScore = 0;
-    let riskFactors = [];
-
-    // Base modification risk scoring
-    modifications.forEach(mod => {
-      switch (mod.risk) {
-        case "green": riskScore += 1; break;
-        case "yellow": riskScore += 3; break;
-        case "red": riskScore += 6; break;
-      }
-    });
-
-    // State compliance multipliers (ML-trained weightings)
-    const stateMultipliers: { [key: string]: number } = {
-      "High": 1.8,
-      "Medium": 1.2,
-      "Low": 0.8
-    };
-    riskScore *= stateMultipliers[state.strictness] || 1.2;
-
-    // Timeline risk factors
-    if (timeline === "asap") {
-      riskScore *= 1.4;
-      riskFactors.push("Rushed timeline increases rejection risk");
-    }
-
-    // Budget adequacy analysis
-    const totalModCost = modifications.reduce((sum, mod) => sum + mod.cost, 0);
-    const budgetValue = budget === "under50k" ? 45000 : 
-                       budget === "50k-100k" ? 75000 :
-                       budget === "100k-200k" ? 150000 : 250000;
-    
-    if (totalModCost > budgetValue * 0.3) {
-      riskScore *= 1.3;
-      riskFactors.push("High modification cost relative to budget");
-    }
-
-    // Pre-reg vs post-reg strategy impact
-    if (planType === "pre-reg" && riskScore > 8) {
-      riskScore *= 1.5;
-      riskFactors.push("Pre-registration strategy with complex mods");
-    }
-
-    // ML-based risk categorization
-    let predictedRisk = "green";
-    let confidence = 0;
-    
-    if (riskScore <= 4) {
-      predictedRisk = "green";
-      confidence = Math.max(0.7, 1 - (riskScore / 10));
-      riskFactors.push("Low compliance complexity predicted");
-    } else if (riskScore <= 10) {
-      predictedRisk = "yellow"; 
-      confidence = Math.max(0.6, 1 - (riskScore / 15));
-      riskFactors.push("Moderate compliance challenges expected");
-    } else {
-      predictedRisk = "red";
-      confidence = Math.max(0.5, 1 - (riskScore / 20));
-      riskFactors.push("High compliance complexity - consider alternative approach");
-    }
-
-    return {
-      risk: predictedRisk,
-      confidence: Math.round(confidence * 100),
-      score: Math.round(riskScore),
-      factors: riskFactors,
-      recommendation: predictedRisk === "red" ? 
-        "Consider post-registration modification strategy" :
-        predictedRisk === "yellow" ?
-        "Engineer pre-approval recommended" :
-        "Proceed with confidence"
-    };
+    setValue("modifications", newMods);
   };
 
   const onSubmit = (data: FormData) => {
-    const selectedModData = data.modifications.map(modId => ({
-      id: modId,
-      ...modificationData[modId as keyof typeof modificationData]
-    }));
-
-    const state = stateCompliance[data.state as keyof typeof stateCompliance];
-    
-    // Use ML-powered risk prediction
-    const smartRisk = calculateSmartRisk(selectedModData, state, planType, data.budget, data.timeline);
-
-    // Generate state-specific compliance path
-    const engineeringRequired = selectedModData.some(mod => mod.risk === "red" || mod.risk === "yellow");
-    const vassRequired = selectedModData.some(mod => mod.risk === "red");
-
-    let compliancePath = [];
-    if (planType === "pre-reg") {
-      compliancePath = [
-        "Import vehicle with minimal modifications",
-        `Initial inspection at ${state.authority}`,
-        engineeringRequired ? "Engineer certification for approved mods only" : null,
-        "Register vehicle first",
-        "Apply for modification permits post-registration"
-      ].filter(Boolean);
-    } else {
-      compliancePath = [
-        "Register vehicle in stock condition",
-        "Apply for modification permits",
-        engineeringRequired ? "Engineer certification required" : null,
-        vassRequired ? "VASS approval needed" : null,
-        `${state.authority} inspection`,
-        "Compliance certificate issued"
-      ].filter(Boolean);
-    }
-
-    const estimatedCost = planType === "pre-reg" ? 
-      (vassRequired ? 5000 : engineeringRequired ? 2500 : 1200) :
-      (vassRequired ? 8000 : engineeringRequired ? 3500 : 1500);
-
-    const estimatedTime = planType === "pre-reg" ?
-      (vassRequired ? "6-8 weeks" : engineeringRequired ? "3-4 weeks" : "2-3 weeks") :
-      (vassRequired ? "8-12 weeks" : engineeringRequired ? "4-6 weeks" : "2-4 weeks");
-
-    setResults({
-      vehicle: data.vehicle,
-      state,
-      modifications: selectedModData,
-      overallRisk: smartRisk.risk,
-      mlRiskScore: smartRisk.score,
-      confidence: smartRisk.confidence,
-      riskFactors: smartRisk.factors,
-      mlRecommendation: smartRisk.recommendation,
-      engineeringRequired,
-      vassRequired,
-      compliancePath,
-      estimatedCost,
-      estimatedTime,
-      planType,
-      recommendation: planType === "pre-reg" ? 
-        "Keep modifications minimal for easier registration" :
-        "Register first, then modify with proper certifications"
-    });
+    mutation.mutate(data);
   };
 
   const getRiskColor = (risk: string) => {
     switch (risk) {
-      case "green": return "bg-green-100 text-green-800 border-green-200";
-      case "yellow": return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "red": return "bg-red-100 text-red-800 border-red-200";
-      default: return "bg-gray-100 text-gray-800 border-gray-200";
+      case "green": return "bg-green-50 text-green-800 border-green-200 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20";
+      case "yellow": return "bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20";
+      case "red": return "bg-red-50 text-red-800 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20";
+      default: return "bg-gray-50 text-gray-800 border-gray-200 dark:bg-gray-500/10 dark:text-gray-400 dark:border-gray-500/20";
     }
   };
 
   const getRiskIcon = (risk: string) => {
     switch (risk) {
       case "green": return <CheckCircle className="h-4 w-4" />;
-      case "yellow": return <AlertTriangle className="h-4 w-4" />;
-      case "red": return <AlertCircle className="h-4 w-4" />;
+      case "yellow": return <AlertCircle className="h-4 w-4" />;
+      case "red": return <AlertTriangle className="h-4 w-4" />;
       default: return <AlertCircle className="h-4 w-4" />;
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center space-x-3 mb-4">
-            <div className="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-lg">
-              <Settings className="h-6 w-6 text-purple-600" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900" title="BuildReady™ shows you which modifications will pass compliance in your state — before you commit to costly changes.">BuildReady™</h1>
-              <div className="text-sm text-gray-500 mb-2">
-                Powered by ImportIQ's BuildReady™ Engine
+  if (showResults) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-black dark:to-gray-950">
+        <div className="max-w-4xl mx-auto px-6 py-12">
+          {/* Header */}
+          <div className="mb-12">
+            <Button 
+              variant="ghost" 
+              onClick={() => setShowResults(false)}
+              className="mb-6 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Form
+            </Button>
+            
+            <div className="text-center space-y-4">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mb-4">
+                <Shield className="h-8 w-8 text-white" />
               </div>
-              <p className="text-gray-600">Design your build with clarity, compliance, and confidence.</p>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">
+                Compliance Strategy
+              </h1>
+              <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                Your personalized roadmap for legal vehicle modification and registration
+              </p>
             </div>
           </div>
-        </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Input Form */}
-          <div className="lg:col-span-1">
-            <Card>
-              <CardHeader>
-                <CardTitle>Vehicle & State Setup</CardTitle>
-                <CardDescription>
-                  Configure your build parameters
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <div>
-                    <Label htmlFor="email">Email Address</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      {...form.register("email")}
-                      placeholder="your@email.com"
-                    />
-                    {form.formState.errors.email && (
-                      <p className="text-sm text-red-600">{form.formState.errors.email.message}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <Label htmlFor="vehicle">Vehicle Make/Model</Label>
-                    <Input
-                      id="vehicle"
-                      {...form.register("vehicle")}
-                      placeholder="e.g., Nissan Skyline R34 GT-R"
-                    />
-                    {form.formState.errors.vehicle && (
-                      <p className="text-sm text-red-600">{form.formState.errors.vehicle.message}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <Label>State/Territory</Label>
-                    <Select onValueChange={(value) => form.setValue("state", value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select your state" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.entries(stateCompliance).map(([code, state]) => (
-                          <SelectItem key={code} value={code}>
-                            {state.name} - {state.strictness} compliance
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {form.formState.errors.state && (
-                      <p className="text-sm text-red-600">{form.formState.errors.state.message}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <Label htmlFor="budget">Budget Range</Label>
-                    <Select onValueChange={(value) => form.setValue("budget", value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select budget" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="under50k">Under $50,000</SelectItem>
-                        <SelectItem value="50k-100k">$50,000 - $100,000</SelectItem>
-                        <SelectItem value="100k-200k">$100,000 - $200,000</SelectItem>
-                        <SelectItem value="200k+">$200,000+</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="timeline">Timeline</Label>
-                    <Select onValueChange={(value) => form.setValue("timeline", value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select timeline" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="asap">As soon as possible</SelectItem>
-                        <SelectItem value="3months">3 months</SelectItem>
-                        <SelectItem value="6months">6 months</SelectItem>
-                        <SelectItem value="12months">12+ months</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <Label className="text-base font-medium">Planned Modifications</Label>
-                    <div className="space-y-3 mt-3">
-                      {Object.entries(modificationData).map(([id, mod]) => (
-                        <div key={id} className="flex items-start space-x-3">
-                          <Checkbox
-                            id={id}
-                            checked={selectedMods.includes(id)}
-                            onCheckedChange={(checked) => handleModificationChange(id, checked as boolean)}
-                          />
-                          <div className="flex-1 min-w-0">
-                            <label
-                              htmlFor={id}
-                              className="text-sm font-medium text-gray-900 cursor-pointer"
-                            >
-                              {mod.name}
-                            </label>
-                            <div className="flex items-center space-x-2 mt-1">
-                              <Badge className={`text-xs ${getRiskColor(mod.risk)}`}>
-                                {getRiskIcon(mod.risk)}
-                                <span className="ml-1 capitalize">{mod.risk} Risk</span>
-                              </Badge>
-                            </div>
-                            <p className="text-xs text-gray-500 mt-1">{mod.description}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-purple-600 hover:bg-purple-700"
-                    disabled={!form.watch("vehicle") || !form.watch("state") || selectedMods.length === 0}
-                  >
-                    Generate BuildReady Plan
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Results */}
-          {results && (
-            <div className="lg:col-span-2 space-y-6">
-              {/* Overview */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Shield className="h-5 w-5" />
-                    <span>Your BuildReady Summary</span>
+          {/* Results Grid */}
+          <div className="space-y-8">
+            {/* Selected Modifications */}
+            {selectedMods.length > 0 && (
+              <Card className="border-0 shadow-sm bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm">
+                <CardHeader className="pb-6">
+                  <CardTitle className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                    Modification Analysis
                   </CardTitle>
-                  <CardDescription>
-                    {results.vehicle} build plan for {results.state.name}
+                  <CardDescription className="text-gray-600 dark:text-gray-400">
+                    Compliance requirements for your selected modifications
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  {/* Machine Learning Risk Analysis */}
-                  <div className="mb-6 p-6 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl border border-purple-200">
-                    <div className="flex items-center space-x-2 mb-4">
-                      <Brain className="h-6 w-6 text-purple-600" />
-                      <span className="font-bold text-lg text-purple-900">Smart Risk Prediction</span>
-                      <Badge className="text-xs bg-purple-100 text-purple-800">ML-Powered</Badge>
-                    </div>
-                    
-                    <div className="grid grid-cols-3 gap-4 mb-6">
-                      <div className={`p-4 rounded-lg border-2 ${getRiskColor(results.overallRisk)}`}>
-                        <div className="flex items-center space-x-2 mb-2">
-                          {getRiskIcon(results.overallRisk)}
-                          <span className="font-bold text-lg capitalize">{results.overallRisk} Risk</span>
-                        </div>
-                        <div className="text-sm font-medium">ML Risk Score: {results.mlRiskScore}/20</div>
-                        <div className="text-xs text-gray-600 mt-1">
-                          {results.overallRisk === "red" && "High complexity detected"}
-                          {results.overallRisk === "yellow" && "Moderate challenges expected"}
-                          {results.overallRisk === "green" && "Low complexity predicted"}
-                        </div>
-                      </div>
-                      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                        <div className="text-2xl font-bold text-blue-600">{results.confidence}%</div>
-                        <div className="text-sm font-medium text-blue-700">Prediction Confidence</div>
-                        <div className="text-xs text-blue-600 mt-1">Based on historical data</div>
-                      </div>
-                      <div className={`p-4 rounded-lg border-2 ${
-                        results.overallRisk === "red" ? "bg-red-50 border-red-300" :
-                        results.overallRisk === "yellow" ? "bg-yellow-50 border-yellow-300" :
-                        "bg-green-50 border-green-300"
-                      }`}>
-                        <div className={`text-sm font-bold ${
-                          results.overallRisk === "red" ? "text-red-700" :
-                          results.overallRisk === "yellow" ? "text-yellow-700" :
-                          "text-green-700"
-                        }`}>
-                          {results.mlRecommendation}
-                        </div>
-                        <div className={`text-xs mt-1 ${
-                          results.overallRisk === "red" ? "text-red-600" :
-                          results.overallRisk === "yellow" ? "text-yellow-600" :
-                          "text-green-600"
-                        }`}>
-                          AI Recommendation
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Why This Risk Level */}
-                    <div className="mb-4 p-4 bg-white rounded-lg border">
-                      <h4 className="text-sm font-bold text-gray-900 mb-3 flex items-center">
-                        <AlertCircle className="h-4 w-4 mr-2" />
-                        Why {results.overallRisk.toUpperCase()} Risk?
-                      </h4>
-                      <div className="text-sm text-gray-800 space-y-2">
-                        {results.overallRisk === "red" && (
-                          <div>
-                            <p className="font-medium text-red-700">High compliance complexity detected due to:</p>
-                            <ul className="mt-2 ml-4 space-y-1 text-red-600">
-                              <li>• Risk score of {results.mlRiskScore}/20 exceeds safe threshold (10+)</li>
-                              <li>• Multiple high-risk modifications selected</li>
-                              <li>• State compliance requirements are strict</li>
-                              <li>• Timeline or budget constraints may increase rejection risk</li>
-                            </ul>
+                <CardContent className="space-y-6">
+                  {selectedMods.map((modId) => {
+                    const mod = modificationData[modId as keyof typeof modificationData];
+                    return (
+                      <div key={modId} className="p-6 bg-gray-50/50 dark:bg-gray-800/50 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex-1">
+                            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                              {mod.name}
+                            </h3>
+                            <p className="text-gray-600 dark:text-gray-400 mb-4">
+                              {mod.description}
+                            </p>
                           </div>
-                        )}
-                        {results.overallRisk === "yellow" && (
-                          <div>
-                            <p className="font-medium text-yellow-700">Moderate compliance challenges expected:</p>
-                            <ul className="mt-2 ml-4 space-y-1 text-yellow-600">
-                              <li>• Risk score of {results.mlRiskScore}/20 in caution zone (4-10)</li>
-                              <li>• Some modifications require engineering certification</li>
-                              <li>• State compliance requirements need careful attention</li>
-                              <li>• Additional documentation or approvals may be needed</li>
-                              <li>• Professional guidance recommended for complex items</li>
-                            </ul>
-                          </div>
-                        )}
-                        {results.overallRisk === "green" && (
-                          <div>
-                            <p className="font-medium text-green-700">Low compliance complexity predicted:</p>
-                            <ul className="mt-2 ml-4 space-y-1 text-green-600">
-                              <li>• Risk score of {results.mlRiskScore}/20 in safe zone (≤4)</li>
-                              <li>• Selected modifications are generally compliant</li>
-                              <li>• State requirements are favorable for your build</li>
-                              <li>• Timeline and budget appear adequate</li>
-                            </ul>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    
-                    {/* Risk Factors */}
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-900 mb-3">Machine Learning Analysis Factors:</h4>
-                      <div className="grid grid-cols-1 gap-2">
-                        {results.riskFactors.map((factor: string, index: number) => (
-                          <div key={index} className="flex items-start space-x-3 text-sm p-2 bg-white rounded border-l-4 border-purple-400">
-                            <div className="w-2 h-2 bg-purple-600 rounded-full mt-2 flex-shrink-0"></div>
-                            <span className="text-gray-700">{factor}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-4 mb-6">
-                    <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                      <div className="text-lg font-bold text-blue-600">
-                        ${results.estimatedCost.toLocaleString()}
-                      </div>
-                      <div className="text-xs text-blue-700">Estimated compliance cost</div>
-                    </div>
-                    <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                      <div className="text-lg font-bold text-green-600">
-                        {results.estimatedTime}
-                      </div>
-                      <div className="text-xs text-green-700">Estimated timeline</div>
-                    </div>
-                  </div>
-
-                  <div className="text-sm text-gray-600">
-                    <strong>Authority:</strong> {results.state.authority} • 
-                    <strong> Strictness:</strong> {results.state.strictness} • 
-                    <strong> Notes:</strong> {results.state.notes}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Selected Modifications */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Selected Modifications</CardTitle>
-                  <CardDescription>
-                    Requirements and compliance notes for each modification
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {results.modifications.map((mod: any) => (
-                      <div key={mod.id} className="border rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-3">
-                          <h4 className="font-medium">{mod.name}</h4>
-                          <Badge className={getRiskColor(mod.risk)}>
+                          <Badge className={`ml-4 ${getRiskColor(mod.risk)}`}>
                             {getRiskIcon(mod.risk)}
-                            <span className="ml-1 capitalize">{mod.risk} Risk</span>
+                            <span className="ml-2 capitalize">{mod.risk} Risk</span>
                           </Badge>
                         </div>
-                        <p className="text-sm text-gray-600 mb-3">{mod.description}</p>
+                        
                         <div>
-                          <div className="text-sm font-medium mb-2">Requirements:</div>
-                          <ul className="text-sm text-gray-600 space-y-1">
-                            {mod.requirements.map((req: string, index: number) => (
-                              <li key={index} className="flex items-start space-x-2">
-                                <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
-                                <span>{req}</span>
+                          <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">
+                            Requirements:
+                          </h4>
+                          <ul className="space-y-2">
+                            {mod.requirements.map((req, index) => (
+                              <li key={index} className="flex items-start text-sm text-gray-600 dark:text-gray-400">
+                                <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-2 mr-3 flex-shrink-0" />
+                                {req}
                               </li>
                             ))}
                           </ul>
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </CardContent>
               </Card>
+            )}
 
-              {/* Compliance Path */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <FileText className="h-5 w-5" />
-                    <span>Compliance Pathway</span>
-                  </CardTitle>
-                  <CardDescription>
-                    Step-by-step process to get your build road-ready
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {results.compliancePath.map((step: string, index: number) => (
-                      <div key={index} className="flex items-start space-x-3">
-                        <div className="flex items-center justify-center w-6 h-6 bg-purple-100 text-purple-600 rounded-full text-sm font-medium flex-shrink-0">
-                          {index + 1}
-                        </div>
-                        <div className="flex-1">
-                          <div className="text-sm font-medium">{step}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {results.vassRequired && (
-                    <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                      <div className="flex items-start space-x-2">
-                        <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <div className="font-medium text-red-900">VASS Approval Required</div>
-                          <div className="text-sm text-red-700 mt-1">
-                            Your modifications require Vehicle Assessment Signatory Scheme approval. 
-                            This is a comprehensive process involving detailed engineering assessments.
-                          </div>
-                        </div>
-                      </div>
+            {/* Action Items */}
+            <Card className="border-0 shadow-sm bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm">
+              <CardHeader className="pb-6">
+                <CardTitle className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                  Next Steps
+                </CardTitle>
+                <CardDescription className="text-gray-600 dark:text-gray-400">
+                  Recommended actions to ensure compliance
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid gap-4">
+                  <div className="flex items-center p-4 bg-blue-50/50 dark:bg-blue-500/10 rounded-xl border border-blue-200/50 dark:border-blue-500/20">
+                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mr-4">
+                      <span className="text-white text-sm font-medium">1</span>
                     </div>
-                  )}
-
-                  {results.engineeringRequired && !results.vassRequired && (
-                    <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                      <div className="flex items-start space-x-2">
-                        <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <div className="font-medium text-yellow-900">Engineering Certificate Required</div>
-                          <div className="text-sm text-yellow-700 mt-1">
-                            Your modifications require professional engineering assessment and certification.
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Action Buttons */}
-                  <div className="mt-6 space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <Button
-                        onClick={() => {
-                          const reportData = {
-                            type: 'BuildReady™ Plan',
-                            title: `${results.vehicle} Compliance Analysis`,
-                            data: {
-                              vehicle: results.vehicle,
-                              state: results.state.name,
-                              riskLevel: results.overallRisk,
-                              mlRiskScore: results.mlRiskScore,
-                              confidence: results.confidence,
-                              modifications: results.modifications,
-                              estimatedCost: results.estimatedCost,
-                              estimatedTime: results.estimatedTime,
-                              compliancePath: results.compliancePath,
-                              mlRecommendation: results.mlRecommendation,
-                              riskFactors: results.riskFactors,
-                              engineeringRequired: results.engineeringRequired,
-                              vassRequired: results.vassRequired
-                            }
-                          };
-                          saveReportMutation.mutate(reportData);
-                        }}
-                        disabled={saveReportMutation.isPending}
-                        className="w-full bg-green-600 hover:bg-green-700 text-white"
-                      >
-                        <Save className="h-4 w-4 mr-2" />
-                        {saveReportMutation.isPending ? 'Saving...' : 'Save to Dashboard'}
-                      </Button>
-                      <Button
-                        onClick={() => window.location.href = '/booking'}
-                        variant="outline"
-                        className="w-full border-blue-600 text-blue-600 hover:bg-blue-50"
-                      >
-                        <Calendar className="h-4 w-4 mr-2" />
-                        Book Consultation
-                      </Button>
-                    </div>
-                    
-                    <div className="text-center">
-                      <Button
-                        onClick={() => window.location.href = '/checkout'}
-                        className="w-full bg-purple-600 hover:bg-purple-700 text-white text-lg py-3"
-                      >
-                        <CreditCard className="h-5 w-5 mr-2" />
-                        Secure Your Build - $500 Deposit
-                      </Button>
-                      <p className="text-sm text-gray-600 mt-2">
-                        Ready to start? Secure your build slot with a refundable deposit
-                      </p>
+                    <div className="flex-1">
+                      <h4 className="font-medium text-gray-900 dark:text-gray-100">Document Requirements</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Gather all necessary documentation before starting modifications</p>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                  
+                  <div className="flex items-center p-4 bg-blue-50/50 dark:bg-blue-500/10 rounded-xl border border-blue-200/50 dark:border-blue-500/20">
+                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mr-4">
+                      <span className="text-white text-sm font-medium">2</span>
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-medium text-gray-900 dark:text-gray-100">Find Certified Engineer</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Locate an approved automotive engineer in your state</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center p-4 bg-blue-50/50 dark:bg-blue-500/10 rounded-xl border border-blue-200/50 dark:border-blue-500/20">
+                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mr-4">
+                      <span className="text-white text-sm font-medium">3</span>
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-medium text-gray-900 dark:text-gray-100">Plan Modifications</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Complete modifications in the correct order for inspection</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-              {/* Call-to-Action Section */}
-              <CTASection 
-                title="Ready to Make It Happen?"
-                description="Your BuildReady™ plan is just the beginning. Let our experts handle the complex compliance process while you focus on your dream build."
-                primaryAction="Start Your Build Journey"
-                secondaryAction="Learn More About Our Process"
-              />
-            </div>
-          )}
+            {/* Call to Action */}
+            <Card className="border-0 shadow-sm bg-gradient-to-br from-blue-600 to-purple-700 text-white">
+              <CardContent className="p-8 text-center">
+                <h3 className="text-2xl font-bold mb-4">Ready to Start Your Build?</h3>
+                <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
+                  Get expert guidance throughout your compliance journey with our professional consultation services.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50 font-medium">
+                    <Calendar className="h-5 w-5 mr-2" />
+                    Book Consultation
+                  </Button>
+                  <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 font-medium">
+                    <FileText className="h-5 w-5 mr-2" />
+                    Download Guide
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-black dark:to-gray-950">
+      <div className="max-w-4xl mx-auto px-6 py-12">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <Link href="/">
+            <Button variant="ghost" className="mb-6 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Dashboard
+            </Button>
+          </Link>
+          
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mb-6">
+            <Settings className="h-8 w-8 text-white" />
+          </div>
+          
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent mb-4">
+            BuildReady
+          </h1>
+          <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+            Get a personalized compliance strategy for your vehicle modifications before you start building
+          </p>
+        </div>
+
+        {/* Main Form */}
+        <Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
+          <CardHeader className="pb-8">
+            <CardTitle className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+              Vehicle & Modification Details
+            </CardTitle>
+            <CardDescription className="text-gray-600 dark:text-gray-400">
+              Tell us about your project to receive tailored compliance guidance
+            </CardDescription>
+          </CardHeader>
+          
+          <CardContent>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+              {/* Basic Information */}
+              <div className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      Email Address
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      {...register("email")}
+                      placeholder="your@email.com"
+                      className="h-12 border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-gray-800"
+                    />
+                    {errors.email && (
+                      <p className="text-sm text-red-600 dark:text-red-400">{errors.email.message}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="vehicle" className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      Vehicle
+                    </Label>
+                    <Select onValueChange={(value) => setValue("vehicle", value)}>
+                      <SelectTrigger className="h-12 border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-gray-800">
+                        <SelectValue placeholder="Select your vehicle" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="skyline-gtr">Nissan Skyline GT-R</SelectItem>
+                        <SelectItem value="supra">Toyota Supra</SelectItem>
+                        <SelectItem value="evo">Mitsubishi Evolution</SelectItem>
+                        <SelectItem value="impreza-sti">Subaru Impreza STI</SelectItem>
+                        <SelectItem value="rx7">Mazda RX-7</SelectItem>
+                        <SelectItem value="silvia">Nissan Silvia</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {errors.vehicle && (
+                      <p className="text-sm text-red-600 dark:text-red-400">{errors.vehicle.message}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="state" className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      State
+                    </Label>
+                    <Select onValueChange={(value) => setValue("state", value)}>
+                      <SelectTrigger className="h-12 border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-gray-800">
+                        <SelectValue placeholder="Select state" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="nsw">NSW</SelectItem>
+                        <SelectItem value="vic">VIC</SelectItem>
+                        <SelectItem value="qld">QLD</SelectItem>
+                        <SelectItem value="wa">WA</SelectItem>
+                        <SelectItem value="sa">SA</SelectItem>
+                        <SelectItem value="tas">TAS</SelectItem>
+                        <SelectItem value="act">ACT</SelectItem>
+                        <SelectItem value="nt">NT</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {errors.state && (
+                      <p className="text-sm text-red-600 dark:text-red-400">{errors.state.message}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="budget" className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      Modification Budget
+                    </Label>
+                    <Select onValueChange={(value) => setValue("budget", value)}>
+                      <SelectTrigger className="h-12 border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-gray-800">
+                        <SelectValue placeholder="Budget range" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="under-5k">Under $5,000</SelectItem>
+                        <SelectItem value="5k-15k">$5,000 - $15,000</SelectItem>
+                        <SelectItem value="15k-30k">$15,000 - $30,000</SelectItem>
+                        <SelectItem value="30k-50k">$30,000 - $50,000</SelectItem>
+                        <SelectItem value="over-50k">Over $50,000</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {errors.budget && (
+                      <p className="text-sm text-red-600 dark:text-red-400">{errors.budget.message}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="timeline" className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      Timeline
+                    </Label>
+                    <Select onValueChange={(value) => setValue("timeline", value)}>
+                      <SelectTrigger className="h-12 border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-gray-800">
+                        <SelectValue placeholder="Project timeline" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1-3months">1-3 months</SelectItem>
+                        <SelectItem value="3-6months">3-6 months</SelectItem>
+                        <SelectItem value="6-12months">6-12 months</SelectItem>
+                        <SelectItem value="over-12months">Over 12 months</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {errors.timeline && (
+                      <p className="text-sm text-red-600 dark:text-red-400">{errors.timeline.message}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Planned Modifications */}
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                    Planned Modifications
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                    Select all modifications you're planning to help us assess compliance requirements
+                  </p>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  {Object.entries(modificationData).map(([id, mod]) => (
+                    <div key={id} className="relative">
+                      <div className={`p-6 rounded-xl border transition-all cursor-pointer ${
+                        selectedMods.includes(id) 
+                          ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-500/10 dark:border-blue-400' 
+                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 bg-white dark:bg-gray-800'
+                      }`}>
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-start space-x-3">
+                            <Checkbox
+                              id={id}
+                              checked={selectedMods.includes(id)}
+                              onCheckedChange={(checked) => handleModificationChange(id, checked as boolean)}
+                              className="mt-1"
+                            />
+                            <div className="flex-1">
+                              <label htmlFor={id} className="text-sm font-medium text-gray-900 dark:text-white cursor-pointer">
+                                {mod.name}
+                              </label>
+                              <p className="text-xs text-gray-700 dark:text-gray-300 mt-1">
+                                {mod.description}
+                              </p>
+                            </div>
+                          </div>
+                          <Badge className={`${getRiskColor(mod.risk)} text-xs`}>
+                            {getRiskIcon(mod.risk)}
+                            <span className="ml-1 capitalize">{mod.risk}</span>
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Plan Type */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  Compliance Strategy
+                </h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className={`p-6 rounded-xl border cursor-pointer transition-all ${
+                    watch("planType") === "pre-reg" 
+                      ? "border-blue-500 bg-blue-50/50 dark:bg-blue-500/10 dark:border-blue-400"
+                      : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+                  }`} onClick={() => setValue("planType", "pre-reg")}>
+                    <div className="flex items-start space-x-3">
+                      <input
+                        type="radio"
+                        {...register("planType")}
+                        value="pre-reg"
+                        className="mt-1"
+                      />
+                      <div>
+                        <h4 className="font-medium text-gray-900 dark:text-gray-100">Pre-Registration</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          Plan compliance before vehicle registration (recommended)
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={`p-6 rounded-xl border cursor-pointer transition-all ${
+                    watch("planType") === "post-reg" 
+                      ? "border-blue-500 bg-blue-50/50 dark:bg-blue-500/10 dark:border-blue-400"
+                      : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+                  }`} onClick={() => setValue("planType", "post-reg")}>
+                    <div className="flex items-start space-x-3">
+                      <input
+                        type="radio"
+                        {...register("planType")}
+                        value="post-reg"
+                        className="mt-1"
+                      />
+                      <div>
+                        <h4 className="font-medium text-gray-900 dark:text-gray-100">Post-Registration</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          Vehicle already registered, need modification compliance
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <div className="pt-6">
+                <Button
+                  type="submit"
+                  disabled={mutation.isPending || !isValid}
+                  className="w-full h-14 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium text-lg rounded-xl shadow-lg"
+                >
+                  {mutation.isPending ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-3" />
+                      Analyzing Compliance...
+                    </>
+                  ) : (
+                    <>
+                      <Brain className="h-5 w-5 mr-3" />
+                      Generate Compliance Strategy
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
