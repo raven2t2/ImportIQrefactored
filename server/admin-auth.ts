@@ -196,4 +196,8 @@ export class AdminAuthService {
       console.error("Failed to clean expired sessions:", error);
     }
   }
+
+  static getRolePermissions(role: string) {
+    return this.ROLE_PERMISSIONS[role as keyof typeof this.ROLE_PERMISSIONS] || this.ROLE_PERMISSIONS.viewer;
+  }
 }
