@@ -8,9 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Search, Car, Flag, AlertCircle, CheckCircle, RefreshCw, DollarSign, Calendar, Gauge, Wrench, Database } from "lucide-react";
+import { Search, Car, Flag, AlertCircle, CheckCircle, RefreshCw, DollarSign, Calendar, Gauge, Wrench, Database, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { Link } from "wouter";
 
 const lookupSchema = z.object({
   identifier: z.string().min(1, "Please enter a VIN or chassis code"),
@@ -36,6 +37,13 @@ interface VehicleResult {
     priceRange: string;
     popularAuctions: string[];
   };
+  recommendations?: Array<{
+    tool: string;
+    description: string;
+    action: string;
+    link: string;
+    data: any;
+  }>;
 }
 
 export default function VehicleLookup() {
@@ -383,6 +391,35 @@ export default function VehicleLookup() {
                         </div>
                       </div>
                     )}
+                  </div>
+                </>
+              )}
+
+              {/* Recommendations */}
+              {result.recommendations && result.recommendations.length > 0 && (
+                <>
+                  <Separator className="bg-amber-400/20" />
+                  <div>
+                    <h3 className="text-lg font-semibold text-white mb-3 flex items-center">
+                      <ArrowRight className="h-5 w-5 text-amber-400 mr-2" />
+                      Recommended Next Steps
+                    </h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      {result.recommendations.map((rec, index) => (
+                        <div key={index} className="p-4 bg-amber-950/20 rounded-lg border border-amber-400/20">
+                          <div className="text-amber-400 text-sm font-medium mb-1">{rec.tool}</div>
+                          <div className="text-white text-sm mb-3">{rec.description}</div>
+                          <Link to={rec.link}>
+                            <Button 
+                              size="sm" 
+                              className="bg-amber-400 text-black hover:bg-amber-500 font-medium"
+                            >
+                              {rec.action}
+                            </Button>
+                          </Link>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </>
               )}
