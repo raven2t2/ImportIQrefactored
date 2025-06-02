@@ -305,57 +305,131 @@ export default function UserDashboard() {
           <TabsContent value="watchlist" className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">Parts Watchlist</h2>
-                <p className="text-gray-600">Track prices on parts you want for your builds</p>
+                <h2 className="text-2xl font-bold text-gray-900">Your Personal Hub</h2>
+                <p className="text-gray-600">Price alerts, local events, member perks, and exclusive updates</p>
               </div>
               <Button className="bg-brand-gold hover:bg-brand-gold/90">
                 <Plus className="h-4 w-4 mr-2" />
-                Add Part
+                Add Alert
               </Button>
             </div>
 
-            <div className="space-y-4">
-              {userWatchlist.length > 0 ? userWatchlist.map((item: any) => (
-                <Card key={item.id}>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <h3 className="font-medium text-gray-900">{item.partName}</h3>
-                        <p className="text-sm text-gray-600">For {item.vehicle}</p>
-                      </div>
-                      <div className="text-right space-y-1">
-                        <div className="flex items-center space-x-4">
-                          <div>
-                            <p className="text-xs text-gray-500">Target</p>
-                            <p className="font-medium">${item.targetPrice}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-500">Current</p>
-                            <p className="font-medium">${item.currentPrice}</p>
-                          </div>
-                        </div>
-                        <Badge 
-                          variant={item.priceAlert ? "destructive" : "secondary"}
-                          className="text-xs"
-                        >
-                          {item.priceAlert ? "Price Alert!" : "Watching"}
-                        </Badge>
-                      </div>
+            {/* Location Permission Banner */}
+            <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                      <Calendar className="h-6 w-6 text-white" />
                     </div>
-                  </CardContent>
-                </Card>
-              )) : (
-                <div className="text-center py-12">
-                  <Heart className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No parts in watchlist</h3>
-                  <p className="text-gray-500 mb-4">Start tracking prices on parts you want for your builds</p>
-                  <Button className="bg-brand-gold hover:bg-brand-gold/90">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Your First Part
+                    <div>
+                      <h3 className="font-semibold text-gray-900">Unlock Local Car Events & Workshops</h3>
+                      <p className="text-sm text-gray-600">Share your location to get notified about nearby car meets, track days, and mod workshops in your area</p>
+                    </div>
+                  </div>
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                    Enable Location
                   </Button>
                 </div>
-              )}
-            </div>
+              </CardContent>
+            </Card>
+
+            {/* Member-Only Mod Shop Discounts */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <span>🔥 Member-Only Mod Shop Deals</span>
+                  <Badge className="bg-red-500">EXCLUSIVE</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg border border-orange-200">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-semibold text-gray-900">HKS Performance</h4>
+                      <Badge variant="destructive">15% OFF</Badge>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-3">Turbo kits, exhaust systems, and suspension upgrades</p>
+                    <Button size="sm" className="w-full">Claim Discount</Button>
+                  </div>
+                  <div className="p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-lg border border-green-200">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-semibold text-gray-900">Spoon Sports</h4>
+                      <Badge variant="destructive">20% OFF</Badge>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-3">Authentic JDM parts and racing components</p>
+                    <Button size="sm" className="w-full">Claim Discount</Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Price Alerts & Watchlist */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Price Alerts & Parts Tracking</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {userWatchlist.length > 0 ? userWatchlist.map((item: any) => (
+                    <div key={item.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-900">{item.partName}</h3>
+                        <p className="text-sm text-gray-600">Target: ${item.targetPrice} • Current: ${item.currentPrice}</p>
+                      </div>
+                      <Badge variant={item.priceAlert ? "destructive" : "secondary"}>
+                        {item.priceAlert ? "Price Drop!" : "Watching"}
+                      </Badge>
+                    </div>
+                  )) : (
+                    <div className="text-center py-8">
+                      <Heart className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                      <h3 className="font-medium text-gray-900 mb-2">No price alerts set</h3>
+                      <p className="text-gray-500 mb-4">Start tracking prices on parts you want for your builds</p>
+                      <Button className="bg-brand-gold hover:bg-brand-gold/90">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Your First Part
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Coming Soon Features */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <span>🚀 Coming Soon to ImportIQ</span>
+                  <Badge variant="outline">PREVIEW</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                    <h4 className="font-semibold text-gray-900 mb-2">AI Import Advisor</h4>
+                    <p className="text-sm text-gray-600 mb-3">Get personalized import recommendations based on your preferences and budget</p>
+                    <Button size="sm" variant="outline" className="w-full">
+                      Join Waitlist
+                    </Button>
+                  </div>
+                  <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-200">
+                    <h4 className="font-semibold text-gray-900 mb-2">Live Auction Tracker</h4>
+                    <p className="text-sm text-gray-600 mb-3">Real-time notifications for Japanese auction houses with your dream cars</p>
+                    <Button size="sm" variant="outline" className="w-full">
+                      Early Access
+                    </Button>
+                  </div>
+                  <div className="p-4 bg-pink-50 rounded-lg border border-pink-200">
+                    <h4 className="font-semibold text-gray-900 mb-2">Mod Shop Network</h4>
+                    <p className="text-sm text-gray-600 mb-3">Connect with trusted workshops and get exclusive member pricing</p>
+                    <Button size="sm" variant="outline" className="w-full">
+                      Get Notified
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="events" className="space-y-6">

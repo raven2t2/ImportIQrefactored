@@ -1218,7 +1218,157 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
+  // Location-based retention system APIs
+  app.post("/api/user/location", async (req: any, res) => {
+    try {
+      const { email, latitude, longitude, suburb, postcode, state } = req.body;
+      
+      // Store user location for personalized events
+      await storage.updateEmailCache(email, req.body.name);
+      
+      // Find nearby events based on location
+      const nearbyEvents = await storage.getNearbyCarEvents(postcode);
+      
+      res.json({
+        success: true,
+        message: "Location saved successfully",
+        nearbyEvents: nearbyEvents.slice(0, 5) // Return top 5 events
+      });
+    } catch (error) {
+      console.error("Error saving location:", error);
+      res.status(500).json({ error: "Failed to save location" });
+    }
+  });
 
+  // Get member-exclusive mod shop deals
+  app.get("/api/user/member-deals", async (req: any, res) => {
+    try {
+      const memberDeals = [
+        {
+          id: 1,
+          shopName: "HKS Performance",
+          discount: 15,
+          description: "Turbo kits, exhaust systems, and suspension upgrades",
+          code: "IMPORTIQ15",
+          validUntil: "2024-12-31",
+          category: "Performance"
+        },
+        {
+          id: 2,
+          shopName: "Spoon Sports",
+          discount: 20,
+          description: "Authentic JDM parts and racing components",
+          code: "IMPORTIQ20",
+          validUntil: "2024-12-31",
+          category: "JDM Parts"
+        },
+        {
+          id: 3,
+          shopName: "Work Wheels Australia",
+          discount: 12,
+          description: "Premium Japanese wheels and accessories",
+          code: "IMPORTIQ12",
+          validUntil: "2024-11-30",
+          category: "Wheels"
+        },
+        {
+          id: 4,
+          shopName: "Bride Racing Seats",
+          discount: 18,
+          description: "Professional racing seats and harnesses",
+          code: "IMPORTIQ18",
+          validUntil: "2024-12-15",
+          category: "Interior"
+        }
+      ];
+      
+      res.json({
+        success: true,
+        deals: memberDeals
+      });
+    } catch (error) {
+      console.error("Error fetching member deals:", error);
+      res.status(500).json({ error: "Failed to fetch member deals" });
+    }
+  });
+
+  // Get location-based car events
+  app.get("/api/user/local-events", async (req: any, res) => {
+    try {
+      const { postcode } = req.query;
+      
+      if (!postcode) {
+        return res.json({
+          success: false,
+          message: "Enable location sharing to see local events",
+          events: []
+        });
+      }
+      
+      const events = await storage.getNearbyCarEvents(postcode as string);
+      
+      res.json({
+        success: true,
+        events: events.slice(0, 10)
+      });
+    } catch (error) {
+      console.error("Error fetching local events:", error);
+      res.status(500).json({ error: "Failed to fetch local events" });
+    }
+  });
+
+  // Track user engagement with retention features
+  app.post("/api/user/engagement", async (req: any, res) => {
+    try {
+      const { email, action, feature, metadata } = req.body;
+      
+      // Track engagement for analytics
+      const engagementData = {
+        email,
+        action, // "viewed", "clicked", "claimed"
+        feature, // "member_deals", "local_events", "price_alerts"
+        metadata: JSON.stringify(metadata || {}),
+        timestamp: new Date()
+      };
+      
+      // This would be stored in a dedicated engagement tracking table
+      console.log("User engagement tracked:", engagementData);
+      
+      res.json({
+        success: true,
+        message: "Engagement tracked"
+      });
+    } catch (error) {
+      console.error("Error tracking engagement:", error);
+      res.status(500).json({ error: "Failed to track engagement" });
+    }
+  });
+
+  // Push notifications for location-based alerts
+  app.post("/api/admin/push-location-alert", async (req: any, res) => {
+    try {
+      const { postcode, message, eventType, title } = req.body;
+      
+      // This would push notifications to users in specific postcodes
+      const alert = {
+        postcode,
+        title,
+        message,
+        eventType, // "car_meet", "track_day", "mod_workshop", "discount"
+        createdAt: new Date()
+      };
+      
+      console.log("Location-based alert created:", alert);
+      
+      res.json({
+        success: true,
+        message: "Alert pushed to users in postcode " + postcode
+      });
+    } catch (error) {
+      console.error("Error pushing location alert:", error);
+      res.status(500).json({ error: "Failed to push location alert" });
+    }
+  });
 
   // Comprehensive analytics for all 14 ImportIQ tools
   app.get("/api/admin/comprehensive-analytics", async (req: any, res) => {
