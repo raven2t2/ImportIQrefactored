@@ -153,16 +153,19 @@ export default function BuildComply() {
   const saveToDashboard = useMutation({
     mutationFn: async () => {
       const reportData = {
-        type: "compliance-report",
         email: watch("email"),
-        vehicle: watch("vehicle"),
-        state: watch("state"),
-        modifications: selectedMods,
-        planType: watch("planType"),
-        riskLevel: getRiskLevel(),
-        estimatedCost: getEstimatedEngineeringCost(),
-        timeline: getEstimatedTimeline(),
-        generatedAt: new Date().toISOString()
+        reportType: "compliance-report",
+        reportTitle: `BuildReady Analysis - ${watch("vehicle")} (${watch("state")})`,
+        reportData: {
+          vehicle: watch("vehicle"),
+          state: watch("state"),
+          modifications: selectedMods,
+          planType: watch("planType"),
+          riskLevel: getRiskLevel(),
+          estimatedCost: getEstimatedEngineeringCost(),
+          timeline: getEstimatedTimeline(),
+          generatedAt: new Date().toISOString()
+        }
       };
       const response = await apiRequest("POST", "/api/save-report", reportData);
       return response.json();
