@@ -97,6 +97,13 @@ export interface IStorage {
   getAdminSession(token: string): Promise<AdminSession | undefined>;
   deleteAdminSession(token: string): Promise<void>;
   cleanExpiredAdminSessions(): Promise<void>;
+
+  // New tool storage methods
+  storeTrueCostCalculation(data: any): Promise<any>;
+  storeExpertPicksUsage(data: any): Promise<any>;
+  storeModCostEstimate(data: any): Promise<any>;
+  storeRegistrationStatsLookup(data: any): Promise<any>;
+  storeImportVolumeView(data: any): Promise<any>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -744,6 +751,83 @@ export class DatabaseStorage implements IStorage {
 
   private generateReferralCode(): string {
     return Math.random().toString(36).substring(2, 8).toUpperCase();
+  }
+
+  // New tool storage implementations
+  async storeTrueCostCalculation(data: any): Promise<any> {
+    // Store in submissions table for now with type 'true_cost_calculation'
+    const submission = {
+      name: 'True Cost Explorer',
+      email: 'system@importiq.com',
+      vehiclePrice: data.vehiclePrice.toString(),
+      totalCost: data.totalCost.toString(),
+      make: data.vehicleType,
+      model: data.state,
+      year: new Date().getFullYear(),
+      type: 'true_cost_calculation',
+      calculationData: data.breakdown
+    };
+    return await this.createSubmission(submission);
+  }
+
+  async storeExpertPicksUsage(data: any): Promise<any> {
+    const submission = {
+      name: 'Expert Picks',
+      email: 'system@importiq.com',
+      vehiclePrice: data.budget.toString(),
+      totalCost: '0',
+      make: data.category,
+      model: data.experience,
+      year: new Date().getFullYear(),
+      type: 'expert_picks_usage',
+      calculationData: JSON.stringify(data)
+    };
+    return await this.createSubmission(submission);
+  }
+
+  async storeModCostEstimate(data: any): Promise<any> {
+    const submission = {
+      name: 'Mod Cost Estimator',
+      email: 'system@importiq.com',
+      vehiclePrice: '0',
+      totalCost: data.totalCost.toString(),
+      make: data.vehicle,
+      model: 'modifications',
+      year: new Date().getFullYear(),
+      type: 'mod_cost_estimate',
+      calculationData: data.breakdown
+    };
+    return await this.createSubmission(submission);
+  }
+
+  async storeRegistrationStatsLookup(data: any): Promise<any> {
+    const submission = {
+      name: 'Registration Stats',
+      email: 'system@importiq.com',
+      vehiclePrice: '0',
+      totalCost: data.totalRegistrations.toString(),
+      make: data.make,
+      model: data.model,
+      year: data.year,
+      type: 'registration_stats_lookup',
+      calculationData: JSON.stringify(data)
+    };
+    return await this.createSubmission(submission);
+  }
+
+  async storeImportVolumeView(data: any): Promise<any> {
+    const submission = {
+      name: 'Import Volume Dashboard',
+      email: 'system@importiq.com',
+      vehiclePrice: '0',
+      totalCost: data.totalImports.toString(),
+      make: 'volume_data',
+      model: data.period,
+      year: new Date().getFullYear(),
+      type: 'import_volume_view',
+      calculationData: JSON.stringify(data)
+    };
+    return await this.createSubmission(submission);
   }
 }
 
