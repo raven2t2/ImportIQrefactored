@@ -33,6 +33,7 @@ import AffiliateDashboard from "@/pages/affiliate-dashboard";
 import TrialDashboard from "@/pages/trial-dashboard";
 import Login from "@/pages/login";
 import AdminDashboard from "@/pages/admin";
+import SecureAdminDashboard from "@/pages/secure-admin";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -58,6 +59,7 @@ function Router() {
       <Route path="/dashboard" component={UserDashboard} />
       <Route path="/user-dashboard" component={UserDashboard} />
       <Route path="/admin" component={AdminDashboard} />
+      <Route path="/secure-admin-panel-iq2025" component={SecureAdminDashboard} />
       <Route path="/garage" component={EnhancedDashboard} />
       <Route path="/subscribe" component={Subscribe} />
       <Route path="/checkout" component={Checkout} />
