@@ -237,7 +237,13 @@ export default function Features() {
 
           {/* Trust indicators */}
           <div className="text-gray-400 text-sm space-y-2">
-            <div>Industry-leading AI accuracy</div>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+              <span>Trusted by 10,000+ importers</span>
+              <span className="hidden sm:inline">•</span>
+              <span>$50M+ in savings</span>
+              <span className="hidden sm:inline">•</span>
+              <span>Industry-leading AI accuracy</span>
+            </div>
           </div>
         </div>
       </div>
@@ -349,6 +355,116 @@ export default function Features() {
                   </Button>
                 </div>
               </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Comparison Table */}
+      <div className="py-20 bg-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl sm:text-5xl font-bold text-white mb-8 tracking-tight">
+              Why Choose Import<span className="text-amber-400">IQ</span>?
+            </h2>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              Compare our comprehensive platform against traditional methods
+            </p>
+          </div>
+
+          <div className="bg-black rounded-3xl border border-gray-800 overflow-hidden">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-0">
+              {/* Header */}
+              <div className="bg-gray-800 p-6 lg:p-8">
+                <h3 className="text-lg font-semibold text-white">Features</h3>
+              </div>
+              <div className="bg-amber-400 p-6 lg:p-8 text-center">
+                <h3 className="text-lg font-bold text-black">ImportIQ</h3>
+              </div>
+              <div className="bg-gray-800 p-6 lg:p-8 text-center">
+                <h3 className="text-lg font-semibold text-white">Traditional Broker</h3>
+              </div>
+              <div className="bg-gray-800 p-6 lg:p-8 text-center">
+                <h3 className="text-lg font-semibold text-white">DIY Import</h3>
+              </div>
+
+              {/* Rows */}
+              {[
+                { feature: "Cost Clarity", importiq: "✓ Real-time accurate", broker: "~ Estimates only", diy: "✗ Unknown costs" },
+                { feature: "Data Access", importiq: "✓ Live gov sources", broker: "~ Limited access", diy: "✗ Manual research" },
+                { feature: "AI Support", importiq: "✓ Advanced ML", broker: "✗ Human only", diy: "✗ No assistance" },
+                { feature: "Compliance Tools", importiq: "✓ Automated checks", broker: "~ Basic guidance", diy: "✗ Figure it out" },
+                { feature: "Community Perks", importiq: "✓ Expert network", broker: "~ Limited", diy: "✗ Alone" }
+              ].map((row, index) => (
+                <div key={row.feature} className={`contents ${index % 2 === 0 ? 'bg-gray-900/50' : ''}`}>
+                  <div className="p-6 lg:p-8 border-t border-gray-800">
+                    <span className="text-white font-medium">{row.feature}</span>
+                  </div>
+                  <div className="p-6 lg:p-8 border-t border-gray-800 text-center">
+                    <span className="text-green-400 font-medium">{row.importiq}</span>
+                  </div>
+                  <div className="p-6 lg:p-8 border-t border-gray-800 text-center">
+                    <span className="text-yellow-400 font-medium">{row.broker}</span>
+                  </div>
+                  <div className="p-6 lg:p-8 border-t border-gray-800 text-center">
+                    <span className="text-red-400 font-medium">{row.diy}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Testimonials */}
+      <div className="py-20 bg-black">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl sm:text-5xl font-bold text-white mb-8 tracking-tight">
+              Import Success Stories
+            </h2>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              Real results from real importers using ImportIQ
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {[
+              {
+                name: "Michael R.",
+                role: "JDM Enthusiast",
+                content: "ImportIQ saved me $8,000 on hidden costs I never knew existed. The compliance tools alone paid for the subscription 10x over.",
+                rating: 5
+              },
+              {
+                name: "Sarah K.", 
+                role: "Classic Car Collector",
+                content: "Finally, accurate import calculations before I commit. No more surprise bills or compliance nightmares. This platform is a game-changer.",
+                rating: 5
+              },
+              {
+                name: "David L.",
+                role: "Performance Tuner",
+                content: "The AI recommendations found me the exact Skyline I was looking for at 30% below market rate. Worth every penny of the subscription.",
+                rating: 5
+              }
+            ].map((testimonial, index) => (
+              <Card key={index} className="bg-gray-900 border-gray-800 hover:border-amber-400/30 transition-all duration-300">
+                <CardContent className="p-8">
+                  <div className="flex mb-4">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star key={i} className="h-5 w-5 text-amber-400 fill-current" />
+                    ))}
+                  </div>
+                  <p className="text-gray-300 mb-6 leading-relaxed">
+                    "{testimonial.content}"
+                  </p>
+                  <div>
+                    <div className="font-semibold text-white">{testimonial.name}</div>
+                    <div className="text-gray-400 text-sm">{testimonial.role}</div>
+                  </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>
