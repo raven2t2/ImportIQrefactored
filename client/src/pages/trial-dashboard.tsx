@@ -370,8 +370,11 @@ export default function TrialDashboard() {
             <p className="text-white font-medium mb-2">
               Ready to continue? Subscribe for $97/month
             </p>
-            <p className="text-amber-100 text-sm">
+            <p className="text-amber-100 text-sm mb-2">
               Keep all 14 tools active beyond your trial period and continue your import success.
+            </p>
+            <p className="text-amber-200 text-xs">
+              💡 Remember: Trial members get first month for $77 - save $20 when you subscribe during your trial
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
