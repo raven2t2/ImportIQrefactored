@@ -11,7 +11,8 @@ import {
   Clock,
   Zap,
   Award,
-  Users
+  Users,
+  Calculator
 } from "lucide-react";
 import { Link } from "wouter";
 
