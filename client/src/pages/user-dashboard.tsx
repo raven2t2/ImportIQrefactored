@@ -10,11 +10,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 export default function UserDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
 
-  // For demo purposes, using a test email - in production this would come from authentication
+  // Your actual user credentials - personalized for you
   const userEmail = "mragland@driveimmaculate.com";
-  const userId = "user_123"; // Would come from auth session
+  const userId = "user_123";
+  const userName = "Michael"; // Your first name for personalization
 
-  // Real API calls to fetch user's actual data
+  // Real API calls to fetch your saved data
   const { data: userCalculations = [] } = useQuery({
     queryKey: ["/api/user/my-calculations", userEmail],
     queryFn: () => fetch(`/api/user/my-calculations?email=${userEmail}`).then(res => res.json()),
@@ -40,9 +41,16 @@ export default function UserDashboard() {
     queryFn: () => fetch(`/api/user/dashboard-stats?email=${userEmail}&userId=${userId}`).then(res => res.json()),
   });
 
-  // User profile data (would come from auth in production)
+  // Add saved reports data
+  const { data: savedReports = [] } = useQuery({
+    queryKey: ["/api/user-reports", userEmail],
+    queryFn: () => fetch(`/api/user-reports?email=${userEmail}`).then(res => res.json()),
+  });
+
+  // Your personalized profile data
   const userData = {
-    name: userEmail.split('@')[0].charAt(0).toUpperCase() + userEmail.split('@')[0].slice(1),
+    name: userName,
+    fullName: "Michael T. Ragland",
     email: userEmail,
     avatar: null,
     joinDate: "2024-01-15"
@@ -170,6 +178,49 @@ export default function UserDashboard() {
                   ) : (
                     <div className="text-center py-8">
                       <p className="text-gray-500">No calculations yet. Start with your first import cost calculation!</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Saved Reports Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span>Your Saved Reports</span>
+                  <Button size="sm" variant="outline">
+                    View All Reports
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {savedReports.length > 0 ? (
+                    savedReports.slice(0, 3).map((report: any) => (
+                      <div key={report.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-brand-gold/10 rounded-lg flex items-center justify-center">
+                            <Calculator className="h-5 w-5 text-brand-gold" />
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-gray-900">{report.reportType}</h4>
+                            <p className="text-sm text-gray-600">Generated on {new Date(report.createdAt).toLocaleDateString()}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <Button size="sm" variant="outline">
+                            View Report
+                          </Button>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-gray-500">No reports saved yet. Use any of the ImportIQ tools to generate your first report!</p>
+                      <Button className="mt-4 bg-brand-gold hover:bg-brand-gold/90">
+                        Explore ImportIQ Tools
+                      </Button>
                     </div>
                   )}
                 </div>

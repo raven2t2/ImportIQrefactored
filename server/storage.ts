@@ -1,4 +1,4 @@
-import { users, submissions, aiRecommendations, emailCache, trials, userProjects, userAchievements, carEvents, reports, bookings, affiliates, influencerProfiles, referralClicks, referralSignups, payoutRequests, adminUsers, adminSessions, type User, type InsertUser, type Submission, type InsertSubmission, type Booking, type InsertBooking, type Affiliate, type InsertAffiliate, type InfluencerProfile, type InsertInfluencerProfile, type ReferralClick, type InsertReferralClick, type ReferralSignup, type InsertReferralSignup, type PayoutRequest, type InsertPayoutRequest, type AdminUser, type InsertAdminUser, type AdminSession, type InsertAdminSession } from "@shared/schema";
+import { users, submissions, aiRecommendations, emailCache, trials, userProjects, userAchievements, carEvents, reports, bookings, affiliates, influencerProfiles, referralClicks, referralSignups, payoutRequests, vehicleBuilds, modShopPartners, partsWatchlist, adminUsers, adminSessions, type User, type InsertUser, type Submission, type InsertSubmission, type Booking, type InsertBooking, type Affiliate, type InsertAffiliate, type InfluencerProfile, type InsertInfluencerProfile, type ReferralClick, type InsertReferralClick, type ReferralSignup, type InsertReferralSignup, type PayoutRequest, type InsertPayoutRequest, type VehicleBuild, type InsertVehicleBuild, type ModShopPartner, type InsertModShopPartner, type PartsWatchlistItem, type InsertPartsWatchlistItem, type AdminUser, type InsertAdminUser, type AdminSession, type InsertAdminSession } from "@shared/schema";
 import { db } from "./db";
 import { eq, lt } from "drizzle-orm";
 import fs from 'fs';
@@ -437,11 +437,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserVehicleBuilds(userId: string): Promise<VehicleBuild[]> {
-    return await db
-      .select()
-      .from(vehicleBuilds)
-      .where(eq(vehicleBuilds.userId, userId))
-      .orderBy(vehicleBuilds.createdAt);
+    try {
+      const builds = await db
+        .select()
+        .from(vehicleBuilds)
+        .where(eq(vehicleBuilds.userId, userId))
+        .orderBy(vehicleBuilds.createdAt);
+      return builds;
+    } catch (error) {
+      console.error("Error fetching vehicle builds:", error);
+      return [];
+    }
   }
 
   async updateVehicleBuild(id: number, updates: Partial<VehicleBuild>): Promise<VehicleBuild> {
