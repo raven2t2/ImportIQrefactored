@@ -49,6 +49,27 @@ export default function VehicleLookup() {
     },
   });
 
+  // Common vehicle builds for quick selection
+  const commonBuilds = [
+    { label: "Nissan Skyline GT-R R34", value: "BNR34" },
+    { label: "Nissan Skyline GT-R R33", value: "BNR33" },
+    { label: "Nissan Skyline GT-R R32", value: "BNR32" },
+    { label: "Toyota Supra A80", value: "JZA80" },
+    { label: "Toyota AE86", value: "AE86" },
+    { label: "Nissan Silvia S15", value: "S15" },
+    { label: "Mitsubishi Lancer Evo", value: "CT9A" },
+    { label: "Subaru Impreza STI", value: "GDB" },
+    { label: "Honda NSX", value: "NA1" },
+    { label: "Mazda RX-7 FD", value: "FD3S" },
+    { label: "Toyota Chaser", value: "JZX100" },
+    { label: "Nissan 300ZX", value: "Z32" }
+  ];
+
+  const handleQuickSelect = (chassisCode: string) => {
+    form.setValue("identifier", chassisCode);
+    form.handleSubmit(onSubmit)();
+  };
+
   const { register, handleSubmit, watch, formState: { errors } } = form;
 
   const mutation = useMutation({
@@ -57,8 +78,11 @@ export default function VehicleLookup() {
       return response.json();
     },
     onSuccess: (data) => {
+      console.log("API Response:", data); // Debug log
       if (data.success) {
-        setResult(data.result);
+        // Handle different response structures
+        const resultData = data.result || data.data;
+        setResult(resultData);
       } else {
         toast({
           title: "Vehicle Not Found",
@@ -187,6 +211,34 @@ export default function VehicleLookup() {
                 {errors.identifier && (
                   <p className="text-red-400 text-sm mt-1">{errors.identifier.message}</p>
                 )}
+              </div>
+
+              {/* Quick Select Popular Builds */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-medium text-gray-300">Quick Select Popular Builds</h3>
+                  <span className="text-xs text-gray-500">Click to autofill</span>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                  {commonBuilds.map((build) => (
+                    <Button
+                      key={build.value}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="text-left justify-start h-auto py-2 px-3 text-xs border-amber-400/30 bg-gray-800/50 hover:bg-amber-400/10 hover:border-amber-400/50 text-white"
+                      onClick={() => handleQuickSelect(build.value)}
+                      disabled={mutation.isPending}
+                    >
+                      <div className="flex flex-col items-start">
+                        <span className="font-mono font-medium text-amber-400">{build.value}</span>
+                        <span className="text-gray-400 text-[10px] leading-tight">
+                          {build.label}
+                        </span>
+                      </div>
+                    </Button>
+                  ))}
+                </div>
               </div>
               
               <Button 
