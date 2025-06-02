@@ -383,7 +383,7 @@ export default function TrialDashboard() {
               className="bg-white text-amber-600 hover:bg-gray-100 px-8 py-3 rounded-full font-bold"
               onClick={() => window.location.href = '/pricing'}
             >
-              Subscribe for $97/month
+              Subscribe - First Month $77
             </Button>
             <Button 
               variant="outline"
