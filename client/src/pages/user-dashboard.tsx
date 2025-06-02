@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function UserDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
+  const [showWatchlistForm, setShowWatchlistForm] = useState(false);
 
   // Your actual user credentials - personalized for you
   const userEmail = "mragland@driveimmaculate.com";
@@ -308,7 +309,10 @@ export default function UserDashboard() {
                 <h2 className="text-2xl font-bold text-gray-900">Your Personal Hub</h2>
                 <p className="text-gray-600">Price alerts, local events, member perks, and exclusive updates</p>
               </div>
-              <Button className="bg-brand-gold hover:bg-brand-gold/90">
+              <Button 
+                onClick={() => setShowWatchlistForm(true)}
+                className="bg-brand-gold hover:bg-brand-gold/90"
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 Add Alert
               </Button>
