@@ -40,6 +40,16 @@ const aiRecommendationSchema = z.object({
   timeline: z.enum(["asap", "3-months", "6-months", "flexible"]),
 });
 
+const buildComplySchema = z.object({
+  email: z.string().email(),
+  vehicle: z.string().min(1),
+  state: z.string().min(1),
+  budget: z.string().min(1),
+  timeline: z.string().min(1),
+  modifications: z.array(z.string()),
+  planType: z.enum(["pre-reg", "post-reg"]),
+});
+
 const vehicleLookupSchema = z.object({
   identifier: z.string().min(1),
 });
@@ -1112,6 +1122,105 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         success: false,
         error: "Failed to lookup vehicle information" 
+      });
+    }
+  });
+
+  // BuildReady - Compliance Analysis endpoint
+  app.post("/api/build-comply", async (req, res) => {
+    try {
+      const validatedData = buildComplySchema.parse(req.body);
+      
+      // Generate compliance analysis based on the provided data
+      const analysis = {
+        success: true,
+        vehicleInfo: {
+          vehicle: validatedData.vehicle,
+          state: validatedData.state,
+          planType: validatedData.planType
+        },
+        selectedModifications: validatedData.modifications,
+        complianceRequirements: validatedData.modifications.map(modId => {
+          // Map modification IDs to compliance requirements
+          const modRequirements = {
+            wheels: {
+              name: "Aftermarket Wheels",
+              riskLevel: "low",
+              requirements: ["Must not exceed +3 inch diameter", "Offset within ±25mm", "Load rating adequate"],
+              estimatedCost: "Engineering: $0-200"
+            },
+            suspension: {
+              name: "Lowered Suspension",
+              riskLevel: "medium", 
+              requirements: ["Maximum 50mm drop", "Engineer certification required", "ICV compliance", "Headlight aim check"],
+              estimatedCost: "Engineering: $800-1200"
+            },
+            exhaust: {
+              name: "Aftermarket Exhaust",
+              riskLevel: "medium",
+              requirements: ["ADR 83/00 compliance", "Sound level under 90dB", "Catalytic converter retained"],
+              estimatedCost: "Testing: $300-500"
+            },
+            turbo: {
+              name: "Turbocharger/Supercharger",
+              riskLevel: "high",
+              requirements: ["Engineering certificate", "Emissions testing", "ICV plate", "Brake upgrade may be required"],
+              estimatedCost: "Engineering: $2000-3500"
+            },
+            engine: {
+              name: "Engine Swap",
+              riskLevel: "high",
+              requirements: ["Full engineering report", "Emissions compliance", "ICV approval", "Weight distribution check"],
+              estimatedCost: "Engineering: $3000-5000"
+            },
+            bodykit: {
+              name: "Body Kit/Aero",
+              riskLevel: "medium",
+              requirements: ["No sharp edges", "Pedestrian safety compliance", "Ground clearance maintained"],
+              estimatedCost: "Engineering: $600-1000"
+            }
+          };
+          
+          return modRequirements[modId as keyof typeof modRequirements] || {
+            name: "Unknown Modification",
+            riskLevel: "unknown",
+            requirements: ["Contact automotive engineer for assessment"],
+            estimatedCost: "TBD"
+          };
+        }),
+        stateSpecificInfo: {
+          [validatedData.state]: {
+            engineeringAuthority: validatedData.state === "nsw" ? "Transport for NSW" : 
+                                  validatedData.state === "vic" ? "VicRoads" :
+                                  validatedData.state === "qld" ? "Department of Transport and Main Roads" :
+                                  "State Transport Authority",
+            typicalProcessingTime: "2-6 weeks",
+            averageEngineeringCost: "$800-2500 depending on modifications"
+          }
+        },
+        nextSteps: [
+          "Document all planned modifications",
+          "Find certified automotive engineer in your state", 
+          "Obtain pre-approval quotes for engineering work",
+          "Schedule modification work in compliance order"
+        ],
+        estimatedTimeline: validatedData.timeline,
+        generatedAt: new Date().toISOString()
+      };
+
+      res.json(analysis);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          success: false,
+          message: "Validation failed",
+          errors: error.errors,
+        });
+      }
+      console.error("BuildComply analysis error:", error);
+      res.status(500).json({ 
+        success: false,
+        error: "Failed to generate compliance analysis" 
       });
     }
   });
