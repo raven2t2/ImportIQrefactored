@@ -482,6 +482,45 @@ export class DatabaseStorage implements IStorage {
     return partner;
   }
 
+  // Mod Shop Deal Methods for JV partnerships
+  async createModShopDeal(data: Omit<InsertModShopDeal, "id" | "createdAt" | "updatedAt">): Promise<ModShopDeal> {
+    const [deal] = await db
+      .insert(modShopDeals)
+      .values(data)
+      .returning();
+    return deal;
+  }
+
+  async getAllModShopDeals(): Promise<ModShopDeal[]> {
+    return await db.select().from(modShopDeals).orderBy(desc(modShopDeals.createdAt));
+  }
+
+  async getActiveModShopDeals(): Promise<ModShopDeal[]> {
+    return await db
+      .select()
+      .from(modShopDeals)
+      .where(
+        and(
+          eq(modShopDeals.isActive, true),
+          gte(modShopDeals.validUntil, new Date())
+        )
+      )
+      .orderBy(desc(modShopDeals.discount));
+  }
+
+  async updateModShopDeal(id: number, data: Partial<Omit<InsertModShopDeal, "id" | "createdAt">>): Promise<ModShopDeal> {
+    const [deal] = await db
+      .update(modShopDeals)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(modShopDeals.id, id))
+      .returning();
+    return deal;
+  }
+
+  async deleteModShopDeal(id: number): Promise<void> {
+    await db.delete(modShopDeals).where(eq(modShopDeals.id, id));
+  }
+
   // Car Events (reusing existing structure)
   async getCarEventsByState(state: string): Promise<any[]> {
     return await db
