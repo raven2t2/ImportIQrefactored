@@ -85,6 +85,50 @@ export default function BuildComply() {
     }
   });
 
+  // Risk calculation functions
+  const getRiskLevel = () => {
+    const highRiskMods = ['turbo', 'engine'];
+    const mediumRiskMods = ['suspension', 'exhaust', 'bodykit'];
+    
+    const hasHighRisk = selectedMods.some(mod => highRiskMods.includes(mod));
+    const hasMediumRisk = selectedMods.some(mod => mediumRiskMods.includes(mod));
+    
+    if (hasHighRisk) return 'high';
+    if (hasMediumRisk || selectedMods.length >= 3) return 'medium';
+    return 'low';
+  };
+
+  const getRiskExplanation = () => {
+    const riskLevel = getRiskLevel();
+    
+    if (riskLevel === 'high') {
+      return `Your build includes engine modifications or forced induction which require comprehensive engineering certification and emissions testing. Multiple compliance checkpoints needed.`;
+    } else if (riskLevel === 'medium') {
+      return `Your modifications require engineering assessment and may need ICV approval. Standard compliance process with moderate documentation requirements.`;
+    } else {
+      return `Your selected modifications have minimal compliance requirements. Most can be completed with basic engineering sign-off or are considered legal modifications.`;
+    }
+  };
+
+  const getEstimatedEngineeringCost = () => {
+    let baseCost = 0;
+    if (selectedMods.includes('turbo') || selectedMods.includes('engine')) baseCost += 3000;
+    if (selectedMods.includes('suspension')) baseCost += 1000;
+    if (selectedMods.includes('exhaust')) baseCost += 400;
+    if (selectedMods.includes('bodykit')) baseCost += 800;
+    if (selectedMods.includes('wheels')) baseCost += 100;
+    
+    return `${baseCost.toLocaleString()} - ${(baseCost * 1.5).toLocaleString()}`;
+  };
+
+  const getEstimatedTimeline = () => {
+    const riskLevel = getRiskLevel();
+    
+    if (riskLevel === 'high') return '3-6 months';
+    if (riskLevel === 'medium') return '6-12 weeks';
+    return '2-8 weeks';
+  };
+
   const mutation = useMutation({
     mutationFn: async (data: FormData) => {
       const response = await apiRequest("POST", "/api/build-comply", data);
@@ -204,6 +248,57 @@ export default function BuildComply() {
                 Your personalized roadmap for legal vehicle modification and registration
               </p>
             </div>
+          </div>
+
+          {/* Overall Risk Rating */}
+          <div className="mb-8">
+            <Card className={`border-2 ${
+              getRiskLevel() === 'high' ? 'border-red-500/50 bg-red-950/20' :
+              getRiskLevel() === 'medium' ? 'border-amber-500/50 bg-amber-950/20' :
+              'border-green-500/50 bg-green-950/20'
+            } backdrop-blur-sm`}>
+              <CardContent className="p-8 text-center">
+                <div className="flex items-center justify-center mb-4">
+                  {getRiskLevel() === 'high' ? (
+                    <AlertTriangle className="h-12 w-12 text-red-400" />
+                  ) : getRiskLevel() === 'medium' ? (
+                    <AlertCircle className="h-12 w-12 text-amber-400" />
+                  ) : (
+                    <CheckCircle className="h-12 w-12 text-green-400" />
+                  )}
+                </div>
+                
+                <h2 className="text-3xl font-bold mb-4">
+                  <span className={`${
+                    getRiskLevel() === 'high' ? 'text-red-400' :
+                    getRiskLevel() === 'medium' ? 'text-amber-400' :
+                    'text-green-400'
+                  }`}>
+                    {getRiskLevel().toUpperCase()} RISK
+                  </span>
+                  <span className="text-white"> COMPLIANCE</span>
+                </h2>
+                
+                <p className="text-lg text-gray-300 mb-6 max-w-2xl mx-auto">
+                  {getRiskExplanation()}
+                </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <div className="bg-gray-800/50 rounded-lg p-4">
+                    <p className="text-sm text-gray-400">Engineering Cost</p>
+                    <p className="text-xl font-semibold text-white">${getEstimatedEngineeringCost()}</p>
+                  </div>
+                  <div className="bg-gray-800/50 rounded-lg p-4">
+                    <p className="text-sm text-gray-400">Timeline</p>
+                    <p className="text-xl font-semibold text-white">{getEstimatedTimeline()}</p>
+                  </div>
+                  <div className="bg-gray-800/50 rounded-lg p-4">
+                    <p className="text-sm text-gray-400">Modifications</p>
+                    <p className="text-xl font-semibold text-white">{selectedMods.length} Selected</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Save to Dashboard Button */}
