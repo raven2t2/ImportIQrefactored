@@ -55,7 +55,7 @@ export default function TrialDashboard() {
       name: "Import Cost Calculator",
       description: "Calculate exact import costs with taxes, duties, and fees",
       icon: Calculator,
-      path: "/calculator",
+      path: "/import-calculator",
       category: "Financial",
       premium: false
     },
@@ -64,7 +64,7 @@ export default function TrialDashboard() {
       name: "Vehicle Lookup",
       description: "Search Japanese and US auction data for any vehicle",
       icon: Search,
-      path: "/lookup",
+      path: "/vehicle-lookup",
       category: "Research",
       premium: false
     },
@@ -73,7 +73,7 @@ export default function TrialDashboard() {
       name: "Compliance Check",
       description: "Verify import eligibility and compliance requirements",
       icon: Shield,
-      path: "/compliance",
+      path: "/compliance-estimate",
       category: "Legal",
       premium: false
     },
@@ -82,7 +82,7 @@ export default function TrialDashboard() {
       name: "BuildReady",
       description: "AI-powered modification compliance advisor",
       icon: Settings,
-      path: "/buildready",
+      path: "/build-comply",
       category: "Planning",
       premium: true
     },
@@ -91,7 +91,7 @@ export default function TrialDashboard() {
       name: "Market Watch",
       description: "Real-time pricing trends and market analytics",
       icon: TrendingUp,
-      path: "/market-watch",
+      path: "/import-volume-dashboard",
       category: "Analytics",
       premium: true
     },
@@ -100,7 +100,7 @@ export default function TrialDashboard() {
       name: "Import Timeline",
       description: "Track your import progress with real-time updates",
       icon: Clock,
-      path: "/timeline",
+      path: "/import-timeline",
       category: "Tracking",
       premium: false
     },
