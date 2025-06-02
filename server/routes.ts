@@ -2703,6 +2703,49 @@ Respond with a JSON object containing your recommendations.`;
           // Get auction data from your Japanese car data for this make/model
           const auctionData = getAuctionDataForVehicle(vehicleInfo.make, vehicleInfo.model);
           
+          // Generate actionable recommendations based on vehicle data
+          const recommendations = [];
+          
+          // Import cost calculation recommendation
+          recommendations.push({
+            tool: "True Cost Explorer",
+            description: `Calculate total import costs for this ${vehicleInfo.make} ${vehicleInfo.model}`,
+            action: "Get Import Quote",
+            link: "/true-cost-explorer",
+            data: {
+              make: vehicleInfo.make,
+              model: vehicleInfo.model,
+              yearRange: vehicleInfo.years
+            }
+          });
+
+          // Compliance strategy recommendation
+          recommendations.push({
+            tool: "BuildReady Compliance",
+            description: `Get tailored compliance strategy for ${actualChassisCode} chassis`,
+            action: "Plan Compliance",
+            link: "/build-comply",
+            data: {
+              chassisCode: actualChassisCode,
+              make: vehicleInfo.make,
+              model: vehicleInfo.model
+            }
+          });
+
+          // Market intelligence if auction data available
+          if (auctionData && auctionData.length > 0) {
+            recommendations.push({
+              tool: "Market Intelligence",
+              description: `View current market trends and pricing for ${vehicleInfo.model}`,
+              action: "Check Market",
+              link: "/user-dashboard",
+              data: {
+                make: vehicleInfo.make,
+                model: vehicleInfo.model
+              }
+            });
+          }
+
           return res.json({
             success: true,
             result: {
@@ -2712,7 +2755,8 @@ Respond with a JSON object containing your recommendations.`;
               yearRange: vehicleInfo.years,
               engineCode: vehicleInfo.engine,
               complianceNotes: vehicleInfo.compliance_notes,
-              auctionData
+              auctionData,
+              recommendations
             }
           });
         } else {
