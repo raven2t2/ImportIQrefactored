@@ -2,6 +2,9 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   Star, 
   TrendingUp, 
@@ -138,6 +141,9 @@ const categories = ["All", "Legends", "Performance", "Supercars", "Enthusiast", 
 export default function ExpertPicks() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState("rating");
+  const [budget, setBudget] = useState("");
+  const [experience, setExperience] = useState("");
+  const [showPreferences, setShowPreferences] = useState(true);
 
   const filteredPicks = expertPicks
     .filter(pick => selectedCategory === "All" || pick.category === selectedCategory)
@@ -189,6 +195,52 @@ export default function ExpertPicks() {
             Expert Curation
           </Badge>
         </div>
+
+        {/* Budget & Preferences Input */}
+        {showPreferences && (
+          <Card className="mb-8 bg-gray-800/50 border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-white">Your Preferences</CardTitle>
+              <CardDescription>Tell us your budget and experience level for personalized recommendations</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="budget" className="text-gray-300">Budget (AUD)</Label>
+                  <Input
+                    id="budget"
+                    type="number"
+                    placeholder="e.g. 50000"
+                    value={budget}
+                    onChange={(e) => setBudget(e.target.value)}
+                    className="bg-gray-700 border-gray-600 text-white"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="experience" className="text-gray-300">Experience Level</Label>
+                  <Select value={experience} onValueChange={setExperience}>
+                    <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                      <SelectValue placeholder="Select experience" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-800 border-gray-600">
+                      <SelectItem value="beginner">Beginner</SelectItem>
+                      <SelectItem value="intermediate">Intermediate</SelectItem>
+                      <SelectItem value="expert">Expert</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-end">
+                  <Button 
+                    onClick={() => setShowPreferences(false)}
+                    className="w-full bg-yellow-600 hover:bg-yellow-700"
+                  >
+                    Get Recommendations
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Filters */}
         <div className="flex flex-wrap gap-4 mb-8">
@@ -342,13 +394,13 @@ export default function ExpertPicks() {
 
                 {/* Action Buttons */}
                 <div className="flex gap-2 pt-2">
-                  <Link to="/calculator" className="flex-1">
+                  <Link to="/true-cost-explorer" className="flex-1">
                     <Button variant="outline" className="w-full border-gray-600 text-gray-300 hover:bg-gray-800">
                       <Calculator className="h-4 w-4 mr-2" />
                       Calculate Costs
                     </Button>
                   </Link>
-                  <Link to="/compliance" className="flex-1">
+                  <Link to="/buildready" className="flex-1">
                     <Button variant="outline" className="w-full border-gray-600 text-gray-300 hover:bg-gray-800">
                       <Shield className="h-4 w-4 mr-2" />
                       Check Compliance
