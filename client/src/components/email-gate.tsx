@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Shield, Mail, User } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import logoPath from "@assets/circular imi logo (1).png";
 
 const emailGateSchema = z.object({
@@ -27,6 +28,7 @@ interface EmailGateProps {
 
 export default function EmailGate({ onSuccess, title, description, buttonText }: EmailGateProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
 
   const form = useForm<EmailGateData>({
     resolver: zodResolver(emailGateSchema),
@@ -43,21 +45,42 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
     onSuccess: (response: any) => {
       setIsSubmitting(false);
       
-      // If user has an existing trial, redirect them to trial dashboard
+      // If user has an existing trial, show message and redirect
       if (response.hasActiveTrial) {
+        toast({
+          title: "Welcome back!",
+          description: `You have ${response.trialDaysRemaining} days left in your trial. Taking you to your dashboard...`,
+          duration: 3000,
+        });
         localStorage.setItem('trial_user_name', form.getValues("name"));
         localStorage.setItem('trial_user_email', form.getValues("email"));
-        window.location.href = `/trial-dashboard?name=${encodeURIComponent(form.getValues("name"))}&email=${encodeURIComponent(form.getValues("email"))}`;
+        setTimeout(() => {
+          window.location.href = `/trial-dashboard?name=${encodeURIComponent(form.getValues("name"))}&email=${encodeURIComponent(form.getValues("email"))}`;
+        }, 1500);
         return;
       }
       
-      // If trial expired, redirect to pricing
+      // If trial expired, show message and redirect to pricing
       if (response.exists && !response.hasActiveTrial) {
-        window.location.href = '/pricing';
+        toast({
+          title: "Trial Expired",
+          description: "Your trial has ended. Let's get you set up with a subscription!",
+          duration: 3000,
+        });
+        setTimeout(() => {
+          window.location.href = '/pricing';
+        }, 1500);
         return;
       }
       
-      // New trial - continue with normal flow
+      // New trial - show welcome message
+      toast({
+        title: "Welcome to ImportIQ!",
+        description: "Your 7-day trial is starting now. Enjoy full access to all tools!",
+        duration: 3000,
+      });
+      
+      // Continue with normal flow
       onSuccess({
         name: form.getValues("name"),
         email: form.getValues("email"),
