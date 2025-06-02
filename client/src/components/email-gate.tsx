@@ -15,6 +15,7 @@ import logoPath from "@assets/circular imi logo (1).png";
 const emailGateSchema = z.object({
   name: z.string().min(2, "Please enter your full name"),
   email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 type EmailGateData = z.infer<typeof emailGateSchema>;
@@ -35,6 +36,7 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
     defaultValues: {
       name: "",
       email: "",
+      password: "",
     },
   });
 
@@ -275,6 +277,25 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
                   </div>
                   {form.formState.errors.email && (
                     <p className="text-sm text-red-600">{form.formState.errors.email.message}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-sm sm:text-base font-medium text-[#1E1E1E]">
+                    Create Password
+                  </Label>
+                  <div className="relative">
+                    <Shield className="absolute left-3 top-4 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="Create a secure password (min 6 characters)"
+                      className="pl-10 h-12 sm:h-14 text-base rounded-xl border-2 border-gray-200 focus:border-[#D4AF37] focus:ring-[#D4AF37] touch-manipulation"
+                      {...form.register("password")}
+                    />
+                  </div>
+                  {form.formState.errors.password && (
+                    <p className="text-sm text-red-600">{form.formState.errors.password.message}</p>
                   )}
                 </div>
 
