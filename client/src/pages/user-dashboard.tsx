@@ -26,6 +26,55 @@ export default function UserDashboard() {
     window.location.href = '/';
   };
 
+  // Location enable function
+  const handleEnableLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            const { latitude, longitude } = position.coords;
+            
+            // Store location data
+            const response = await apiRequest("POST", "/api/user/location", {
+              email: userEmail,
+              latitude,
+              longitude,
+              timestamp: new Date().toISOString()
+            });
+
+            if (response.ok) {
+              alert("Location enabled! You'll now see local car events and workshops in your area.");
+              // Refresh the page to show updated location-based content
+              window.location.reload();
+            } else {
+              throw new Error("Failed to save location");
+            }
+          } catch (error) {
+            console.error("Location save error:", error);
+            alert("Location captured but failed to save. Please try again.");
+          }
+        },
+        (error) => {
+          let message = "Location access denied. You can still use all other features.";
+          switch(error.code) {
+            case error.PERMISSION_DENIED:
+              message = "Location access denied. Please enable location permissions in your browser settings.";
+              break;
+            case error.POSITION_UNAVAILABLE:
+              message = "Location information unavailable.";
+              break;
+            case error.TIMEOUT:
+              message = "Location request timed out.";
+              break;
+          }
+          alert(message);
+        }
+      );
+    } else {
+      alert("Geolocation is not supported by this browser.");
+    }
+  };
+
   // Your actual user credentials - personalized for you
   const userEmail = "mragland@driveimmaculate.com";
   const userId = "user_123";
@@ -433,21 +482,7 @@ export default function UserDashboard() {
                     </div>
                   </div>
                   <Button 
-                    onClick={() => {
-                      if (navigator.geolocation) {
-                        navigator.geolocation.getCurrentPosition(
-                          (position) => {
-                            // Location successfully obtained
-                            alert("Location enabled! You'll now see local car events and workshops in your area.");
-                          },
-                          (error) => {
-                            alert("Location access denied. You can still use all other features.");
-                          }
-                        );
-                      } else {
-                        alert("Geolocation is not supported by this browser.");
-                      }
-                    }}
+                    onClick={handleEnableLocation}
                     className="bg-blue-600 hover:bg-blue-700 text-white"
                   >
                     Enable Location
