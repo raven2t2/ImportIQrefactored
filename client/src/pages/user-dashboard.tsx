@@ -94,7 +94,7 @@ export default function UserDashboard() {
             </TabsTrigger>
             <TabsTrigger value="watchlist" className="flex items-center space-x-2">
               <Heart className="h-4 w-4" />
-              <span>Watchlist</span>
+              <span>Personal Hub</span>
             </TabsTrigger>
             <TabsTrigger value="events" className="flex items-center space-x-2">
               <Calendar className="h-4 w-4" />
