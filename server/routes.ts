@@ -1197,24 +1197,21 @@ Respond with a JSON object containing your recommendations.`;
   app.get("/api/admin/stats", async (req, res) => {
     try {
       const submissions = await storage.getAllSubmissions();
-      const aiRecommendations = await storage.getAllAIRecommendations();
+      const emailCache = await storage.getAllEmailCache();
+      const trials = await storage.getAllTrials();
       
-      const totalRevenuePotential = submissions.reduce((sum, sub) => {
-        const cost = parseFloat(sub.totalCost) || 0;
-        return sum + cost;
-      }, 0);
-
-      const stats = {
+      const activeTrials = trials.filter(trial => trial.isActive).length;
+      const estimatedRevenue = activeTrials * 77; // $77 per trial
+      
+      res.json({
         totalSubmissions: submissions.length,
-        totalAIRecommendations: aiRecommendations.length,
-        totalRevenuePotential,
-        conversionRate: submissions.length > 0 ? (submissions.length / (submissions.length + aiRecommendations.length)) * 100 : 0
-      };
-
-      res.json(stats);
+        totalUsers: emailCache.length,
+        activeTrials: activeTrials,
+        totalRevenue: estimatedRevenue
+      });
     } catch (error) {
-      console.error("Error fetching stats:", error);
-      res.status(500).json({ error: "Failed to fetch stats" });
+      console.error("Error fetching admin stats:", error);
+      res.status(500).json({ error: "Failed to fetch admin statistics" });
     }
   });
 
