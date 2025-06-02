@@ -14,7 +14,9 @@ import {
   CheckCircle,
   ArrowRight,
   Menu,
-  X
+  X,
+  Brain,
+  BarChart3
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -104,20 +106,20 @@ export default function TrialDashboard() {
     },
     {
       id: 7,
-      name: "Documentation Hub",
-      description: "Manage all import paperwork and documents",
-      icon: FileText,
-      path: "/documents",
-      category: "Management",
+      name: "AI Recommendations",
+      description: "ML-powered vehicle suggestions based on your preferences",
+      icon: Brain,
+      path: "/ai-recommendations",
+      category: "Planning",
       premium: true
     },
     {
       id: 8,
-      name: "Vehicle History",
-      description: "Comprehensive history reports for imported vehicles",
-      icon: Car,
-      path: "/history",
-      category: "Research",
+      name: "Value Estimator",
+      description: "ML market value analysis and pricing insights",
+      icon: BarChart3,
+      path: "/value-estimator",
+      category: "Analytics",
       premium: true
     }
   ];
@@ -264,7 +266,7 @@ export default function TrialDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-white mb-4">
-              14 Powerful Tools at Your Fingertips
+              8 Powerful Tools at Your Fingertips
             </h2>
             <p className="text-gray-400 text-lg">
               Everything you need to import vehicles successfully
