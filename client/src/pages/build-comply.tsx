@@ -106,6 +106,34 @@ export default function BuildComply() {
     }
   });
 
+  const saveToDashboard = useMutation({
+    mutationFn: async () => {
+      const reportData = {
+        type: "compliance-report",
+        vehicle: watch("vehicle"),
+        state: watch("state"),
+        modifications: selectedMods,
+        planType: watch("planType"),
+        generatedAt: new Date().toISOString()
+      };
+      const response = await apiRequest("POST", "/api/save-report", reportData);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Report Saved",
+        description: "Compliance report saved to your dashboard",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Save Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+
   const handleModificationChange = (modId: string, checked: boolean) => {
     const newMods = checked 
       ? [...selectedMods, modId]
@@ -121,10 +149,10 @@ export default function BuildComply() {
 
   const getRiskColor = (risk: string) => {
     switch (risk) {
-      case "green": return "bg-green-50 text-green-800 border-green-200 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20";
-      case "yellow": return "bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20";
-      case "red": return "bg-red-50 text-red-800 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20";
-      default: return "bg-gray-50 text-gray-800 border-gray-200 dark:bg-gray-500/10 dark:text-gray-400 dark:border-gray-500/20";
+      case "green": return "bg-green-50 text-green-800 border-green-200";
+      case "yellow": return "bg-amber-50 text-amber-800 border-amber-200";
+      case "red": return "bg-red-50 text-red-800 border-red-200";
+      default: return "bg-gray-50 text-gray-800 border-gray-200";
     }
   };
 
@@ -146,35 +174,56 @@ export default function BuildComply() {
             <Button 
               variant="ghost" 
               onClick={() => setShowResults(false)}
-              className="mb-6 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+              className="mb-6 text-gray-400 hover:text-amber-400"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Form
             </Button>
             
             <div className="text-center space-y-4">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mb-4">
-                <Shield className="h-8 w-8 text-white" />
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-2xl mb-4">
+                <Shield className="h-8 w-8 text-black" />
               </div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 bg-clip-text text-transparent">
                 Compliance Strategy
               </h1>
-              <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+              <p className="text-xl text-gray-400 max-w-2xl mx-auto">
                 Your personalized roadmap for legal vehicle modification and registration
               </p>
             </div>
+          </div>
+
+          {/* Save to Dashboard Button */}
+          <div className="mb-8 text-center">
+            <Button
+              onClick={() => saveToDashboard.mutate()}
+              disabled={saveToDashboard.isPending}
+              className="bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-black font-medium"
+            >
+              {saveToDashboard.isPending ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin mr-2" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  Save to Dashboard
+                </>
+              )}
+            </Button>
           </div>
 
           {/* Results Grid */}
           <div className="space-y-8">
             {/* Selected Modifications */}
             {selectedMods.length > 0 && (
-              <Card className="border-0 shadow-sm bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm">
+              <Card className="border border-amber-400/20 bg-gray-900/50 backdrop-blur-sm">
                 <CardHeader className="pb-6">
-                  <CardTitle className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                  <CardTitle className="text-2xl font-semibold text-white">
                     Modification Analysis
                   </CardTitle>
-                  <CardDescription className="text-gray-600 dark:text-gray-400">
+                  <CardDescription className="text-gray-400">
                     Compliance requirements for your selected modifications
                   </CardDescription>
                 </CardHeader>
@@ -182,13 +231,13 @@ export default function BuildComply() {
                   {selectedMods.map((modId) => {
                     const mod = modificationData[modId as keyof typeof modificationData];
                     return (
-                      <div key={modId} className="p-6 bg-gray-50/50 dark:bg-gray-800/50 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+                      <div key={modId} className="p-6 bg-gray-800/30 rounded-xl border border-gray-700/50">
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex-1">
-                            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                            <h3 className="text-lg font-medium text-white mb-2">
                               {mod.name}
                             </h3>
-                            <p className="text-gray-600 dark:text-gray-400 mb-4">
+                            <p className="text-gray-400 mb-4">
                               {mod.description}
                             </p>
                           </div>
@@ -199,13 +248,13 @@ export default function BuildComply() {
                         </div>
                         
                         <div>
-                          <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">
+                          <h4 className="text-sm font-medium text-white mb-3">
                             Requirements:
                           </h4>
                           <ul className="space-y-2">
                             {mod.requirements.map((req, index) => (
-                              <li key={index} className="flex items-start text-sm text-gray-600 dark:text-gray-400">
-                                <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-2 mr-3 flex-shrink-0" />
+                              <li key={index} className="flex items-start text-sm text-gray-400">
+                                <div className="w-1.5 h-1.5 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0" />
                                 {req}
                               </li>
                             ))}
@@ -219,44 +268,44 @@ export default function BuildComply() {
             )}
 
             {/* Action Items */}
-            <Card className="border-0 shadow-sm bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm">
+            <Card className="border border-amber-400/20 bg-gray-900/50 backdrop-blur-sm">
               <CardHeader className="pb-6">
-                <CardTitle className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                <CardTitle className="text-2xl font-semibold text-white">
                   Next Steps
                 </CardTitle>
-                <CardDescription className="text-gray-600 dark:text-gray-400">
+                <CardDescription className="text-gray-400">
                   Recommended actions to ensure compliance
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4">
-                  <div className="flex items-center p-4 bg-blue-50/50 dark:bg-blue-500/10 rounded-xl border border-blue-200/50 dark:border-blue-500/20">
-                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mr-4">
-                      <span className="text-white text-sm font-medium">1</span>
+                  <div className="flex items-center p-4 bg-amber-400/10 rounded-xl border border-amber-400/20">
+                    <div className="w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center mr-4">
+                      <span className="text-black text-sm font-medium">1</span>
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-medium text-gray-900 dark:text-gray-100">Document Requirements</h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Gather all necessary documentation before starting modifications</p>
+                      <h4 className="font-medium text-white">Document Requirements</h4>
+                      <p className="text-sm text-gray-400">Gather all necessary documentation before starting modifications</p>
                     </div>
                   </div>
                   
-                  <div className="flex items-center p-4 bg-blue-50/50 dark:bg-blue-500/10 rounded-xl border border-blue-200/50 dark:border-blue-500/20">
-                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mr-4">
-                      <span className="text-white text-sm font-medium">2</span>
+                  <div className="flex items-center p-4 bg-amber-400/10 rounded-xl border border-amber-400/20">
+                    <div className="w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center mr-4">
+                      <span className="text-black text-sm font-medium">2</span>
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-medium text-gray-900 dark:text-gray-100">Find Certified Engineer</h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Locate an approved automotive engineer in your state</p>
+                      <h4 className="font-medium text-white">Find Certified Engineer</h4>
+                      <p className="text-sm text-gray-400">Locate an approved automotive engineer in your state</p>
                     </div>
                   </div>
                   
-                  <div className="flex items-center p-4 bg-blue-50/50 dark:bg-blue-500/10 rounded-xl border border-blue-200/50 dark:border-blue-500/20">
-                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mr-4">
-                      <span className="text-white text-sm font-medium">3</span>
+                  <div className="flex items-center p-4 bg-amber-400/10 rounded-xl border border-amber-400/20">
+                    <div className="w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center mr-4">
+                      <span className="text-black text-sm font-medium">3</span>
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-medium text-gray-900 dark:text-gray-100">Plan Modifications</h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Complete modifications in the correct order for inspection</p>
+                      <h4 className="font-medium text-white">Plan Modifications</h4>
+                      <p className="text-sm text-gray-400">Complete modifications in the correct order for inspection</p>
                     </div>
                   </div>
                 </div>
@@ -264,18 +313,18 @@ export default function BuildComply() {
             </Card>
 
             {/* Call to Action */}
-            <Card className="border-0 shadow-sm bg-gradient-to-br from-blue-600 to-purple-700 text-white">
+            <Card className="border-0 bg-gradient-to-br from-amber-400 to-yellow-500 text-black">
               <CardContent className="p-8 text-center">
                 <h3 className="text-2xl font-bold mb-4">Ready to Start Your Build?</h3>
-                <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
+                <p className="text-black/80 mb-6 max-w-2xl mx-auto">
                   Get expert guidance throughout your compliance journey with our professional consultation services.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50 font-medium">
+                  <Button size="lg" className="bg-black text-amber-400 hover:bg-gray-900 font-medium">
                     <Calendar className="h-5 w-5 mr-2" />
                     Book Consultation
                   </Button>
-                  <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 font-medium">
+                  <Button size="lg" variant="outline" className="border-black/30 text-black hover:bg-black/10 font-medium">
                     <FileText className="h-5 w-5 mr-2" />
                     Download Guide
                   </Button>
@@ -289,36 +338,36 @@ export default function BuildComply() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-black dark:to-gray-950">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
       <div className="max-w-4xl mx-auto px-6 py-12">
         {/* Header */}
         <div className="text-center mb-12">
           <Link href="/">
-            <Button variant="ghost" className="mb-6 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100">
+            <Button variant="ghost" className="mb-6 text-gray-400 hover:text-amber-400">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Dashboard
             </Button>
           </Link>
           
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mb-6">
-            <Settings className="h-8 w-8 text-white" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-2xl mb-6">
+            <Settings className="h-8 w-8 text-black" />
           </div>
           
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent mb-4">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 bg-clip-text text-transparent mb-4">
             BuildReady
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
             Get a personalized compliance strategy for your vehicle modifications before you start building
           </p>
         </div>
 
         {/* Main Form */}
-        <Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
+        <Card className="border border-amber-400/20 bg-gray-900/50 backdrop-blur-sm">
           <CardHeader className="pb-8">
-            <CardTitle className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+            <CardTitle className="text-2xl font-semibold text-white">
               Vehicle & Modification Details
             </CardTitle>
-            <CardDescription className="text-gray-600 dark:text-gray-400">
+            <CardDescription className="text-gray-400">
               Tell us about your project to receive tailored compliance guidance
             </CardDescription>
           </CardHeader>
@@ -329,7 +378,7 @@ export default function BuildComply() {
               <div className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    <Label htmlFor="email" className="text-sm font-medium text-white">
                       Email Address
                     </Label>
                     <Input
@@ -337,19 +386,19 @@ export default function BuildComply() {
                       type="email"
                       {...register("email")}
                       placeholder="your@email.com"
-                      className="h-12 border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-gray-800"
+                      className="h-12 border-gray-600 focus:border-amber-400 bg-gray-800 text-white placeholder:text-gray-400"
                     />
                     {errors.email && (
-                      <p className="text-sm text-red-600 dark:text-red-400">{errors.email.message}</p>
+                      <p className="text-sm text-red-400">{errors.email.message}</p>
                     )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="vehicle" className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    <Label htmlFor="vehicle" className="text-sm font-medium text-white">
                       Vehicle
                     </Label>
                     <Select onValueChange={(value) => setValue("vehicle", value)}>
-                      <SelectTrigger className="h-12 border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-gray-800">
+                      <SelectTrigger className="h-12 border-gray-600 focus:border-amber-400 bg-gray-800 text-white">
                         <SelectValue placeholder="Select your vehicle" />
                       </SelectTrigger>
                       <SelectContent>
@@ -363,18 +412,18 @@ export default function BuildComply() {
                       </SelectContent>
                     </Select>
                     {errors.vehicle && (
-                      <p className="text-sm text-red-600 dark:text-red-400">{errors.vehicle.message}</p>
+                      <p className="text-sm text-red-400">{errors.vehicle.message}</p>
                     )}
                   </div>
                 </div>
 
                 <div className="grid md:grid-cols-3 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="state" className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    <Label htmlFor="state" className="text-sm font-medium text-white">
                       State
                     </Label>
                     <Select onValueChange={(value) => setValue("state", value)}>
-                      <SelectTrigger className="h-12 border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-gray-800">
+                      <SelectTrigger className="h-12 border-gray-600 focus:border-amber-400 bg-gray-800 text-white">
                         <SelectValue placeholder="Select state" />
                       </SelectTrigger>
                       <SelectContent>
@@ -389,16 +438,16 @@ export default function BuildComply() {
                       </SelectContent>
                     </Select>
                     {errors.state && (
-                      <p className="text-sm text-red-600 dark:text-red-400">{errors.state.message}</p>
+                      <p className="text-sm text-red-400">{errors.state.message}</p>
                     )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="budget" className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    <Label htmlFor="budget" className="text-sm font-medium text-white">
                       Modification Budget
                     </Label>
                     <Select onValueChange={(value) => setValue("budget", value)}>
-                      <SelectTrigger className="h-12 border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-gray-800">
+                      <SelectTrigger className="h-12 border-gray-600 focus:border-amber-400 bg-gray-800 text-white">
                         <SelectValue placeholder="Budget range" />
                       </SelectTrigger>
                       <SelectContent>
@@ -410,16 +459,16 @@ export default function BuildComply() {
                       </SelectContent>
                     </Select>
                     {errors.budget && (
-                      <p className="text-sm text-red-600 dark:text-red-400">{errors.budget.message}</p>
+                      <p className="text-sm text-red-400">{errors.budget.message}</p>
                     )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="timeline" className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    <Label htmlFor="timeline" className="text-sm font-medium text-white">
                       Timeline
                     </Label>
                     <Select onValueChange={(value) => setValue("timeline", value)}>
-                      <SelectTrigger className="h-12 border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-gray-800">
+                      <SelectTrigger className="h-12 border-gray-600 focus:border-amber-400 bg-gray-800 text-white">
                         <SelectValue placeholder="Project timeline" />
                       </SelectTrigger>
                       <SelectContent>
@@ -430,7 +479,7 @@ export default function BuildComply() {
                       </SelectContent>
                     </Select>
                     {errors.timeline && (
-                      <p className="text-sm text-red-600 dark:text-red-400">{errors.timeline.message}</p>
+                      <p className="text-sm text-red-400">{errors.timeline.message}</p>
                     )}
                   </div>
                 </div>
@@ -439,10 +488,10 @@ export default function BuildComply() {
               {/* Planned Modifications */}
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                  <h3 className="text-lg font-semibold text-white mb-4">
                     Planned Modifications
                   </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                  <p className="text-sm text-gray-400 mb-6">
                     Select all modifications you're planning to help us assess compliance requirements
                   </p>
                 </div>
@@ -452,8 +501,8 @@ export default function BuildComply() {
                     <div key={id} className="relative">
                       <div className={`p-6 rounded-xl border transition-all cursor-pointer ${
                         selectedMods.includes(id) 
-                          ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-500/10 dark:border-blue-400' 
-                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 bg-white dark:bg-gray-800'
+                          ? 'border-amber-400 bg-amber-400/5' 
+                          : 'border-gray-700 hover:border-gray-600 bg-gray-800/50'
                       }`}>
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex items-start space-x-3">
@@ -461,13 +510,13 @@ export default function BuildComply() {
                               id={id}
                               checked={selectedMods.includes(id)}
                               onCheckedChange={(checked) => handleModificationChange(id, checked as boolean)}
-                              className="mt-1"
+                              className="mt-1 h-4 w-4"
                             />
                             <div className="flex-1">
-                              <label htmlFor={id} className="text-sm font-medium text-gray-900 dark:text-white cursor-pointer">
+                              <label htmlFor={id} className="text-sm font-medium text-white cursor-pointer">
                                 {mod.name}
                               </label>
-                              <p className="text-xs text-gray-700 dark:text-gray-300 mt-1">
+                              <p className="text-xs text-gray-400 mt-1">
                                 {mod.description}
                               </p>
                             </div>
@@ -485,14 +534,14 @@ export default function BuildComply() {
 
               {/* Plan Type */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                <h3 className="text-lg font-semibold text-white">
                   Compliance Strategy
                 </h3>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className={`p-6 rounded-xl border cursor-pointer transition-all ${
                     watch("planType") === "pre-reg" 
-                      ? "border-blue-500 bg-blue-50/50 dark:bg-blue-500/10 dark:border-blue-400"
-                      : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+                      ? "border-amber-400 bg-amber-400/5"
+                      : "border-gray-700 hover:border-gray-600"
                   }`} onClick={() => setValue("planType", "pre-reg")}>
                     <div className="flex items-start space-x-3">
                       <input
@@ -502,8 +551,8 @@ export default function BuildComply() {
                         className="mt-1"
                       />
                       <div>
-                        <h4 className="font-medium text-gray-900 dark:text-gray-100">Pre-Registration</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        <h4 className="font-medium text-white">Pre-Registration</h4>
+                        <p className="text-sm text-gray-400 mt-1">
                           Plan compliance before vehicle registration (recommended)
                         </p>
                       </div>
@@ -512,8 +561,8 @@ export default function BuildComply() {
 
                   <div className={`p-6 rounded-xl border cursor-pointer transition-all ${
                     watch("planType") === "post-reg" 
-                      ? "border-blue-500 bg-blue-50/50 dark:bg-blue-500/10 dark:border-blue-400"
-                      : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+                      ? "border-amber-400 bg-amber-400/5"
+                      : "border-gray-700 hover:border-gray-600"
                   }`} onClick={() => setValue("planType", "post-reg")}>
                     <div className="flex items-start space-x-3">
                       <input
@@ -523,8 +572,8 @@ export default function BuildComply() {
                         className="mt-1"
                       />
                       <div>
-                        <h4 className="font-medium text-gray-900 dark:text-gray-100">Post-Registration</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        <h4 className="font-medium text-white">Post-Registration</h4>
+                        <p className="text-sm text-gray-400 mt-1">
                           Vehicle already registered, need modification compliance
                         </p>
                       </div>
@@ -538,11 +587,11 @@ export default function BuildComply() {
                 <Button
                   type="submit"
                   disabled={mutation.isPending || !isValid}
-                  className="w-full h-14 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium text-lg rounded-xl shadow-lg"
+                  className="w-full h-14 bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-black font-medium text-lg rounded-xl shadow-lg"
                 >
                   {mutation.isPending ? (
                     <>
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-3" />
+                      <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin mr-3" />
                       Analyzing Compliance...
                     </>
                   ) : (
