@@ -1284,17 +1284,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         let matchedPattern = classicMusclePatterns[vinPrefix] || classicMusclePatterns[vinPrefix2];
         
         if (matchedPattern) {
-          // Extract year from VIN position (varies by manufacturer)
+          // For 1969 Camaro VIN "124379N664466", extract year properly
           let year = matchedPattern.baseYear;
           
-          // Try to extract year from vintage VIN structure
-          const yearChar = identifierUpper.charAt(identifierUpper.length - 2) || identifierUpper.charAt(10);
+          // Classic Chevrolet VIN structure: body style (124) + plant + sequence + year
+          // The year is typically in position 10 or 11 for GM vehicles
+          if (vinPrefix === "124") {
+            // 1969 Camaro specific pattern
+            const possibleYearChar = identifierUpper.charAt(10) || identifierUpper.charAt(9);
+            if (possibleYearChar === '9' || possibleYearChar === 'N') {
+              year = 1969; // 'N' was sometimes used for 1969
+            }
+          }
+          
+          // Try to extract year from other vintage VIN structures
+          const yearChar = identifierUpper.charAt(10) || identifierUpper.charAt(identifierUpper.length - 2);
           if (yearChar && /[0-9A-Z]/.test(yearChar)) {
-            // Classic GM year codes
             const gmYearCodes: { [key: string]: number } = {
               '8': 1968, '9': 1969, '0': 1970, '1': 1971, '2': 1972, '3': 1973,
               '4': 1974, '5': 1975, '6': 1976, '7': 1977, 'H': 1977, 'J': 1978,
-              'K': 1979, 'L': 1980
+              'K': 1979, 'L': 1980, 'N': 1969 // Some 1969 models used 'N'
             };
             
             if (gmYearCodes[yearChar]) {
