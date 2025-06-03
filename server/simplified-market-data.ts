@@ -11,6 +11,7 @@ import { scrapeAuthenticJapaneseData } from './advanced-japanese-scraper';
 import { scrapeEnhancedAuctionData } from './enhanced-scraper';
 import { scrapeWithProxyRotation } from './proxy-rotation-scraper';
 import { scrapeWithAdvancedAntiBotBypass } from './advanced-anti-bot-scraper';
+import { scrapeWithPuppeteer } from './puppeteer-scraper';
 
 export interface SearchFilters {
   make: string;
@@ -192,11 +193,11 @@ export async function generateMarketListings(filters: SearchFilters): Promise<{ 
       // Try advanced Japanese scraper first
       let scrapedJapaneseVehicles = await scrapeAuthenticJapaneseData(make, model);
       
-      // If that fails, use advanced anti-bot bypass system
+      // If that fails, use Puppeteer browser automation for authentic data
       if (scrapedJapaneseVehicles.length === 0) {
-        console.log('Falling back to advanced anti-bot bypass system for Japanese data');
-        const advancedVehicles = await scrapeWithAdvancedAntiBotBypass(make, model);
-        scrapedJapaneseVehicles = advancedVehicles.map(vehicle => ({
+        console.log('Using Puppeteer browser automation for authentic Japanese auction data');
+        const puppeteerVehicles = await scrapeWithPuppeteer(make, model);
+        scrapedJapaneseVehicles = puppeteerVehicles.map(vehicle => ({
           id: vehicle.id,
           make: vehicle.make,
           model: vehicle.model,
