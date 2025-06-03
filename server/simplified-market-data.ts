@@ -242,44 +242,44 @@ export async function generateMarketListings(filters: SearchFilters): Promise<{ 
       const scrapedUSVehicles = await scrapeUSMarketplaces(make, model);
       
       // Convert US auction listings to CarListing format
-      usAuctions.forEach((auction, index) => {
-        const audPrice = auction.price; // Already converted to AUD in US scraper
+      scrapedUSVehicles.forEach((vehicle, index) => {
+        const audPrice = vehicle.price; // Already converted to AUD in US scraper
         
         // Apply price filters
         if (minPrice && audPrice < parseInt(minPrice)) return;
         if (maxPrice && audPrice > parseInt(maxPrice)) return;
         
         const carListing: CarListing = {
-          id: auction.id,
-          make: auction.make,
-          model: auction.model,
-          year: auction.year,
+          id: vehicle.id,
+          make: vehicle.make,
+          model: vehicle.model,
+          year: vehicle.year,
           price: audPrice,
           currency: 'AUD',
-          mileage: auction.mileage,
-          location: `${auction.location}, USA`,
-          source: auction.auctionHouse,
-          sourceUrl: '', // Remove source URLs as requested
-          description: auction.description,
-          images: [], // Remove images as requested
-          listedDate: auction.auctionDate,
-          seller: auction.seller,
-          features: auction.features,
-          fuelType: auction.fuelType,
-          transmission: auction.transmission,
-          bodyType: auction.bodyType,
+          mileage: vehicle.mileage,
+          location: `${vehicle.location}, USA`,
+          source: vehicle.source,
+          sourceUrl: '',
+          description: vehicle.description,
+          images: [],
+          listedDate: vehicle.listingDate,
+          seller: vehicle.source,
+          features: ['US Muscle Car'],
+          fuelType: vehicle.specifications.fuelType || 'Petrol',
+          transmission: vehicle.specifications.transmission || 'Automatic',
+          bodyType: vehicle.specifications.bodyType || 'Coupe',
           isImport: true,
           compliance: 'Import from USA - Requires 25-year rule compliance for Australian import',
-          auctionData: {
-            auctionHouse: auction.auctionHouse,
-            lotNumber: auction.lotNumber,
-            inspectionGrade: auction.condition,
-            auctionDate: auction.auctionDate,
-            estimatedBid: auction.estimatedValue,
-            reservePrice: auction.reservePrice,
-            conditionReport: auction.damageReport || auction.description,
-            exportReadyCertificate: auction.titleStatus === 'Clean Title'
-          }
+          auctionData: vehicle.auctionData ? {
+            auctionHouse: vehicle.auctionData.auctionHouse || vehicle.source,
+            lotNumber: vehicle.auctionData.lotNumber || vehicle.id,
+            inspectionGrade: vehicle.auctionData.grade || 'Not specified',
+            auctionDate: vehicle.listingDate,
+            estimatedBid: vehicle.auctionData.estimatedBid,
+            reservePrice: undefined,
+            conditionReport: vehicle.condition,
+            exportReadyCertificate: false
+          } : undefined
         };
         listings.push(carListing);
       });
