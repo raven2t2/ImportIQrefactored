@@ -1,61 +1,103 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { 
-  MessageCircle, 
-  X, 
-  Send, 
-  Bot,
-  Minimize2,
-  Maximize2
-} from "lucide-react";
+import { MessageCircle, Send, X, Bot, User, Minimize2, Maximize2 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useLocation } from "wouter";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
 interface ChatMessage {
   id: string;
-  text: string;
-  isUser: boolean;
+  role: 'user' | 'assistant';
+  content: string;
   timestamp: Date;
 }
 
-export function AIChatAssistant() {
+interface AIResponse {
+  message: string;
+  confidence: 'high' | 'medium' | 'low';
+  suggestions: string[];
+}
+
+export function AiChatAssistant() {
+  const { user, isAuthenticated } = useAuth();
+  const [location] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: "1",
-      text: "Hi! I'm your ImportIQ Assistant. I can help you with vehicle import questions, cost estimates, compliance requirements, and more. What would you like to know?",
-      isUser: false,
-      timestamp: new Date()
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [inputValue, setInputValue] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Don't show for non-authenticated users
+  if (!isAuthenticated) return null;
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  // Initialize with contextual welcome message
+  useEffect(() => {
+    if (isOpen && messages.length === 0) {
+      const contextualMessage = getContextualWelcome(location);
+      setMessages([{
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: contextualMessage,
+        timestamp: new Date()
+      }]);
     }
-  ]);
+  }, [isOpen, location]);
+
+  const getContextualWelcome = (path: string): string => {
+    switch (path) {
+      case '/cost-calculator':
+        return "Hi! I'm here to help with import cost calculations. Ask me about duties, taxes, shipping costs, or any step in the process.";
+      case '/vehicle-lookup':
+        return "Hello! I can help you find vehicle specifications, market values, and import requirements. What vehicle are you researching?";
+      case '/mod-estimator':
+        return "Hi there! I'll help you understand modification costs and compliance requirements for your import. What modifications are you considering?";
+      case '/trial-dashboard':
+        return "Welcome to your dashboard! I can explain any features, help track your import progress, or answer questions about your trial.";
+      case '/affiliate-portal':
+        return "Hi! I'm here to help with your affiliate activities, commission tracking, and referral strategies. How can I assist?";
+      default:
+        return "Hi! I'm your ImportIQ assistant. I can help with vehicle imports, costs, compliance, and any questions about our platform.";
+    }
+  };
 
   const chatMutation = useMutation({
-    mutationFn: async (userMessage: string) => {
+    mutationFn: async (query: string) => {
       const response = await apiRequest("POST", "/api/ai-chat", {
-        message: userMessage,
-        context: "import_assistance"
+        message: query,
+        context: {
+          page: location,
+          userType: 'trial',
+          previousMessages: messages.slice(-3) // Last 3 messages for context
+        }
       });
-      return response.json();
+      return await response.json();
     },
-    onSuccess: (data) => {
-      const assistantMessage: ChatMessage = {
+    onSuccess: (data: AIResponse) => {
+      const newMessage: ChatMessage = {
         id: Date.now().toString(),
-        text: data.response,
-        isUser: false,
+        role: 'assistant',
+        content: data.message,
         timestamp: new Date()
       };
-      setMessages(prev => [...prev, assistantMessage]);
+      setMessages(prev => [...prev, newMessage]);
     },
-    onError: (error) => {
+    onError: () => {
       const errorMessage: ChatMessage = {
         id: Date.now().toString(),
-        text: "I'm sorry, I'm having trouble connecting right now. Please try again in a moment.",
-        isUser: false,
+        role: 'assistant',
+        content: "I'm having trouble connecting right now. Please try again in a moment, or contact support if the issue persists.",
         timestamp: new Date()
       };
       setMessages(prev => [...prev, errorMessage]);
@@ -63,22 +105,22 @@ export function AIChatAssistant() {
   });
 
   const handleSendMessage = () => {
-    if (!message.trim()) return;
+    if (!inputValue.trim() || chatMutation.isPending) return;
 
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
-      text: message,
-      isUser: true,
+      role: 'user',
+      content: inputValue,
       timestamp: new Date()
     };
 
     setMessages(prev => [...prev, userMessage]);
-    chatMutation.mutate(message);
-    setMessage("");
+    chatMutation.mutate(inputValue);
+    setInputValue("");
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
@@ -89,9 +131,9 @@ export function AIChatAssistant() {
       <div className="fixed bottom-6 right-6 z-50">
         <Button
           onClick={() => setIsOpen(true)}
-          className="h-14 w-14 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg"
+          className="rounded-full w-14 h-14 bg-amber-600 hover:bg-amber-700 shadow-lg"
         >
-          <MessageCircle className="h-6 w-6" />
+          <MessageCircle className="w-6 h-6 text-white" />
         </Button>
       </div>
     );
@@ -99,86 +141,110 @@ export function AIChatAssistant() {
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
-      <Card className={`bg-gray-900 border-gray-700 shadow-2xl transition-all duration-300 ${
-        isMinimized ? "w-80 h-16" : "w-96 h-[500px]"
+      <Card className={`bg-gray-900 border-amber-500/30 shadow-2xl transition-all duration-300 ${
+        isMinimized ? 'w-80 h-16' : 'w-96 h-[500px]'
       }`}>
-        <CardHeader className="flex flex-row items-center justify-between p-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
-          <div className="flex items-center gap-2">
-            <Bot className="h-5 w-5" />
-            <CardTitle className="text-sm font-medium">ImportIQ Assistant</CardTitle>
-            <Badge variant="secondary" className="bg-white/20 text-white text-xs">
-              AI Powered
-            </Badge>
-          </div>
-          <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsMinimized(!isMinimized)}
-              className="h-8 w-8 p-0 text-white hover:bg-white/20"
-            >
-              {isMinimized ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsOpen(false)}
-              className="h-8 w-8 p-0 text-white hover:bg-white/20"
-            >
-              <X className="h-4 w-4" />
-            </Button>
+        <CardHeader className="pb-3 border-b border-gray-700">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Bot className="w-5 h-5 text-amber-500" />
+              <CardTitle className="text-white text-sm">ImportIQ Assistant</CardTitle>
+              <Badge variant="outline" className="border-green-500 text-green-400 text-xs">
+                Online
+              </Badge>
+            </div>
+            <div className="flex space-x-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsMinimized(!isMinimized)}
+                className="text-gray-400 hover:text-white h-6 w-6 p-0"
+              >
+                {isMinimized ? <Maximize2 className="w-3 h-3" /> : <Minimize2 className="w-3 h-3" />}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsOpen(false)}
+                className="text-gray-400 hover:text-white h-6 w-6 p-0"
+              >
+                <X className="w-3 h-3" />
+              </Button>
+            </div>
           </div>
         </CardHeader>
 
         {!isMinimized && (
-          <CardContent className="p-0 flex flex-col h-[calc(500px-64px)]">
-            {/* Messages */}
+          <CardContent className="p-0 flex flex-col h-[calc(500px-80px)]">
+            {/* Messages Area */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {messages.map((msg) => (
+              {messages.map((message) => (
                 <div
-                  key={msg.id}
-                  className={`flex ${msg.isUser ? "justify-end" : "justify-start"}`}
+                  key={message.id}
+                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div
-                    className={`max-w-[80%] p-3 rounded-lg text-sm ${
-                      msg.isUser
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-700 text-gray-100"
-                    }`}
-                  >
-                    {msg.text}
+                  <div className={`flex items-start space-x-2 max-w-[80%] ${
+                    message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''
+                  }`}>
+                    <div className={`rounded-full w-6 h-6 flex items-center justify-center ${
+                      message.role === 'user' 
+                        ? 'bg-amber-600' 
+                        : 'bg-gray-700'
+                    }`}>
+                      {message.role === 'user' ? (
+                        <User className="w-3 h-3 text-white" />
+                      ) : (
+                        <Bot className="w-3 h-3 text-amber-400" />
+                      )}
+                    </div>
+                    <div className={`rounded-lg p-3 ${
+                      message.role === 'user'
+                        ? 'bg-amber-600 text-white'
+                        : 'bg-gray-800 text-gray-300 border border-gray-700'
+                    }`}>
+                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                    </div>
                   </div>
                 </div>
               ))}
+              
               {chatMutation.isPending && (
                 <div className="flex justify-start">
-                  <div className="bg-gray-700 text-gray-100 p-3 rounded-lg text-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="animate-spin h-3 w-3 border border-gray-400 border-t-transparent rounded-full"></div>
-                      Thinking...
+                  <div className="flex items-start space-x-2">
+                    <div className="rounded-full w-6 h-6 flex items-center justify-center bg-gray-700">
+                      <Bot className="w-3 h-3 text-amber-400" />
+                    </div>
+                    <div className="bg-gray-800 border border-gray-700 rounded-lg p-3">
+                      <div className="flex space-x-1">
+                        <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
+                        <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse delay-100"></div>
+                        <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse delay-200"></div>
+                      </div>
                     </div>
                   </div>
                 </div>
               )}
+              
+              <div ref={messagesEndRef} />
             </div>
 
-            {/* Input */}
+            {/* Input Area */}
             <div className="p-4 border-t border-gray-700">
-              <div className="flex gap-2">
+              <div className="flex space-x-2">
                 <Input
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Ask about import costs, compliance, shipping..."
-                  className="bg-gray-800 border-gray-600 text-white"
+                  placeholder="Ask about import costs, compliance, or anything..."
+                  className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 text-sm"
                   disabled={chatMutation.isPending}
                 />
                 <Button
                   onClick={handleSendMessage}
-                  disabled={!message.trim() || chatMutation.isPending}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  disabled={!inputValue.trim() || chatMutation.isPending}
+                  className="bg-amber-600 hover:bg-amber-700 px-3"
                 >
-                  <Send className="h-4 w-4" />
+                  <Send className="w-4 h-4" />
                 </Button>
               </div>
             </div>

@@ -5,6 +5,7 @@ import { insertSubmissionSchema, type CalculationResult } from "@shared/schema";
 import { AdminAuthService } from "./admin-auth";
 import { getMarketIntelligence } from "./market-data";
 import { calculateShippingCost, calculateImportDuty, calculateGST, calculateLuxuryCarTax, IMPORT_REQUIREMENTS } from "./public-data-sources";
+import { isAuthenticated } from "./replitAuth";
 import { z } from "zod";
 import OpenAI from "openai";
 import Stripe from "stripe";
@@ -2590,6 +2591,108 @@ Generate specific ad targeting recommendations with confidence levels (High/Medi
       res.json(simulatedData);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch registration data" });
+    }
+  });
+
+  // AI Chat Assistant endpoint for contextual help
+  app.post("/api/ai-chat", isAuthenticated, async (req, res) => {
+    try {
+      const { message, context } = req.body;
+      const userId = req.user?.claims?.sub;
+      
+      if (!process.env.OPENAI_API_KEY) {
+        return res.status(500).json({ 
+          message: "AI assistant is temporarily unavailable. Please contact support for assistance.",
+          confidence: "low",
+          suggestions: ["Contact support", "Check FAQ", "Try again later"]
+        });
+      }
+
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      
+      // Build contextual prompt based on current page
+      let systemPrompt = `You are ImportIQ's AI assistant, an expert in Australian vehicle import processes. You help users understand import costs, compliance requirements, and platform features.
+
+Current context: User is on ${context.page} page
+User type: ${context.userType}
+
+IMPORTANT GUIDELINES:
+- Provide accurate, specific information about Australian import requirements
+- Reference actual ACBPS, ANCAP, and transport department regulations
+- Give practical cost estimates based on real market data
+- Be concise but thorough
+- If unsure about specific regulations, recommend consulting official sources
+- Help with platform navigation and features`;
+
+      // Add page-specific context
+      switch (context.page) {
+        case '/cost-calculator':
+          systemPrompt += "\n\nPage context: Import cost calculator. Help with duties, taxes, shipping costs, GST (10%), LCT thresholds, compliance costs, and total import calculations.";
+          break;
+        case '/vehicle-lookup':
+          systemPrompt += "\n\nPage context: Vehicle lookup tool. Help with finding specifications, market values, import eligibility, and vehicle history research.";
+          break;
+        case '/mod-estimator':
+          systemPrompt += "\n\nPage context: Modification cost estimator. Help with compliance modifications, engineering certification, and post-import requirements.";
+          break;
+        case '/trial-dashboard':
+          systemPrompt += "\n\nPage context: User dashboard. Help with trial features, saved calculations, tracking imports, and account management.";
+          break;
+        default:
+          systemPrompt += "\n\nGeneral ImportIQ assistance. Help with any import-related questions or platform features.";
+      }
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+        messages: [
+          {
+            role: "system",
+            content: systemPrompt
+          },
+          {
+            role: "user",
+            content: message
+          }
+        ],
+        max_tokens: 500,
+        temperature: 0.7
+      });
+
+      const aiMessage = response.choices[0].message.content;
+      
+      // Generate helpful suggestions based on context
+      const suggestions = generateContextualSuggestions(context.page, message);
+
+      function generateContextualSuggestions(page: string, userMessage: string): string[] {
+        const commonSuggestions = ["Try rephrasing your question", "Contact support", "Check our FAQ"];
+        
+        switch (page) {
+          case '/cost-calculator':
+            return ["Calculate import duties", "Check GST requirements", "Estimate shipping costs", "View compliance fees"];
+          case '/vehicle-lookup':
+            return ["Search by VIN", "Check import eligibility", "View market values", "Research specifications"];
+          case '/mod-estimator':
+            return ["Estimate compliance costs", "Check engineering requirements", "View modification guides", "Contact specialists"];
+          case '/trial-dashboard':
+            return ["View saved calculations", "Track import progress", "Upgrade to premium", "Download reports"];
+          default:
+            return commonSuggestions;
+        }
+      }
+
+      res.json({
+        message: aiMessage,
+        confidence: "high",
+        suggestions
+      });
+
+    } catch (error) {
+      console.error("AI Chat error:", error);
+      res.status(500).json({
+        message: "I'm having trouble processing your request right now. Please try rephrasing your question or contact support if the issue persists.",
+        confidence: "low",
+        suggestions: ["Rephrase your question", "Contact support", "Check our FAQ"]
+      });
     }
   });
 
