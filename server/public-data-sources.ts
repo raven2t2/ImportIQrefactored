@@ -93,34 +93,20 @@ export const CURRENT_EXCHANGE_RATES = {
   source: "Reserve Bank of Australia"
 };
 
-// Vehicle registration statistics (from ABS Motor Vehicle Census)
+// Vehicle registration statistics - REQUIRES AUTHENTIC DATA SOURCE
 export const REGISTRATION_STATISTICS = {
-  // Data from ABS Motor Vehicle Census Australia 2024
-  total_vehicles: 20100000,
-  by_state: {
-    nsw: 6800000,
-    vic: 5200000,
-    qld: 4100000,
-    wa: 2300000,
-    sa: 1200000,
-    tas: 400000,
-    nt: 180000,
-    act: 320000
-  },
-  imports_by_origin: {
-    japan: 85000, // Annual imported vehicles
-    usa: 12000,
-    germany: 8000,
-    uk: 5000,
-    other: 15000
-  },
-  popular_import_brands: {
-    nissan: 28500,
-    toyota: 24000,
-    honda: 18500,
-    mazda: 15000,
-    mitsubishi: 12000,
-    subaru: 9500
+  // NOTE: These require real API access to Australian Bureau of Statistics
+  // Current data is placeholder - real implementation needs ABS API key
+  data_available: false,
+  error_message: "Registration statistics require Australian Bureau of Statistics API access",
+  official_source: "https://www.abs.gov.au/statistics/industry/tourism-and-transport/motor-vehicle-census-australia",
+  
+  // Placeholder structure - do not display as real data
+  structure: {
+    total_vehicles: null,
+    by_state: {},
+    imports_by_origin: {},
+    popular_import_brands: {}
   }
 };
 
