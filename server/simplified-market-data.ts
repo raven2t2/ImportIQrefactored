@@ -181,14 +181,15 @@ export async function generateMarketListings(filters: SearchFilters): Promise<{ 
     }
   }
 
-  // Get authentic Japanese auction data for JDM vehicles
-  if (shouldSearchJapanese || isJDMSearch) {
+  // For JDM searches, ONLY use Japanese auction data  
+  if (isJDMSearch) {
     try {
-      const japaneseAuctions = await scrapeAllJapaneseAuctions(make, model);
+      const { getAuthenticJapaneseListings } = await import('./legitimate-japanese-data');
+      const japaneseResult = await getAuthenticJapaneseListings(make, model);
       
-      // Convert Japanese auction listings to CarListing format
-      japaneseAuctions.forEach((auction, index) => {
-        const audPrice = auction.currency === 'JPY' ? Math.floor(auction.price * 0.0094) : auction.price;
+      // Convert to CarListing format and apply filters
+      japaneseResult.listings.forEach((auction, index) => {
+        const audPrice = Math.floor(auction.price * 0.0094); // Convert JPY to AUD
         
         // Apply price filters
         if (minPrice && audPrice < parseInt(minPrice)) return;
@@ -204,9 +205,9 @@ export async function generateMarketListings(filters: SearchFilters): Promise<{ 
           mileage: auction.mileage,
           location: `${auction.location}, Japan`,
           source: auction.auctionHouse,
-          sourceUrl: auction.sourceUrl,
+          sourceUrl: '', // Remove source URLs as requested
           description: auction.description,
-          images: auction.images,
+          images: [], // Remove images as requested
           listedDate: auction.auctionDate,
           seller: auction.seller,
           features: auction.features,
@@ -214,7 +215,7 @@ export async function generateMarketListings(filters: SearchFilters): Promise<{ 
           transmission: auction.transmission,
           bodyType: auction.bodyType,
           isImport: true,
-          compliance: 'Requires ADR compliance for Australian registration',
+          compliance: 'Import from Japan - Requires ADR compliance for Australian registration',
           auctionData: {
             auctionHouse: auction.auctionHouse,
             lotNumber: auction.lotNumber,
@@ -232,9 +233,8 @@ export async function generateMarketListings(filters: SearchFilters): Promise<{ 
       console.warn('Japanese auction data unavailable:', error);
     }
   }
-
-  // Get authentic US auction data for US muscle cars only
-  if (shouldSearchUS || isUSMuscleSearch) {
+  // For US muscle car searches, ONLY use US auction data
+  else if (isUSMuscleSearch) {
     try {
       const usAuctions = await scrapeAllUSAuctions(make, model);
       
@@ -256,9 +256,9 @@ export async function generateMarketListings(filters: SearchFilters): Promise<{ 
           mileage: auction.mileage,
           location: `${auction.location}, USA`,
           source: auction.auctionHouse,
-          sourceUrl: auction.sourceUrl,
+          sourceUrl: '', // Remove source URLs as requested
           description: auction.description,
-          images: auction.images,
+          images: [], // Remove images as requested
           listedDate: auction.auctionDate,
           seller: auction.seller,
           features: auction.features,
@@ -266,7 +266,7 @@ export async function generateMarketListings(filters: SearchFilters): Promise<{ 
           transmission: auction.transmission,
           bodyType: auction.bodyType,
           isImport: true,
-          compliance: 'Requires 25-year rule compliance or EPA/DOT exemption for Australian import',
+          compliance: 'Import from USA - Requires 25-year rule compliance for Australian import',
           auctionData: {
             auctionHouse: auction.auctionHouse,
             lotNumber: auction.lotNumber,
@@ -282,6 +282,83 @@ export async function generateMarketListings(filters: SearchFilters): Promise<{ 
       });
     } catch (error) {
       console.warn('US auction data unavailable:', error);
+    }
+  }
+  // For generic searches, use both sources but clearly identify origin
+  else {
+    // Japanese listings for generic searches
+    try {
+      const { getAuthenticJapaneseListings } = await import('./legitimate-japanese-data');
+      const japaneseResult = await getAuthenticJapaneseListings(make, model);
+      
+      japaneseResult.listings.slice(0, 8).forEach((auction) => { // Limit to 8 Japanese listings
+        const audPrice = Math.floor(auction.price * 0.0094);
+        
+        if (minPrice && audPrice < parseInt(minPrice)) return;
+        if (maxPrice && audPrice > parseInt(maxPrice)) return;
+        
+        listings.push({
+          id: auction.id,
+          make: auction.make,
+          model: auction.model,
+          year: auction.year,
+          price: audPrice,
+          currency: 'AUD',
+          mileage: auction.mileage,
+          location: `${auction.location}, Japan`,
+          source: auction.auctionHouse,
+          sourceUrl: '',
+          description: auction.description,
+          images: [],
+          listedDate: auction.auctionDate,
+          seller: auction.seller,
+          features: auction.features,
+          fuelType: auction.fuelType,
+          transmission: auction.transmission,
+          bodyType: auction.bodyType,
+          isImport: true,
+          compliance: 'Import from Japan - Requires ADR compliance for Australian registration'
+        });
+      });
+    } catch (error) {
+      console.warn('Japanese data unavailable for generic search:', error);
+    }
+
+    // US listings for generic searches
+    try {
+      const usAuctions = await scrapeAllUSAuctions(make, model);
+      
+      usAuctions.slice(0, 7).forEach((auction) => { // Limit to 7 US listings
+        const audPrice = auction.price;
+        
+        if (minPrice && audPrice < parseInt(minPrice)) return;
+        if (maxPrice && audPrice > parseInt(maxPrice)) return;
+        
+        listings.push({
+          id: auction.id,
+          make: auction.make,
+          model: auction.model,
+          year: auction.year,
+          price: audPrice,
+          currency: 'AUD',
+          mileage: auction.mileage,
+          location: `${auction.location}, USA`,
+          source: auction.auctionHouse,
+          sourceUrl: '',
+          description: auction.description,
+          images: [],
+          listedDate: auction.auctionDate,
+          seller: auction.seller,
+          features: auction.features,
+          fuelType: auction.fuelType,
+          transmission: auction.transmission,
+          bodyType: auction.bodyType,
+          isImport: true,
+          compliance: 'Import from USA - Requires 25-year rule compliance for Australian import'
+        });
+      });
+    } catch (error) {
+      console.warn('US data unavailable for generic search:', error);
     }
   }
 

@@ -418,28 +418,14 @@ export default function LiveMarketScanner() {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {/* Vehicle Image */}
-                    {listing.images && listing.images.length > 0 && (
-                      <div className="relative overflow-hidden rounded-lg bg-gray-800">
-                        <img 
-                          src={listing.images[0]} 
-                          alt={`${listing.year} ${listing.make} ${listing.model}`}
-                          className="w-full h-48 object-cover"
-                          onError={(e) => {
-                            e.currentTarget.src = 'https://images.unsplash.com/photo-1549924231-f129b911e442?w=400&h=300&fit=crop&auto=format&q=80';
-                          }}
-                        />
-                        {listing.isImport && (
-                          <div className="absolute top-2 left-2">
-                            <Badge className="bg-blue-600 text-white text-xs">Import</Badge>
-                          </div>
-                        )}
+                    {/* Import Status Badge */}
+                    {listing.isImport && (
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-blue-600 text-white">Import Vehicle</Badge>
                         {listing.auctionData && (
-                          <div className="absolute top-2 right-2">
-                            <Badge className="bg-yellow-600 text-white text-xs">
-                              Grade {listing.auctionData.inspectionGrade}
-                            </Badge>
-                          </div>
+                          <Badge className="bg-yellow-600 text-white text-xs">
+                            Grade {listing.auctionData.inspectionGrade}
+                          </Badge>
                         )}
                       </div>
                     )}
@@ -481,14 +467,11 @@ export default function LiveMarketScanner() {
                       </div>
                     )}
 
-                    {listing.isImport && (
-                      <div className="flex items-center gap-2">
-                        <Badge className="bg-blue-600 text-white">Import Vehicle</Badge>
-                        {listing.compliance && (
-                          <Badge variant="outline" className="border-green-600 text-green-400">
-                            {listing.compliance}
-                          </Badge>
-                        )}
+                    {listing.compliance && (
+                      <div className="bg-blue-900/30 p-3 rounded border border-blue-400/30">
+                        <div className="text-sm text-blue-400 font-medium">
+                          Import Compliance: {listing.compliance}
+                        </div>
                       </div>
                     )}
 
@@ -554,20 +537,11 @@ export default function LiveMarketScanner() {
 
                     <div className="space-y-3">
                       <div className="flex gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="flex-1 border-amber-400/30 text-amber-400 hover:bg-amber-400/10"
-                          onClick={() => window.open(listing.sourceUrl, '_blank')}
-                        >
-                          <ExternalLink className="h-4 w-4 mr-2" />
-                          View Source
-                        </Button>
-                        <Link href="/vehicle-lookup">
+                        <Link href="/vehicle-lookup" className="flex-1">
                           <Button 
                             variant="outline"
                             size="sm" 
-                            className="border-blue-400/30 text-blue-400 hover:bg-blue-400/10"
+                            className="w-full border-blue-400/30 text-blue-400 hover:bg-blue-400/10"
                           >
                             <Search className="h-4 w-4 mr-2" />
                             VIN Lookup
