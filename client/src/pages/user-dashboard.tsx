@@ -16,7 +16,8 @@ import {
   Globe,
   Crown,
   ArrowRight,
-  CheckCircle
+  CheckCircle,
+  Clock
 } from "lucide-react";
 
 // Tool Card Component
@@ -234,6 +235,14 @@ export default function UserDashboard() {
             icon={<MapPin className="h-6 w-6" />}
             color="amber"
             onClick={() => window.location.href = '/port-intelligence'}
+          />
+
+          <ToolCard
+            title="Import Timeline"
+            description="Complete timeline and milestones for vehicle import process in Australia."
+            icon={<Clock className="h-6 w-6" />}
+            color="purple"
+            onClick={() => window.location.href = '/import-timeline'}
           />
 
         </div>
