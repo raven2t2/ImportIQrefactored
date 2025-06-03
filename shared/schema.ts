@@ -141,6 +141,27 @@ export const carEvents = pgTable("car_events", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Deposits tracking for mod packages and services
+export const deposits = pgTable("deposits", {
+  id: serial("id").primaryKey(),
+  customerName: text("customer_name"),
+  customerEmail: text("customer_email").notNull(),
+  customerPhone: text("customer_phone"),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  depositType: text("deposit_type").notNull(), // "mod-package", "import-service", "consultation"
+  serviceDetails: text("service_details"),
+  vehicleDetails: text("vehicle_details"),
+  stripePaymentIntentId: text("stripe_payment_intent_id"),
+  stripeChargeId: text("stripe_charge_id"),
+  status: text("status").default("pending"), // pending, paid, refunded, applied
+  paidAt: timestamp("paid_at"),
+  refundedAt: timestamp("refunded_at"),
+  appliedToInvoice: text("applied_to_invoice"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const reports = pgTable("reports", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id"),
@@ -366,6 +387,10 @@ export type InsertPartsWatchlistItem = typeof partsWatchlist.$inferInsert;
 
 export type ShopSuggestion = typeof shopSuggestions.$inferSelect;
 export type InsertShopSuggestion = typeof shopSuggestions.$inferInsert;
+
+export type Deposit = typeof deposits.$inferSelect;
+export type InsertDeposit = typeof deposits.$inferInsert;
+export const insertDepositSchema = createInsertSchema(deposits);
 
 // Affiliate schema for forms
 export const insertAffiliateSchema = createInsertSchema(affiliates).pick({
