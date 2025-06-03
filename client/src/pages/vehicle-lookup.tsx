@@ -382,11 +382,12 @@ export default function VehicleLookup() {
                       
                       {/* Compliance Explanation */}
                       <div className="mt-4 p-3 bg-amber-950/30 rounded border border-amber-400/30">
-                        <h4 className="text-amber-200 font-medium mb-2">What this means:</h4>
+                        <h4 className="text-amber-200 font-medium mb-2">Import Pathway Options:</h4>
+                        
                         {result.complianceNotes.includes("SEVS eligible") && (
-                          <div className="text-amber-100 text-sm space-y-2">
-                            <p><strong>SEVS (Specialist and Enthusiast Vehicle Scheme):</strong></p>
-                            <ul className="list-disc list-inside space-y-1 text-xs text-amber-200/80">
+                          <div className="text-amber-100 text-sm space-y-2 mb-4">
+                            <p><strong>✓ SEVS (Specialist and Enthusiast Vehicle Scheme):</strong></p>
+                            <ul className="list-disc list-inside space-y-1 text-xs text-amber-200/80 ml-4">
                               <li>For vehicles 15+ years old with historical/sporting significance</li>
                               <li>Requires pre-approval from Department of Infrastructure</li>
                               <li>Must be on the SEVS register or get individual approval</li>
@@ -395,22 +396,24 @@ export default function VehicleLookup() {
                             </ul>
                           </div>
                         )}
-                        {result.complianceNotes.includes("25+ year rule eligible") && (
-                          <div className="text-amber-100 text-sm space-y-2">
-                            <p><strong>25+ Year Rule:</strong></p>
-                            <ul className="list-disc list-inside space-y-1 text-xs text-amber-200/80">
+                        
+                        {result.complianceNotes.includes("25+ year rule") && (
+                          <div className="text-amber-100 text-sm space-y-2 mb-4">
+                            <p><strong>✓ 25+ Year Classic Rule:</strong></p>
+                            <ul className="list-disc list-inside space-y-1 text-xs text-amber-200/80 ml-4">
                               <li>Vehicles 25+ years old can import as "classic vehicles"</li>
                               <li>Exempt from full ADR compliance requirements</li>
                               <li>Still requires safety inspection and registration</li>
                               <li>Compliance costs: $5,000-10,000 typically</li>
-                              <li>Fastest pathway for eligible vehicles</li>
+                              <li>Fastest and cheapest pathway for eligible vehicles</li>
                             </ul>
                           </div>
                         )}
+                        
                         {result.complianceNotes.includes("specialist compliance") && (
-                          <div className="text-amber-100 text-sm space-y-2">
-                            <p><strong>Specialist Compliance Required:</strong></p>
-                            <ul className="list-disc list-inside space-y-1 text-xs text-amber-200/80">
+                          <div className="text-amber-100 text-sm space-y-2 mb-4">
+                            <p><strong>⚠ Specialist Compliance Required:</strong></p>
+                            <ul className="list-disc list-inside space-y-1 text-xs text-amber-200/80 ml-4">
                               <li>Complex modifications needed for ADR compliance</li>
                               <li>Turbo systems may need engineering certification</li>
                               <li>Higher compliance costs due to complexity</li>
@@ -419,16 +422,26 @@ export default function VehicleLookup() {
                             </ul>
                           </div>
                         )}
-                        {result.complianceNotes.includes("RAW (Racetrack)") && (
-                          <div className="text-amber-100 text-sm space-y-2">
-                            <p><strong>RAW (Racetrack) Only:</strong></p>
-                            <ul className="list-disc list-inside space-y-1 text-xs text-amber-200/80">
+                        
+                        {result.complianceNotes.includes("RAW") && (
+                          <div className="text-amber-100 text-sm space-y-2 mb-4">
+                            <p><strong>⚠ RAW (Racetrack) Only:</strong></p>
+                            <ul className="list-disc list-inside space-y-1 text-xs text-amber-200/80 ml-4">
                               <li>Cannot be registered for road use</li>
                               <li>Track/display use only</li>
                               <li>Lower import duties apply</li>
                               <li>No compliance workshop required</li>
                               <li>Cannot be converted to road legal later</li>
                             </ul>
+                          </div>
+                        )}
+                        
+                        {(result.complianceNotes.includes("SEVS eligible") && result.complianceNotes.includes("25+ year rule")) && (
+                          <div className="p-3 bg-green-950/30 rounded border border-green-400/30">
+                            <p className="text-green-200 text-xs font-medium">💡 Best Strategy:</p>
+                            <p className="text-green-100 text-xs mt-1">
+                              Wait for 25+ year eligibility if close to the age threshold - significantly cheaper and faster than SEVS pathway.
+                            </p>
                           </div>
                         )}
                       </div>
