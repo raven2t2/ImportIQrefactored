@@ -542,11 +542,20 @@ export default function BuildComply() {
                   Get expert guidance throughout your compliance journey with our professional consultation services.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button size="lg" className="bg-black text-amber-400 hover:bg-gray-900 font-medium">
+                  <Button 
+                    size="lg" 
+                    className="bg-black text-amber-400 hover:bg-gray-900 font-medium"
+                    onClick={() => window.location.href = '/booking-calendar'}
+                  >
                     <Calendar className="h-5 w-5 mr-2" />
                     Book Consultation
                   </Button>
-                  <Button size="lg" variant="outline" className="border-black/30 text-black hover:bg-black/10 font-medium">
+                  <Button 
+                    size="lg" 
+                    variant="outline" 
+                    className="border-black/30 text-black hover:bg-black/10 font-medium"
+                    onClick={() => window.open('https://driveimmaculate.com/compliance-guide/', '_blank')}
+                  >
                     <FileText className="h-5 w-5 mr-2" />
                     Download Guide
                   </Button>
