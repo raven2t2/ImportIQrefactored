@@ -70,48 +70,13 @@
     text-rendering: optimizeLegibility;
   }
 
-  /* Force proper text contrast for readability */
-  .dark {
-    /* Ensure all text elements have light colors on dark backgrounds */
-    h1, h2, h3, h4, h5, h6, p, span, div, label, input, textarea, select {
-      color: hsl(var(--foreground)) !important;
-    }
-    
-    /* Fix button text visibility */
-    button:not(.bg-primary):not(.bg-destructive):not(.bg-accent) {
-      color: hsl(var(--foreground)) !important;
-    }
-    
-    /* Fix card text */
-    .card, [data-radix-collection-item] {
-      color: hsl(var(--card-foreground)) !important;
-    }
-    
-    /* Fix muted text */
-    .text-muted-foreground, .muted {
-      color: hsl(var(--muted-foreground)) !important;
-    }
-    
-    /* Fix input placeholder text */
-    input::placeholder, textarea::placeholder {
-      color: hsl(var(--muted-foreground)) !important;
-      opacity: 0.7;
-    }
+  /* Targeted text contrast fixes - only where needed */
+  .text-contrast-fix {
+    color: hsl(var(--foreground)) !important;
   }
   
-  /* Light theme text fixes */
-  :not(.dark) {
-    h1, h2, h3, h4, h5, h6, p, span, div, label, input, textarea, select {
-      color: hsl(var(--foreground)) !important;
-    }
-    
-    button:not(.bg-primary):not(.bg-destructive):not(.bg-accent) {
-      color: hsl(var(--foreground)) !important;
-    }
-    
-    .text-muted-foreground, .muted {
-      color: hsl(var(--muted-foreground)) !important;
-    }
+  .dark .text-contrast-fix {
+    color: hsl(var(--foreground)) !important;
   }
   
   /* Prevent horizontal scroll on mobile */
