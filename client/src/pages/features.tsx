@@ -199,9 +199,9 @@ export default function Features() {
               ) : (
                 <Button 
                   className="bg-amber-400 hover:bg-amber-500 text-black px-6 py-2 rounded-full transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
-                  onClick={() => window.location.href = '/?trial=true'}
+                  onClick={() => window.location.href = '/subscribe'}
                 >
-                  Start Free Trial
+                  Subscribe Now
                 </Button>
               )}
             </div>
@@ -238,9 +238,9 @@ export default function Features() {
                 ) : (
                   <Button 
                     className="bg-amber-400 hover:bg-amber-500 text-black w-full rounded-full mt-4 font-medium"
-                    onClick={() => { setMobileMenuOpen(false); window.location.href = '/?trial=true'; }}
+                    onClick={() => { setMobileMenuOpen(false); window.location.href = '/subscribe'; }}
                   >
-                    Start Free Trial
+                    Subscribe Now
                   </Button>
                 )}
               </div>
