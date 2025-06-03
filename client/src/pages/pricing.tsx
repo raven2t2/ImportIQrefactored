@@ -310,7 +310,10 @@ export default function Pricing() {
               <p className="text-gray-300 mb-6">
                 ImportIQ pays for itself 108x over on your first import alone.
               </p>
-              <Button className="bg-amber-400 hover:bg-amber-500 text-black px-8 py-3 text-lg font-semibold transition-all duration-300 hover:scale-105">
+              <Button 
+                className="bg-amber-400 hover:bg-amber-500 text-black px-8 py-3 text-lg font-semibold transition-all duration-300 hover:scale-105"
+                onClick={() => window.location.href = '/subscribe'}
+              >
                 Start Saving Today
               </Button>
             </div>
