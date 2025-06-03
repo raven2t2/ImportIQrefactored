@@ -96,6 +96,9 @@ export function AiChatButton() {
     return pageContexts[path] || 'general import assistance';
   };
 
+  // Debug authentication status
+  console.log("AI Chat Debug:", { isLoading, isAuthenticated, user });
+
   // Don't render if not authenticated
   if (isLoading || !isAuthenticated) {
     return null;
