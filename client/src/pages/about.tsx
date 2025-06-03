@@ -15,6 +15,7 @@ import {
   X
 } from "lucide-react";
 import { Link } from "wouter";
+import { useAuth } from "@/hooks/useAuth";
 import EmailGate from "@/components/email-gate";
 import logoPath from "@assets/circular imi logo (3).png";
 
@@ -22,6 +23,7 @@ export default function About() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showEmailGate, setShowEmailGate] = useState(false);
   const [selectedTool, setSelectedTool] = useState("");
+  const { isAuthenticated } = useAuth();
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -41,16 +43,27 @@ export default function About() {
               <Link href="/features" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Features</Link>
               <Link href="/pricing" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Pricing</Link>
               <Link href="/about" className="text-amber-400 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Our Mission</Link>
-              <Link href="/affiliate-signup" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Refer & Earn</Link>
-              <Button 
-                className="bg-amber-400 hover:bg-amber-500 text-black px-6 py-2 rounded-full transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
-                onClick={() => {
-                  setSelectedTool("ImportIQ Platform");
-                  setShowEmailGate(true);
-                }}
-              >
-                Start Free Trial
-              </Button>
+              
+              {/* Show different nav based on auth status */}
+              {isAuthenticated ? (
+                <>
+                  <Link href="/dashboard" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Dashboard</Link>
+                  <Link href="/api/logout" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Logout</Link>
+                </>
+              ) : (
+                <>
+                  <Link href="/affiliate-signup" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Refer & Earn</Link>
+                  <Button 
+                    className="bg-amber-400 hover:bg-amber-500 text-black px-6 py-2 rounded-full transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
+                    onClick={() => {
+                      setSelectedTool("ImportIQ Platform");
+                      setShowEmailGate(true);
+                    }}
+                  >
+                    Start Free Trial
+                  </Button>
+                </>
+              )}
             </div>
 
             {/* Mobile menu button */}
@@ -74,16 +87,27 @@ export default function About() {
                 <Link href="/features" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Features</Link>
                 <Link href="/pricing" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Pricing</Link>
                 <Link href="/about" className="text-amber-400 py-3 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Our Mission</Link>
-                <Link href="/affiliate-signup" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Refer & Earn</Link>
-                <Button 
-                  className="bg-amber-400 hover:bg-amber-500 text-black w-full rounded-full mt-4 font-medium"
-                  onClick={() => {
-                    setSelectedTool("ImportIQ Platform");
-                    setShowEmailGate(true);
-                  }}
-                >
-                  Start Free Trial
-                </Button>
+                
+                {/* Show different mobile nav based on auth status */}
+                {isAuthenticated ? (
+                  <>
+                    <Link href="/dashboard" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Dashboard</Link>
+                    <Link href="/api/logout" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium">Logout</Link>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/affiliate-signup" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Refer & Earn</Link>
+                    <Button 
+                      className="bg-amber-400 hover:bg-amber-500 text-black w-full rounded-full mt-4 font-medium"
+                      onClick={() => {
+                        setSelectedTool("ImportIQ Platform");
+                        setShowEmailGate(true);
+                      }}
+                    >
+                      Start Free Trial
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           )}
