@@ -28,6 +28,9 @@ export interface PublicListing {
   images: string[];
   seller: string;
   features: string[];
+  fuelType?: string;
+  transmission?: string;
+  bodyType?: string;
   isImport?: boolean;
   auctionData?: {
     auctionHouse: string;

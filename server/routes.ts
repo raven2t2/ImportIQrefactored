@@ -18,7 +18,7 @@ import OpenAI from "openai";
 import Stripe from "stripe";
 import bcrypt from "bcrypt";
 import fs from "fs";
-import { generateMarketListings, type SearchFilters } from "./live-market-data";
+import { generateMarketListings, type SearchFilters } from "./simplified-market-data";
 import path from "path";
 
 // Additional schemas for new tools
