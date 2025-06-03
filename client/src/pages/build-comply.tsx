@@ -643,24 +643,16 @@ export default function BuildComply() {
                 <p className="text-black/80 mb-6 max-w-2xl mx-auto">
                   Get expert guidance throughout your compliance journey with our professional consultation services.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button 
-                    size="lg" 
-                    className="bg-black text-amber-400 hover:bg-gray-900 font-medium"
-                    onClick={() => window.open('https://driveimmaculate.com/book-consultation/', '_blank')}
-                  >
-                    <Calendar className="h-5 w-5 mr-2" />
-                    Book Consultation
-                  </Button>
-                  <Button 
-                    size="lg" 
-                    variant="outline" 
-                    className="border-black/30 text-black hover:bg-black/10 font-medium"
-                    onClick={() => window.open('https://driveimmaculate.com/compliance-guide/', '_blank')}
-                  >
-                    <FileText className="h-5 w-5 mr-2" />
-                    Compliance Guide
-                  </Button>
+                <div className="flex justify-center">
+                  <Link href="/booking-calendar">
+                    <Button 
+                      size="lg" 
+                      className="bg-black text-amber-400 hover:bg-gray-900 font-medium"
+                    >
+                      <Calendar className="h-5 w-5 mr-2 text-amber-400" />
+                      Book Consultation
+                    </Button>
+                  </Link>
                 </div>
               </CardContent>
             </Card>
