@@ -44,7 +44,14 @@ export function AiChatButton() {
 
   // Drag functionality
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (e.target !== e.currentTarget) return; // Only drag from the button itself
+    // Allow dragging from header, button container, or button itself
+    const target = e.target as HTMLElement;
+    const isButton = target.tagName === 'BUTTON' || target.closest('button');
+    
+    // Prevent dragging if clicking on interactive elements (except when it's the main chat button)
+    if (isButton && !target.closest('[data-chat-button]')) {
+      return;
+    }
     
     setIsDragging(true);
     const rect = e.currentTarget.getBoundingClientRect();
@@ -161,6 +168,7 @@ export function AiChatButton() {
         onMouseDown={handleMouseDown}
       >
         <Button
+          data-chat-button
           onClick={() => {
             setIsClosed(false);
             setIsOpen(true);
@@ -187,6 +195,7 @@ export function AiChatButton() {
         onMouseDown={handleMouseDown}
       >
         <Button
+          data-chat-button
           onClick={() => setIsOpen(true)}
           className="rounded-full w-14 h-14 bg-amber-600 hover:bg-amber-700 shadow-xl border-2 border-amber-400 transition-all duration-200 hover:scale-105"
         >
