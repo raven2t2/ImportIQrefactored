@@ -852,6 +852,201 @@ export default function SecureAdminDashboard() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent value="analytics" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* AI-Powered Ad Targeting Recommendations */}
+              <Card className="bg-gray-900 border-amber-500/20 lg:col-span-2">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center">
+                    <Target className="w-5 h-5 mr-2 text-amber-500" />
+                    AI-Powered Ad Targeting Recommendations
+                  </CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Intelligent marketing insights generated from user behavior analysis using OpenAI
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {analyticsLoading ? (
+                    <div className="flex justify-center py-8">
+                      <div className="animate-spin w-8 h-8 border-4 border-amber-600 border-t-transparent rounded-full"></div>
+                      <span className="ml-3 text-gray-400">Analyzing data with AI...</span>
+                    </div>
+                  ) : aiAnalyticsData?.recommendations ? (
+                    <div className="space-y-6">
+                      {/* High Priority Actions */}
+                      {aiAnalyticsData.recommendations.immediate_actions?.length > 0 && (
+                        <div>
+                          <h3 className="text-lg font-semibold text-amber-500 mb-3 flex items-center">
+                            <AlertTriangle className="w-4 h-4 mr-2" />
+                            Immediate Actions (High Confidence)
+                          </h3>
+                          <div className="grid gap-4">
+                            {aiAnalyticsData.recommendations.immediate_actions.map((rec: any, idx: number) => (
+                              <div key={idx} className="bg-gray-800 border border-green-500/30 rounded-lg p-4">
+                                <div className="flex items-start justify-between mb-2">
+                                  <h4 className="font-medium text-green-400">{rec.category}</h4>
+                                  <Badge className="bg-green-600 text-white">
+                                    {rec.confidence} Priority
+                                  </Badge>
+                                </div>
+                                <p className="text-gray-300 mb-3">{rec.recommendation}</p>
+                                <div className="space-y-2">
+                                  <div className="text-sm text-gray-400">
+                                    <strong>Data Support:</strong> {rec.data_support}
+                                  </div>
+                                  <div className="text-sm text-amber-400">
+                                    <strong>Implementation:</strong> {rec.implementation}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Test Opportunities */}
+                      {aiAnalyticsData.recommendations.test_opportunities?.length > 0 && (
+                        <div>
+                          <h3 className="text-lg font-semibold text-blue-400 mb-3 flex items-center">
+                            <TrendingUp className="w-4 h-4 mr-2" />
+                            Test Opportunities (Medium Confidence)
+                          </h3>
+                          <div className="grid gap-4">
+                            {aiAnalyticsData.recommendations.test_opportunities.map((rec: any, idx: number) => (
+                              <div key={idx} className="bg-gray-800 border border-blue-500/30 rounded-lg p-4">
+                                <div className="flex items-start justify-between mb-2">
+                                  <h4 className="font-medium text-blue-400">{rec.category}</h4>
+                                  <Badge variant="outline" className="border-blue-500 text-blue-400">
+                                    {rec.confidence} Priority
+                                  </Badge>
+                                </div>
+                                <p className="text-gray-300 mb-3">{rec.recommendation}</p>
+                                <div className="space-y-2">
+                                  <div className="text-sm text-gray-400">
+                                    <strong>Data Support:</strong> {rec.data_support}
+                                  </div>
+                                  <div className="text-sm text-amber-400">
+                                    <strong>Implementation:</strong> {rec.implementation}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Data Collection Needs */}
+                      {aiAnalyticsData.recommendations.data_collection_needed?.length > 0 && (
+                        <div>
+                          <h3 className="text-lg font-semibold text-orange-400 mb-3 flex items-center">
+                            <BarChart3 className="w-4 h-4 mr-2" />
+                            Data Collection Needed
+                          </h3>
+                          <div className="grid gap-4">
+                            {aiAnalyticsData.recommendations.data_collection_needed.map((rec: any, idx: number) => (
+                              <div key={idx} className="bg-gray-800 border border-orange-500/30 rounded-lg p-4">
+                                <div className="flex items-start justify-between mb-2">
+                                  <h4 className="font-medium text-orange-400">{rec.category}</h4>
+                                  <Badge variant="outline" className="border-orange-500 text-orange-400">
+                                    Data Needed
+                                  </Badge>
+                                </div>
+                                <p className="text-gray-300 mb-3">{rec.recommendation}</p>
+                                <div className="text-sm text-amber-400">
+                                  <strong>Implementation:</strong> {rec.implementation}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <Target className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                      <p>No analytics data available yet</p>
+                      <p className="text-sm">Drive traffic to cost calculator to generate insights</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Performance Metrics */}
+              {aiAnalyticsData?.peakActivity && (
+                <Card className="bg-gray-900 border-amber-500/20">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center">
+                      <Clock className="w-5 h-5 mr-2 text-amber-500" />
+                      Peak Performance Times
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                      <span className="text-gray-300">Best Hour</span>
+                      <span className="text-amber-500 font-bold">
+                        {aiAnalyticsData.peakActivity.bestHour}:00
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                      <span className="text-gray-300">Best Day</span>
+                      <span className="text-amber-500 font-bold">
+                        {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][aiAnalyticsData.peakActivity.bestDay]}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                      <span className="text-gray-300">Top State</span>
+                      <span className="text-amber-500 font-bold">
+                        {aiAnalyticsData.peakActivity.bestState}
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Conversion Funnel */}
+              {aiAnalyticsData?.funnelAnalysis && (
+                <Card className="bg-gray-900 border-amber-500/20">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center">
+                      <TrendingDown className="w-5 h-5 mr-2 text-amber-500" />
+                      Conversion Funnel
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-300">Visitors</span>
+                        <span className="text-white font-bold">{aiAnalyticsData.funnelAnalysis.visitors}</span>
+                      </div>
+                      <Progress value={100} className="h-2" />
+                      
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-300">Trial Signups</span>
+                        <span className="text-blue-400 font-bold">{aiAnalyticsData.funnelAnalysis.trial_signups}</span>
+                      </div>
+                      <Progress value={aiAnalyticsData.funnelAnalysis.visitor_to_trial} className="h-2" />
+                      
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-300">Active Trials</span>
+                        <span className="text-green-400 font-bold">{aiAnalyticsData.funnelAnalysis.active_trials}</span>
+                      </div>
+                      <Progress value={aiAnalyticsData.funnelAnalysis.trial_to_calculation} className="h-2" />
+                      
+                      <div className="mt-4 p-3 bg-gray-800 rounded-lg">
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-amber-500">
+                            {aiAnalyticsData.funnelAnalysis.overall_conversion?.toFixed(1)}%
+                          </div>
+                          <div className="text-sm text-gray-400">Overall Conversion Rate</div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </TabsContent>
         </Tabs>
       </div>
     </div>
