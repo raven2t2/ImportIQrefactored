@@ -3056,16 +3056,31 @@ Generate specific ad targeting recommendations with confidence levels (High/Medi
 
         // Filter records based on search criteria
         let filteredRecords = auctionRecords.filter(record => {
-          const recordMake = record.Make || record.make || '';
-          const recordModel = record.Model || record.model || '';
-          const recordYear = parseInt(record.Year || record.year || '0');
-          const recordAuctionHouse = record.AuctionHouse || record.auction_house || 'USS';
+          const carName = record.car_name || '';
+          const manufacturingYear = record.manufacturing_year || '';
+          const auctionHouseName = record.auction_house || '';
+          
+          // Extract make and model from car_name (e.g., "Toyota Prius" -> make: "Toyota", model: "Prius")
+          const nameParts = carName.split(' ');
+          const recordMake = nameParts[0] || '';
+          const recordModel = nameParts.slice(1).join(' ') || '';
+          
+          // Parse year from manufacturing_year field (format like "30-May-21" -> 2021)
+          let recordYear = 0;
+          if (manufacturingYear && manufacturingYear.includes('-')) {
+            const yearPart = manufacturingYear.split('-')[2];
+            if (yearPart) {
+              // Convert 2-digit year to 4-digit year
+              const shortYear = parseInt(yearPart);
+              recordYear = shortYear < 50 ? 2000 + shortYear : 1900 + shortYear;
+            }
+          }
 
           const makeMatch = recordMake.toLowerCase().includes(make.toLowerCase());
           const modelMatch = recordModel.toLowerCase().includes(model.toLowerCase());
           const yearMatch = recordYear >= yearFrom && recordYear <= yearTo;
           const auctionMatch = !auctionHouse || auctionHouse === 'all' || 
-                              recordAuctionHouse.toLowerCase().includes(auctionHouse.toLowerCase());
+                              auctionHouseName.toLowerCase().includes(auctionHouse.toLowerCase());
 
           return makeMatch && modelMatch && yearMatch && auctionMatch;
         });
@@ -3086,31 +3101,50 @@ Generate specific ad targeting recommendations with confidence levels (High/Medi
         // Calculate current exchange rates
         const audJpyRate = 97.5; // Current AUD to JPY rate
         
-        // Process and enrich data
+        // Process authentic auction data
         const processedSamples = filteredRecords.slice(0, 50).map((record, index) => {
-          const basePrice = parseInt(record.Price || record.price || '1500000');
-          const priceJpy = basePrice + (Math.random() * 500000 - 250000); // Add realistic variation
+          const carName = record.car_name || '';
+          const nameParts = carName.split(' ');
+          const recordMake = nameParts[0] || '';
+          const recordModel = nameParts.slice(1).join(' ') || '';
+          
+          // Parse year from manufacturing_year field
+          const manufacturingYear = record.manufacturing_year || '';
+          let recordYear = 0;
+          if (manufacturingYear && manufacturingYear.includes('-')) {
+            const yearPart = manufacturingYear.split('-')[2];
+            if (yearPart) {
+              const shortYear = parseInt(yearPart);
+              recordYear = shortYear < 50 ? 2000 + shortYear : 1900 + shortYear;
+            }
+          }
+          
+          // Parse price (JPY 10,000 units)
+          const priceString = record["car_price (JPY 10,000)"] || record.car_price || '0';
+          const priceInTenThousands = parseFloat(priceString);
+          const priceJpy = Math.round(priceInTenThousands * 10000);
+          
+          // Parse mileage
+          const mileageString = record.milage || record.mileage || '0 kms';
+          const mileageMatch = mileageString.match(/(\d+)/);
+          const mileageKm = mileageMatch ? parseInt(mileageMatch[1]) : 0;
           
           return {
             id: index + 1,
-            make: record.Make || record.make || make,
-            model: record.Model || record.model || model,
-            year: parseInt(record.Year || record.year || yearFrom.toString()),
-            grade: record.Grade || record.grade || ['4.5', '4.0', '3.5', '3.0', 'R'][Math.floor(Math.random() * 5)],
-            mileage: `${parseInt(record.Mileage || record.mileage || '50000').toLocaleString()} km`,
-            transmission: record.Transmission || record.transmission || 
-                         ['Manual', 'Automatic', 'CVT'][Math.floor(Math.random() * 3)],
-            fuelType: record.FuelType || record.fuel_type || 
-                     ['Petrol', 'Diesel', 'Hybrid'][Math.floor(Math.random() * 3)],
-            auctionHouse: record.AuctionHouse || record.auction_house || 
-                         ['USS', 'IAA', 'JU', 'HAA', 'TAA'][Math.floor(Math.random() * 5)],
-            location: record.Location || record.location || 
-                     ['Tokyo', 'Osaka', 'Nagoya', 'Yokohama', 'Kobe'][Math.floor(Math.random() * 5)],
-            auctionDate: record.AuctionDate || record.auction_date || 
-                        new Date(2024, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1)
-                        .toLocaleDateString('en-AU'),
-            priceJpy: Math.round(priceJpy),
-            priceAud: Math.round(priceJpy / audJpyRate)
+            make: recordMake,
+            model: recordModel,
+            year: recordYear,
+            grade: 'N/A', // Not provided in this CSV
+            mileage: `${mileageKm.toLocaleString()} km`,
+            transmission: 'N/A', // Not provided in this CSV
+            fuelType: record.fuel_type || 'Unknown',
+            auctionHouse: record.auction_house || 'Unknown',
+            location: 'Japan', // Inferred from auction houses
+            auctionDate: manufacturingYear, // Using manufacturing year as auction reference
+            priceJpy: priceJpy,
+            priceAud: Math.round(priceJpy / audJpyRate),
+            engineSize: record["engine cc"] || 'N/A',
+            ownership: record.ownership || 'N/A'
           };
         });
 
