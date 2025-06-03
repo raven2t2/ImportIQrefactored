@@ -11,9 +11,6 @@ export default function Pricing() {
   const [isYearly, setIsYearly] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isAuthenticated, user, isLoading } = useAuth();
-  
-  // Debug logging
-  console.log('Auth Debug:', { isAuthenticated, user, isLoading });
 
   const monthlyPrice = 97;
   const yearlyPrice = Math.round(monthlyPrice * 12 * 0.8); // 20% discount
