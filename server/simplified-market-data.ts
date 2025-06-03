@@ -8,7 +8,7 @@ import { scrapeAllJapaneseAuctions, type JapaneseAuctionListing } from './japane
 import { scrapeAllUSAuctions, type USAuctionListing } from './us-auction-scraper';
 import { scrapeJapaneseMarketplaces, scrapeUSMarketplaces } from './enhanced-auction-scraper';
 import { scrapeAuthenticJapaneseData } from './advanced-japanese-scraper';
-import { scrapeRobustAuctionData } from './robust-auction-scraper';
+import { scrapeEnhancedAuctionData } from './enhanced-scraper';
 
 export interface SearchFilters {
   make: string;
@@ -190,11 +190,11 @@ export async function generateMarketListings(filters: SearchFilters): Promise<{ 
       // Try advanced Japanese scraper first
       let scrapedJapaneseVehicles = await scrapeAuthenticJapaneseData(make, model);
       
-      // If that fails, use robust scraper as backup
+      // If that fails, use enhanced scraper as backup
       if (scrapedJapaneseVehicles.length === 0) {
-        console.log('Falling back to robust auction scraper for Japanese data');
-        const robustVehicles = await scrapeRobustAuctionData(make, model);
-        scrapedJapaneseVehicles = robustVehicles.map(vehicle => ({
+        console.log('Falling back to enhanced auction scraper for Japanese data');
+        const enhancedVehicles = await scrapeEnhancedAuctionData(make, model);
+        scrapedJapaneseVehicles = enhancedVehicles.map(vehicle => ({
           id: vehicle.id,
           make: vehicle.make,
           model: vehicle.model,
@@ -207,8 +207,7 @@ export async function generateMarketListings(filters: SearchFilters): Promise<{ 
           description: vehicle.description,
           condition: vehicle.condition,
           listingDate: vehicle.listingDate,
-          specifications: vehicle.specifications,
-          auctionData: vehicle.auctionData
+          specifications: vehicle.specifications
         }));
       }
       
