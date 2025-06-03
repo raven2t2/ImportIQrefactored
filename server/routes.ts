@@ -4972,11 +4972,7 @@ IMPORTANT GUIDELINES:
         ...roiAnalysis,
         dataSource: "Australian Bureau of Statistics import value data and Federal Chamber of Automotive Industries market trends",
         calculatedAt: new Date().toISOString(),
-        assumptions: [
-          "Historical appreciation rates based on ABS import data",
-          "Market trends from FCAI vehicle sales reports",
-          "Does not account for maintenance, storage, or transaction costs"
-        ]
+        disclaimer: "Investment projections based on historical market trends. Actual returns may vary significantly due to market conditions, vehicle condition, and economic factors. Not financial advice."
       });
     } catch (error) {
       console.error("ROI calculation error:", error);
