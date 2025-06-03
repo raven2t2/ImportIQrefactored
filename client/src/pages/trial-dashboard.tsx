@@ -224,9 +224,9 @@ export default function TrialDashboard() {
             <div className="max-w-md mx-auto mb-8">
               <div className="flex justify-between text-sm text-gray-400 mb-2">
                 <span>Trial Progress</span>
-                <span>Day {8 - trialDaysLeft} of 7</span>
+                <span>Day {7 - trialDaysLeft + 1} of 7</span>
               </div>
-              <Progress value={(8 - trialDaysLeft) / 7 * 100} className="h-2" />
+              <Progress value={(7 - trialDaysLeft + 1) / 7 * 100} className="h-2" />
               
               {/* Trial Member Exclusive Offer */}
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4">
