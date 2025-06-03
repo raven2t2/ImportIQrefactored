@@ -11,6 +11,7 @@ import { calculateShippingCost as calculateShippingQuote, getAllPorts, getPortsB
 import { calculateInsuranceQuote, calculateROI, AUSTRALIAN_MARKET_DATA, DOCUMENTATION_REQUIREMENTS, STATE_REGISTRATION_DATA, ADR_COMPLIANCE_DATABASE } from "./authentic-vehicle-data";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { checkPlateRequirements } from "./plate-availability";
+import { getStateRequirements, getStatesByDifficulty, calculateStateCosts, compareStatesCosts } from "./australian-state-requirements";
 import { z } from "zod";
 import OpenAI from "openai";
 import Stripe from "stripe";
@@ -5201,6 +5202,100 @@ IMPORTANT GUIDELINES:
     } catch (error) {
       console.error("Auction intelligence error:", error);
       res.status(500).json({ error: "Failed to fetch auction intelligence" });
+    }
+  });
+
+  // State Requirements endpoint - comprehensive Australian state vehicle registration data
+  app.get("/api/state-requirements", async (req, res) => {
+    try {
+      const { state } = req.query;
+      
+      if (state) {
+        const stateData = getStateRequirements(state as string);
+        if (!stateData) {
+          return res.status(404).json({ 
+            error: "State not found",
+            availableStates: ["NSW", "VIC", "QLD", "WA", "SA", "TAS", "ACT", "NT"]
+          });
+        }
+        res.json(stateData);
+      } else {
+        // Return all states grouped by difficulty
+        const statesByDifficulty = getStatesByDifficulty();
+        res.json({
+          statesByDifficulty,
+          totalStates: Object.values(statesByDifficulty).flat().length,
+          dataSource: "Australian State Transport Authorities",
+          lastUpdated: "2024-12-01"
+        });
+      }
+    } catch (error: any) {
+      console.error("State requirements error:", error);
+      res.status(500).json({ error: "Failed to retrieve state requirements: " + error.message });
+    }
+  });
+
+  // State cost comparison endpoint
+  app.post("/api/state-cost-comparison", async (req, res) => {
+    try {
+      const { vehicleValue } = req.body;
+      
+      if (!vehicleValue || vehicleValue <= 0) {
+        return res.status(400).json({ error: "Valid vehicle value required" });
+      }
+
+      const comparison = compareStatesCosts(vehicleValue);
+      
+      res.json({
+        vehicleValue,
+        states: comparison,
+        cheapestState: comparison[0],
+        mostExpensiveState: comparison[comparison.length - 1],
+        averageCost: Math.round(comparison.reduce((sum, state) => sum + state.totalCost, 0) / comparison.length),
+        dataSource: "Australian State Transport Authorities official fee schedules",
+        disclaimer: "Costs are estimates based on official fee schedules. Actual costs may vary based on specific circumstances and current rates."
+      });
+    } catch (error: any) {
+      console.error("State cost comparison error:", error);
+      res.status(500).json({ error: "Failed to calculate state costs: " + error.message });
+    }
+  });
+
+  // Individual state cost calculation endpoint
+  app.post("/api/state-costs", async (req, res) => {
+    try {
+      const { stateCode, vehicleValue } = req.body;
+      
+      if (!stateCode || !vehicleValue || vehicleValue <= 0) {
+        return res.status(400).json({ error: "State code and valid vehicle value required" });
+      }
+
+      const stateCosts = calculateStateCosts(stateCode, vehicleValue);
+      
+      if (!stateCosts) {
+        return res.status(404).json({ 
+          error: "State not found",
+          availableStates: ["NSW", "VIC", "QLD", "WA", "SA", "TAS", "ACT", "NT"]
+        });
+      }
+
+      const stateData = getStateRequirements(stateCode);
+      
+      res.json({
+        ...stateCosts,
+        stateInfo: {
+          name: stateData?.state,
+          authority: stateData?.authority,
+          website: stateData?.website,
+          difficultyLevel: stateData?.registration.difficultyLevel,
+          processingTime: stateData?.registration.processingTime
+        },
+        dataSource: "Official state transport authority fee schedules",
+        disclaimer: "Costs are estimates based on current official rates. Actual costs may vary."
+      });
+    } catch (error: any) {
+      console.error("State costs calculation error:", error);
+      res.status(500).json({ error: "Failed to calculate state costs: " + error.message });
     }
   });
 
