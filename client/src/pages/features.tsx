@@ -135,6 +135,9 @@ export default function Features() {
   const [visibleTools, setVisibleTools] = useState<string[]>([]);
   const { isAuthenticated } = useAuth();
 
+  // Debug logging for features page
+  console.log('Features page isAuthenticated:', isAuthenticated);
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
