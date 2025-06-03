@@ -261,9 +261,18 @@ export function AiChatButton() {
         <Button
           data-chat-button
           onClick={() => setIsOpen(true)}
-          className="rounded-full w-14 h-14 bg-amber-600 hover:bg-amber-700 shadow-xl border-2 border-amber-400 transition-all duration-200 hover:scale-105"
+          className={`rounded-full w-14 h-14 shadow-xl border-2 transition-all duration-200 hover:scale-105 ${
+            personalizedIcon?.iconPersonality === 'expert' ? 'bg-purple-600 hover:bg-purple-700 border-purple-400' :
+            personalizedIcon?.iconPersonality === 'professional' ? 'bg-slate-600 hover:bg-slate-700 border-slate-400' :
+            personalizedIcon?.iconPersonality === 'enthusiastic' ? 'bg-orange-600 hover:bg-orange-700 border-orange-400' :
+            'bg-amber-600 hover:bg-amber-700 border-amber-400'
+          }`}
+          title={`AI Assistant${personalizedIcon ? ` - ${personalizedIcon.reason}` : ''}`}
         >
-          <MessageCircle className="w-6 h-6 text-white" />
+          {(() => {
+            const IconComponent = getPersonalizedIcon();
+            return <IconComponent className="w-6 h-6 text-white" />;
+          })()}
         </Button>
       </div>
     );
@@ -285,8 +294,23 @@ export function AiChatButton() {
         <CardHeader className="pb-3 border-b border-gray-700 cursor-move" onMouseDown={handleMouseDown}>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Bot className="w-5 h-5 text-amber-500" />
-              <span className="text-amber-100 font-medium">ImportIQ Assistant</span>
+              {(() => {
+                const IconComponent = getPersonalizedIcon();
+                return <IconComponent className={`w-5 h-5 ${
+                  personalizedIcon?.iconPersonality === 'expert' ? 'text-purple-400' :
+                  personalizedIcon?.iconPersonality === 'professional' ? 'text-slate-400' :
+                  personalizedIcon?.iconPersonality === 'enthusiastic' ? 'text-orange-400' :
+                  'text-amber-500'
+                }`} />;
+              })()}
+              <div className="flex flex-col">
+                <span className="text-amber-100 font-medium">ImportIQ Assistant</span>
+                {personalizedIcon && (
+                  <span className="text-xs text-gray-400 capitalize">
+                    {personalizedIcon.expertiseLevel || 'Beginner'} Level • {personalizedIcon.iconPersonality}
+                  </span>
+                )}
+              </div>
             </div>
             <div className="flex items-center space-x-1">
               <Button
