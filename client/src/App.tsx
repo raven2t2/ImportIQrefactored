@@ -47,6 +47,7 @@ import ShippingCalculator from "@/pages/shipping-calculator";
 import InsuranceEstimator from "@/pages/insurance-estimator";
 import DocumentationAssistant from "@/pages/documentation-assistant";
 import ROICalculator from "@/pages/roi-calculator";
+import StateRequirements from "@/pages/state-requirements";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -98,7 +99,7 @@ function Router() {
       <Route path="/custom-plates" component={CustomPlates} />
       <Route path="/documentation-assistant" component={DocumentationAssistant} />
       <Route path="/roi-calculator" component={ROICalculator} />
-      <Route path="/state-requirements" component={RegistrationStats} />
+      <Route path="/state-requirements" component={StateRequirements} />
       <Route path="/port-intelligence" component={ImportVolumeDashboard} />
       <Route path="/import-timeline" component={ImportTimeline} />
       <Route component={NotFound} />
