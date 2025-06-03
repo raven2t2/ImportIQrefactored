@@ -464,7 +464,7 @@ export default function ImportCalculator() {
 
                   <Button 
                     type="submit" 
-                    className="w-full bg-brand-gold hover:bg-brand-gold-dark text-white font-semibold py-3"
+                    className="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3"
                     disabled={calculateMutation.isPending}
                   >
                     <Calculator className="h-4 w-4 mr-2" />
@@ -669,7 +669,10 @@ export default function ImportCalculator() {
                     </div>
                   </div>
 
-                  <Button className="w-full bg-white text-brand-gold hover:bg-gray-100 font-bold text-lg py-4 mb-3">
+                  <Button 
+                    onClick={() => window.open('https://calendly.com/immaculate-imports/strategy-call', '_blank')}
+                    className="w-full bg-white text-amber-600 hover:bg-gray-100 font-bold text-lg py-4 mb-3"
+                  >
                     <ArrowRight className="h-5 w-5 mr-2" />
                     Book My FREE Strategy Call (Value: $500)
                   </Button>
@@ -769,13 +772,22 @@ export default function ImportCalculator() {
               <p className="text-xs text-gray-600 mt-1">Consult with customs brokers for official import duties and taxes.</p>
             </div>
             <div className="flex items-center space-x-4">
-              <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+              <button 
+                onClick={() => window.open('mailto:support@driveimmaculate.com', '_blank')}
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              >
                 Privacy Policy
               </button>
-              <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+              <button 
+                onClick={() => window.open('mailto:support@driveimmaculate.com', '_blank')}
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              >
                 Terms of Service
               </button>
-              <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+              <button 
+                onClick={() => window.open('mailto:support@driveimmaculate.com', '_blank')}
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              >
                 Contact Support
               </button>
             </div>
