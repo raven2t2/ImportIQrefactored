@@ -88,6 +88,7 @@ const STATE_PLATE_DATA = {
       personalized: { applicationFee: 450, annualFee: 95 },
       standard: { applicationFee: 450, annualFee: 95 },
       euro: { applicationFee: 550, annualFee: 95 },
+      jdm: { applicationFee: 650, annualFee: 115 },
       prestige: { applicationFee: 2200, annualFee: 220 }
     },
     processInfo: {
@@ -114,6 +115,7 @@ const STATE_PLATE_DATA = {
       personalized: { applicationFee: 520, annualFee: 110 },
       standard: { applicationFee: 520, annualFee: 110 },
       euro: { applicationFee: 620, annualFee: 110 },
+      jdm: { applicationFee: 720, annualFee: 130 },
       prestige: { applicationFee: 2800, annualFee: 280 }
     },
     processInfo: {
@@ -140,6 +142,7 @@ const STATE_PLATE_DATA = {
       personalized: { applicationFee: 480, annualFee: 88 },
       standard: { applicationFee: 480, annualFee: 88 },
       euro: { applicationFee: 580, annualFee: 88 },
+      jdm: { applicationFee: 680, annualFee: 108 },
       prestige: { applicationFee: 2400, annualFee: 240 }
     },
     processInfo: {
@@ -166,6 +169,7 @@ const STATE_PLATE_DATA = {
       personalized: { applicationFee: 460, annualFee: 92 },
       standard: { applicationFee: 460, annualFee: 92 },
       euro: { applicationFee: 560, annualFee: 92 },
+      jdm: { applicationFee: 660, annualFee: 112 },
       prestige: { applicationFee: 2300, annualFee: 230 }
     },
     processInfo: {
@@ -192,6 +196,7 @@ const STATE_PLATE_DATA = {
       personalized: { applicationFee: 420, annualFee: 85 },
       standard: { applicationFee: 420, annualFee: 85 },
       euro: { applicationFee: 520, annualFee: 85 },
+      jdm: { applicationFee: 620, annualFee: 105 },
       prestige: { applicationFee: 2100, annualFee: 210 }
     },
     processInfo: {
