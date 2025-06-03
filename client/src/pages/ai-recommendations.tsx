@@ -16,8 +16,6 @@ import { z } from "zod";
 import { Link } from "wouter";
 
 const aiRecommendationSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Valid email is required"),
   budget: z.coerce.number().min(20000, "Budget must be at least $20,000").max(500000, "Budget too high for our database"),
   intendedUse: z.enum(["daily", "weekend", "track", "show", "investment"], {
     required_error: "Please select intended use",
@@ -54,14 +52,12 @@ interface AIRecommendationResponse {
 
 export default function AIRecommendations() {
   const [results, setResults] = useState<AIRecommendationResponse | null>(null);
-  const [userInfo, setUserInfo] = useState<{ name: string; email: string; isReturning: boolean } | null>(null);
+  // For authenticated users, skip email gate completely
   const { toast } = useToast();
 
   const form = useForm<FormData>({
     resolver: zodResolver(aiRecommendationSchema),
     defaultValues: {
-      name: "",
-      email: "",
       budget: 85000,
       intendedUse: undefined,
       experience: undefined,
@@ -116,11 +112,10 @@ export default function AIRecommendations() {
   };
 
   const handleSaveReport = () => {
-    if (results && userInfo) {
+    if (results) {
       const reportData = {
-        email: userInfo.email,
         reportType: "ai-recommendations",
-        reportTitle: `AI Vehicle Recommendations - ${userInfo.name}`,
+        reportTitle: "AI Vehicle Recommendations",
         reportData: {
           ...results,
           formData: form.getValues(),
@@ -159,32 +154,7 @@ export default function AIRecommendations() {
     }
   };
 
-  // Handle email gate success
-  const handleEmailGateSuccess = (userData: { name: string; email: string; isReturning: boolean }) => {
-    setUserInfo(userData);
-    // Pre-fill the form with the user's info
-    form.setValue("name", userData.name);
-    form.setValue("email", userData.email);
-    
-    if (userData.isReturning) {
-      toast({
-        title: "Welcome back!",
-        description: "Ready to find your perfect vehicle match?",
-      });
-    } else {
-      toast({
-        title: "Welcome to Immaculate Imports!",
-        description: "Let's find your ideal vehicle with AI recommendations.",
-      });
-    }
-  };
-
-  // Show email gate if user hasn't provided contact info yet
-  if (!userInfo) {
-    return (
-      <AIEmailGate onSuccess={handleEmailGateSuccess} />
-    );
-  }
+  // For authenticated users, skip email gate completely
 
   return (
     <div className="min-h-screen bg-black">
