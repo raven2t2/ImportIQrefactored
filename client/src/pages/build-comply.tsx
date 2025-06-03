@@ -17,7 +17,6 @@ import { Link } from "wouter";
 import logoPath from "@assets/circular imi logo (3).png";
 
 const buildComplySchema = z.object({
-  email: z.string().email("Valid email required"),
   vehicle: z.string().min(1, "Vehicle selection required"),
   state: z.string().min(1, "State selection required"),
   budget: z.string().min(1, "Budget range required"),
@@ -245,7 +244,6 @@ export default function BuildComply() {
   const saveToDashboard = useMutation({
     mutationFn: async () => {
       const reportData = {
-        email: watch("email"),
         reportType: "compliance-report",
         reportTitle: `BuildReady Analysis - ${watch("vehicle")} (${watch("state")})`,
         reportData: {
@@ -650,22 +648,6 @@ export default function BuildComply() {
               {/* Basic Information */}
               <div className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm font-medium text-white">
-                      Email Address
-                    </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      {...register("email")}
-                      placeholder="your@email.com"
-                      className="h-12 border-gray-600 focus:border-amber-400 bg-gray-800 text-white placeholder:text-gray-400"
-                    />
-                    {errors.email && (
-                      <p className="text-sm text-red-400">{errors.email.message}</p>
-                    )}
-                  </div>
-
                   <div className="space-y-2">
                     <Label htmlFor="vehicle" className="text-sm font-medium text-white">
                       Vehicle
