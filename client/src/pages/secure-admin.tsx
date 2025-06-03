@@ -123,6 +123,12 @@ export default function SecureAdminDashboard() {
     enabled: isAuthenticated,
   });
 
+  const { data: advancedAnalytics, isLoading: advancedAnalyticsLoading } = useQuery({
+    queryKey: ["/api/admin/advanced-analytics"],
+    enabled: isAuthenticated,
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
   const handleAdminLogin = async () => {
     try {
       const response = await fetch("/api/admin/login", {
