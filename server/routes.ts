@@ -10,6 +10,7 @@ import { checkVehicleCompliance, getImportGuidance } from "./vehicle-compliance-
 import { calculateShippingCost as calculateShippingQuote, getAllPorts, getPortsByCountry, getPopularRoutes, getShippingTips } from "./shipping-calculator";
 import { calculateInsuranceQuote, calculateROI, AUSTRALIAN_MARKET_DATA, DOCUMENTATION_REQUIREMENTS, STATE_REGISTRATION_DATA, ADR_COMPLIANCE_DATABASE } from "./authentic-vehicle-data";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { checkPlateAvailability } from "./plate-availability";
 import { z } from "zod";
 import OpenAI from "openai";
 import Stripe from "stripe";
@@ -2739,6 +2740,37 @@ Generate specific ad targeting recommendations with confidence levels (High/Medi
     } catch (error) {
       console.error("Error accessing registration stats:", error);
       res.status(500).json({ error: "Failed to access registration data" });
+    }
+  });
+
+  // Custom License Plate Availability Checker endpoint
+  app.post("/api/plate-availability", async (req, res) => {
+    try {
+      const { state, desiredPlate, plateType } = req.body;
+      
+      // Validate required fields
+      if (!state || !desiredPlate || !plateType) {
+        return res.status(400).json({ 
+          success: false,
+          error: "Missing required fields: state, desiredPlate, and plateType are required",
+          disclaimer: "Results based on publicly available Australian transport authority data"
+        });
+      }
+
+      const result = await checkPlateAvailability({
+        state,
+        plateNumber: desiredPlate,
+        plateType
+      });
+
+      res.json(result);
+    } catch (error: any) {
+      console.error("Plate availability check error:", error);
+      res.status(500).json({ 
+        success: false,
+        error: "Failed to check plate availability: " + error.message,
+        disclaimer: "Results based on publicly available Australian transport authority data"
+      });
     }
   });
 
