@@ -3,20 +3,20 @@
 @tailwind utilities;
 
 :root {
-  --background: 0 0% 0%; /* #000000 - Pure Black */
-  --foreground: 0 0% 100%; /* #FFFFFF - White */
-  --muted: 0 0% 6.7%; /* #111111 - Very Dark Gray */
-  --muted-foreground: 0 0% 80%; /* #CCCCCC - Light Gray */
-  --popover: 0 0% 6.7%; /* #111111 - Very Dark Gray */
-  --popover-foreground: 0 0% 100%; /* #FFFFFF - White */
-  --card: 0 0% 6.7%; /* #111111 - Very Dark Gray */
-  --card-foreground: 0 0% 100%; /* #FFFFFF - White */
-  --border: 0 0% 20%; /* #333333 - Border Gray */
-  --input: 0 0% 13.3%; /* #222222 - Input Background */
+  --background: 0 0% 98%; /* #FAFAFA - Light Gray Background */
+  --foreground: 0 0% 5%; /* #0D0D0D - Dark Text */
+  --muted: 0 0% 96%; /* #F5F5F5 - Light Muted Background */
+  --muted-foreground: 0 0% 35%; /* #595959 - Dark Muted Text */
+  --popover: 0 0% 100%; /* #FFFFFF - White */
+  --popover-foreground: 0 0% 5%; /* #0D0D0D - Dark Text */
+  --card: 0 0% 100%; /* #FFFFFF - White */
+  --card-foreground: 0 0% 5%; /* #0D0D0D - Dark Text */
+  --border: 0 0% 89.4%; /* #E4E4E7 - Light Border */
+  --input: 0 0% 96%; /* #F5F5F5 - Light Input Background */
   --primary: 51 100% 50%; /* #FFD700 - Bright Gold */
   --primary-foreground: 0 0% 0%; /* #000000 - Black */
-  --secondary: 0 0% 13.3%; /* #222222 - Dark Gray */
-  --secondary-foreground: 0 0% 100%; /* #FFFFFF - White */
+  --secondary: 0 0% 96%; /* #F5F5F5 - Light Secondary */
+  --secondary-foreground: 0 0% 5%; /* #0D0D0D - Dark Text */
   --accent: 51 100% 50%; /* #FFD700 - Bright Gold */
   --accent-foreground: 0 0% 0%; /* #000000 - Black */
   --destructive: 0 84.2% 60.2%;
@@ -24,37 +24,37 @@
   --ring: 51 100% 50%; /* #FFD700 - Bright Gold */
   --radius: 0.5rem;
   --chart-1: 51 100% 50%; /* #FFD700 - Gold */
-  --chart-2: 0 0% 60%; /* Gray */
-  --chart-3: 0 0% 40%; /* Darker Gray */
+  --chart-2: 220 14% 96%; /* Light Blue Gray */
+  --chart-3: 220 14% 75%; /* Medium Blue Gray */
   --chart-4: 51 80% 40%; /* Darker Gold */
-  --chart-5: 0 0% 80%; /* Light Gray */
+  --chart-5: 220 14% 85%; /* Light Blue Gray */
 }
 
 .dark {
-  --background: 0 0% 0%; /* #000000 - Pure Black */
-  --foreground: 0 0% 100%; /* #FFFFFF - White */
-  --muted: 0 0% 6.7%; /* #111111 - Very Dark Gray */
-  --muted-foreground: 0 0% 80%; /* #CCCCCC - Light Gray */
-  --popover: 0 0% 6.7%; /* #111111 - Very Dark Gray */
-  --popover-foreground: 0 0% 100%; /* #FFFFFF - White */
-  --card: 0 0% 6.7%; /* #111111 - Very Dark Gray */
-  --card-foreground: 0 0% 100%; /* #FFFFFF - White */
-  --border: 0 0% 20%; /* #333333 - Border Gray */
-  --input: 0 0% 13.3%; /* #222222 - Input Background */
+  --background: 0 0% 5%; /* #0D0D0D - Very Dark Gray */
+  --foreground: 0 0% 95%; /* #F2F2F2 - Light Gray */
+  --muted: 0 0% 10%; /* #1A1A1A - Dark Muted Background */
+  --muted-foreground: 0 0% 70%; /* #B3B3B3 - Light Muted Text */
+  --popover: 0 0% 8%; /* #141414 - Dark Popover */
+  --popover-foreground: 0 0% 95%; /* #F2F2F2 - Light Text */
+  --card: 0 0% 8%; /* #141414 - Dark Card */
+  --card-foreground: 0 0% 95%; /* #F2F2F2 - Light Text */
+  --border: 0 0% 25%; /* #404040 - Lighter Border */
+  --input: 0 0% 15%; /* #262626 - Dark Input Background */
   --primary: 51 100% 50%; /* #FFD700 - Bright Gold */
   --primary-foreground: 0 0% 0%; /* #000000 - Black */
-  --secondary: 0 0% 13.3%; /* #222222 - Dark Gray */
-  --secondary-foreground: 0 0% 100%; /* #FFFFFF - White */
+  --secondary: 0 0% 15%; /* #262626 - Dark Secondary */
+  --secondary-foreground: 0 0% 95%; /* #F2F2F2 - Light Text */
   --accent: 51 100% 50%; /* #FFD700 - Bright Gold */
   --accent-foreground: 0 0% 0%; /* #000000 - Black */
-  --destructive: 0 62.8% 30.6%;
+  --destructive: 0 62.8% 50%; /* Brighter red for visibility */
   --destructive-foreground: 0 0% 100%; /* #FFFFFF - White */
   --ring: 51 100% 50%; /* #FFD700 - Bright Gold */
   --chart-1: 51 100% 50%; /* #FFD700 - Gold */
-  --chart-2: 0 0% 60%; /* Gray */
-  --chart-3: 0 0% 40%; /* Darker Gray */
+  --chart-2: 220 14% 60%; /* Light Blue Gray */
+  --chart-3: 220 14% 40%; /* Medium Blue Gray */
   --chart-4: 51 80% 40%; /* Darker Gold */
-  --chart-5: 0 0% 80%; /* Light Gray */
+  --chart-5: 220 14% 70%; /* Light Blue Gray */
 }
 
 @layer base {
@@ -68,6 +68,50 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+  }
+
+  /* Force proper text contrast for readability */
+  .dark {
+    /* Ensure all text elements have light colors on dark backgrounds */
+    h1, h2, h3, h4, h5, h6, p, span, div, label, input, textarea, select {
+      color: hsl(var(--foreground)) !important;
+    }
+    
+    /* Fix button text visibility */
+    button:not(.bg-primary):not(.bg-destructive):not(.bg-accent) {
+      color: hsl(var(--foreground)) !important;
+    }
+    
+    /* Fix card text */
+    .card, [data-radix-collection-item] {
+      color: hsl(var(--card-foreground)) !important;
+    }
+    
+    /* Fix muted text */
+    .text-muted-foreground, .muted {
+      color: hsl(var(--muted-foreground)) !important;
+    }
+    
+    /* Fix input placeholder text */
+    input::placeholder, textarea::placeholder {
+      color: hsl(var(--muted-foreground)) !important;
+      opacity: 0.7;
+    }
+  }
+  
+  /* Light theme text fixes */
+  :not(.dark) {
+    h1, h2, h3, h4, h5, h6, p, span, div, label, input, textarea, select {
+      color: hsl(var(--foreground)) !important;
+    }
+    
+    button:not(.bg-primary):not(.bg-destructive):not(.bg-accent) {
+      color: hsl(var(--foreground)) !important;
+    }
+    
+    .text-muted-foreground, .muted {
+      color: hsl(var(--muted-foreground)) !important;
+    }
   }
   
   /* Prevent horizontal scroll on mobile */
