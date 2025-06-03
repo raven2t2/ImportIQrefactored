@@ -27,24 +27,22 @@ interface MarketIntelligence {
   };
 }
 
-// Reserve Bank of Australia exchange rates require API access
+// Reserve Bank of Australia exchange rates from official public data
 async function fetchExchangeRates(): Promise<ExchangeRateData | null> {
   try {
-    // Check if authentic RBA data is available
-    const publicData = await import('./public-data-sources');
-    const CURRENT_EXCHANGE_RATES = publicData.CURRENT_EXCHANGE_RATES;
+    // Fetch authentic RBA data from official CSV sources
+    const rbaData = await getCurrentExchangeRates();
     
-    if (!CURRENT_EXCHANGE_RATES.data_available) {
-      console.log('Exchange rates unavailable:', CURRENT_EXCHANGE_RATES.error_message);
+    if (!rbaData) {
+      console.log('RBA exchange rate data temporarily unavailable');
       return null;
     }
     
-    // This would only execute if authentic RBA data becomes available
     return {
-      audJpy: CURRENT_EXCHANGE_RATES.structure.aud_jpy,
-      audUsd: CURRENT_EXCHANGE_RATES.structure.aud_usd,
-      timestamp: new Date().toISOString(),
-      change24h: 0 // Requires historical data for real calculation
+      audJpy: rbaData.audJpy,
+      audUsd: rbaData.audUsd,
+      timestamp: rbaData.lastUpdated,
+      change24h: 0 // Requires historical data for calculation
     };
   } catch (error) {
     console.error('Error accessing RBA exchange rate data:', error);
