@@ -647,7 +647,7 @@ export default function BuildComply() {
                   <Button 
                     size="lg" 
                     className="bg-black text-amber-400 hover:bg-gray-900 font-medium"
-                    onClick={() => window.location.href = '/booking-calendar'}
+                    onClick={() => window.open('https://driveimmaculate.com/book-consultation/', '_blank')}
                   >
                     <Calendar className="h-5 w-5 mr-2" />
                     Book Consultation
@@ -659,7 +659,7 @@ export default function BuildComply() {
                     onClick={() => window.open('https://driveimmaculate.com/compliance-guide/', '_blank')}
                   >
                     <FileText className="h-5 w-5 mr-2" />
-                    Download Guide
+                    Compliance Guide
                   </Button>
                 </div>
               </CardContent>
