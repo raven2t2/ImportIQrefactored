@@ -5,17 +5,20 @@ import { Calculator, TrendingUp, Shield, Clock, Users, ArrowRight, CheckCircle, 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import EmailGate from "@/components/email-gate";
+import { useAuth } from "@/hooks/useAuth";
 import logoPath from "@assets/circular imi logo (3).png";
 
 export default function ImportIQ() {
   const [showEmailGate, setShowEmailGate] = useState(false);
   const [selectedTool, setSelectedTool] = useState<string>("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, isAuthenticated } = useAuth();
 
-  // Check trial status
+  // Check if user has active trial
+  const userEmail = localStorage.getItem('trial_user_email');
   const { data: trialStatus } = useQuery({
-    queryKey: ["/api/trial-status"],
-    enabled: false,
+    queryKey: [`/api/trial-status/${userEmail}`],
+    enabled: !!userEmail && !isAuthenticated,
   });
 
   const tools = [
@@ -38,7 +41,8 @@ export default function ImportIQ() {
   const handleToolAccess = (toolName: string, toolPath: string) => {
     setSelectedTool(toolName);
     
-    if (trialStatus?.isActive) {
+    // Check if user is authenticated (logged in) or has active trial
+    if (isAuthenticated || trialStatus?.isActive) {
       window.location.href = toolPath;
     } else {
       setShowEmailGate(true);
