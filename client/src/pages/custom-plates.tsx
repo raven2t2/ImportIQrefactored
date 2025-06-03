@@ -161,6 +161,7 @@ export default function CustomPlates() {
                             <SelectItem value="personalized">Personalized Plates</SelectItem>
                             <SelectItem value="standard">Standard Custom</SelectItem>
                             <SelectItem value="euro">Euro Style</SelectItem>
+                            <SelectItem value="jdm">JDM Style (Japanese)</SelectItem>
                             <SelectItem value="prestige">Prestige Plates</SelectItem>
                           </SelectContent>
                         </Select>
