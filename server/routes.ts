@@ -1186,17 +1186,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = vehicleLookupSchema.parse(req.body);
       const { identifier } = validatedData;
 
+      // Classic American muscle car VIN patterns - check BEFORE JDM detection
+      const vinUpper = identifier.toUpperCase();
+      const hasVintageAmericanPattern = 
+        vinUpper.startsWith("124") || // 1969 Camaro
+        vinUpper.startsWith("123") || // 1968 Camaro  
+        vinUpper.startsWith("194") || // 1970 Corvette
+        vinUpper.startsWith("9F") ||  // 1969 Mustang
+        vinUpper.startsWith("8F") ||  // 1968 Mustang
+        vinUpper.startsWith("JS");    // Dodge Charger
+      
+      // Force vintage detection for known American muscle patterns
+      const forceVintage = hasVintageAmericanPattern;
+      
       // Enhanced VIN/Code Detection for classic American muscle cars
       const isModernVin = identifier.length === 17 && /^[A-HJ-NPR-Z0-9]{17}$/i.test(identifier);
-      const isVintageVin = /^[0-9A-Z]{11,13}[0-9N][0-9A-Z]{0,2}$/i.test(identifier) && identifier.length >= 11 && identifier.length <= 15;
+      const isVintageVin = (hasVintageAmericanPattern || /^[0-9A-Z]{11,13}[0-9N][0-9A-Z]{0,2}$/i.test(identifier)) && identifier.length >= 11 && identifier.length <= 15;
       
-      // Classic American muscle car VIN patterns (1968-1980)
       const classicMusclePatterns: { [key: string]: { make: string; model: string; baseYear: number } } = {
         // Chevrolet patterns
         "124": { make: "CHEVROLET", model: "Camaro", baseYear: 1969 },
         "123": { make: "CHEVROLET", model: "Camaro", baseYear: 1968 },
         "125": { make: "CHEVROLET", model: "Camaro", baseYear: 1970 },
-        "194": { make: "CHEVROLET", model: "Chevelle", baseYear: 1969 },
+        "194": { make: "CHEVROLET", model: "Corvette", baseYear: 1970 },
         "136": { make: "CHEVROLET", model: "Chevelle", baseYear: 1968 },
         "138": { make: "CHEVROLET", model: "Chevelle", baseYear: 1970 },
         "164": { make: "CHEVROLET", model: "Nova", baseYear: 1969 },
