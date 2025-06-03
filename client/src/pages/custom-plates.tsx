@@ -403,21 +403,11 @@ export default function CustomPlates() {
                   </div>
                 </div>
                 
-                <div className="text-center">
-                  <Button 
-                    asChild 
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3"
-                  >
-                    <a 
-                      href={currentState.processInfo.applicationUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2"
-                    >
-                      Apply Now - Official {currentState.abbreviation} Portal
-                      <ExternalLink className="h-4 w-4" />
-                    </a>
-                  </Button>
+                <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">
+                    To apply for personalized plates, visit your state's transport authority website 
+                    or contact them directly using the application method listed above.
+                  </p>
                 </div>
               </CardContent>
             </Card>
