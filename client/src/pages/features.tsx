@@ -31,87 +31,101 @@ const tools = [
     description: "Know exactly what you'll pay — instantly. Real-time calculations with government data and live shipping rates.",
     icon: Calculator,
     category: "Cost Analysis",
-    highlight: "Most Popular"
+    highlight: "Most Popular",
+    route: "/import-calculator"
   },
   {
     name: "True Cost Explorer",
     description: "Explore every dollar — from shipping to rego. Complete financial breakdown with no hidden surprises.",
     icon: TrendingUp,
-    category: "Financial Planning"
+    category: "Financial Planning",
+    route: "/true-cost-explorer"
   },
   {
     name: "Import Timeline",
     description: "Never miss a step. Track the whole process with automated notifications and milestone tracking.",
     icon: Clock,
-    category: "Project Management"
+    category: "Project Management",
+    route: "/import-timeline"
   },
   {
     name: "BuildReady™",
     description: "Get mod-ready with AI compliance planning. Smart recommendations for modifications and certifications.",
     icon: Shield,
     category: "Compliance",
-    highlight: "AI Powered"
+    highlight: "AI Powered",
+    route: "/build-comply"
   },
   {
     name: "AI Recommendations",
     description: "ML suggests vehicles based on your taste & goals. Personalized recommendations that learn your preferences.",
     icon: Brain,
     category: "AI Intelligence",
-    highlight: "Game Changer"
+    highlight: "Game Changer",
+    route: "/ai-recommendations"
   },
   {
     name: "Expert Vehicle Picks",
     description: "Top-tier picks from seasoned importers. Curated selections from industry professionals.",
     icon: Star,
-    category: "Expert Curation"
+    category: "Expert Curation",
+    route: "/expert-picks"
   },
   {
     name: "Compliance Estimate",
     description: "Understand what it'll take to comply — before you buy. Detailed compliance roadmap and cost breakdown.",
     icon: Shield,
-    category: "Compliance"
+    category: "Compliance",
+    route: "/compliance-estimate"
   },
   {
     name: "Mod Cost Estimator",
     description: "Add it all up — parts, labor, compliance. Complete modification cost calculator with real pricing data.",
     icon: Calculator,
-    category: "Modification Planning"
+    category: "Modification Planning",
+    route: "/mod-cost-estimator"
   },
   {
     name: "Value Estimator",
     description: "Know market value, resale range, and dealer markup. ML-powered valuation using real market data.",
     icon: BarChart3,
-    category: "Market Analysis"
+    category: "Market Analysis",
+    route: "/value-estimator"
   },
   {
     name: "Vehicle Lookup",
     description: "JDM, Muscle, Euro — everything you need to know. Comprehensive database with detailed specifications.",
     icon: Search,
-    category: "Database Access"
+    category: "Database Access",
+    route: "/vehicle-lookup"
   },
   {
     name: "Registration Stats",
     description: "How rare is it? We'll show you where it's landed. Detailed registration data and rarity analysis.",
     icon: Users,
-    category: "Market Intelligence"
+    category: "Market Intelligence",
+    route: "/registration-stats"
   },
   {
     name: "Import Volume Dashboard",
     description: "What's trending? Know before the masses do. Real-time import volume tracking and trend analysis.",
     icon: TrendingUp,
-    category: "Market Trends"
+    category: "Market Trends",
+    route: "/import-volume-dashboard"
   },
   {
     name: "Auction Sample Explorer",
     description: "See what's sold, where, and for how much. Live auction data from major Japanese auction houses.",
     icon: Globe,
-    category: "Auction Intelligence"
+    category: "Auction Intelligence",
+    route: "/auction-sample-explorer"
   },
   {
     name: "Personal Dashboard",
     description: "All your tools and workflows, in one place. Centralized control center for all your import projects.",
     icon: Target,
-    category: "Management"
+    category: "Management",
+    route: "/importiq"
   }
 ];
 
@@ -349,10 +363,12 @@ export default function Features() {
                     {tool.description}
                   </p>
                   
-                  <Button className="bg-amber-400 hover:bg-amber-500 text-black px-8 py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105">
-                    Try This Tool
-                    <ArrowRight className="h-5 w-5 ml-2" />
-                  </Button>
+                  <Link href={tool.route}>
+                    <Button className="bg-amber-400 hover:bg-amber-500 text-black px-8 py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105">
+                      Try This Tool
+                      <ArrowRight className="h-5 w-5 ml-2" />
+                    </Button>
+                  </Link>
                 </div>
               </div>
             ))}
