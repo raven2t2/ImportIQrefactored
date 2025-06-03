@@ -73,9 +73,15 @@ export default function Subscribe() {
   const createSubscription = async (plan: 'monthly' | 'yearly') => {
     setLoading(true);
     try {
-      // Get user email from localStorage for trial user pricing
+      // Get trial user email from multiple sources
       const email = localStorage.getItem('userEmail') || '';
-      const response = await apiRequest("POST", "/api/create-subscription", { plan, email });
+      const trialUserEmail = localStorage.getItem('trial_user_email') || '';
+      
+      const response = await apiRequest("POST", "/api/create-subscription", { 
+        plan, 
+        email: email || trialUserEmail,
+        trialUserEmail 
+      });
       const data = await response.json();
       setClientSecret(data.clientSecret);
       setPricingData(data);
@@ -92,6 +98,9 @@ export default function Subscribe() {
 
   // Get pricing from backend response or use defaults
   const isTrialUser = pricingData?.isTrialUser || false;
+  const discountInfo = pricingData?.discountInfo;
+  const trialInfo = pricingData?.trialInfo;
+  
   const monthlyPrice = isTrialUser ? 77 : 97; // Trial users get $77 first month
   const yearlyPrice = Math.round(97 * 12 * 0.75); // 25% discount for yearly
   const yearlyMonthlyEquivalent = Math.round(yearlyPrice / 12);
@@ -123,12 +132,33 @@ export default function Subscribe() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-12">
+        {/* Trial User Special Banner */}
+        {isTrialUser && trialInfo && (
+          <div className="mb-8 p-6 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl">
+            <div className="text-center">
+              <div className="flex items-center justify-center mb-3">
+                <Crown className="h-6 w-6 text-amber-600 mr-2" />
+                <span className="text-lg font-semibold text-amber-800">Trial Member Exclusive Offer</span>
+              </div>
+              <p className="text-amber-700 mb-2">
+                You have {trialInfo.daysRemaining} days remaining in your trial
+              </p>
+              <p className="text-sm text-amber-600">
+                Upgrade now and get your first month for just <span className="font-bold">$77</span> (save $20)
+              </p>
+            </div>
+          </div>
+        )}
+
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-[#1E1E1E] mb-4">
-            Upgrade to ImportIQ Professional
+            {isTrialUser ? 'Upgrade Your Trial' : 'Upgrade to ImportIQ Professional'}
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Continue saving thousands on every import with unlimited access to all professional tools
+            {isTrialUser 
+              ? 'Continue your import journey with full access and special trial pricing'
+              : 'Continue saving thousands on every import with unlimited access to all professional tools'
+            }
           </p>
         </div>
 
