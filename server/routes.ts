@@ -7,11 +7,12 @@ import { getMarketIntelligence } from "./market-data";
 import { getAuthenticData } from "./authentic-data";
 import { calculateShippingCost, calculateImportDuty, calculateGST, calculateLuxuryCarTax, IMPORT_REQUIREMENTS } from "./public-data-sources";
 import { checkVehicleCompliance, getImportGuidance } from "./vehicle-compliance-australia";
-import { calculateShippingCost as calculateShippingQuote, getAllPorts, getPortsByCountry, getPopularRoutes, getShippingTips } from "./shipping-calculator";
+import { calculateShippingCost as calculateShippingQuote, getAllPorts as getShippingPorts, getPortsByCountry, getPopularRoutes, getShippingTips } from "./shipping-calculator";
 import { calculateInsuranceQuote, calculateROI, AUSTRALIAN_MARKET_DATA, DOCUMENTATION_REQUIREMENTS, STATE_REGISTRATION_DATA, ADR_COMPLIANCE_DATABASE } from "./authentic-vehicle-data";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { checkPlateRequirements } from "./plate-availability";
 import { getStateRequirements, getStatesByDifficulty, calculateStateCosts, compareStatesCosts } from "./australian-state-requirements";
+import { getAllPorts, getPortByCode, findBestPortsForLocation, calculatePortCosts, getSeasonalRecommendations } from "./australian-port-intelligence";
 import { z } from "zod";
 import OpenAI from "openai";
 import Stripe from "stripe";
@@ -5296,6 +5297,180 @@ IMPORTANT GUIDELINES:
     } catch (error: any) {
       console.error("State costs calculation error:", error);
       res.status(500).json({ error: "Failed to calculate state costs: " + error.message });
+    }
+  });
+
+  // Port Intelligence endpoints - comprehensive Australian port data and recommendations
+  app.get("/api/port-intelligence", async (req, res) => {
+    try {
+      const ports = getAllPorts();
+      
+      res.json({
+        ports: ports.map(port => ({
+          code: port.code,
+          name: port.name,
+          city: port.city,
+          state: port.state,
+          coordinates: port.coordinates,
+          operations: port.operations,
+          costs: port.costs,
+          traffic: port.traffic,
+          geographic: port.geographic,
+          bestFor: port.bestFor,
+          lastUpdated: port.lastUpdated
+        })),
+        totalPorts: ports.length,
+        dataSource: "Australian Port Authorities and ACBPS",
+        disclaimer: "Port data based on publicly available information from port authorities. Costs and timelines are estimates."
+      });
+    } catch (error: any) {
+      console.error("Port intelligence error:", error);
+      res.status(500).json({ error: "Failed to retrieve port intelligence: " + error.message });
+    }
+  });
+
+  // Individual port details endpoint
+  app.get("/api/port-intelligence/:portCode", async (req, res) => {
+    try {
+      const { portCode } = req.params;
+      const port = getPortByCode(portCode);
+      
+      if (!port) {
+        return res.status(404).json({ 
+          error: "Port not found",
+          availablePorts: getAllPorts().map(p => ({ code: p.code, name: p.name }))
+        });
+      }
+
+      res.json({
+        ...port,
+        dataSource: "Australian Port Authorities and ACBPS",
+        disclaimer: "Port data based on publicly available information. Actual costs and timelines may vary."
+      });
+    } catch (error: any) {
+      console.error("Port details error:", error);
+      res.status(500).json({ error: "Failed to retrieve port details: " + error.message });
+    }
+  });
+
+  // Best port recommendation endpoint
+  app.post("/api/port-recommendations", async (req, res) => {
+    try {
+      const { postcode, priorityCost, prioritySpeed, priorityConvenience } = req.body;
+      
+      if (!postcode) {
+        return res.status(400).json({ error: "Postcode is required for recommendations" });
+      }
+
+      const recommendations = findBestPortsForLocation(postcode, {
+        priorityCost: !!priorityCost,
+        prioritySpeed: !!prioritySpeed,
+        priorityConvenience: !!priorityConvenience
+      });
+
+      const currentMonth = new Date().getMonth() + 1;
+      const seasonalInfo = getSeasonalRecommendations(currentMonth);
+
+      res.json({
+        postcode,
+        preferences: {
+          priorityCost: !!priorityCost,
+          prioritySpeed: !!prioritySpeed,
+          priorityConvenience: !!priorityConvenience
+        },
+        recommendations: {
+          primary: recommendations.recommended,
+          alternatives: recommendations.alternatives,
+          reasoning: recommendations.reasoning
+        },
+        seasonalConsiderations: seasonalInfo,
+        dataSource: "Australian Port Authorities and location analysis",
+        disclaimer: "Recommendations based on publicly available data and geographic analysis. Consider individual circumstances."
+      });
+    } catch (error: any) {
+      console.error("Port recommendations error:", error);
+      res.status(500).json({ error: "Failed to generate port recommendations: " + error.message });
+    }
+  });
+
+  // Port cost calculator endpoint
+  app.post("/api/port-cost-calculator", async (req, res) => {
+    try {
+      const { portCode, vehicleValue, storageDays } = req.body;
+      
+      if (!portCode || !vehicleValue) {
+        return res.status(400).json({ error: "Port code and vehicle value are required" });
+      }
+
+      const costCalculation = calculatePortCosts(portCode, vehicleValue, storageDays || 7);
+      
+      if (!costCalculation) {
+        return res.status(404).json({ 
+          error: "Port not found",
+          availablePorts: getAllPorts().map(p => ({ code: p.code, name: p.name }))
+        });
+      }
+
+      res.json({
+        ...costCalculation,
+        vehicleValue,
+        storageDays: storageDays || 7,
+        dataSource: "Australian Port Authority fee schedules",
+        disclaimer: "Cost estimates based on current port authority fee schedules. Additional fees may apply."
+      });
+    } catch (error: any) {
+      console.error("Port cost calculation error:", error);
+      res.status(500).json({ error: "Failed to calculate port costs: " + error.message });
+    }
+  });
+
+  // Port comparison endpoint
+  app.post("/api/port-comparison", async (req, res) => {
+    try {
+      const { ports: portCodes, vehicleValue, storageDays } = req.body;
+      
+      if (!portCodes || !Array.isArray(portCodes) || portCodes.length === 0) {
+        return res.status(400).json({ error: "Array of port codes is required" });
+      }
+
+      if (!vehicleValue) {
+        return res.status(400).json({ error: "Vehicle value is required for comparison" });
+      }
+
+      const comparisons = portCodes.map(code => {
+        const costCalc = calculatePortCosts(code, vehicleValue, storageDays || 7);
+        if (!costCalc) return null;
+        
+        return {
+          port: costCalc.port,
+          costs: costCalc.costs,
+          timeline: costCalc.timeline,
+          score: {
+            cost: costCalc.costs.total,
+            speed: costCalc.port.operations.averageProcessingDays + costCalc.port.traffic.averageWaitDays,
+            convenience: costCalc.port.operations.operatingHours === "24/7" ? 10 : 5
+          }
+        };
+      }).filter(Boolean);
+
+      // Sort by total cost (lowest first)
+      comparisons.sort((a, b) => a!.costs.total - b!.costs.total);
+
+      res.json({
+        vehicleValue,
+        storageDays: storageDays || 7,
+        comparison: comparisons,
+        summary: {
+          cheapest: comparisons[0],
+          mostExpensive: comparisons[comparisons.length - 1],
+          averageCost: comparisons.reduce((sum, comp) => sum + comp!.costs.total, 0) / comparisons.length
+        },
+        dataSource: "Australian Port Authority fee schedules and operational data",
+        disclaimer: "Comparison based on publicly available port data. Individual circumstances may affect actual costs and timelines."
+      });
+    } catch (error: any) {
+      console.error("Port comparison error:", error);
+      res.status(500).json({ error: "Failed to compare ports: " + error.message });
     }
   });
 
