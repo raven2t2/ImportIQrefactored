@@ -90,8 +90,10 @@ export default function Subscribe() {
     createSubscription(selectedPlan);
   }, [selectedPlan]);
 
-  const monthlyPrice = 97;
-  const yearlyPrice = Math.round(monthlyPrice * 12 * 0.8); // 20% discount
+  // Get pricing from backend response or use defaults
+  const isTrialUser = pricingData?.isTrialUser || false;
+  const monthlyPrice = isTrialUser ? 77 : 97; // Trial users get $77 first month
+  const yearlyPrice = Math.round(97 * 12 * 0.75); // 25% discount for yearly
   const yearlyMonthlyEquivalent = Math.round(yearlyPrice / 12);
 
   return (
@@ -150,6 +152,16 @@ export default function Subscribe() {
               <div className="mt-4">
                 <div className="text-4xl font-bold text-[#1E1E1E]">${monthlyPrice}</div>
                 <div className="text-gray-600">per month</div>
+                {isTrialUser && (
+                  <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded">
+                    <p className="text-sm text-amber-800 font-medium">
+                      🎯 Trial Member Special: First month only $77
+                    </p>
+                    <p className="text-xs text-amber-700">
+                      Save $20 on your first month (regular price $97)
+                    </p>
+                  </div>
+                )}
               </div>
             </CardHeader>
             <CardContent>
