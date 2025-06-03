@@ -1202,37 +1202,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
               name: "Aftermarket Wheels",
               riskLevel: "low",
               requirements: ["Must not exceed +3 inch diameter", "Offset within ±25mm", "Load rating adequate"],
-              estimatedCost: "Engineering: $0-200"
+              estimatedCost: "Usually no engineering required",
+              timing: "Install after compliance - purely cosmetic modification"
             },
             suspension: {
               name: "Lowered Suspension",
               riskLevel: "medium", 
               requirements: ["Maximum 50mm drop", "Engineer certification required", "ICV compliance", "Headlight aim check"],
-              estimatedCost: "Engineering: $800-1200"
+              estimatedCost: "Engineering: $1,200-2,000 (VSI14 certification)",
+              timing: "Install after initial compliance - requires re-certification"
             },
             exhaust: {
               name: "Aftermarket Exhaust",
               riskLevel: "medium",
               requirements: ["ADR 83/00 compliance", "Sound level under 90dB", "Catalytic converter retained"],
-              estimatedCost: "Testing: $300-500"
+              estimatedCost: "Sound testing: $400-600, Engineering if over 90dB: $800-1,500",
+              timing: "Install BEFORE initial compliance - easier to pass with compliant exhaust from start"
             },
             turbo: {
               name: "Turbocharger/Supercharger",
               riskLevel: "high",
-              requirements: ["Engineering certificate", "Emissions testing", "ICV plate", "Brake upgrade may be required"],
-              estimatedCost: "Engineering: $2000-3500"
+              requirements: ["Full engineering assessment", "Emissions testing", "ICV plate required", "Brake upgrade assessment"],
+              estimatedCost: "Engineering: $3,500-6,000 (VSI14 + emissions testing)",
+              timing: "Major modification - requires complete re-compliance as modified vehicle"
             },
             engine: {
               name: "Engine Swap",
               riskLevel: "high",
-              requirements: ["Full engineering report", "Emissions compliance", "ICV approval", "Weight distribution check"],
-              estimatedCost: "Engineering: $3000-5000"
+              requirements: ["Complete engineering report", "Emissions compliance", "ICV approval", "Weight distribution analysis"],
+              estimatedCost: "Engineering: $5,000-8,000 (full vehicle assessment)",
+              timing: "Major modification - treated as new vehicle, complete compliance required"
             },
             bodykit: {
               name: "Body Kit/Aero",
               riskLevel: "medium",
-              requirements: ["No sharp edges", "Pedestrian safety compliance", "Ground clearance maintained"],
-              estimatedCost: "Engineering: $600-1000"
+              requirements: ["No sharp edges", "Pedestrian safety compliance", "Ground clearance maintained", "ADR compliance"],
+              estimatedCost: "Engineering: $1,000-2,500 (depending on extent)",
+              timing: "Install after compliance if minimal, before if significant aero changes"
             }
           };
           
@@ -1254,10 +1260,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         },
         nextSteps: [
-          "Document all planned modifications",
-          "Find certified automotive engineer in your state", 
-          "Obtain pre-approval quotes for engineering work",
-          "Schedule modification work in compliance order"
+          "STEP 1: Complete initial compliance first - get your vehicle roadworthy and registered",
+          "STEP 2: For exhaust modifications - install BEFORE compliance to avoid re-testing",
+          "STEP 3: For suspension/wheels - install AFTER initial compliance, then get VSI14 certification",
+          "STEP 4: For engine/turbo mods - treat as new vehicle build requiring full re-compliance",
+          "STEP 5: Find certified automotive engineer (search 'VSI signatory' + your state)",
+          "STEP 6: Get engineering quotes before starting work - costs vary significantly by state"
         ],
         estimatedTimeline: validatedData.timeline,
         generatedAt: new Date().toISOString()
