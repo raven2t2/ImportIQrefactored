@@ -7,6 +7,7 @@
 import { scrapeAllJapaneseAuctions, type JapaneseAuctionListing } from './japanese-auction-scraper';
 import { scrapeAllUSAuctions, type USAuctionListing } from './us-auction-scraper';
 import { scrapeJapaneseMarketplaces, scrapeUSMarketplaces } from './enhanced-auction-scraper';
+import { scrapeAuthenticJapaneseData } from './advanced-japanese-scraper';
 
 export interface SearchFilters {
   make: string;
@@ -185,7 +186,7 @@ export async function generateMarketListings(filters: SearchFilters): Promise<{ 
   // For JDM searches, scrape authentic Japanese auction data from public sources
   if (isJDMSearch) {
     try {
-      const scrapedJapaneseVehicles = await scrapeJapaneseMarketplaces(make, model);
+      const scrapedJapaneseVehicles = await scrapeAuthenticJapaneseData(make, model);
       
       scrapedJapaneseVehicles.forEach(vehicle => {
         // Convert price to AUD if needed
