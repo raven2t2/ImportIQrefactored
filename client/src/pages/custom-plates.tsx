@@ -91,6 +91,151 @@ const stateData = {
       transferable: true,
       applicationUrl: "https://www.qld.gov.au/transport/registration/number-plates/personalised"
     }
+  },
+  wa: {
+    name: "Western Australia",
+    abbreviation: "WA",
+    pricing: {
+      standard: { applicationFee: 485, annualFee: 92 },
+      personalized: { applicationFee: 485, annualFee: 92 },
+      euro: { applicationFee: 540, annualFee: 112 },
+      jdm: { applicationFee: 690, annualFee: 112 },
+      prestige: { applicationFee: 985, annualFee: 185 }
+    },
+    requirements: {
+      minLength: 2,
+      maxLength: 6,
+      allowedCharacters: "Letters and numbers",
+      restrictions: [
+        "No offensive content",
+        "Cannot resemble standard plate format",
+        "Maximum 6 characters for personalized plates",
+        "Must not conflict with emergency services"
+      ]
+    },
+    processInfo: {
+      processingTime: "2-3 weeks",
+      applicationMethod: "Online via Department of Transport WA",
+      renewalPeriod: "Annual with registration",
+      transferable: true,
+      applicationUrl: "https://www.transport.wa.gov.au/licensing/personalised-number-plates.asp"
+    }
+  },
+  sa: {
+    name: "South Australia",
+    abbreviation: "SA",
+    pricing: {
+      standard: { applicationFee: 465, annualFee: 85 },
+      personalized: { applicationFee: 465, annualFee: 85 },
+      euro: { applicationFee: 525, annualFee: 105 },
+      jdm: { applicationFee: 675, annualFee: 105 },
+      prestige: { applicationFee: 965, annualFee: 175 }
+    },
+    requirements: {
+      minLength: 2,
+      maxLength: 6,
+      allowedCharacters: "Letters and numbers",
+      restrictions: [
+        "No offensive content",
+        "Cannot resemble standard plate format",
+        "Maximum 6 characters for personalized plates",
+        "Must not conflict with emergency services"
+      ]
+    },
+    processInfo: {
+      processingTime: "3-4 weeks",
+      applicationMethod: "Online via Service SA",
+      renewalPeriod: "Annual with registration",
+      transferable: true,
+      applicationUrl: "https://www.sa.gov.au/topics/transport-travel-and-motoring/registration/number-plates/personalised-number-plates"
+    }
+  },
+  tas: {
+    name: "Tasmania",
+    abbreviation: "TAS",
+    pricing: {
+      standard: { applicationFee: 445, annualFee: 82 },
+      personalized: { applicationFee: 445, annualFee: 82 },
+      euro: { applicationFee: 505, annualFee: 102 },
+      jdm: { applicationFee: 655, annualFee: 102 },
+      prestige: { applicationFee: 945, annualFee: 172 }
+    },
+    requirements: {
+      minLength: 2,
+      maxLength: 6,
+      allowedCharacters: "Letters and numbers",
+      restrictions: [
+        "No offensive content",
+        "Cannot resemble standard plate format",
+        "Maximum 6 characters for personalized plates",
+        "Must not conflict with emergency services"
+      ]
+    },
+    processInfo: {
+      processingTime: "3-5 weeks",
+      applicationMethod: "Online via Service Tasmania",
+      renewalPeriod: "Annual with registration",
+      transferable: true,
+      applicationUrl: "https://www.service.tas.gov.au/services/transport/registration-and-licensing/personalised-number-plates"
+    }
+  },
+  act: {
+    name: "Australian Capital Territory",
+    abbreviation: "ACT",
+    pricing: {
+      standard: { applicationFee: 455, annualFee: 88 },
+      personalized: { applicationFee: 455, annualFee: 88 },
+      euro: { applicationFee: 515, annualFee: 108 },
+      jdm: { applicationFee: 665, annualFee: 108 },
+      prestige: { applicationFee: 955, annualFee: 178 }
+    },
+    requirements: {
+      minLength: 2,
+      maxLength: 6,
+      allowedCharacters: "Letters and numbers",
+      restrictions: [
+        "No offensive content",
+        "Cannot resemble standard plate format",
+        "Maximum 6 characters for personalized plates",
+        "Must not conflict with emergency services"
+      ]
+    },
+    processInfo: {
+      processingTime: "2-4 weeks",
+      applicationMethod: "Online via Access Canberra",
+      renewalPeriod: "Annual with registration",
+      transferable: true,
+      applicationUrl: "https://www.accesscanberra.act.gov.au/app/answers/detail/a_id/1221/~/personalised-number-plates"
+    }
+  },
+  nt: {
+    name: "Northern Territory",
+    abbreviation: "NT",
+    pricing: {
+      standard: { applicationFee: 435, annualFee: 80 },
+      personalized: { applicationFee: 435, annualFee: 80 },
+      euro: { applicationFee: 495, annualFee: 100 },
+      jdm: { applicationFee: 645, annualFee: 100 },
+      prestige: { applicationFee: 935, annualFee: 170 }
+    },
+    requirements: {
+      minLength: 2,
+      maxLength: 6,
+      allowedCharacters: "Letters and numbers",
+      restrictions: [
+        "No offensive content",
+        "Cannot resemble standard plate format",
+        "Maximum 6 characters for personalized plates",
+        "Must not conflict with emergency services"
+      ]
+    },
+    processInfo: {
+      processingTime: "4-6 weeks",
+      applicationMethod: "Online via NT Government",
+      renewalPeriod: "Annual with registration",
+      transferable: true,
+      applicationUrl: "https://nt.gov.au/driving/registration/number-plates/personalised-number-plates"
+    }
   }
 };
 
