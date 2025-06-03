@@ -66,6 +66,7 @@ interface Booking {
 
 export default function SecureAdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [adminUsername, setAdminUsername] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTab, setSelectedTab] = useState("overview");
@@ -129,16 +130,17 @@ export default function SecureAdminDashboard() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ password: adminPassword }),
+        body: JSON.stringify({ username: adminUsername, password: adminPassword }),
       });
 
       if (response.ok) {
         setIsAuthenticated(true);
         localStorage.setItem('secure_admin_authenticated', 'true');
         localStorage.setItem('secure_admin_auth_time', Date.now().toString());
+        setAdminUsername("");
         setAdminPassword("");
       } else {
-        alert("Invalid admin password");
+        alert("Invalid admin credentials");
       }
     } catch (error) {
       alert("Login failed");
@@ -199,10 +201,22 @@ export default function SecureAdminDashboard() {
             <Shield className="w-12 h-12 text-amber-500 mx-auto mb-4" />
             <CardTitle className="text-white">Secure Admin Access</CardTitle>
             <CardDescription className="text-gray-400">
-              Enter admin password to access dashboard
+              Enter admin credentials to access dashboard
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="username" className="text-white">Username</Label>
+              <Input
+                id="username"
+                type="text"
+                value={adminUsername}
+                onChange={(e) => setAdminUsername(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleAdminLogin()}
+                className="bg-gray-800 border-gray-700 text-white"
+                placeholder="Enter admin username"
+              />
+            </div>
             <div>
               <Label htmlFor="password" className="text-white">Password</Label>
               <Input
@@ -212,13 +226,13 @@ export default function SecureAdminDashboard() {
                 onChange={(e) => setAdminPassword(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleAdminLogin()}
                 className="bg-gray-800 border-gray-700 text-white"
-                placeholder="Enter secure admin password"
+                placeholder="Enter admin password"
               />
             </div>
             <Button 
               onClick={handleAdminLogin} 
               className="w-full bg-amber-600 hover:bg-amber-700"
-              disabled={!adminPassword}
+              disabled={!adminUsername || !adminPassword}
             >
               Access Dashboard
             </Button>
