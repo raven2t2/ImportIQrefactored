@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,6 +48,7 @@ export default function InsuranceEstimator() {
 
   const [estimateData, setEstimateData] = useState<InsuranceEstimate | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   const handleCalculate = async () => {
     if (!formData.make || !formData.model || !formData.year || !formData.value) {
@@ -64,9 +65,15 @@ export default function InsuranceEstimator() {
       });
       
       const data = await response.json();
-      console.log("Insurance response data:", data);
-      console.log("First quote premium:", data.quotes?.[0]?.premium);
       setEstimateData(data);
+      
+      // Auto scroll to results after a brief delay
+      setTimeout(() => {
+        resultsRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 100);
     } catch (error) {
       console.error("Insurance calculation error:", error);
     } finally {
@@ -207,7 +214,7 @@ export default function InsuranceEstimator() {
           </Card>
 
           {/* Results */}
-          <div className="space-y-6">
+          <div ref={resultsRef} className="space-y-6">
             {estimateData && (
               <>
                 {/* Market Overview */}
