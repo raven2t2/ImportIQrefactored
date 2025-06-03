@@ -406,9 +406,40 @@ export default function LiveMarketScanner() {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
+                    {/* Vehicle Image */}
+                    {listing.images && listing.images.length > 0 && (
+                      <div className="relative overflow-hidden rounded-lg bg-gray-800">
+                        <img 
+                          src={listing.images[0]} 
+                          alt={`${listing.year} ${listing.make} ${listing.model}`}
+                          className="w-full h-48 object-cover"
+                          onError={(e) => {
+                            e.currentTarget.src = 'https://images.unsplash.com/photo-1549924231-f129b911e442?w=400&h=300&fit=crop&auto=format&q=80';
+                          }}
+                        />
+                        {listing.isImport && (
+                          <div className="absolute top-2 left-2">
+                            <Badge className="bg-blue-600 text-white text-xs">Import</Badge>
+                          </div>
+                        )}
+                        {listing.auctionData && (
+                          <div className="absolute top-2 right-2">
+                            <Badge className="bg-yellow-600 text-white text-xs">
+                              Grade {listing.auctionData.inspectionGrade}
+                            </Badge>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     <div className="flex items-center justify-between">
                       <div className="text-2xl font-bold text-amber-400">
                         {formatPrice(listing.price, listing.currency)}
+                        {listing.location.includes('Japan') && (
+                          <div className="text-xs text-gray-400 mt-1">
+                            Converted from Japanese auction price
+                          </div>
+                        )}
                       </div>
                       {listing.mileage && (
                         <div className="text-gray-400">
@@ -479,12 +510,12 @@ export default function LiveMarketScanner() {
                           <div className="space-y-1">
                             {listing.auctionData.estimatedBid && (
                               <div className="text-gray-300">
-                                <span className="text-yellow-400">Est. Bid:</span> ¥{listing.auctionData.estimatedBid.toLocaleString()}
+                                <span className="text-yellow-400">Est. Bid:</span> {formatPrice(listing.auctionData.estimatedBid, 'AUD')}
                               </div>
                             )}
                             {listing.auctionData.reservePrice && (
                               <div className="text-gray-300">
-                                <span className="text-yellow-400">Reserve:</span> ¥{listing.auctionData.reservePrice.toLocaleString()}
+                                <span className="text-yellow-400">Reserve:</span> {formatPrice(listing.auctionData.reservePrice, 'AUD')}
                               </div>
                             )}
                             {listing.auctionData.exportReadyCertificate !== undefined && (
