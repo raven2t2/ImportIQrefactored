@@ -5897,6 +5897,37 @@ IMPORTANT GUIDELINES:
     }
   });
 
+  // Manual scan trigger endpoint
+  app.post("/api/trigger-manual-scan", async (req, res) => {
+    try {
+      console.log('Manual scan triggered via API');
+      
+      // Import the advanced scraper
+      const { marketScraper } = await import('./advanced-scraper-with-webhook-fallback');
+      
+      // Perform comprehensive scrape
+      await marketScraper.performFullScrape();
+      
+      // Get updated listing count
+      const listings = await storage.getAuctionListings({ limit: 1000, offset: 0 });
+      
+      res.json({
+        success: true,
+        message: "Manual scan completed successfully",
+        totalListings: listings.length,
+        timestamp: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error("Manual scan failed:", error);
+      res.status(500).json({
+        success: false,
+        message: "Manual scan failed",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
