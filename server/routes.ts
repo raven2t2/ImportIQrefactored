@@ -1263,18 +1263,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
             vsiSignatories: validatedData.state === "NSW" ? "Search 'VSI14 signatory NSW' or contact TfNSW" :
                            validatedData.state === "VIC" ? "Search 'Vehicle Safety Inspector Victoria' or contact VicRoads" :
                            validatedData.state === "QLD" ? "Search 'Approved Person Queensland vehicles' or contact TMR" :
+                           validatedData.state === "SA" ? "Search 'Vehicle Safety Inspector SA' or contact DIT SA" :
+                           validatedData.state === "WA" ? "Search 'Vehicle Safety Inspector WA' or contact DoT WA" :
+                           validatedData.state === "TAS" ? "Search 'Vehicle Inspector Tasmania' or contact State Growth" :
+                           validatedData.state === "NT" ? "Search 'Vehicle Inspector NT' or contact DoI NT" :
+                           validatedData.state === "ACT" ? "Search 'Vehicle Inspector ACT' or contact Access Canberra" :
                            "Contact your state transport department for approved engineers",
             typicalProcessingTime: validatedData.state === "NSW" ? "3-8 weeks" :
                                   validatedData.state === "VIC" ? "2-6 weeks" :
                                   validatedData.state === "QLD" ? "4-10 weeks" :
+                                  validatedData.state === "SA" ? "3-7 weeks" :
+                                  validatedData.state === "WA" ? "2-5 weeks" :
+                                  validatedData.state === "TAS" ? "3-6 weeks" :
+                                  validatedData.state === "NT" ? "2-4 weeks" :
+                                  validatedData.state === "ACT" ? "2-5 weeks" :
                                   "2-8 weeks",
             averageEngineeringCost: validatedData.state === "NSW" ? "$1,200-3,500 (higher due to stricter requirements)" :
                                    validatedData.state === "VIC" ? "$900-2,800 (moderate requirements)" :
                                    validatedData.state === "QLD" ? "$800-2,500 (varies by modification complexity)" :
+                                   validatedData.state === "SA" ? "$1,000-2,800 (moderate to strict requirements)" :
+                                   validatedData.state === "WA" ? "$900-2,500 (reasonable requirements)" :
+                                   validatedData.state === "TAS" ? "$800-2,200 (fewer engineers available)" :
+                                   validatedData.state === "NT" ? "$1,200-3,000 (limited engineering options)" :
+                                   validatedData.state === "ACT" ? "$1,100-2,600 (follows NSW guidelines closely)" :
                                    "$1,000-3,000 depending on state requirements",
             specialRequirements: validatedData.state === "NSW" ? "NSW has strictest modification rules - pink slip required after engineering" :
                                 validatedData.state === "VIC" ? "VicRoads requires roadworthy certificate after major modifications" :
                                 validatedData.state === "QLD" ? "Queensland allows more modifications but requires detailed engineering reports" :
+                                validatedData.state === "SA" ? "SA requires vehicle inspection after engineering certification" :
+                                validatedData.state === "WA" ? "WA has moderate requirements - compliance certificate needed" :
+                                validatedData.state === "TAS" ? "Tasmania follows mainland standards but limited engineering options" :
+                                validatedData.state === "NT" ? "NT requires federal compliance plus territory approval" :
+                                validatedData.state === "ACT" ? "ACT follows NSW standards closely - registration required after engineering" :
                                 "Check your state's specific modification guidelines"
           }
         },
