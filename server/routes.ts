@@ -2381,22 +2381,41 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
-  // Stripe subscription endpoint
+  // Stripe subscription endpoint with trial user pricing
   app.post("/api/create-subscription", async (req, res) => {
     try {
-      const { plan } = req.body;
-      const amount = plan === 'yearly' ? Math.round(97 * 12 * 0.75 * 100) : 97 * 100; // yearly gets 25% discount
+      const { plan, email } = req.body;
+      
+      // Check if user is in trial for special pricing
+      const trialStatus = email ? await storage.getTrialStatus(email) : null;
+      const isTrialUser = trialStatus?.isActive;
+      
+      let amount;
+      if (plan === 'yearly') {
+        // Yearly: Regular $97/month * 12 * 0.75 = $873 AUD
+        amount = Math.round(97 * 12 * 0.75 * 100);
+      } else {
+        // Monthly: Trial users get first month for $77, regular users pay $97
+        amount = isTrialUser ? 77 * 100 : 97 * 100;
+      }
       
       const paymentIntent = await stripe.paymentIntents.create({
         amount,
         currency: "aud",
         metadata: {
           plan: plan,
-          subscription_type: 'importiq_professional'
+          email: email || '',
+          subscription_type: 'importiq_professional',
+          trial_user: isTrialUser ? 'true' : 'false'
         },
       });
       
-      res.json({ clientSecret: paymentIntent.client_secret });
+      res.json({ 
+        clientSecret: paymentIntent.client_secret,
+        amount: amount / 100,
+        isTrialUser,
+        plan
+      });
     } catch (error: any) {
       res.status(500).json({ 
         message: "Error creating subscription: " + error.message 

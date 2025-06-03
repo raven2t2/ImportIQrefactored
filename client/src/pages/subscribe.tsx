@@ -68,13 +68,17 @@ export default function Subscribe() {
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('monthly');
   const [clientSecret, setClientSecret] = useState("");
   const [loading, setLoading] = useState(false);
+  const [pricingData, setPricingData] = useState<any>(null);
 
   const createSubscription = async (plan: 'monthly' | 'yearly') => {
     setLoading(true);
     try {
-      const response = await apiRequest("POST", "/api/create-subscription", { plan });
+      // Get user email from localStorage for trial user pricing
+      const email = localStorage.getItem('userEmail') || '';
+      const response = await apiRequest("POST", "/api/create-subscription", { plan, email });
       const data = await response.json();
       setClientSecret(data.clientSecret);
+      setPricingData(data);
     } catch (error) {
       console.error('Subscription creation error:', error);
     } finally {
