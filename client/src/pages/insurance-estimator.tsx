@@ -64,6 +64,8 @@ export default function InsuranceEstimator() {
       });
       
       const data = await response.json();
+      console.log("Insurance response data:", data);
+      console.log("First quote premium:", data.quotes?.[0]?.premium);
       setEstimateData(data);
     } catch (error) {
       console.error("Insurance calculation error:", error);
