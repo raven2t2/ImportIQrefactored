@@ -10,7 +10,7 @@ import { checkVehicleCompliance, getImportGuidance } from "./vehicle-compliance-
 import { calculateShippingCost as calculateShippingQuote, getAllPorts, getPortsByCountry, getPopularRoutes, getShippingTips } from "./shipping-calculator";
 import { calculateInsuranceQuote, calculateROI, AUSTRALIAN_MARKET_DATA, DOCUMENTATION_REQUIREMENTS, STATE_REGISTRATION_DATA, ADR_COMPLIANCE_DATABASE } from "./authentic-vehicle-data";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { checkPlateAvailability } from "./plate-availability";
+import { checkPlateRequirements } from "./plate-availability";
 import { z } from "zod";
 import OpenAI from "openai";
 import Stripe from "stripe";
@@ -2757,7 +2757,7 @@ Generate specific ad targeting recommendations with confidence levels (High/Medi
         });
       }
 
-      const result = await checkPlateAvailability({
+      const result = await checkPlateRequirements({
         state,
         plateNumber: desiredPlate,
         plateType

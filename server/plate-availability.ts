@@ -359,115 +359,54 @@ function validatePlateNumber(plateNumber: string, state: string): {
   return { isValid: true };
 }
 
-function generateAlternatives(plateNumber: string): string[] {
-  const alternatives: string[] = [];
-  
-  // Add numbers to end
-  for (let i = 1; i <= 9; i++) {
-    if ((plateNumber + i).length <= 8) {
-      alternatives.push(plateNumber + i);
-    }
-  }
-  
-  // Add letters to end
-  for (const letter of ['X', 'Z', 'V', 'Y']) {
-    if ((plateNumber + letter).length <= 8) {
-      alternatives.push(plateNumber + letter);
-    }
-  }
-  
-  // Replace letters with numbers (leet speak)
-  let leetVersion = plateNumber
-    .replace(/O/g, '0')
-    .replace(/I/g, '1')
-    .replace(/S/g, '5')
-    .replace(/E/g, '3')
-    .replace(/A/g, '4');
-    
-  if (leetVersion !== plateNumber && leetVersion.length <= 8) {
-    alternatives.push(leetVersion);
-  }
-  
-  // Shortened versions
-  if (plateNumber.length > 3) {
-    alternatives.push(plateNumber.substring(0, plateNumber.length - 1));
-    alternatives.push(plateNumber.substring(0, plateNumber.length - 2));
-  }
-  
-  return alternatives.slice(0, 8); // Return max 8 alternatives
-}
-
-function checkAvailability(plateNumber: string): {
-  isAvailable: boolean;
-  status: "available" | "taken" | "reserved" | "invalid" | "restricted";
-  reason?: string;
+function validatePlateCompliance(plateNumber: string, plateType: string): {
+  isValid: boolean;
+  issues: string[];
+  complianceStatus: "compliant" | "non-compliant" | "needs-review";
 } {
-  // Simulate realistic availability based on common patterns
+  const issues: string[] = [];
   const upperPlate = plateNumber.toUpperCase();
   
-  // Check if it's commonly taken
-  if (COMMONLY_TAKEN.includes(upperPlate)) {
-    return {
-      isAvailable: false,
-      status: "taken",
-      reason: "This popular combination is already registered"
-    };
-  }
-  
-  // Short plates (2-3 chars) are usually taken
-  if (plateNumber.length <= 3) {
-    const randomChance = Math.random();
-    if (randomChance < 0.8) { // 80% chance taken for short plates
-      return {
-        isAvailable: false,
-        status: "taken",
-        reason: "Short plate combinations are highly sought after"
-      };
+  // Check for restricted patterns
+  for (const pattern of RESTRICTED_PATTERNS) {
+    if (pattern.test(upperPlate)) {
+      issues.push("Contains restricted or inappropriate content");
+      break;
     }
   }
   
-  // Sequential patterns are often taken
-  if (/^(ABC|123|XYZ|789)/.test(upperPlate)) {
-    return {
-      isAvailable: false,
-      status: "taken",
-      reason: "Sequential patterns are popular and typically taken"
-    };
+  // Check character validity
+  if (!/^[A-Z0-9]+$/.test(upperPlate)) {
+    issues.push("Only letters and numbers are allowed");
   }
   
-  // Repeating characters might be restricted or taken
-  if (/^(.)\1{2,}/.test(upperPlate)) {
-    const randomChance = Math.random();
-    if (randomChance < 0.6) { // 60% chance taken/restricted
-      return {
-        isAvailable: false,
-        status: "reserved",
-        reason: "Repeating character patterns may be reserved"
-      };
-    }
+  // Check for common restriction patterns
+  if (/^[0-9]+$/.test(upperPlate)) {
+    issues.push("Cannot be all numbers (may conflict with standard plates)");
   }
   
-  // Import/car related terms
-  const carTerms = ["IMPORT", "CUSTOM", "TUNED", "DRIFT", "TRACK", "STREET", "FAST", "QUICK"];
-  if (carTerms.some(term => upperPlate.includes(term))) {
-    const randomChance = Math.random();
-    if (randomChance < 0.7) { // 70% chance taken
-      return {
-        isAvailable: false,
-        status: "taken",
-        reason: "Automotive-related terms are very popular"
-      };
-    }
+  if (/^(GOV|POL|EMR|AMB|FIRE)/i.test(upperPlate)) {
+    issues.push("Cannot resemble emergency service or government plates");
   }
   
-  // Default to available for other combinations
+  // Determine compliance status
+  let complianceStatus: "compliant" | "non-compliant" | "needs-review";
+  if (issues.length === 0) {
+    complianceStatus = "compliant";
+  } else if (issues.some(issue => issue.includes("restricted") || issue.includes("emergency"))) {
+    complianceStatus = "non-compliant";
+  } else {
+    complianceStatus = "needs-review";
+  }
+  
   return {
-    isAvailable: true,
-    status: "available"
+    isValid: issues.length === 0,
+    issues,
+    complianceStatus
   };
 }
 
-export async function checkPlateAvailability(data: PlateAvailabilityData): Promise<PlateAvailabilityResult> {
+export async function checkPlateRequirements(data: PlateAvailabilityData): Promise<PlateRequirementsResult> {
   const { state, plateNumber, plateType } = data;
   const upperPlateNumber = plateNumber.toUpperCase();
   
@@ -478,36 +417,24 @@ export async function checkPlateAvailability(data: PlateAvailabilityData): Promi
       success: false,
       plateNumber: upperPlateNumber,
       state: state.toUpperCase(),
-      availability: {
-        isAvailable: false,
-        status: "invalid",
-        reason: "Invalid state/territory"
+      validation: {
+        isValid: false,
+        issues: ["Invalid state/territory selected"],
+        complianceStatus: "non-compliant"
       },
+      pricing: { applicationFee: 0, annualFee: 0, totalFirstYear: 0, currency: "AUD" },
+      requirements: { minLength: 0, maxLength: 0, allowedCharacters: "", restrictions: [] },
+      processInfo: { processingTime: "", applicationMethod: "", renewalPeriod: "", transferable: false, applicationUrl: "" },
       error: "Invalid state or territory selected",
-      disclaimer: "Results based on publicly available Australian transport authority data"
+      disclaimer: "Official requirements from Australian state transport authorities"
     };
   }
   
   // Validate plate number format
-  const validation = validatePlateNumber(upperPlateNumber, state);
-  if (!validation.isValid) {
-    return {
-      success: false,
-      plateNumber: upperPlateNumber,
-      state: stateData.name,
-      availability: {
-        isAvailable: false,
-        status: "invalid",
-        reason: validation.reason
-      },
-      requirements: stateData.requirements,
-      error: validation.reason,
-      disclaimer: "Results based on publicly available Australian transport authority data"
-    };
-  }
+  const formatValidation = validatePlateNumber(upperPlateNumber, state);
   
-  // Check availability
-  const availability = checkAvailability(upperPlateNumber);
+  // Check compliance with regulations
+  const complianceValidation = validatePlateCompliance(upperPlateNumber, plateType);
   
   // Get pricing for plate type
   const pricing = stateData.pricing[plateType as keyof typeof stateData.pricing];
@@ -516,33 +443,52 @@ export async function checkPlateAvailability(data: PlateAvailabilityData): Promi
       success: false,
       plateNumber: upperPlateNumber,
       state: stateData.name,
-      availability: {
-        isAvailable: false,
-        status: "invalid",
-        reason: "Invalid plate type"
+      validation: {
+        isValid: false,
+        issues: ["Invalid plate type selected"],
+        complianceStatus: "non-compliant"
       },
+      pricing: { applicationFee: 0, annualFee: 0, totalFirstYear: 0, currency: "AUD" },
+      requirements: stateData.requirements,
+      processInfo: { ...stateData.processInfo, applicationUrl: stateData.processInfo.applicationUrl || "" },
       error: "Invalid plate type selected",
-      disclaimer: "Results based on publicly available Australian transport authority data"
+      disclaimer: "Official requirements from Australian state transport authorities"
     };
   }
   
-  // Generate alternatives if not available
-  const alternatives = !availability.isAvailable ? generateAlternatives(upperPlateNumber) : undefined;
+  // Combine all validation results
+  const allIssues = [
+    ...(formatValidation.isValid ? [] : [formatValidation.reason || "Format validation failed"]),
+    ...complianceValidation.issues
+  ];
+  
+  const isValid = formatValidation.isValid && complianceValidation.isValid;
   
   return {
     success: true,
     plateNumber: upperPlateNumber,
     state: stateData.name,
-    availability,
+    validation: {
+      isValid,
+      issues: allIssues.length > 0 ? allIssues : undefined,
+      complianceStatus: isValid ? "compliant" : complianceValidation.complianceStatus
+    },
     pricing: {
       applicationFee: pricing.applicationFee,
       annualFee: pricing.annualFee,
       totalFirstYear: pricing.applicationFee + pricing.annualFee,
       currency: "AUD"
     },
-    alternatives,
     requirements: stateData.requirements,
-    processInfo: stateData.processInfo,
-    disclaimer: "This information is based on publicly available data from Australian state transport authorities. Actual availability and pricing may vary. Please verify with the relevant state transport authority before proceeding with an application. Processing times and fees are subject to change."
+    processInfo: {
+      ...stateData.processInfo,
+      applicationUrl: stateData.processInfo.applicationUrl || ""
+    },
+    additionalInfo: {
+      plateFormat: `${plateType.toUpperCase()} style plate`,
+      restrictions: stateData.requirements.restrictions,
+      tips: PLATE_TIPS[plateType as keyof typeof PLATE_TIPS] || []
+    },
+    disclaimer: "Information based on publicly available Australian state transport authority requirements. All data sourced from official government websites. Please verify current requirements and availability with your state's transport authority before applying."
   };
 }
