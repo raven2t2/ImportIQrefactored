@@ -161,6 +161,18 @@ const timeframes = [
 export default function ImportVolumeDashboard() {
   const [selectedPeriod, setSelectedPeriod] = useState("2024-Q4");
   
+  // Fetch market intelligence data from backend
+  const { data: marketData, isLoading, error } = useQuery({
+    queryKey: ["/api/market-intelligence"],
+    queryFn: async () => {
+      const response = await fetch("/api/market-intelligence");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    }
+  });
+  
   const currentData = importVolumeData[selectedPeriod];
 
   const getChangeColor = (change: number) => {
@@ -184,9 +196,48 @@ export default function ImportVolumeDashboard() {
     }
   };
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-amber-400 mx-auto mb-4" />
+          <p className="text-white text-lg">Loading market intelligence data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
+          <p className="text-white text-lg mb-4">Unable to load market data</p>
+          <Link to="/dashboard">
+            <Button variant="outline" className="text-white border-white hover:bg-white hover:text-gray-900">
+              Return to Dashboard
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900">
       <div className="container mx-auto px-4 py-8">
+        {/* Market Data Alert */}
+        {marketData?.marketAlert && (
+          <div className="mb-6 bg-amber-400/20 border border-amber-400/30 rounded-lg p-4">
+            <div className="flex items-center gap-3">
+              <Activity className="h-5 w-5 text-amber-400" />
+              <p className="text-amber-400 font-medium">{marketData.marketAlert}</p>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
