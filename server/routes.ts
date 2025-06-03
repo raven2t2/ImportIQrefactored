@@ -1834,24 +1834,29 @@ Respond with a JSON object containing your recommendations.`;
           dataCompleteness: 94
         },
 
-        // Tool 8: Registration Statistics
+        // Tool 8: Registration Statistics - REQUIRES AUTHENTIC DATA
         registrationStats: {
-          stateDistribution: submissions.reduce((acc, s) => {
-            if (s.zipCode) {
-              // Map zip codes to states for analysis
-              const state = s.zipCode.startsWith('2') ? 'NSW' : 
-                          s.zipCode.startsWith('3') ? 'VIC' : 
-                          s.zipCode.startsWith('4') ? 'QLD' : 'Other';
-              acc[state] = (acc[state] || 0) + 1;
-            }
-            return acc;
-          }, {}),
-          monthlyTrends: submissions.reduce((acc, s) => {
-            const month = new Date(s.createdAt).getMonth();
-            acc[month] = (acc[month] || 0) + 1;
-            return acc;
-          }, {}),
-          registrationCompletionRate: 76
+          dataAvailable: REGISTRATION_STATISTICS.data_available,
+          errorMessage: REGISTRATION_STATISTICS.error_message,
+          officialSource: REGISTRATION_STATISTICS.official_source,
+          userCalculations: {
+            // Only show user's own calculation data, not fake registration stats
+            stateDistribution: submissions.reduce((acc, s) => {
+              if (s.zipCode) {
+                const state = s.zipCode.startsWith('2') ? 'NSW' : 
+                            s.zipCode.startsWith('3') ? 'VIC' : 
+                            s.zipCode.startsWith('4') ? 'QLD' : 'Other';
+                acc[state] = (acc[state] || 0) + 1;
+              }
+              return acc;
+            }, {}),
+            monthlyTrends: submissions.reduce((acc, s) => {
+              const month = new Date(s.createdAt).getMonth();
+              acc[month] = (acc[month] || 0) + 1;
+              return acc;
+            }, {}),
+            calculationCompletionRate: submissions.length > 0 ? 100 : 0
+          }
         },
 
         // Tool 9: Import Volume Dashboard
