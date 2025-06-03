@@ -11,7 +11,8 @@ import { Progress } from "@/components/ui/progress";
 import { 
   Shield, Users, FileText, TrendingUp, Search, Download, 
   UserCheck, Target, Calendar, BarChart3, AlertTriangle,
-  DollarSign, Globe, TrendingDown, Activity
+  DollarSign, Globe, TrendingDown, Activity, Clock, Phone, 
+  Mail, User, Car, MessageSquare
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -47,6 +48,20 @@ interface Affiliate {
   totalEarnings: number;
   tier: string;
   isInfluencer: boolean;
+}
+
+interface Booking {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  service: string;
+  preferredDate: string;
+  preferredTime: string;
+  vehicleDetails?: string;
+  message?: string;
+  status: string;
+  createdAt: string;
 }
 
 export default function SecureAdminDashboard() {
@@ -94,6 +109,11 @@ export default function SecureAdminDashboard() {
 
   const { data: advancedAnalytics, isLoading: analyticsLoading } = useQuery({
     queryKey: ["/api/admin/advanced-analytics"],
+    enabled: isAuthenticated,
+  });
+
+  const { data: bookings = [], isLoading: bookingsLoading } = useQuery({
+    queryKey: ["/api/bookings"],
     enabled: isAuthenticated,
   });
 
@@ -248,6 +268,10 @@ export default function SecureAdminDashboard() {
             <TabsTrigger value="targeting" className="data-[state=active]:bg-amber-600">
               <Target className="w-4 h-4 mr-2" />
               Ad Targeting AI
+            </TabsTrigger>
+            <TabsTrigger value="bookings" className="data-[state=active]:bg-amber-600">
+              <Calendar className="w-4 h-4 mr-2" />
+              Bookings
             </TabsTrigger>
           </TabsList>
 
@@ -543,6 +567,192 @@ export default function SecureAdminDashboard() {
                 </Card>
               </>
             )}
+          </TabsContent>
+
+          <TabsContent value="bookings" className="space-y-6">
+            <Card className="bg-gray-900 border-amber-500/20">
+              <CardHeader>
+                <CardTitle className="text-amber-500 flex items-center gap-2">
+                  <Calendar className="h-5 w-5" />
+                  Consultation Bookings
+                </CardTitle>
+                <CardDescription className="text-gray-400">
+                  Manage and track consultation appointments
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {bookingsLoading ? (
+                  <div className="space-y-4">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="bg-gray-800 rounded-lg p-4 animate-pulse">
+                        <div className="h-4 bg-gray-700 rounded w-1/4 mb-2"></div>
+                        <div className="h-3 bg-gray-700 rounded w-1/2"></div>
+                      </div>
+                    ))}
+                  </div>
+                ) : bookings.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Calendar className="mx-auto h-12 w-12 text-gray-600 mb-4" />
+                    <h3 className="text-lg font-medium text-white mb-2">
+                      No bookings yet
+                    </h3>
+                    <p className="text-gray-400">
+                      When customers book consultations, they'll appear here.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {bookings.map((booking: Booking) => (
+                      <div key={booking.id} className="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+                        <div className="bg-gray-750 px-4 py-3 border-b border-gray-700">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="text-white font-medium flex items-center gap-2">
+                                <User className="h-4 w-4" />
+                                {booking.name}
+                              </h3>
+                              <p className="text-gray-400 text-sm">
+                                Booking #{booking.id} • {booking.service}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge 
+                                className={
+                                  booking.status === "confirmed" 
+                                    ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                    : booking.status === "pending"
+                                    ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                                    : booking.status === "cancelled"
+                                    ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                                    : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                                }
+                              >
+                                {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                              </Badge>
+                              <span className="text-xs text-gray-500">
+                                {format(new Date(booking.createdAt), "MMM dd, yyyy")}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="p-4">
+                          <div className="grid md:grid-cols-2 gap-4 mb-4">
+                            <div className="space-y-3">
+                              <div className="flex items-center gap-2 text-sm">
+                                <Mail className="h-4 w-4 text-gray-500" />
+                                <span className="text-gray-300">{booking.email}</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-sm">
+                                <Phone className="h-4 w-4 text-gray-500" />
+                                <span className="text-gray-300">{booking.phone}</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-sm">
+                                <Calendar className="h-4 w-4 text-gray-500" />
+                                <span className="text-gray-300">{booking.preferredDate}</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-sm">
+                                <Clock className="h-4 w-4 text-gray-500" />
+                                <span className="text-gray-300">{booking.preferredTime}</span>
+                              </div>
+                            </div>
+
+                            <div className="space-y-3">
+                              {booking.vehicleDetails && (
+                                <div className="flex items-start gap-2 text-sm">
+                                  <Car className="h-4 w-4 text-gray-500 mt-0.5" />
+                                  <div>
+                                    <span className="text-gray-400 font-medium">Vehicle:</span>
+                                    <p className="text-gray-300 mt-1">{booking.vehicleDetails}</p>
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {booking.message && (
+                                <div className="flex items-start gap-2 text-sm">
+                                  <MessageSquare className="h-4 w-4 text-gray-500 mt-0.5" />
+                                  <div>
+                                    <span className="text-gray-400 font-medium">Message:</span>
+                                    <p className="text-gray-300 mt-1">{booking.message}</p>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex gap-2 pt-3 border-t border-gray-700">
+                            {booking.status !== "confirmed" && (
+                              <Button
+                                size="sm"
+                                className="bg-green-600 hover:bg-green-700"
+                                onClick={async () => {
+                                  try {
+                                    await fetch(`/api/bookings/${booking.id}/status`, {
+                                      method: 'PUT',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ status: 'confirmed' })
+                                    });
+                                    window.location.reload();
+                                  } catch (error) {
+                                    console.error('Error updating booking:', error);
+                                  }
+                                }}
+                              >
+                                Confirm
+                              </Button>
+                            )}
+                            
+                            {booking.status !== "completed" && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-blue-600 text-blue-400 hover:bg-blue-600"
+                                onClick={async () => {
+                                  try {
+                                    await fetch(`/api/bookings/${booking.id}/status`, {
+                                      method: 'PUT',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ status: 'completed' })
+                                    });
+                                    window.location.reload();
+                                  } catch (error) {
+                                    console.error('Error updating booking:', error);
+                                  }
+                                }}
+                              >
+                                Mark Complete
+                              </Button>
+                            )}
+                            
+                            {booking.status !== "cancelled" && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-red-600 text-red-400 hover:bg-red-600"
+                                onClick={async () => {
+                                  try {
+                                    await fetch(`/api/bookings/${booking.id}/status`, {
+                                      method: 'PUT',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ status: 'cancelled' })
+                                    });
+                                    window.location.reload();
+                                  } catch (error) {
+                                    console.error('Error updating booking:', error);
+                                  }
+                                }}
+                              >
+                                Cancel
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
