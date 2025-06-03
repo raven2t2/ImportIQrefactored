@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { MessageCircle, Bot, X, Minus, Send, Loader2 } from "lucide-react";
+import { MessageCircle, Bot, X, Minus, Send, Loader2, Calculator, Search, Shield, Zap, Star, Briefcase } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 
 interface ChatMessage {
@@ -21,6 +21,14 @@ interface AiResponse {
   suggestions: string[];
 }
 
+interface PersonalizedIcon {
+  iconType: string;
+  iconPersonality: string;
+  totalInteractions?: number;
+  expertiseLevel?: string;
+  reason: string;
+}
+
 export function AiChatButton() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const [location] = useLocation();
@@ -32,7 +40,53 @@ export function AiChatButton() {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [sessionId] = useState(() => Math.random().toString(36).substr(2, 9));
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Get personalized icon for authenticated users
+  const { data: personalizedIcon } = useQuery<PersonalizedIcon>({
+    queryKey: ['/api/chat/personalized-icon', user?.email || user?.id],
+    enabled: !!isAuthenticated && !!user,
+    retry: false,
+  });
+
+  // Function to get the appropriate icon based on user's profile
+  const getPersonalizedIcon = () => {
+    if (!personalizedIcon) return MessageCircle;
+    
+    switch (personalizedIcon.iconType) {
+      case 'calculator':
+        return Calculator;
+      case 'search':
+        return Search;
+      case 'shield':
+        return Shield;
+      case 'expert':
+        return Star;
+      case 'professional':
+        return Briefcase;
+      case 'enthusiastic':
+        return Zap;
+      default:
+        return MessageCircle;
+    }
+  };
+
+  // Function to get icon color based on personality
+  const getIconColor = () => {
+    if (!personalizedIcon) return "text-blue-600";
+    
+    switch (personalizedIcon.iconPersonality) {
+      case 'expert':
+        return "text-purple-600";
+      case 'professional':
+        return "text-slate-600";
+      case 'enthusiastic':
+        return "text-orange-600";
+      default:
+        return "text-blue-600";
+    }
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -151,8 +205,10 @@ export function AiChatButton() {
     return pageContexts[path] || 'general import assistance';
   };
 
-  // Show button for all users (temporarily for testing)
-  // TODO: Re-enable authentication check later
+  // Only show chat button for authenticated users
+  if (!isAuthenticated || isLoading) {
+    return null;
+  }
 
   // If completely closed, show small reopener
   if (isClosed) {
@@ -173,10 +229,18 @@ export function AiChatButton() {
             setIsClosed(false);
             setIsOpen(true);
           }}
-          className="rounded-full w-12 h-12 bg-gray-600 hover:bg-amber-600 shadow-lg border border-gray-400 transition-all duration-200 hover:scale-105 opacity-75 hover:opacity-100"
-          title="Open AI Assistant"
+          className={`rounded-full w-12 h-12 shadow-lg border transition-all duration-200 hover:scale-105 opacity-75 hover:opacity-100 ${
+            personalizedIcon?.iconPersonality === 'expert' ? 'bg-purple-600 hover:bg-purple-700 border-purple-400' :
+            personalizedIcon?.iconPersonality === 'professional' ? 'bg-slate-600 hover:bg-slate-700 border-slate-400' :
+            personalizedIcon?.iconPersonality === 'enthusiastic' ? 'bg-orange-600 hover:bg-orange-700 border-orange-400' :
+            'bg-gray-600 hover:bg-amber-600 border-gray-400'
+          }`}
+          title={`AI Assistant${personalizedIcon ? ` (${personalizedIcon.expertiseLevel || 'beginner'} level)` : ''}`}
         >
-          <Bot className="w-5 h-5 text-white" />
+          {(() => {
+            const IconComponent = getPersonalizedIcon();
+            return <IconComponent className="w-5 h-5 text-white" />;
+          })()}
         </Button>
       </div>
     );
