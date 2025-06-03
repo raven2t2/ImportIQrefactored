@@ -311,12 +311,22 @@ function generateAuthenticJapaneseVehicles(make: string, model?: string, source:
         const year = modelData.years[Math.floor(Math.random() * modelData.years.length)];
         const basePrice = modelData.basePrice + (Math.random() * modelData.priceVariation);
         const age = 2025 - year;
-        // Realistic Japanese mileage: much lower than global averages
-        const baseKmPerYear = Math.random() < 0.4 ? 
-          2000 + Math.random() * 3000 : // 40% garage kept/weekend cars: 2k-5k km/year
-          4000 + Math.random() * 4000;  // 60% regular use: 4k-8k km/year
         
-        const mileage = Math.floor(age * baseKmPerYear);
+        // Realistic Japanese auction vehicle mileage patterns
+        let mileage;
+        if (age > 25) {
+          // Classic JDM cars: very low mileage, often garage kept
+          mileage = Math.floor(15000 + Math.random() * 35000); // 15k-50k km total
+        } else if (age > 15) {
+          // Older sports cars: moderate mileage
+          mileage = Math.floor(25000 + Math.random() * 55000); // 25k-80k km total
+        } else if (age > 10) {
+          // Modern classics: higher but still reasonable
+          mileage = Math.floor(40000 + Math.random() * 80000); // 40k-120k km total
+        } else {
+          // Recent cars: normal usage
+          mileage = Math.floor(age * (8000 + Math.random() * 12000)); // 8k-20k km/year
+        }
         
         vehicles.push({
           id: `${source.toLowerCase()}-${Date.now()}-${i}`,
