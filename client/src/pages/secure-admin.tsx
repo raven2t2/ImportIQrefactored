@@ -108,9 +108,10 @@ export default function SecureAdminDashboard() {
     enabled: isAuthenticated,
   });
 
-  const { data: advancedAnalytics, isLoading: analyticsLoading } = useQuery({
+  const { data: aiAnalyticsData, isLoading: analyticsLoading } = useQuery({
     queryKey: ["/api/admin/advanced-analytics"],
     enabled: isAuthenticated,
+    refetchInterval: 30000, // Refresh every 30 seconds
   });
 
   const { data: bookings = [], isLoading: bookingsLoading } = useQuery({
@@ -121,12 +122,6 @@ export default function SecureAdminDashboard() {
   const { data: deposits = [], isLoading: depositsLoading } = useQuery({
     queryKey: ["/api/deposits"],
     enabled: isAuthenticated,
-  });
-
-  const { data: advancedAnalytics, isLoading: advancedAnalyticsLoading } = useQuery({
-    queryKey: ["/api/admin/advanced-analytics"],
-    enabled: isAuthenticated,
-    refetchInterval: 30000, // Refresh every 30 seconds
   });
 
   const handleAdminLogin = async () => {
