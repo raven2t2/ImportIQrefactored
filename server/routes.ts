@@ -3793,6 +3793,68 @@ IMPORTANT GUIDELINES:
     }
   });
 
+  // Expert Help Contact Form API
+  app.post("/api/contact/expert-help", async (req, res) => {
+    try {
+      const {
+        name,
+        email,
+        phone,
+        subject,
+        inquiryType,
+        vehicleType,
+        timeline,
+        budget,
+        message
+      } = req.body;
+
+      // Validate required fields
+      if (!name || !email || !message) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Name, email, and message are required" 
+        });
+      }
+
+      // Store the contact request (you could add this to storage if needed)
+      const contactRequest = {
+        id: Date.now(),
+        name,
+        email,
+        phone: phone || null,
+        subject: subject || "Expert Help Request",
+        inquiryType: inquiryType || "general-inquiry",
+        vehicleType: vehicleType || null,
+        timeline: timeline || null,
+        budget: budget || null,
+        message,
+        submittedAt: new Date().toISOString(),
+        status: "new"
+      };
+
+      // Log the contact request for now (in production, you'd save to database)
+      console.log("Expert Help Contact Request:", contactRequest);
+
+      // In a real implementation, you would:
+      // 1. Save to database
+      // 2. Send email notification to expert team
+      // 3. Send confirmation email to customer
+
+      res.json({
+        success: true,
+        message: "Thank you for your inquiry. Our expert team will contact you within 24 hours.",
+        requestId: contactRequest.id
+      });
+
+    } catch (error) {
+      console.error("Error processing expert help request:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to submit contact request. Please try again."
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

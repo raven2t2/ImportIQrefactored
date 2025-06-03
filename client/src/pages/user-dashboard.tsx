@@ -199,25 +199,24 @@ export default function UserDashboard() {
               <p className="text-gray-600 text-lg">Everything you need to make informed import decisions in one place</p>
             </div>
 
-            {/* Core Tools Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Core Tools Grid - All 14 ImportIQ Tools */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               
               {/* Import Cost Calculator */}
               <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-brand-gold"
                     onClick={() => window.location.href = '/import-calculator'}>
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-brand-gold group-hover:text-white transition-colors">
-                      <Calculator className="h-6 w-6 text-blue-600 group-hover:text-white" />
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-brand-gold transition-colors">
+                      <Calculator className="h-5 w-5 text-blue-600 group-hover:text-white" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900">Import Calculator</h3>
-                      <p className="text-sm text-gray-600">Complete cost breakdown</p>
+                      <h3 className="font-semibold text-gray-900 text-sm">Import Calculator</h3>
+                      <p className="text-xs text-gray-600">Complete cost breakdown</p>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600 mb-4">Calculate all costs including duties, taxes, shipping, and compliance fees for any vehicle import.</p>
-                  <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700 group-hover:bg-brand-gold group-hover:hover:bg-amber-600">
-                    Start Calculation
+                  <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700 text-xs">
+                    Calculate Costs
                   </Button>
                 </CardContent>
               </Card>
@@ -225,18 +224,17 @@ export default function UserDashboard() {
               {/* Value Estimator */}
               <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-brand-gold"
                     onClick={() => window.location.href = '/value-estimator'}>
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-brand-gold group-hover:text-white transition-colors">
-                      <TrendingUp className="h-6 w-6 text-green-600 group-hover:text-white" />
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-brand-gold transition-colors">
+                      <TrendingUp className="h-5 w-5 text-green-600 group-hover:text-white" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900">Value Estimator</h3>
-                      <p className="text-sm text-gray-600">Market value analysis</p>
+                      <h3 className="font-semibold text-gray-900 text-sm">Value Estimator</h3>
+                      <p className="text-xs text-gray-600">Market value analysis</p>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600 mb-4">Get accurate market valuations and depreciation forecasts for imported vehicles.</p>
-                  <Button size="sm" className="w-full bg-green-600 hover:bg-green-700 group-hover:bg-brand-gold group-hover:hover:bg-amber-600">
+                  <Button size="sm" className="w-full bg-green-600 hover:bg-green-700 text-xs">
                     Estimate Value
                   </Button>
                 </CardContent>
@@ -245,18 +243,17 @@ export default function UserDashboard() {
               {/* Compliance Check */}
               <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-brand-gold"
                     onClick={() => window.location.href = '/compliance-check'}>
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center group-hover:bg-brand-gold group-hover:text-white transition-colors">
-                      <Shield className="h-6 w-6 text-red-600 group-hover:text-white" />
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center group-hover:bg-brand-gold transition-colors">
+                      <Shield className="h-5 w-5 text-red-600 group-hover:text-white" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900">Compliance Check</h3>
-                      <p className="text-sm text-gray-600">Regulatory verification</p>
+                      <h3 className="font-semibold text-gray-900 text-sm">Compliance Check</h3>
+                      <p className="text-xs text-gray-600">Regulatory verification</p>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600 mb-4">Verify if your vehicle meets Australian import and compliance requirements.</p>
-                  <Button size="sm" className="w-full bg-red-600 hover:bg-red-700 group-hover:bg-brand-gold group-hover:hover:bg-amber-600">
+                  <Button size="sm" className="w-full bg-red-600 hover:bg-red-700 text-xs">
                     Check Compliance
                   </Button>
                 </CardContent>
@@ -265,18 +262,17 @@ export default function UserDashboard() {
               {/* Vehicle Lookup */}
               <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-brand-gold"
                     onClick={() => window.location.href = '/vehicle-lookup'}>
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-brand-gold group-hover:text-white transition-colors">
-                      <Search className="h-6 w-6 text-purple-600 group-hover:text-white" />
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-brand-gold transition-colors">
+                      <Search className="h-5 w-5 text-purple-600 group-hover:text-white" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900">Vehicle Lookup</h3>
-                      <p className="text-sm text-gray-600">Detailed specifications</p>
+                      <h3 className="font-semibold text-gray-900 text-sm">Vehicle Lookup</h3>
+                      <p className="text-xs text-gray-600">Detailed specifications</p>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600 mb-4">Look up detailed vehicle specifications, history, and import eligibility by VIN or chassis.</p>
-                  <Button size="sm" className="w-full bg-purple-600 hover:bg-purple-700 group-hover:bg-brand-gold group-hover:hover:bg-amber-600">
+                  <Button size="sm" className="w-full bg-purple-600 hover:bg-purple-700 text-xs">
                     Search Vehicle
                   </Button>
                 </CardContent>
@@ -285,18 +281,17 @@ export default function UserDashboard() {
               {/* Build Ready Tool */}
               <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-brand-gold"
                     onClick={() => window.location.href = '/build-ready'}>
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center group-hover:bg-brand-gold group-hover:text-white transition-colors">
-                      <Wrench className="h-6 w-6 text-amber-600 group-hover:text-white" />
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center group-hover:bg-brand-gold transition-colors">
+                      <Wrench className="h-5 w-5 text-amber-600 group-hover:text-white" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900">BuildReady</h3>
-                      <p className="text-sm text-gray-600">Modification planning</p>
+                      <h3 className="font-semibold text-gray-900 text-sm">BuildReady</h3>
+                      <p className="text-xs text-gray-600">Modification planning</p>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600 mb-4">Plan your build with compliance-friendly modifications and cost estimates.</p>
-                  <Button size="sm" className="w-full bg-amber-600 hover:bg-amber-700 group-hover:bg-brand-gold group-hover:hover:bg-amber-600">
+                  <Button size="sm" className="w-full bg-amber-600 hover:bg-amber-700 text-xs">
                     Plan Build
                   </Button>
                 </CardContent>
@@ -305,19 +300,170 @@ export default function UserDashboard() {
               {/* Registration Stats */}
               <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-brand-gold"
                     onClick={() => window.location.href = '/registration-stats'}>
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-brand-gold group-hover:text-white transition-colors">
-                      <BarChart3 className="h-6 w-6 text-indigo-600 group-hover:text-white" />
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-brand-gold transition-colors">
+                      <BarChart3 className="h-5 w-5 text-indigo-600 group-hover:text-white" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900">Registration Stats</h3>
-                      <p className="text-sm text-gray-600">Market insights</p>
+                      <h3 className="font-semibold text-gray-900 text-sm">Registration Stats</h3>
+                      <p className="text-xs text-gray-600">Market insights</p>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600 mb-4">View registration data and trends for imported vehicles across Australia.</p>
-                  <Button size="sm" className="w-full bg-indigo-600 hover:bg-indigo-700 group-hover:bg-brand-gold group-hover:hover:bg-amber-600">
+                  <Button size="sm" className="w-full bg-indigo-600 hover:bg-indigo-700 text-xs">
                     View Stats
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* AI Consultant */}
+              <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-brand-gold"
+                    onClick={() => window.location.href = '/ai-consultant'}>
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center group-hover:bg-brand-gold transition-colors">
+                      <Zap className="h-5 w-5 text-pink-600 group-hover:text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 text-sm">AI Consultant</h3>
+                      <p className="text-xs text-gray-600">Expert recommendations</p>
+                    </div>
+                  </div>
+                  <Button size="sm" className="w-full bg-pink-600 hover:bg-pink-700 text-xs">
+                    Get Advice
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Market Intel */}
+              <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-brand-gold"
+                    onClick={() => window.location.href = '/market-intel'}>
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-10 h-10 bg-cyan-100 rounded-lg flex items-center justify-center group-hover:bg-brand-gold transition-colors">
+                      <Globe className="h-5 w-5 text-cyan-600 group-hover:text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 text-sm">Market Intel</h3>
+                      <p className="text-xs text-gray-600">Real-time insights</p>
+                    </div>
+                  </div>
+                  <Button size="sm" className="w-full bg-cyan-600 hover:bg-cyan-700 text-xs">
+                    View Market
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Vehicle Database */}
+              <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-brand-gold"
+                    onClick={() => window.location.href = '/vehicle-database'}>
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center group-hover:bg-brand-gold transition-colors">
+                      <Database className="h-5 w-5 text-slate-600 group-hover:text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 text-sm">Vehicle Database</h3>
+                      <p className="text-xs text-gray-600">Complete specifications</p>
+                    </div>
+                  </div>
+                  <Button size="sm" className="w-full bg-slate-600 hover:bg-slate-700 text-xs">
+                    Browse Database
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Import Timeline */}
+              <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-brand-gold"
+                    onClick={() => window.location.href = '/import-timeline'}>
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center group-hover:bg-brand-gold transition-colors">
+                      <Calendar className="h-5 w-5 text-orange-600 group-hover:text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 text-sm">Import Timeline</h3>
+                      <p className="text-xs text-gray-600">Project planning</p>
+                    </div>
+                  </div>
+                  <Button size="sm" className="w-full bg-orange-600 hover:bg-orange-700 text-xs">
+                    Plan Timeline
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Cost Optimizer */}
+              <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-brand-gold"
+                    onClick={() => window.location.href = '/cost-optimizer'}>
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center group-hover:bg-brand-gold transition-colors">
+                      <TrendingUp className="h-5 w-5 text-emerald-600 group-hover:text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 text-sm">Cost Optimizer</h3>
+                      <p className="text-xs text-gray-600">Save money tips</p>
+                    </div>
+                  </div>
+                  <Button size="sm" className="w-full bg-emerald-600 hover:bg-emerald-700 text-xs">
+                    Optimize Costs
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Risk Assessor */}
+              <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-brand-gold"
+                    onClick={() => window.location.href = '/risk-assessor'}>
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center group-hover:bg-brand-gold transition-colors">
+                      <Shield className="h-5 w-5 text-yellow-600 group-hover:text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 text-sm">Risk Assessor</h3>
+                      <p className="text-xs text-gray-600">Import risk analysis</p>
+                    </div>
+                  </div>
+                  <Button size="sm" className="w-full bg-yellow-600 hover:bg-yellow-700 text-xs">
+                    Assess Risk
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Documentation Hub */}
+              <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-brand-gold"
+                    onClick={() => window.location.href = '/documentation-hub'}>
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center group-hover:bg-brand-gold transition-colors">
+                      <FileText className="h-5 w-5 text-teal-600 group-hover:text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 text-sm">Documentation Hub</h3>
+                      <p className="text-xs text-gray-600">All paperwork</p>
+                    </div>
+                  </div>
+                  <Button size="sm" className="w-full bg-teal-600 hover:bg-teal-700 text-xs">
+                    Manage Docs
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Shipping Tracker */}
+              <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-brand-gold"
+                    onClick={() => window.location.href = '/shipping-tracker'}>
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-10 h-10 bg-rose-100 rounded-lg flex items-center justify-center group-hover:bg-brand-gold transition-colors">
+                      <Car className="h-5 w-5 text-rose-600 group-hover:text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 text-sm">Shipping Tracker</h3>
+                      <p className="text-xs text-gray-600">Real-time tracking</p>
+                    </div>
+                  </div>
+                  <Button size="sm" className="w-full bg-rose-600 hover:bg-rose-700 text-xs">
+                    Track Shipment
                   </Button>
                 </CardContent>
               </Card>
