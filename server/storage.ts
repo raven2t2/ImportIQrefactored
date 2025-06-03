@@ -1,6 +1,6 @@
 import { users, submissions, aiRecommendations, emailCache, trials, userProjects, userAchievements, carEvents, reports, bookings, affiliates, influencerProfiles, referralClicks, referralSignups, payoutRequests, vehicleBuilds, modShopPartners, modShopDeals, partsWatchlist, adminUsers, adminSessions, deposits, chatInteractions, chatProfiles, auctionListings, dataIngestionLogs, type User, type InsertUser, type Submission, type InsertSubmission, type Booking, type InsertBooking, type Affiliate, type InsertAffiliate, type InfluencerProfile, type InsertInfluencerProfile, type ReferralClick, type InsertReferralClick, type ReferralSignup, type InsertReferralSignup, type PayoutRequest, type InsertPayoutRequest, type VehicleBuild, type InsertVehicleBuild, type ModShopPartner, type InsertModShopPartner, type ModShopDeal, type InsertModShopDeal, type PartsWatchlistItem, type InsertPartsWatchlistItem, type AdminUser, type InsertAdminUser, type AdminSession, type InsertAdminSession, type Deposit, type InsertDeposit, type ChatInteraction, type InsertChatInteraction, type ChatProfile, type InsertChatProfile, type AuctionListing, type InsertAuctionListing, type DataIngestionLog, type InsertDataIngestionLog } from "@shared/schema";
 import { db } from "./db";
-import { eq, lt, desc, and, gte } from "drizzle-orm";
+import { eq, lt, desc, and, gte, lte, ilike, or } from "drizzle-orm";
 import fs from 'fs';
 import path from 'path';
 
@@ -971,19 +971,56 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
-  async getAuctionListings(filters?: { make?: string; model?: string; sourceSite?: string; limit?: number; offset?: number }): Promise<AuctionListing[]> {
+  async getAuctionListings(filters?: { 
+    make?: string; 
+    model?: string; 
+    sourceSite?: string; 
+    search?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    yearFrom?: number;
+    yearTo?: number;
+    limit?: number; 
+    offset?: number 
+  }): Promise<AuctionListing[]> {
     let query = db.select().from(auctionListings).where(eq(auctionListings.isActive, true));
     
     if (filters?.make) {
-      query = query.where(eq(auctionListings.make, filters.make));
+      query = query.where(ilike(auctionListings.make, `%${filters.make}%`));
     }
     
     if (filters?.model) {
-      query = query.where(eq(auctionListings.model, filters.model));
+      query = query.where(ilike(auctionListings.model, `%${filters.model}%`));
     }
     
     if (filters?.sourceSite) {
       query = query.where(eq(auctionListings.sourceSite, filters.sourceSite));
+    }
+
+    if (filters?.search) {
+      query = query.where(
+        or(
+          ilike(auctionListings.title, `%${filters.search}%`),
+          ilike(auctionListings.make, `%${filters.search}%`),
+          ilike(auctionListings.model, `%${filters.search}%`)
+        )
+      );
+    }
+
+    if (filters?.minPrice) {
+      query = query.where(gte(auctionListings.price, filters.minPrice));
+    }
+
+    if (filters?.maxPrice) {
+      query = query.where(lte(auctionListings.price, filters.maxPrice));
+    }
+
+    if (filters?.yearFrom) {
+      query = query.where(gte(auctionListings.year, filters.yearFrom));
+    }
+
+    if (filters?.yearTo) {
+      query = query.where(lte(auctionListings.year, filters.yearTo));
     }
 
     query = query.orderBy(desc(auctionListings.createdAt));
