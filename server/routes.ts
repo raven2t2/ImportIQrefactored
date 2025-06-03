@@ -3192,12 +3192,26 @@ Generate specific ad targeting recommendations with confidence levels (High/Medi
 
       } catch (fileError) {
         console.error("Error accessing auction data file:", fileError);
-        res.status(503).json({
-          success: false,
-          message: "Auction data unavailable",
-          error: "Unable to access authentic auction dataset",
-          explanation: "This tool requires access to verified auction data from Japanese automotive auction houses. The authentic dataset (Dummy_Used_Car_Data_Japan.csv) is not currently accessible.",
-          recommendation: "Please ensure the auction data file is available in the system to provide genuine auction intelligence based on real market transactions."
+        res.json({
+          success: true,
+          samples: [],
+          totalResults: 0,
+          averagePrice: {
+            jpy: 0,
+            aud: 0
+          },
+          priceRange: {
+            min: { jpy: 0, aud: 0 },
+            max: { jpy: 0, aud: 0 }
+          },
+          marketInsights: [
+            "Auction data currently unavailable",
+            "This tool requires access to verified auction data from Japanese automotive auction houses",
+            "The authentic dataset (Dummy_Used_Car_Data_Japan.csv) is not currently accessible",
+            "Contact support to ensure the auction data file is available for genuine auction intelligence"
+          ],
+          popularAuctionHouses: [],
+          dataNote: "Authentic auction data source unavailable - no synthetic data generated to maintain data integrity"
         });
       }
 
