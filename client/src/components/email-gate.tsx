@@ -134,10 +134,10 @@ export default function EmailGate({ onSuccess, title, description, buttonText }:
             <div className="text-center mb-4 sm:mb-6">
               <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#1E1E1E] mb-2">Total Value: $15,000+</div>
               <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-[#1E1E1E]">
-                ✅ All 18 Professional Tools Included
+                ✅ All 16 Professional Tools Included
               </h3>
               <p className="text-base sm:text-lg font-semibold text-[#D4AF37] mt-2 sm:mt-3 px-2">
-                Instant access to 18 professional tools that have saved importers thousands.
+                Instant access to 16 professional tools that have saved importers thousands.
               </p>
             </div>
             
