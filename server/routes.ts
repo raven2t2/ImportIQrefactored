@@ -730,6 +730,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = valueEstimatorSchema.parse(req.body);
       
+      // Get authentic Australian government import duty data
+      const { getAuthenticData } = await import('./authentic-data');
+      const govData = await getAuthenticData();
+      
       // Comprehensive global vehicle database
       const globalVehicleDatabase = {
         // Japanese Vehicles
@@ -941,13 +945,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       ];
 
-      // Calculate estimated import total using our calculator logic
+      // Calculate estimated import total using authentic Australian government rates
       const averageVehiclePrice = estimates.reduce((sum, est) => sum + est.finalPrice, 0) / estimates.length;
       const shipping = validatedData.country === 'japan' ? 3400 : 4500;
-      const customsDuty = averageVehiclePrice * 0.05;
-      const gst = (averageVehiclePrice + shipping + customsDuty) * 0.10;
-      const lct = (averageVehiclePrice + shipping + customsDuty + gst) > 76950 ? 
-        ((averageVehiclePrice + shipping + customsDuty + gst) - 76950) * 0.33 : 0;
+      
+      // Use authentic ATO import duty rates
+      const customsDutyRate = govData.importDuties.passengerVehicles / 100; // Convert percentage to decimal
+      const gstRate = govData.importDuties.gstRate / 100;
+      const lctRate = govData.importDuties.luxuryCarTax.rate / 100;
+      const lctThreshold = govData.importDuties.luxuryCarTax.thresholdOther; // Use general threshold
+      
+      const customsDuty = averageVehiclePrice * customsDutyRate;
+      const gst = (averageVehiclePrice + shipping + customsDuty) * gstRate;
+      const totalBeforeLct = averageVehiclePrice + shipping + customsDuty + gst;
+      const lct = totalBeforeLct > lctThreshold ? (totalBeforeLct - lctThreshold) * lctRate : 0;
       const compliance = 3000;
       
       const estimatedImportTotal = Math.round(averageVehiclePrice + shipping + customsDuty + gst + lct + compliance);
