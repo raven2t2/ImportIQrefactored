@@ -65,6 +65,7 @@ function Router() {
       <Route path="/user-dashboard" component={UserDashboard} />
       <Route path="/garage" component={UserDashboard} />
       <Route path="/admin" component={AdminDashboard} />
+      <Route path="/secure-admin" component={SecureAdminDashboard} />
       <Route path="/secure-admin-panel-iq2025" component={SecureAdminDashboard} />
       <Route path="/admin-login" component={AdminLogin} />
       <Route path="/admin-users" component={AdminUserManagement} />

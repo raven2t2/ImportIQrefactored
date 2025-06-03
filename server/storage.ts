@@ -834,6 +834,24 @@ export class DatabaseStorage implements IStorage {
     };
     return await this.createSubmission(submission);
   }
+
+  // Deposit Management Methods
+  async createDeposit(depositData: Omit<InsertDeposit, 'id'>): Promise<Deposit> {
+    const [deposit] = await db
+      .insert(deposits)
+      .values(depositData)
+      .returning();
+    return deposit;
+  }
+
+  async getAllDeposits(): Promise<Deposit[]> {
+    return await db.select().from(deposits).orderBy(desc(deposits.createdAt));
+  }
+
+  async getDepositById(id: number): Promise<Deposit | undefined> {
+    const [deposit] = await db.select().from(deposits).where(eq(deposits.id, id));
+    return deposit;
+  }
 }
 
 export class MemStorage implements IStorage {
