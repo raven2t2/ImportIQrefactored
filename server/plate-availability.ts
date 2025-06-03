@@ -61,6 +61,7 @@ const STATE_PLATE_DATA = {
       personalized: { applicationFee: 495, annualFee: 99 },
       standard: { applicationFee: 495, annualFee: 99 },
       euro: { applicationFee: 595, annualFee: 99 },
+      jdm: { applicationFee: 695, annualFee: 120 },
       prestige: { applicationFee: 2500, annualFee: 250 }
     },
     processInfo: {
