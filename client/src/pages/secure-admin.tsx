@@ -854,9 +854,137 @@ export default function SecureAdminDashboard() {
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* User Behavior Analytics */}
+              {aiAnalyticsData?.userSegments && (
+                <Card className="bg-gray-900 border-amber-500/20">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center">
+                      <Users className="w-5 h-5 mr-2 text-amber-500" />
+                      User Segments
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {Object.entries(aiAnalyticsData.userSegments.budget_ranges || {}).map(([range, count]: [string, any]) => (
+                      <div key={range} className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                        <span className="text-gray-300">{range}</span>
+                        <span className="text-amber-500 font-bold">{count} users</span>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Geographic Distribution */}
+              {aiAnalyticsData?.locationAnalysis && (
+                <Card className="bg-gray-900 border-amber-500/20">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center">
+                      <MapPin className="w-5 h-5 mr-2 text-amber-500" />
+                      Geographic Reach
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {Object.entries(aiAnalyticsData.locationAnalysis.states || {}).map(([state, count]: [string, any]) => (
+                      <div key={state} className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                        <span className="text-gray-300">{state}</span>
+                        <span className="text-amber-500 font-bold">{count} users</span>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Vehicle Preferences */}
+              {aiAnalyticsData?.vehicleAnalysis && (
+                <Card className="bg-gray-900 border-amber-500/20">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center">
+                      <Car className="w-5 h-5 mr-2 text-amber-500" />
+                      Popular Vehicles
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {Object.entries(aiAnalyticsData.vehicleAnalysis.makes || {}).slice(0, 5).map(([make, count]: [string, any]) => (
+                      <div key={make} className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                        <span className="text-gray-300">{make}</span>
+                        <span className="text-amber-500 font-bold">{count} searches</span>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Time-based Analytics */}
+              {aiAnalyticsData?.timePatterns && (
+                <Card className="bg-gray-900 border-amber-500/20 lg:col-span-2">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center">
+                      <Clock className="w-5 h-5 mr-2 text-amber-500" />
+                      Activity Patterns
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {Object.entries(aiAnalyticsData.timePatterns.hourly || {}).slice(0, 8).map(([hour, activity]: [string, any]) => (
+                        <div key={hour} className="text-center p-3 bg-gray-800 rounded-lg">
+                          <div className="text-amber-500 font-bold">{hour}:00</div>
+                          <div className="text-gray-300 text-sm">{activity} visits</div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Conversion Funnel */}
+              {aiAnalyticsData?.funnelAnalysis && (
+                <Card className="bg-gray-900 border-amber-500/20">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center">
+                      <TrendingDown className="w-5 h-5 mr-2 text-amber-500" />
+                      Conversion Funnel
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-300">Visitors</span>
+                        <span className="text-white font-bold">{aiAnalyticsData.funnelAnalysis.visitors}</span>
+                      </div>
+                      <Progress value={100} className="h-2" />
+                      
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-300">Trial Signups</span>
+                        <span className="text-blue-400 font-bold">{aiAnalyticsData.funnelAnalysis.trial_signups}</span>
+                      </div>
+                      <Progress value={aiAnalyticsData.funnelAnalysis.visitor_to_trial} className="h-2" />
+                      
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-300">Active Trials</span>
+                        <span className="text-green-400 font-bold">{aiAnalyticsData.funnelAnalysis.active_trials}</span>
+                      </div>
+                      <Progress value={aiAnalyticsData.funnelAnalysis.trial_to_calculation} className="h-2" />
+                      
+                      <div className="mt-4 p-3 bg-gray-800 rounded-lg">
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-amber-500">
+                            {aiAnalyticsData.funnelAnalysis.overall_conversion?.toFixed(1)}%
+                          </div>
+                          <div className="text-sm text-gray-400">Overall Conversion Rate</div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="targeting" className="space-y-6">
+            <div className="grid grid-cols-1 gap-6">
               {/* AI-Powered Ad Targeting Recommendations */}
-              <Card className="bg-gray-900 border-amber-500/20 lg:col-span-2">
+              <Card className="bg-gray-900 border-amber-500/20">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center">
                     <Target className="w-5 h-5 mr-2 text-amber-500" />
@@ -965,86 +1093,12 @@ export default function SecureAdminDashboard() {
                   ) : (
                     <div className="text-center py-8 text-gray-500">
                       <Target className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                      <p>No analytics data available yet</p>
-                      <p className="text-sm">Drive traffic to cost calculator to generate insights</p>
+                      <p>No targeting data available yet</p>
+                      <p className="text-sm">Drive traffic to cost calculator to generate AI insights</p>
                     </div>
                   )}
                 </CardContent>
               </Card>
-
-              {/* Performance Metrics */}
-              {aiAnalyticsData?.peakActivity && (
-                <Card className="bg-gray-900 border-amber-500/20">
-                  <CardHeader>
-                    <CardTitle className="text-white flex items-center">
-                      <Clock className="w-5 h-5 mr-2 text-amber-500" />
-                      Peak Performance Times
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
-                      <span className="text-gray-300">Best Hour</span>
-                      <span className="text-amber-500 font-bold">
-                        {aiAnalyticsData.peakActivity.bestHour}:00
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
-                      <span className="text-gray-300">Best Day</span>
-                      <span className="text-amber-500 font-bold">
-                        {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][aiAnalyticsData.peakActivity.bestDay]}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
-                      <span className="text-gray-300">Top State</span>
-                      <span className="text-amber-500 font-bold">
-                        {aiAnalyticsData.peakActivity.bestState}
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Conversion Funnel */}
-              {aiAnalyticsData?.funnelAnalysis && (
-                <Card className="bg-gray-900 border-amber-500/20">
-                  <CardHeader>
-                    <CardTitle className="text-white flex items-center">
-                      <TrendingDown className="w-5 h-5 mr-2 text-amber-500" />
-                      Conversion Funnel
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-gray-300">Visitors</span>
-                        <span className="text-white font-bold">{aiAnalyticsData.funnelAnalysis.visitors}</span>
-                      </div>
-                      <Progress value={100} className="h-2" />
-                      
-                      <div className="flex items-center justify-between">
-                        <span className="text-gray-300">Trial Signups</span>
-                        <span className="text-blue-400 font-bold">{aiAnalyticsData.funnelAnalysis.trial_signups}</span>
-                      </div>
-                      <Progress value={aiAnalyticsData.funnelAnalysis.visitor_to_trial} className="h-2" />
-                      
-                      <div className="flex items-center justify-between">
-                        <span className="text-gray-300">Active Trials</span>
-                        <span className="text-green-400 font-bold">{aiAnalyticsData.funnelAnalysis.active_trials}</span>
-                      </div>
-                      <Progress value={aiAnalyticsData.funnelAnalysis.trial_to_calculation} className="h-2" />
-                      
-                      <div className="mt-4 p-3 bg-gray-800 rounded-lg">
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-amber-500">
-                            {aiAnalyticsData.funnelAnalysis.overall_conversion?.toFixed(1)}%
-                          </div>
-                          <div className="text-sm text-gray-400">Overall Conversion Rate</div>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
             </div>
           </TabsContent>
         </Tabs>
