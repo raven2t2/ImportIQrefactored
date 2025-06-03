@@ -44,8 +44,8 @@ export const adminSessions = pgTable("admin_sessions", {
 
 export const submissions = pgTable("submissions", {
   id: serial("id").primaryKey(),
-  fullName: text("full_name").notNull(),
-  email: text("email").notNull(),
+  fullName: text("full_name"),
+  email: text("email"),
   vehiclePrice: decimal("vehicle_price", { precision: 10, scale: 2 }).notNull(),
   shippingOrigin: text("shipping_origin").notNull(),
   shipping: decimal("shipping", { precision: 10, scale: 2 }).notNull(),
@@ -314,8 +314,6 @@ export const insertUserSchema = createInsertSchema(users).pick({
 });
 
 export const insertSubmissionSchema = createInsertSchema(submissions).pick({
-  fullName: true,
-  email: true,
   vehiclePrice: true,
   shippingOrigin: true,
 }).extend({

@@ -67,8 +67,6 @@ export default function ImportCalculator() {
   const form = useForm<FormData>({
     resolver: zodResolver(insertSubmissionSchema),
     defaultValues: {
-      fullName: "",
-      email: "",
       vehiclePrice: 0,
       shippingOrigin: undefined,
       zipCode: "",
@@ -77,14 +75,6 @@ export default function ImportCalculator() {
       vehicleYear: 2020,
     },
   });
-
-  // Auto-populate user info if logged in
-  useEffect(() => {
-    if (userInfo) {
-      form.setValue('fullName', userInfo.name);
-      form.setValue('email', userInfo.email);
-    }
-  }, [userInfo, form]);
 
   const calculateMutation = useMutation({
     mutationFn: async (data: FormData): Promise<CalculationResponse> => {
@@ -206,37 +196,7 @@ export default function ImportCalculator() {
     }
   };
 
-  // Handle email gate success
-  const handleEmailGateSuccess = (userData: { name: string; email: string; isReturning: boolean }) => {
-    setUserInfo(userData);
-    // Pre-fill the form with the user's info
-    form.setValue("fullName", userData.name);
-    form.setValue("email", userData.email);
-    
-    if (userData.isReturning) {
-      toast({
-        title: "Welcome back!",
-        description: "We've saved your details for a faster experience.",
-      });
-    } else {
-      toast({
-        title: "Welcome to Immaculate Imports!",
-        description: "Let's calculate your vehicle import costs.",
-      });
-    }
-  };
-
-  // Show email gate if user hasn't provided contact info yet
-  if (!userInfo) {
-    return (
-      <EmailGate
-        title="Get Your Instant Import Cost Estimate"
-        description="Calculate accurate landed costs for importing vehicles to Australia. You'll get instant pricing with freight adjustments for your location, plus a detailed breakdown of all fees, taxes, and service options. Takes 2 minutes - no phone calls required."
-        buttonText="Get My Free Cost Estimate"
-        onSuccess={handleEmailGateSuccess}
-      />
-    );
-  }
+  // For authenticated users, skip email gate completely
 
   return (
     <div className="min-h-screen bg-black">
@@ -305,53 +265,7 @@ export default function ImportCalculator() {
 
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-                  {/* Show user info fields only if not logged in */}
-                  {!userInfo && (
-                    <>
-                      <FormField
-                        control={form.control}
-                        name="fullName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-medium text-white">
-                              Full Name <span className="text-red-400">*</span>
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                placeholder="Enter your full name"
-                                className="w-full"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-medium text-white">
-                              Email Address <span className="text-red-400">*</span>
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                type="email"
-                                placeholder="your.email@example.com"
-                                className="w-full"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </>
-                  )}
-
-                  {/* Show logged-in user info */}
+                  {/* Show logged-in user info only if available */}
                   {userInfo && (
                     <div className="p-4 bg-green-900/20 border border-green-500/30 rounded-lg">
                       <div className="flex items-center space-x-2 mb-2">
