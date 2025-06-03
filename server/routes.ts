@@ -2604,53 +2604,23 @@ Generate specific ad targeting recommendations with confidence levels (High/Medi
     }
   });
 
-  // Registration stats endpoint - simulated Australian registration data
+  // Registration stats endpoint - AUTHENTIC DATA ONLY
   app.get("/api/registration-stats", async (req, res) => {
-    const { state = "VIC", year = "2023", make = "" } = req.query;
-    
     try {
-      // Simulated registration data based on actual Australian market patterns
-      const simulatedData = {
-        totalRegistrations: 342156,
-        topMakes: [
-          { make: "Toyota", count: 67834 },
-          { make: "Mazda", count: 45213 },
-          { make: "Ford", count: 38756 },
-          { make: "Holden", count: 32187 },
-          { make: "Nissan", count: 28934 },
-          { make: "Subaru", count: 24567 },
-          { make: "BMW", count: 18243 },
-          { make: "Mercedes-Benz", count: 15678 },
-          { make: "Audi", count: 12456 },
-          { make: "Lexus", count: 8934 }
-        ],
-        topModels: [
-          { model: "Toyota Camry", count: 15234 },
-          { model: "Mazda CX-5", count: 12876 },
-          { model: "Ford Ranger", count: 11543 },
-          { model: "Toyota RAV4", count: 10987 },
-          { model: "Nissan X-Trail", count: 9876 }
-        ],
-        yearDistribution: [
-          { year: 2023, count: 89456 },
-          { year: 2022, count: 76234 },
-          { year: 2021, count: 67892 },
-          { year: 2020, count: 58734 },
-          { year: 2019, count: 49768 }
-        ],
-        locationStats: [
-          { location: "Melbourne", count: 156789 },
-          { location: "Geelong", count: 45678 },
-          { location: "Ballarat", count: 23456 },
-          { location: "Bendigo", count: 18765 },
-          { location: "Warrnambool", count: 12345 }
-        ],
-        data: [] // Detailed records would be here
-      };
-
-      res.json(simulatedData);
+      const authenticData = await getAuthenticData();
+      
+      res.json({
+        dataAvailable: false,
+        errorMessage: "Official vehicle registration statistics require Australian Bureau of Statistics data access",
+        officialSource: "https://www.abs.gov.au/statistics/industry/tourism-and-transport/motor-vehicle-census-australia",
+        explanation: "Vehicle registration data must be manually extracted from ABS published tables - no API available",
+        userPlatformData: {
+          message: "Platform usage analytics available for admin accounts only"
+        }
+      });
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch registration data" });
+      console.error("Error accessing registration stats:", error);
+      res.status(500).json({ error: "Failed to access registration data" });
     }
   });
 
@@ -2756,49 +2726,23 @@ IMPORTANT GUIDELINES:
     }
   });
 
-  // Import volume dashboard endpoint - simulated Australian import data
+  // Import volume dashboard endpoint - AUTHENTIC DATA ONLY
   app.get("/api/import-volume-dashboard", async (req, res) => {
-    const { year = "2023", port = "all" } = req.query;
-    
     try {
-      // Simulated import data based on Australian port statistics
-      const simulatedData = {
-        totalAnnualVolume: 156789,
-        totalAnnualValue: 4567890000,
-        averageVehicleValue: 29134,
-        topPorts: [
-          { port: "Melbourne", totalVolume: 67834, totalValue: 1987654321, percentage: 43.2 },
-          { port: "Sydney", totalVolume: 45213, totalValue: 1345678901, percentage: 28.8 },
-          { port: "Brisbane", totalVolume: 23456, totalValue: 678901234, percentage: 15.0 },
-          { port: "Perth", totalVolume: 12345, totalValue: 345678901, percentage: 7.9 },
-          { port: "Adelaide", totalVolume: 7941, totalValue: 210123456, percentage: 5.1 }
-        ],
-        monthlyTrends: [
-          { month: "Jan", volume: 12456, value: 361234567 },
-          { month: "Feb", volume: 11234, value: 325678901 },
-          { month: "Mar", volume: 13567, value: 393456789 },
-          { month: "Apr", volume: 12890, value: 373891234 },
-          { month: "May", volume: 14123, value: 409567890 },
-          { month: "Jun", volume: 13456, value: 390123456 },
-          { month: "Jul", volume: 12789, value: 370567891 },
-          { month: "Aug", volume: 13234, value: 383456789 },
-          { month: "Sep", volume: 12567, value: 364123456 },
-          { month: "Oct", volume: 13891, value: 402567890 },
-          { month: "Nov", volume: 13234, value: 383891234 },
-          { month: "Dec", volume: 12347, value: 357890123 }
-        ],
-        countryBreakdown: [
-          { country: "Japan", volume: 89456, value: 2601234567, percentage: 57.0 },
-          { country: "USA", volume: 34567, value: 1002345678, percentage: 22.1 },
-          { country: "Germany", volume: 15678, value: 454567890, percentage: 10.0 },
-          { country: "UK", volume: 9876, value: 286789012, percentage: 6.3 },
-          { country: "Korea", volume: 7212, value: 209123456, percentage: 4.6 }
-        ]
-      };
-
-      res.json(simulatedData);
+      const authenticData = await getAuthenticData();
+      
+      res.json({
+        dataAvailable: false,
+        errorMessage: "Official import volume statistics require Department of Infrastructure API access",
+        officialSource: "https://www.infrastructure.gov.au/vehicles/design/statistics",
+        explanation: "Import volume data must be accessed through official government channels - no public API available",
+        userPlatformData: {
+          message: "Platform calculation analytics available for admin accounts only"
+        }
+      });
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch import volume data" });
+      console.error("Error accessing import volume data:", error);
+      res.status(500).json({ error: "Failed to access import volume data" });
     }
   });
 
