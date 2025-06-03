@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertSubmissionSchema, type CalculationResult } from "@shared/schema";
+import { insertSubmissionSchema, insertAuctionListingSchema, type CalculationResult } from "@shared/schema";
 import { AdminAuthService } from "./admin-auth";
 import { getMarketIntelligence } from "./market-data";
 import { getAuthenticData } from "./authentic-data";

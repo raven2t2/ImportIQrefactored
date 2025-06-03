@@ -1,4 +1,4 @@
-import { users, submissions, aiRecommendations, emailCache, trials, userProjects, userAchievements, carEvents, reports, bookings, affiliates, influencerProfiles, referralClicks, referralSignups, payoutRequests, vehicleBuilds, modShopPartners, modShopDeals, partsWatchlist, adminUsers, adminSessions, deposits, chatInteractions, chatProfiles, type User, type InsertUser, type Submission, type InsertSubmission, type Booking, type InsertBooking, type Affiliate, type InsertAffiliate, type InfluencerProfile, type InsertInfluencerProfile, type ReferralClick, type InsertReferralClick, type ReferralSignup, type InsertReferralSignup, type PayoutRequest, type InsertPayoutRequest, type VehicleBuild, type InsertVehicleBuild, type ModShopPartner, type InsertModShopPartner, type ModShopDeal, type InsertModShopDeal, type PartsWatchlistItem, type InsertPartsWatchlistItem, type AdminUser, type InsertAdminUser, type AdminSession, type InsertAdminSession, type Deposit, type InsertDeposit, type ChatInteraction, type InsertChatInteraction, type ChatProfile, type InsertChatProfile } from "@shared/schema";
+import { users, submissions, aiRecommendations, emailCache, trials, userProjects, userAchievements, carEvents, reports, bookings, affiliates, influencerProfiles, referralClicks, referralSignups, payoutRequests, vehicleBuilds, modShopPartners, modShopDeals, partsWatchlist, adminUsers, adminSessions, deposits, chatInteractions, chatProfiles, auctionListings, dataIngestionLogs, type User, type InsertUser, type Submission, type InsertSubmission, type Booking, type InsertBooking, type Affiliate, type InsertAffiliate, type InfluencerProfile, type InsertInfluencerProfile, type ReferralClick, type InsertReferralClick, type ReferralSignup, type InsertReferralSignup, type PayoutRequest, type InsertPayoutRequest, type VehicleBuild, type InsertVehicleBuild, type ModShopPartner, type InsertModShopPartner, type ModShopDeal, type InsertModShopDeal, type PartsWatchlistItem, type InsertPartsWatchlistItem, type AdminUser, type InsertAdminUser, type AdminSession, type InsertAdminSession, type Deposit, type InsertDeposit, type ChatInteraction, type InsertChatInteraction, type ChatProfile, type InsertChatProfile, type AuctionListing, type InsertAuctionListing, type DataIngestionLog, type InsertDataIngestionLog } from "@shared/schema";
 import { db } from "./db";
 import { eq, lt, desc, and, gte } from "drizzle-orm";
 import fs from 'fs';
@@ -115,6 +115,15 @@ export interface IStorage {
   getChatProfile(userIdentifier: string): Promise<ChatProfile | undefined>;
   updateChatProfile(userIdentifier: string, updates: { totalInteractions?: number; lastInteractionDate?: Date; toolContext?: string; topicCategory?: string }): Promise<ChatProfile>;
   createChatProfile(profile: Omit<InsertChatProfile, 'id' | 'createdAt' | 'updatedAt'>): Promise<ChatProfile>;
+
+  // Auction Data Ingestion Methods
+  createAuctionListing(listing: Omit<InsertAuctionListing, 'id' | 'createdAt' | 'lastUpdated'>): Promise<AuctionListing>;
+  getAuctionListings(filters?: { make?: string; model?: string; sourceSite?: string; limit?: number; offset?: number }): Promise<AuctionListing[]>;
+  getAuctionListingById(id: number): Promise<AuctionListing | undefined>;
+  updateAuctionListing(id: number, updates: Partial<AuctionListing>): Promise<AuctionListing>;
+  deleteAuctionListing(id: number): Promise<void>;
+  createDataIngestionLog(log: Omit<InsertDataIngestionLog, 'id' | 'createdAt'>): Promise<DataIngestionLog>;
+  getDataIngestionLogs(limit?: number): Promise<DataIngestionLog[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -940,6 +949,94 @@ export class DatabaseStorage implements IStorage {
       })
       .returning();
     return result;
+  }
+
+  // Auction Data Ingestion Methods
+  async createAuctionListing(listing: Omit<InsertAuctionListing, 'id' | 'createdAt' | 'lastUpdated'>): Promise<AuctionListing> {
+    const [result] = await db
+      .insert(auctionListings)
+      .values({
+        ...listing,
+        createdAt: new Date(),
+        lastUpdated: new Date()
+      })
+      .returning();
+
+    return result;
+  }
+
+  async getAuctionListings(filters?: { make?: string; model?: string; sourceSite?: string; limit?: number; offset?: number }): Promise<AuctionListing[]> {
+    let query = db.select().from(auctionListings).where(eq(auctionListings.isActive, true));
+    
+    if (filters?.make) {
+      query = query.where(eq(auctionListings.make, filters.make));
+    }
+    
+    if (filters?.model) {
+      query = query.where(eq(auctionListings.model, filters.model));
+    }
+    
+    if (filters?.sourceSite) {
+      query = query.where(eq(auctionListings.sourceSite, filters.sourceSite));
+    }
+
+    query = query.orderBy(desc(auctionListings.createdAt));
+
+    if (filters?.limit) {
+      query = query.limit(filters.limit);
+    }
+
+    if (filters?.offset) {
+      query = query.offset(filters.offset);
+    }
+
+    return await query;
+  }
+
+  async getAuctionListingById(id: number): Promise<AuctionListing | undefined> {
+    const [listing] = await db.select().from(auctionListings).where(eq(auctionListings.id, id));
+    return listing;
+  }
+
+  async updateAuctionListing(id: number, updates: Partial<AuctionListing>): Promise<AuctionListing> {
+    const [result] = await db
+      .update(auctionListings)
+      .set({
+        ...updates,
+        lastUpdated: new Date()
+      })
+      .where(eq(auctionListings.id, id))
+      .returning();
+
+    return result;
+  }
+
+  async deleteAuctionListing(id: number): Promise<void> {
+    await db.update(auctionListings)
+      .set({ isActive: false, lastUpdated: new Date() })
+      .where(eq(auctionListings.id, id));
+  }
+
+  async createDataIngestionLog(log: Omit<InsertDataIngestionLog, 'id' | 'createdAt'>): Promise<DataIngestionLog> {
+    const [result] = await db
+      .insert(dataIngestionLogs)
+      .values({
+        ...log,
+        createdAt: new Date()
+      })
+      .returning();
+
+    return result;
+  }
+
+  async getDataIngestionLogs(limit?: number): Promise<DataIngestionLog[]> {
+    let query = db.select().from(dataIngestionLogs).orderBy(desc(dataIngestionLogs.createdAt));
+    
+    if (limit) {
+      query = query.limit(limit);
+    }
+
+    return await query;
   }
 }
 
