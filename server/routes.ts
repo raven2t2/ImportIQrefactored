@@ -19,6 +19,7 @@ import Stripe from "stripe";
 import bcrypt from "bcrypt";
 import fs from "fs";
 import { generateMarketListings, type SearchFilters } from "./simplified-market-data";
+import { getDataFreshnessStatus, getSystemHealthStatus, triggerManualRefresh, getCachedAuctionData } from "./auction-data-manager";
 import path from "path";
 
 // Additional schemas for new tools
@@ -5690,6 +5691,62 @@ IMPORTANT GUIDELINES:
     } catch (error: any) {
       console.error("Port comparison error:", error);
       res.status(500).json({ error: "Failed to compare ports: " + error.message });
+    }
+  });
+
+  // Auction Data Health Monitoring endpoints
+  app.get("/api/auction-data/health", async (req, res) => {
+    try {
+      const healthStatus = getSystemHealthStatus();
+      res.json(healthStatus);
+    } catch (error: any) {
+      console.error("Health check error:", error);
+      res.status(500).json({ error: "Health check failed: " + error.message });
+    }
+  });
+
+  app.get("/api/auction-data/freshness", async (req, res) => {
+    try {
+      const freshnessStatus = getDataFreshnessStatus();
+      res.json(freshnessStatus);
+    } catch (error: any) {
+      console.error("Freshness check error:", error);
+      res.status(500).json({ error: "Freshness check failed: " + error.message });
+    }
+  });
+
+  app.post("/api/auction-data/refresh", async (req, res) => {
+    try {
+      const refreshResult = await triggerManualRefresh();
+      res.json(refreshResult);
+    } catch (error: any) {
+      console.error("Manual refresh error:", error);
+      res.status(500).json({ error: "Manual refresh failed: " + error.message });
+    }
+  });
+
+  app.get("/api/auction-data/cache", async (req, res) => {
+    try {
+      const cachedData = getCachedAuctionData();
+      if (!cachedData) {
+        return res.json({ 
+          cached: false, 
+          message: "No cached data available",
+          suggestion: "Trigger a manual refresh to populate cache"
+        });
+      }
+      
+      res.json({
+        cached: true,
+        lastUpdated: cachedData.lastUpdated,
+        expiresAt: cachedData.expiresAt,
+        japaneseListings: cachedData.japaneseAuctions.length,
+        usListings: cachedData.usAuctions.length,
+        totalListings: cachedData.japaneseAuctions.length + cachedData.usAuctions.length
+      });
+    } catch (error: any) {
+      console.error("Cache status error:", error);
+      res.status(500).json({ error: "Cache status check failed: " + error.message });
     }
   });
 
