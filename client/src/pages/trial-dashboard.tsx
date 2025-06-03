@@ -42,12 +42,22 @@ export default function TrialDashboard() {
 
   // Fetch real trial status from database
   const { data: trialStatus } = useQuery({
-    queryKey: ['/api/trial-status', userEmail],
+    queryKey: [`/api/trial-status/${userEmail}`],
     enabled: !!userEmail,
     refetchInterval: 60000, // Refresh every minute
   });
 
   const trialDaysLeft = trialStatus?.daysRemaining || 7;
+  
+  // Calculate current day of trial (1-7)
+  const currentTrialDay = 7 - trialDaysLeft + 1;
+  
+  // Debug logging
+  console.log('Trial Debug:', {
+    daysRemaining: trialDaysLeft,
+    currentDay: currentTrialDay,
+    trialStatus
+  });
 
   const tools = [
     {
@@ -224,9 +234,9 @@ export default function TrialDashboard() {
             <div className="max-w-md mx-auto mb-8">
               <div className="flex justify-between text-sm text-gray-400 mb-2">
                 <span>Trial Progress</span>
-                <span>Day {7 - trialDaysLeft + 1} of 7</span>
+                <span>Day {currentTrialDay} of 7</span>
               </div>
-              <Progress value={(7 - trialDaysLeft + 1) / 7 * 100} className="h-2" />
+              <Progress value={(currentTrialDay / 7) * 100} className="h-2" />
               
               {/* Trial Member Exclusive Offer */}
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4">
