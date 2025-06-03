@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
+import { useAuth } from "@/hooks/useAuth";
 import { 
   Calculator, 
   TrendingUp, 
@@ -132,6 +133,7 @@ const tools = [
 export default function Features() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [visibleTools, setVisibleTools] = useState<string[]>([]);
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -183,13 +185,24 @@ export default function Features() {
               <Link href="/features" className="text-amber-400 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Features</Link>
               <Link href="/pricing" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Pricing</Link>
               <Link href="/about" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Our Mission</Link>
-              <Link href="/affiliate-signup" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Refer & Earn</Link>
-              <Button 
-                className="bg-amber-400 hover:bg-amber-500 text-black px-6 py-2 rounded-full transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
-                onClick={() => window.location.href = '/?trial=true'}
-              >
-                Start Free Trial
-              </Button>
+              
+              {/* Show different nav based on auth status */}
+              {isAuthenticated ? (
+                <>
+                  <Link href="/dashboard" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Dashboard</Link>
+                  <Link href="/api/logout" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Logout</Link>
+                </>
+              ) : (
+                <>
+                  <Link href="/affiliate-signup" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Refer & Earn</Link>
+                  <Button 
+                    className="bg-amber-400 hover:bg-amber-500 text-black px-6 py-2 rounded-full transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
+                    onClick={() => window.location.href = '/?trial=true'}
+                  >
+                    Start Free Trial
+                  </Button>
+                </>
+              )}
             </div>
 
             {/* Mobile menu button */}
@@ -213,13 +226,24 @@ export default function Features() {
                 <Link href="/features" className="text-amber-400 py-3 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Features</Link>
                 <Link href="/pricing" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Pricing</Link>
                 <Link href="/about" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Our Mission</Link>
-                <Link href="/affiliate-signup" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Refer & Earn</Link>
-                <Button 
-                  className="bg-amber-400 hover:bg-amber-500 text-black w-full rounded-full mt-4 font-medium"
-                  onClick={() => { setMobileMenuOpen(false); window.location.href = '/?trial=true'; }}
-                >
-                  Start Free Trial
-                </Button>
+                
+                {/* Show different mobile nav based on auth status */}
+                {isAuthenticated ? (
+                  <>
+                    <Link href="/dashboard" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Dashboard</Link>
+                    <Link href="/api/logout" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium">Logout</Link>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/affiliate-signup" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Refer & Earn</Link>
+                    <Button 
+                      className="bg-amber-400 hover:bg-amber-500 text-black w-full rounded-full mt-4 font-medium"
+                      onClick={() => { setMobileMenuOpen(false); window.location.href = '/?trial=true'; }}
+                    >
+                      Start Free Trial
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           )}

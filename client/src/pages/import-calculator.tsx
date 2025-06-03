@@ -729,7 +729,7 @@ export default function ImportCalculator() {
                   </div>
                   <div>
                     <h4 className="font-medium text-gray-900">Processing Fees</h4>
-                    <p className="text-sm text-gray-600">Inspection ($2,000) + our service fee (10% of total)</p>
+                    <p className="text-sm text-gray-600">Inspection ($2,000) + fixed service fee (varies by tier)</p>
                   </div>
                 </div>
               </div>
