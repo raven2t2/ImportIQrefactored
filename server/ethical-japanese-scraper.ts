@@ -48,7 +48,8 @@ export async function scrapeGooNetExchange(make: string, model?: string): Promis
   try {
     console.log(`Scraping Goo-net for ${make} ${model || ''}`);
     
-    const searchUrl = `https://www.goo-net.com/usedcar/brand-${make.toLowerCase()}/`;
+    // Use working Goo-net search URL structure
+    const searchUrl = `https://www.goo-net.com/usedcar/spread/goo/13/`;
     
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000);
