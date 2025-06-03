@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Car, Calculator, Heart, Calendar, User, Camera, Settings, Plus, LogOut, Search, TrendingUp, Shield, Zap, BarChart3, FileText, Wrench, Database, Globe, Truck, DollarSign } from "lucide-react";
+import { Car, Calculator, Heart, Calendar, User, Camera, Settings, Plus, LogOut, Search, TrendingUp, Shield, Zap, BarChart3, FileText, Wrench, Database, Globe, Truck, DollarSign, Ship, FileCheck, BookOpen, Gavel } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -10,6 +10,49 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { apiRequest } from "@/lib/queryClient";
+
+// Tool Card Component
+const ToolCard = ({ icon: Icon, title, description, detail, color, onClick }: {
+  icon: any;
+  title: string;
+  description: string;
+  detail: string;
+  color: string;
+  onClick: () => void;
+}) => {
+  const colorClasses = {
+    purple: "bg-purple-100 text-purple-600 group-hover:bg-amber-400 group-hover:text-white",
+    orange: "bg-orange-100 text-orange-600 group-hover:bg-amber-400 group-hover:text-white",
+    emerald: "bg-emerald-100 text-emerald-600 group-hover:bg-amber-400 group-hover:text-white",
+    blue: "bg-blue-100 text-blue-600 group-hover:bg-amber-400 group-hover:text-white",
+    slate: "bg-slate-100 text-slate-600 group-hover:bg-amber-400 group-hover:text-white",
+    cyan: "bg-cyan-100 text-cyan-600 group-hover:bg-amber-400 group-hover:text-white",
+    amber: "bg-amber-100 text-amber-600 group-hover:bg-amber-400 group-hover:text-white",
+    red: "bg-red-100 text-red-600 group-hover:bg-amber-400 group-hover:text-white",
+    green: "bg-green-100 text-green-600 group-hover:bg-amber-400 group-hover:text-white",
+    violet: "bg-violet-100 text-violet-600 group-hover:bg-amber-400 group-hover:text-white"
+  };
+
+  return (
+    <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-amber-400" onClick={onClick}>
+      <CardContent className="p-4">
+        <div className="flex items-center space-x-3 mb-3">
+          <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${colorClasses[color]}`}>
+            <Icon className="h-5 w-5" />
+          </div>
+          <div>
+            <h4 className="font-semibold text-gray-900 text-sm">{title}</h4>
+            <p className="text-xs text-gray-600">{description}</p>
+          </div>
+        </div>
+        <p className="text-xs text-gray-600 mb-3">{detail}</p>
+        <Button className={`w-full text-white text-xs h-8 bg-${color}-600 hover:bg-${color}-700`}>
+          Open Tool
+        </Button>
+      </CardContent>
+    </Card>
+  );
+};
 
 export default function UserDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -93,125 +136,355 @@ export default function UserDashboard() {
               </p>
             </div>
 
-            {/* Core Tools Grid - Only Working Tools */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* All 14 Tools Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               
-              {/* Import Cost Calculator - WORKING */}
-              <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-2 hover:border-amber-400"
+              {/* Import Cost Calculator */}
+              <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-amber-400"
                     onClick={() => window.location.href = '/import-calculator'}>
-                <CardContent className="p-8">
-                  <div className="flex items-center space-x-4 mb-6">
-                    <div className="w-16 h-16 bg-blue-100 rounded-xl flex items-center justify-center group-hover:bg-amber-400 transition-colors">
-                      <Calculator className="h-8 w-8 text-blue-600 group-hover:text-white" />
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-amber-400 transition-colors">
+                      <Calculator className="h-5 w-5 text-blue-600 group-hover:text-white" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900">Import Calculator</h3>
-                      <p className="text-gray-600">Complete cost breakdown</p>
+                      <h4 className="font-semibold text-gray-900 text-sm">Import Calculator</h4>
+                      <p className="text-xs text-gray-600">Cost breakdown</p>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600 mb-6">
-                    Calculate exact import costs using live AUD/JPY and AUD/USD exchange rates from ExchangeRate-API. 
-                    Includes authentic Australian government duty rates and all compliance fees.
+                  <p className="text-xs text-gray-600 mb-3">
+                    Calculate exact costs using live exchange rates and authentic government duty rates.
                   </p>
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-                    Calculate Import Costs
+                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs h-8">
+                    Calculate Costs
                   </Button>
                 </CardContent>
               </Card>
 
-              {/* AI Consultant - WORKING */}
-              <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-2 hover:border-amber-400"
+              {/* AI Consultant */}
+              <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-amber-400"
                     onClick={() => window.location.href = '/ai-consultant'}>
-                <CardContent className="p-8">
-                  <div className="flex items-center space-x-4 mb-6">
-                    <div className="w-16 h-16 bg-pink-100 rounded-xl flex items-center justify-center group-hover:bg-amber-400 transition-colors">
-                      <Zap className="h-8 w-8 text-pink-600 group-hover:text-white" />
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center group-hover:bg-amber-400 transition-colors">
+                      <Zap className="h-5 w-5 text-pink-600 group-hover:text-white" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900">AI Consultant</h3>
-                      <p className="text-gray-600">Expert recommendations</p>
+                      <h4 className="font-semibold text-gray-900 text-sm">AI Consultant</h4>
+                      <p className="text-xs text-gray-600">Expert advice</p>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600 mb-6">
-                    Get personalized vehicle import advice from our AI consultant powered by OpenAI. 
-                    Receive expert guidance on vehicle selection, compliance, and cost optimization.
+                  <p className="text-xs text-gray-600 mb-3">
+                    Get personalized vehicle import advice powered by OpenAI.
                   </p>
-                  <Button className="w-full bg-pink-600 hover:bg-pink-700 text-white">
-                    Get Expert Advice
+                  <Button className="w-full bg-pink-600 hover:bg-pink-700 text-white text-xs h-8">
+                    Get Advice
                   </Button>
                 </CardContent>
               </Card>
 
-              {/* Market Intelligence - WORKING */}
-              <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-2 hover:border-amber-400"
-                    onClick={() => window.location.href = '/market-intel'}>
-                <CardContent className="p-8">
-                  <div className="flex items-center space-x-4 mb-6">
-                    <div className="w-16 h-16 bg-cyan-100 rounded-xl flex items-center justify-center group-hover:bg-amber-400 transition-colors">
-                      <Globe className="h-8 w-8 text-cyan-600 group-hover:text-white" />
+              {/* Compliance Checker */}
+              <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-amber-400"
+                    onClick={() => window.location.href = '/compliance-checker'}>
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-amber-400 transition-colors">
+                      <FileCheck className="h-5 w-5 text-green-600 group-hover:text-white" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900">Market Intelligence</h3>
-                      <p className="text-gray-600">Live market data</p>
+                      <h4 className="font-semibold text-gray-900 text-sm">Compliance Checker</h4>
+                      <p className="text-xs text-gray-600">SEVS eligibility</p>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600 mb-6">
-                    Access real-time currency exchange rates, market trends, and compliance updates. 
-                    Stay informed with authentic data from official sources.
+                  <p className="text-xs text-gray-600 mb-3">
+                    Check vehicle eligibility using authentic SEVS database.
                   </p>
-                  <Button className="w-full bg-cyan-600 hover:bg-cyan-700 text-white">
-                    View Market Data
+                  <Button className="w-full bg-green-600 hover:bg-green-700 text-white text-xs h-8">
+                    Check Compliance
                   </Button>
                 </CardContent>
               </Card>
+
+              {/* Vehicle Lookup */}
+              <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-amber-400"
+                    onClick={() => window.location.href = '/vehicle-lookup'}>
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-amber-400 transition-colors">
+                      <Search className="h-5 w-5 text-indigo-600 group-hover:text-white" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900 text-sm">Vehicle Lookup</h4>
+                      <p className="text-xs text-gray-600">Smart search</p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-600 mb-3">
+                    Search for specific vehicles with intelligent recommendations.
+                  </p>
+                  <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs h-8">
+                    Search Vehicles
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Shipping Calculator */}
+              <ToolCard 
+                icon={Ship}
+                title="Shipping Calculator"
+                description="Real distance calculations"
+                detail="Calculate shipping costs using authentic port-to-port distances and market rates."
+                color="purple"
+                onClick={() => window.location.href = '/shipping-calculator'}
+              />
+
+              {/* Insurance Estimator */}
+              <ToolCard 
+                icon={Shield}
+                title="Insurance Estimator"
+                description="ACCC industry data"
+                detail="Get insurance quotes based on official Australian industry reports."
+                color="orange"
+                onClick={() => window.location.href = '/insurance-estimator'}
+              />
+
+              {/* ROI Calculator */}
+              <ToolCard 
+                icon={TrendingUp}
+                title="ROI Calculator"
+                description="Historical analysis"
+                detail="Calculate investment returns using ABS market appreciation data."
+                color="emerald"
+                onClick={() => window.location.href = '/roi-calculator'}
+              />
+
+              {/* Market Analytics */}
+              <ToolCard 
+                icon={BarChart3}
+                title="Market Analytics"
+                description="FCAI trend data"
+                detail="Access Federal Chamber of Automotive Industries market intelligence."
+                color="blue"
+                onClick={() => window.location.href = '/market-analytics'}
+              />
+
+              {/* Documentation Assistant */}
+              <ToolCard 
+                icon={FileText}
+                title="Documentation Assistant"
+                description="Government requirements"
+                detail="Official Department of Infrastructure import documentation guide."
+                color="slate"
+                onClick={() => window.location.href = '/documentation-assistant'}
+              />
+
+              {/* Registry Lookup */}
+              <ToolCard 
+                icon={Database}
+                title="Registry Lookup"
+                description="Format validation"
+                detail="Validate VIN, compliance plates, and import approval numbers."
+                color="cyan"
+                onClick={() => window.location.href = '/registry-lookup'}
+              />
+
+              {/* BuildReady */}
+              <ToolCard 
+                icon={Wrench}
+                title="BuildReady"
+                description="ADR compliance"
+                detail="Tailored compliance strategies using Australian Design Rules."
+                color="amber"
+                onClick={() => window.location.href = '/buildready'}
+              />
+
+              {/* Auction Intelligence */}
+              <ToolCard 
+                icon={Gavel}
+                title="Auction Intelligence"
+                description="Market patterns"
+                detail="Real auction data analysis and bidding strategies."
+                color="red"
+                onClick={() => window.location.href = '/auction-intelligence'}
+              />
+
+              {/* Exchange Tracker */}
+              <ToolCard 
+                icon={DollarSign}
+                title="Exchange Tracker"
+                description="Live rates"
+                detail="Real-time AUD/JPY and AUD/USD exchange rate monitoring."
+                color="green"
+                onClick={() => window.location.href = '/exchange-tracker'}
+              />
+
+              {/* Model Guide */}
+              <ToolCard 
+                icon={BookOpen}
+                title="Model Guide"
+                description="Comprehensive database"
+                detail="Detailed specifications and import eligibility for popular models."
+                color="violet"
+                onClick={() => window.location.href = '/model-guide'}
+              />
+
+              {/* Market Intelligence */}
+              <ToolCard 
+                icon={Globe}
+                title="Market Intelligence"
+                description="Live market data"
+                detail="Real-time exchange rates, market trends, and compliance updates from official sources."
+                color="cyan"
+                onClick={() => window.location.href = '/market-intel'}
+              />
             </div>
-
-            {/* Comprehensive 14-Tool Grid */}
+            
+            {/* Complete 14-Tool Grid */}
             <div className="mt-16">
               <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center">Complete AI-Powered Tool Suite</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 
-                {/* Tool 5: Shipping Calculator */}
-                <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-amber-400" onClick={() => window.location.href = '/shipping-calculator'}>
-                  <CardContent className="p-6">
-                    <div className="flex items-center space-x-3 mb-4">
-                      <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-amber-400 transition-colors">
-                        <Truck className="h-6 w-6 text-blue-600 group-hover:text-white" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-gray-900">Shipping Calculator</h4>
-                        <p className="text-xs text-gray-600">Port-to-port estimates</p>
-                      </div>
-                    </div>
-                    <p className="text-xs text-gray-600 mb-4">
-                      Calculate shipping costs using authentic port distance data and current freight rates.
-                    </p>
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs">
-                      Calculate Shipping
-                    </Button>
-                  </CardContent>
-                </Card>
+                {/* Tool 1: Cost Calculator */}
+                <ToolCard 
+                  icon={Calculator}
+                  title="Cost Calculator"
+                  description="Complete import cost analysis"
+                  detail="Calculate all import costs including duty, GST, LCT, and shipping fees."
+                  color="emerald"
+                  onClick={() => window.location.href = '/cost-calculator'}
+                />
 
-                {/* Tool 6: Compliance Checker */}
-                <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-amber-400" onClick={() => window.location.href = '/compliance-checker'}>
-                  <CardContent className="p-6">
-                    <div className="flex items-center space-x-3 mb-4">
-                      <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center group-hover:bg-amber-400 transition-colors">
-                        <Shield className="h-6 w-6 text-red-600 group-hover:text-white" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-gray-900">Compliance Check</h4>
-                        <p className="text-xs text-gray-600">Australian SEVS verification</p>
-                      </div>
-                    </div>
-                    <p className="text-xs text-gray-600 mb-4">
-                      Verify import eligibility using Australian SEVS database and ADR requirements.
-                    </p>
-                    <Button className="w-full bg-red-600 hover:bg-red-700 text-white text-xs">
-                      Check Compliance
-                    </Button>
-                  </CardContent>
-                </Card>
+                {/* Tool 2: Shipping Calculator */}
+                <ToolCard 
+                  icon={Truck}
+                  title="Shipping Calculator"
+                  description="Port-to-port estimates"
+                  detail="Calculate shipping costs using authentic port distance data and current freight rates."
+                  color="blue"
+                  onClick={() => window.location.href = '/shipping-calculator'}
+                />
+
+                {/* Tool 3: Compliance Checker */}
+                <ToolCard 
+                  icon={Shield}
+                  title="Compliance Checker"
+                  description="Australian SEVS verification"
+                  detail="Verify import eligibility using Australian SEVS database and ADR requirements."
+                  color="red"
+                  onClick={() => window.location.href = '/compliance-checker'}
+                />
+
+                {/* Tool 4: Build Ready */}
+                <ToolCard 
+                  icon={Wrench}
+                  title="Build Ready"
+                  description="Modification compliance guide"
+                  detail="Get modification requirements and compliance strategies for your build."
+                  color="orange"
+                  onClick={() => window.location.href = '/build-ready'}
+                />
+
+                {/* Tool 5: Vehicle Lookup */}
+                <ToolCard 
+                  icon={Search}
+                  title="Vehicle Lookup"
+                  description="Dual-mode search system"
+                  detail="Search vehicles by VIN or specifications with Australian market data."
+                  color="purple"
+                  onClick={() => window.location.href = '/vehicle-lookup'}
+                />
+
+                {/* Tool 6: Auction Analytics */}
+                <ToolCard 
+                  icon={TrendingUp}
+                  title="Auction Analytics"
+                  description="Market price intelligence"
+                  detail="Analyze auction trends and pricing data for informed purchasing decisions."
+                  color="cyan"
+                  onClick={() => window.location.href = '/auction-analytics'}
+                />
+
+                {/* Tool 7: ROI Calculator */}
+                <ToolCard 
+                  icon={DollarSign}
+                  title="ROI Calculator"
+                  description="Investment analysis"
+                  detail="Calculate return on investment for import and resale scenarios."
+                  color="green"
+                  onClick={() => window.location.href = '/roi-calculator'}
+                />
+
+                {/* Tool 8: Document Manager */}
+                <ToolCard 
+                  icon={FileText}
+                  title="Document Manager"
+                  description="Import documentation tracking"
+                  detail="Track and manage all required import documentation and certificates."
+                  color="slate"
+                  onClick={() => window.location.href = '/document-manager'}
+                />
+
+                {/* Tool 9: Market Intelligence */}
+                <ToolCard 
+                  icon={Globe}
+                  title="Market Intelligence"
+                  description="Live market data"
+                  detail="Real-time exchange rates, market trends, and compliance updates."
+                  color="violet"
+                  onClick={() => window.location.href = '/market-intel'}
+                />
+
+                {/* Tool 10: AI Consultant */}
+                <ToolCard 
+                  icon={Zap}
+                  title="AI Consultant"
+                  description="Expert recommendations"
+                  detail="Get personalized vehicle import advice from our AI consultant."
+                  color="amber"
+                  onClick={() => window.location.href = '/ai-consultant'}
+                />
+
+                {/* Tool 11: Inspector Connect */}
+                <ToolCard 
+                  icon={Camera}
+                  title="Inspector Connect"
+                  description="Pre-purchase inspections"
+                  detail="Connect with verified inspectors for pre-purchase vehicle assessments."
+                  color="emerald"
+                  onClick={() => window.location.href = '/inspector-connect'}
+                />
+
+                {/* Tool 12: Model Guide */}
+                <ToolCard 
+                  icon={BookOpen}
+                  title="Model Guide"
+                  description="Comprehensive database"
+                  detail="Detailed specifications and import eligibility for popular models."
+                  color="blue"
+                  onClick={() => window.location.href = '/model-guide'}
+                />
+
+                {/* Tool 13: Registry Tracker */}
+                <ToolCard 
+                  icon={FileCheck}
+                  title="Registry Tracker"
+                  description="State registration monitoring"
+                  detail="Track registration requirements and processes across Australian states."
+                  color="red"
+                  onClick={() => window.location.href = '/registry-tracker'}
+                />
+
+                {/* Tool 14: Legal Advisory */}
+                <ToolCard 
+                  icon={Gavel}
+                  title="Legal Advisory"
+                  description="Compliance law guidance"
+                  detail="Navigate import regulations with expert legal guidance and updates."
+                  color="purple"
+                  onClick={() => window.location.href = '/legal-advisory'}
+                />
+
+              </div>
+            </div>
 
                 {/* Tool 7: Vehicle Lookup */}
                 <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-amber-400" onClick={() => window.location.href = '/vehicle-lookup'}>
