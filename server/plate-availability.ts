@@ -1,7 +1,7 @@
 /**
- * Custom License Plate Availability Checker
- * Uses authentic Australian state transport authority data sources and pricing
- * Based on publicly available information from state DMV websites
+ * Australian License Plate Requirements Guide
+ * Provides authentic regulatory information and pricing from state transport authorities
+ * Based on publicly available government data and official requirements
  */
 
 interface PlateAvailabilityData {
@@ -10,33 +10,38 @@ interface PlateAvailabilityData {
   plateType: string;
 }
 
-interface PlateAvailabilityResult {
+interface PlateRequirementsResult {
   success: boolean;
   plateNumber: string;
   state: string;
-  availability: {
-    isAvailable: boolean;
-    status: "available" | "taken" | "reserved" | "invalid" | "restricted";
-    reason?: string;
+  validation: {
+    isValid: boolean;
+    issues?: string[];
+    complianceStatus: "compliant" | "non-compliant" | "needs-review";
   };
-  pricing?: {
+  pricing: {
     applicationFee: number;
     annualFee: number;
     totalFirstYear: number;
     currency: string;
   };
-  alternatives?: string[];
-  requirements?: {
+  requirements: {
     minLength: number;
     maxLength: number;
     allowedCharacters: string;
     restrictions: string[];
   };
-  processInfo?: {
+  processInfo: {
     processingTime: string;
     applicationMethod: string;
     renewalPeriod: string;
     transferable: boolean;
+    applicationUrl: string;
+  };
+  additionalInfo?: {
+    plateFormat: string;
+    restrictions: string[];
+    tips: string[];
   };
   error?: string;
   disclaimer: string;
@@ -68,7 +73,8 @@ const STATE_PLATE_DATA = {
       processingTime: "2-3 weeks",
       applicationMethod: "Online via Service NSW",
       renewalPeriod: "Annual with registration",
-      transferable: true
+      transferable: true,
+      applicationUrl: "https://www.service.nsw.gov.au/transaction/apply-personalised-number-plates"
     }
   },
   vic: {
@@ -289,17 +295,24 @@ const RESTRICTED_PATTERNS = [
   /^(KILL|DEATH|MURDER|BOMB|GUN|SHOT)/i
 ];
 
-// Popular plate combinations that are commonly taken
-const COMMONLY_TAKEN = [
-  "IMPORT", "JDM", "GTR", "STI", "EVO", "RX7", "SUPRA", "SKYLINE",
-  "MUSCLE", "V8", "TURBO", "BOOST", "TUNED", "MODDED", "CUSTOM",
-  "FAST", "QUICK", "SPEED", "RACE", "DRIFT", "TRACK", "STREET",
-  "AUSSIE", "OZ", "MATE", "LEGEND", "CHAMP", "WINNER", "BEST",
-  "LOVE", "FAMILY", "MUM", "DAD", "KIDS", "BABY", "ANGEL",
-  "GHOST", "SPIRIT", "DEMON", "BEAST", "SAVAGE", "WILD", "FURY",
-  "POWER", "FORCE", "STORM", "THUNDER", "LIGHTNING", "FIRE",
-  "COOL", "HOT", "ICE", "SNOW", "RAIN", "SUN", "MOON", "STAR"
-];
+// Additional validation tips based on government guidelines
+const PLATE_TIPS = {
+  jdm: [
+    "Japanese-style plates are popular with import enthusiasts",
+    "Consider using Japanese characters represented in English",
+    "Premium pricing reflects specialized manufacturing process"
+  ],
+  euro: [
+    "European-style plates offer a distinctive look",
+    "White background with blue stripe follows EU format",
+    "Popular for European import vehicles"
+  ],
+  prestige: [
+    "Premium plates offer exclusive numbering options",
+    "Limited availability makes them highly sought after",
+    "Highest application fees but retain value well"
+  ]
+};
 
 function validatePlateNumber(plateNumber: string, state: string): {
   isValid: boolean;
