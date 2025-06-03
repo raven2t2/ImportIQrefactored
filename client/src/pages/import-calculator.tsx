@@ -670,7 +670,7 @@ export default function ImportCalculator() {
                   </div>
 
                   <Button 
-                    onClick={() => window.open('https://driveimmaculate.com/booking', '_blank')}
+                    onClick={() => window.location.href = '/booking-calendar'}
                     className="w-full bg-white text-amber-600 hover:bg-gray-100 font-bold text-lg py-4 mb-3"
                   >
                     <ArrowRight className="h-5 w-5 mr-2" />
