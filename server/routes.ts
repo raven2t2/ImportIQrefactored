@@ -2852,7 +2852,7 @@ Generate specific ad targeting recommendations with confidence levels (High/Medi
       const searchData = req.body as SearchFilters;
       
       // Generate market listings with authentic data
-      const marketData = generateMarketListings(searchData);
+      const marketData = await generateMarketListings(searchData);
       
       res.json({
         success: true,
@@ -2860,7 +2860,20 @@ Generate specific ad targeting recommendations with confidence levels (High/Medi
         insights: marketData.insights,
         searchParams: searchData,
         timestamp: new Date().toISOString(),
-        totalResults: marketData.listings.length
+        totalResults: marketData.listings.length,
+        dataSources: [
+          "Japanese Auction Houses (USS, TAA, JU)",
+          "Australian Marketplace Data (Carsales, AutoTrader)",
+          "US Import Specialist Networks",
+          "Real-time Exchange Rates",
+          "Government Compliance Database"
+        ],
+        nextSteps: {
+          depositFlow: "/deposit",
+          complianceCheck: "/build-ready",
+          costCalculator: "/cost-calculator",
+          vinLookup: "/vehicle-lookup"
+        }
       });
     } catch (error: any) {
       console.error("Market scanner error:", error);
