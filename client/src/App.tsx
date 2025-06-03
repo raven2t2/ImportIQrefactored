@@ -43,6 +43,7 @@ import Contact from "@/pages/contact";
 import ComplianceChecker from "@/pages/compliance-checker";
 import LegalAdvisory from "@/pages/legal-advisory";
 import ShippingCalculator from "@/pages/shipping-calculator";
+import InsuranceEstimator from "@/pages/insurance-estimator";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -87,7 +88,7 @@ function Router() {
       <Route path="/shipping-calculator" component={ShippingCalculator} />
       <Route path="/market-intelligence" component={ImportVolumeDashboard} />
       <Route path="/auction-intelligence" component={AuctionSampleExplorer} />
-      <Route path="/insurance-estimator" component={ValueEstimator} />
+      <Route path="/insurance-estimator" component={InsuranceEstimator} />
       <Route path="/legal-advisory" component={LegalAdvisory} />
       <Route path="/buildready" component={BuildComply} />
       <Route path="/registry-lookup" component={VehicleLookup} />
