@@ -45,6 +45,7 @@ import ComplianceChecker from "@/pages/compliance-checker";
 import LegalAdvisory from "@/pages/legal-advisory";
 import ShippingCalculator from "@/pages/shipping-calculator";
 import InsuranceEstimator from "@/pages/insurance-estimator";
+import DocumentationAssistant from "@/pages/documentation-assistant";
 import NotFound from "@/pages/not-found";
 
 function Router() {
