@@ -465,7 +465,7 @@ export default function VehicleLookup() {
                   <Link href="/value-estimator">
                     <Button 
                       variant="outline" 
-                      className="w-full h-16 bg-blue-950/20 border-blue-400/30 text-blue-300 hover:bg-blue-950/40"
+                      className="w-full h-16 bg-blue-950/20 border-blue-400/30 text-blue-300 hover:bg-blue-950/60 hover:text-blue-200 hover:border-blue-300"
                     >
                       <div className="text-center">
                         <DollarSign className="h-5 w-5 mx-auto mb-1" />
@@ -478,7 +478,7 @@ export default function VehicleLookup() {
                   <Link href="/import-cost-calculator">
                     <Button 
                       variant="outline" 
-                      className="w-full h-16 bg-green-950/20 border-green-400/30 text-green-300 hover:bg-green-950/40"
+                      className="w-full h-16 bg-green-950/20 border-green-400/30 text-green-300 hover:bg-green-950/60 hover:text-green-200 hover:border-green-300"
                     >
                       <div className="text-center">
                         <Calculator className="h-5 w-5 mx-auto mb-1" />
@@ -491,7 +491,7 @@ export default function VehicleLookup() {
                   <Link href="/state-requirements">
                     <Button 
                       variant="outline" 
-                      className="w-full h-16 bg-purple-950/20 border-purple-400/30 text-purple-300 hover:bg-purple-950/40"
+                      className="w-full h-16 bg-purple-950/20 border-purple-400/30 text-purple-300 hover:bg-purple-950/60 hover:text-purple-200 hover:border-purple-300"
                     >
                       <div className="text-center">
                         <FileText className="h-5 w-5 mx-auto mb-1" />
@@ -504,7 +504,7 @@ export default function VehicleLookup() {
                   <Link href="/port-intelligence">
                     <Button 
                       variant="outline" 
-                      className="w-full h-16 bg-cyan-950/20 border-cyan-400/30 text-cyan-300 hover:bg-cyan-950/40"
+                      className="w-full h-16 bg-cyan-950/20 border-cyan-400/30 text-cyan-300 hover:bg-cyan-950/60 hover:text-cyan-200 hover:border-cyan-300"
                     >
                       <div className="text-center">
                         <Ship className="h-5 w-5 mx-auto mb-1" />
