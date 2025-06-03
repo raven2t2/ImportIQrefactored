@@ -73,9 +73,8 @@ export default function VehicleLookup() {
     },
   });
 
-  // Common vehicle builds for quick selection
+  // Common vehicle builds for quick selection (JDM chassis codes only)
   const commonBuilds = [
-    // JDM Vehicles
     { label: "Nissan Skyline GT-R R34", value: "BNR34" },
     { label: "Nissan Skyline GT-R R33", value: "BNR33" },
     { label: "Nissan Skyline GT-R R32", value: "BNR32" },
@@ -86,13 +85,8 @@ export default function VehicleLookup() {
     { label: "Subaru Impreza STI", value: "GDB" },
     { label: "Honda NSX", value: "NA1" },
     { label: "Mazda RX-7 FD", value: "FD3S" },
-    // American Muscle
-    { label: "Ford Mustang GT", value: "MUSTANG-GT" },
-    { label: "Chevrolet Camaro SS", value: "CAMARO-SS" },
-    { label: "Dodge Challenger R/T", value: "CHALLENGER-RT" },
-    { label: "Chevrolet Corvette", value: "CORVETTE" },
-    { label: "Ford Mustang Shelby", value: "SHELBY-GT500" },
-    { label: "Dodge Charger R/T", value: "CHARGER-RT" }
+    { label: "Toyota Chaser", value: "JZX100" },
+    { label: "Nissan 300ZX", value: "Z32" }
   ];
 
   const handleQuickSelect = (chassisCode: string) => {
@@ -202,8 +196,8 @@ export default function VehicleLookup() {
           </div>
           
           <p className="text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            Easily decode U.S. VINs or JDM chassis codes to get vehicle specs, year ranges, engine info, 
-            and compliance insights — all in one place. Whether you're researching a Skyline, Chaser, or WRX, 
+            Decode American VINs (17 characters) or JDM chassis codes to get vehicle specs, year ranges, engine info, 
+            and compliance insights. For American Muscle cars, use the full VIN. For JDM vehicles, use chassis codes - 
             this tool gives you clarity before you commit.
           </p>
           
