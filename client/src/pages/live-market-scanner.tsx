@@ -192,16 +192,16 @@ export default function LiveMarketScanner() {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Live Market Scanner
+            Market Intelligence
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Real-time auction data from Japanese and US automotive markets
+            Live auction data from Japanese and US automotive markets
           </p>
         </div>
 
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="scanner">Live Scanner</TabsTrigger>
+            <TabsTrigger value="scanner">Market Search</TabsTrigger>
             <TabsTrigger value="filters">Advanced Filters</TabsTrigger>
             <TabsTrigger value="analytics">Market Analytics</TabsTrigger>
           </TabsList>
@@ -215,7 +215,7 @@ export default function LiveMarketScanner() {
                   Market Search
                 </CardTitle>
                 <CardDescription>
-                  Search across all connected auction platforms and data sources
+                  Search live auction data from Japanese and US automotive markets
                 </CardDescription>
               </CardHeader>
               <CardContent>
