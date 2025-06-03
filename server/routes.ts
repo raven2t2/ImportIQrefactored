@@ -540,8 +540,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Save submission to storage
       const submission = await storage.createSubmission({
-        fullName: validatedData.fullName,
-        email: validatedData.email,
+        fullName: null,
+        email: null,
         vehiclePrice: validatedData.vehiclePrice.toString(),
         shippingOrigin: validatedData.shippingOrigin,
         shipping: calculations.shipping.toString(),
