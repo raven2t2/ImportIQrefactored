@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Search, Car, Star, DollarSign, CheckCircle, XCircle, Info } from "lucide-react";
+import { Search, Car, Star, DollarSign, CheckCircle, XCircle, Info, FileText, ExternalLink } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -363,6 +363,24 @@ export default function CustomPlates() {
                             </div>
                           </div>
                         </div>
+                        {plateResult.processInfo.applicationUrl && (
+                          <div className="mt-4 text-center">
+                            <Button 
+                              asChild 
+                              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3"
+                            >
+                              <a 
+                                href={plateResult.processInfo.applicationUrl} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2"
+                              >
+                                Apply Now - Official Portal
+                                <ExternalLink className="h-4 w-4" />
+                              </a>
+                            </Button>
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
                   )}
