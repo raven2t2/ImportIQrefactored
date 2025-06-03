@@ -5,6 +5,8 @@ import { insertSubmissionSchema, type CalculationResult } from "@shared/schema";
 import { AdminAuthService } from "./admin-auth";
 import { getMarketIntelligence } from "./market-data";
 import { calculateShippingCost, calculateImportDuty, calculateGST, calculateLuxuryCarTax, IMPORT_REQUIREMENTS } from "./public-data-sources";
+import { checkVehicleCompliance, getImportGuidance } from "./vehicle-compliance";
+import { calculateShippingCost as calculateShippingQuote, getAllPorts, getPortsByCountry, getPopularRoutes, getShippingTips } from "./shipping-calculator";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { z } from "zod";
 import OpenAI from "openai";
@@ -309,7 +311,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
 }
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2023-10-16",
+  apiVersion: "2024-06-20",
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -3821,6 +3823,84 @@ IMPORTANT GUIDELINES:
         success: false,
         message: "Failed to submit contact request. Please try again."
       });
+    }
+  });
+
+  // Vehicle Compliance Checker endpoint - uses NHTSA public API
+  app.post("/api/check-compliance", async (req, res) => {
+    try {
+      const { make, model, year, vin } = req.body;
+      
+      if (!make || !model || !year) {
+        return res.status(400).json({ error: "Make, model, and year are required" });
+      }
+      
+      const complianceData = await checkVehicleCompliance(make, model, year, vin);
+      const guidance = getImportGuidance(complianceData);
+      
+      res.json({
+        complianceData,
+        guidance,
+        sources: complianceData.sources
+      });
+    } catch (error) {
+      console.error("Compliance check error:", error);
+      res.status(500).json({ error: "Failed to check vehicle compliance" });
+    }
+  });
+
+  // Shipping Calculator endpoint - uses port distance calculations
+  app.post("/api/calculate-shipping", async (req, res) => {
+    try {
+      const { originPort, destinationPort, vehicleValue } = req.body;
+      
+      if (!originPort || !destinationPort) {
+        return res.status(400).json({ error: "Origin and destination ports are required" });
+      }
+      
+      const shippingQuote = calculateShippingQuote(originPort, destinationPort, vehicleValue);
+      
+      if (!shippingQuote) {
+        return res.status(404).json({ error: "Invalid port codes provided" });
+      }
+      
+      res.json(shippingQuote);
+    } catch (error) {
+      console.error("Shipping calculation error:", error);
+      res.status(500).json({ error: "Failed to calculate shipping costs" });
+    }
+  });
+
+  // Get available ports endpoint
+  app.get("/api/ports", async (req, res) => {
+    try {
+      const { country } = req.query;
+      
+      if (country) {
+        const ports = getPortsByCountry(country as string);
+        res.json(ports);
+      } else {
+        const allPorts = getAllPorts();
+        res.json(allPorts);
+      }
+    } catch (error) {
+      console.error("Ports data error:", error);
+      res.status(500).json({ error: "Failed to fetch ports data" });
+    }
+  });
+
+  // Dashboard stats endpoint
+  app.get("/api/user/dashboard-stats", async (req, res) => {
+    try {
+      res.json({
+        totalCalculations: 0,
+        totalRecommendations: 0,
+        toolsUsed: 3,
+        trialStatus: "active"
+      });
+    } catch (error) {
+      console.error("Dashboard stats error:", error);
+      res.status(500).json({ error: "Failed to fetch dashboard stats" });
     }
   });
 
