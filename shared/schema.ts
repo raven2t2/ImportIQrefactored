@@ -359,6 +359,63 @@ export const shopSuggestions = pgTable("shop_suggestions", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Auction Data Ingestion System
+export const auctionListings = pgTable("auction_listings", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  price: decimal("price", { precision: 12, scale: 2 }).notNull(),
+  currency: varchar("currency", { length: 3 }).default("USD").notNull(),
+  mileage: varchar("mileage"),
+  location: varchar("location").notNull(),
+  imageUrl: text("image_url"),
+  listingUrl: text("listing_url").notNull(),
+  sourceSite: varchar("source_site").notNull(), // yahoo_auctions, copart, iaai, etc
+  
+  // Vehicle details
+  make: varchar("make"),
+  model: varchar("model"), 
+  year: integer("year"),
+  condition: varchar("condition"),
+  bodyType: varchar("body_type"),
+  transmission: varchar("transmission"),
+  fuelType: varchar("fuel_type"),
+  engineSize: varchar("engine_size"),
+  
+  // Auction specific data
+  auctionId: varchar("auction_id"), // External auction ID
+  lotNumber: varchar("lot_number"),
+  auctionDate: timestamp("auction_date"),
+  auctionGrade: varchar("auction_grade"),
+  saleStatus: varchar("sale_status"), // sold, unsold, current
+  
+  // Metadata
+  isActive: boolean("is_active").default(true),
+  dataSource: varchar("data_source").notNull(), // webhook, api, manual
+  lastUpdated: timestamp("last_updated").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  sourceSiteIdx: index("source_site_idx").on(table.sourceSite),
+  makeModelIdx: index("make_model_idx").on(table.make, table.model),
+  createdAtIdx: index("created_at_idx").on(table.createdAt),
+  auctionIdIdx: index("auction_id_idx").on(table.auctionId),
+}));
+
+// Data ingestion logs
+export const dataIngestionLogs = pgTable("data_ingestion_logs", {
+  id: serial("id").primaryKey(),
+  sourceName: varchar("source_name").notNull(),
+  recordsReceived: integer("records_received").default(0),
+  recordsProcessed: integer("records_processed").default(0),
+  recordsSkipped: integer("records_skipped").default(0),
+  errors: jsonb("errors"), // Array of error messages
+  requestPayload: jsonb("request_payload"), // Original data received
+  status: varchar("status").notNull(), // success, partial, failed
+  processingTimeMs: integer("processing_time_ms"),
+  ipAddress: varchar("ip_address"),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -420,6 +477,29 @@ export type InsertModShopDeal = typeof modShopDeals.$inferInsert;
 
 export type PartsWatchlistItem = typeof partsWatchlist.$inferSelect;
 export type InsertPartsWatchlistItem = typeof partsWatchlist.$inferInsert;
+
+// Auction Data Ingestion Types
+export type AuctionListing = typeof auctionListings.$inferSelect;
+export type InsertAuctionListing = typeof auctionListings.$inferInsert;
+export type DataIngestionLog = typeof dataIngestionLogs.$inferSelect;
+export type InsertDataIngestionLog = typeof dataIngestionLogs.$inferInsert;
+
+// Auction Data Webhook Schema
+export const insertAuctionListingSchema = createInsertSchema(auctionListings, {
+  title: z.string().min(1, "Title is required"),
+  price: z.coerce.number().min(0, "Price must be non-negative"),
+  currency: z.string().length(3, "Currency must be 3 characters"),
+  location: z.string().min(1, "Location is required"),
+  listingUrl: z.string().url("Must be a valid URL"),
+  sourceSite: z.string().min(1, "Source site is required"),
+  dataSource: z.string().min(1, "Data source is required"),
+}).omit({
+  id: true,
+  createdAt: true,
+  lastUpdated: true,
+});
+
+export type InsertAuctionListingRequest = z.infer<typeof insertAuctionListingSchema>;
 
 export type ShopSuggestion = typeof shopSuggestions.$inferSelect;
 export type InsertShopSuggestion = typeof shopSuggestions.$inferInsert;
