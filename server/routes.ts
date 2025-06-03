@@ -734,26 +734,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const globalVehicleDatabase = {
         // Japanese Vehicles
         "toyota supra": { 
-          basePrice: { japan: 85000, usa: 95000 }, 
-          demandFactor: 1.4, 
+          basePrice: { japan: 45000, usa: 55000 }, 
+          demandFactor: 1.3, 
           category: "Performance Legend",
-          popularity: "Extremely High Demand"
+          popularity: "High Demand"
         },
         "nissan skyline": { 
-          basePrice: { japan: 55000, usa: 0 }, // USA doesn't have R34s legally yet
+          basePrice: { japan: 28000, usa: 0 }, // USA doesn't have R34s legally yet
           demandFactor: 1.2, 
           category: "JDM Icon",
           popularity: "High Collector Interest"
         },
         "honda nsx": { 
-          basePrice: { japan: 120000, usa: 140000 }, 
+          basePrice: { japan: 75000, usa: 85000 }, 
           demandFactor: 1.3, 
           category: "Supercar Classic",
           popularity: "Investment Grade"
         },
         "mazda rx7": { 
-          basePrice: { japan: 65000, usa: 75000 }, 
-          demandFactor: 1.3, 
+          basePrice: { japan: 32000, usa: 38000 }, 
+          demandFactor: 1.2, 
           category: "Rotary Icon",
           popularity: "Enthusiast Favorite"
         },
@@ -850,17 +850,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Calculate age factor
+      // Calculate age factor - more conservative for realistic pricing
       const currentYear = new Date().getFullYear();
       const vehicleAge = currentYear - validatedData.year;
       let ageFactor = 1.0;
       
       if (vehicleAge < 5) {
-        ageFactor = 1.2;
+        ageFactor = 1.1; // Minor premium for newer cars
       } else if (vehicleAge > 25) {
-        ageFactor = 1.3;
+        ageFactor = 1.0; // Classic cars maintain base value, no excessive premium
       } else {
-        ageFactor = Math.max(0.4, 1 - (vehicleAge * 0.03));
+        ageFactor = Math.max(0.7, 1 - (vehicleAge * 0.015)); // Gentler depreciation
       }
 
       // Condition factor
