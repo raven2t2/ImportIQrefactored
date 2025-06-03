@@ -51,6 +51,7 @@ export const AUSTRALIAN_INSURANCE_DATA = {
   riskFactors: {
     performance: 0.25, // 25% increase for performance vehicles
     classic: -0.1, // 10% discount for classic vehicles (25+ years)
+    vintage: 0.15, // 15% increase for vintage vehicles (15+ years)
     modified: 0.35, // 35% increase for modified vehicles
     rareParts: 0.2 // 20% increase for vehicles with rare parts
   }
