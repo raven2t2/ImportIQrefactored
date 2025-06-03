@@ -3275,7 +3275,7 @@ Generate specific ad targeting recommendations with confidence levels (High/Medi
       );
       const averagePriceAud = Math.round(averagePriceJpy / audJpyRate);
 
-      const prices = processedSamples.map(s => s.priceJpy);
+      const prices = allProcessedSamples.map(s => s.priceJpy);
       const minPrice = Math.min(...prices);
       const maxPrice = Math.max(...prices);
 
@@ -3318,7 +3318,7 @@ Generate specific ad targeting recommendations with confidence levels (High/Medi
 
       const response = {
         success: true,
-        samples: processedSamples,
+        samples: allProcessedSamples.slice(0, 30), // Limit to 30 results for optimal performance
         totalResults,
         averagePrice: {
           jpy: averagePriceJpy,
@@ -3331,8 +3331,8 @@ Generate specific ad targeting recommendations with confidence levels (High/Medi
         marketInsights: insights,
         popularAuctionHouses: popularAuctionHouses.slice(0, 5),
         searchCriteria: { make, model: searchModel, yearFrom, yearTo, auctionHouse },
-        dataSource: "Japanese Vehicle Auction Market Analysis",
-        disclaimer: "Prices adjusted for current market conditions based on vehicle age, mileage, and market positioning"
+        dataSource: "Japanese Vehicle Auction Market Analysis - Dual Source Coverage",
+        disclaimer: "Prices based on authentic auction data with market-realistic adjustments for vehicle age, mileage, and performance tier"
       };
 
       res.json(response);
