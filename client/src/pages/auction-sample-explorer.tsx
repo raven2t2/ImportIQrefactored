@@ -339,7 +339,7 @@ export default function AuctionSampleExplorer() {
                 </div>
 
                 {/* Market Insights */}
-                {searchResults.marketInsights.length > 0 && (
+                {searchResults.marketInsights && searchResults.marketInsights.length > 0 && (
                   <Card className="mb-8">
                     <CardHeader>
                       <CardTitle>Market Insights</CardTitle>
@@ -349,7 +349,7 @@ export default function AuctionSampleExplorer() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-3">
-                        {searchResults.marketInsights.map((insight, index) => (
+                        {searchResults.marketInsights?.map((insight, index) => (
                           <div key={index} className="flex items-start gap-3">
                             <Badge variant="outline" className="mt-1">{index + 1}</Badge>
                             <p className="text-gray-700 dark:text-gray-300">{insight}</p>
