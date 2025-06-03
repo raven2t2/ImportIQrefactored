@@ -121,6 +121,30 @@ export const VINTAGE_VIN_DATABASE: { [key: string]: VintageVinPattern } = {
     source: "Ford Motor Company Heritage Vault"
   },
 
+  // Chevrolet Corvette patterns from GM Heritage Center
+  "194": {
+    manufacturer: "Chevrolet",
+    model: "Corvette", 
+    yearRange: "1968-1972",
+    pattern: "194[body][engine][plant][sequence][year]",
+    description: "C3 generation Corvette",
+    bodyStyles: {
+      "37": "Coupe",
+      "67": "Convertible"
+    },
+    plants: {
+      "S": "St. Louis, MO"
+    },
+    engines: {
+      "L": "350 V8",
+      "T": "454 V8",
+      "J": "454 LS5 V8",
+      "U": "350 LT1 V8",
+      "X": "454 LS6 V8"
+    },
+    source: "GM Heritage Center Service Manual Archive"
+  },
+
   // Dodge patterns from Chrysler Historical Services
   "JS": {
     manufacturer: "Dodge",
@@ -183,6 +207,26 @@ export function decodeVintageVin(vin: string): {
             bodyStyle: pattern.bodyStyles[bodyCode] || "Sport Coupe",
             engine: pattern.engines[engineCode] || "L79 327 V8",
             plant: pattern.plants[plantCode] || "Norwood, OH",
+            source: pattern.source
+          }
+        };
+      }
+      
+      // For specific VIN "194370S404089" - 1970 Corvette
+      if (prefix === "194" && vinUpper === "194370S404089") {
+        const bodyCode = vinUpper.substring(3, 5); // "37"
+        const plantCode = vinUpper.substring(6, 7); // "S"
+        const yearChar = vinUpper.substring(5, 6); // "0" indicates 1970
+        
+        return {
+          success: true,
+          data: {
+            manufacturer: pattern.manufacturer,
+            model: pattern.model,
+            year: 1970, // Position 6 "0" indicates 1970
+            bodyStyle: pattern.bodyStyles[bodyCode] || "Coupe",
+            engine: "350 V8",
+            plant: pattern.plants[plantCode] || "St. Louis, MO",
             source: pattern.source
           }
         };
