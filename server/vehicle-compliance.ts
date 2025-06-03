@@ -1,6 +1,6 @@
 /**
- * Vehicle Compliance Service using public NHTSA and EPA data
- * Provides real compliance verification using official government APIs
+ * Vehicle Compliance Service using Australian Department of Infrastructure data
+ * Provides real compliance verification using Australian vehicle standards (ADRs) and SEVS requirements
  */
 
 interface VehicleComplianceData {
@@ -8,15 +8,15 @@ interface VehicleComplianceData {
   make: string;
   model: string;
   year: number;
-  eligibilityStatus: 'eligible' | 'ineligible' | 'requires_modification' | 'unknown';
+  eligibilityStatus: 'sevs_eligible' | 'general_import' | 'ineligible' | 'requires_modification' | 'unknown';
   complianceDetails: {
-    fmvss: {
+    adr: {
       compliant: boolean;
       notes: string;
     };
-    emissions: {
-      compliant: boolean;
-      epaStatus: string;
+    sevs: {
+      eligible: boolean;
+      status: string;
       notes: string;
     };
     importAge: {
@@ -31,8 +31,8 @@ interface VehicleComplianceData {
     estimatedCost: string;
   };
   sources: {
-    nhtsa: string;
-    epa: string;
+    infrastructure: string;
+    sevs: string;
     lastChecked: string;
   };
 }

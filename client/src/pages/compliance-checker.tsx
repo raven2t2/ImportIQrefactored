@@ -16,15 +16,15 @@ interface ComplianceResult {
     model: string;
     year: number;
     vin?: string;
-    eligibilityStatus: 'eligible' | 'ineligible' | 'requires_modification' | 'unknown';
+    eligibilityStatus: 'sevs_eligible' | 'general_import' | 'ineligible' | 'requires_modification' | 'unknown';
     complianceDetails: {
-      fmvss: {
+      adr: {
         compliant: boolean;
         notes: string;
       };
-      emissions: {
-        compliant: boolean;
-        epaStatus: string;
+      sevs: {
+        eligible: boolean;
+        status: string;
         notes: string;
       };
       importAge: {
@@ -39,8 +39,8 @@ interface ComplianceResult {
       estimatedCost: string;
     };
     sources: {
-      nhtsa: string;
-      epa: string;
+      infrastructure: string;
+      sevs: string;
       lastChecked: string;
     };
   };
@@ -99,8 +99,10 @@ export default function ComplianceChecker() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'eligible':
+      case 'sevs_eligible':
         return <CheckCircle className="h-6 w-6 text-green-600" />;
+      case 'general_import':
+        return <CheckCircle className="h-6 w-6 text-blue-600" />;
       case 'ineligible':
         return <XCircle className="h-6 w-6 text-red-600" />;
       case 'requires_modification':
@@ -112,8 +114,10 @@ export default function ComplianceChecker() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'eligible':
+      case 'sevs_eligible':
         return 'bg-green-50 border-green-200 text-green-800';
+      case 'general_import':
+        return 'bg-blue-50 border-blue-200 text-blue-800';
       case 'ineligible':
         return 'bg-red-50 border-red-200 text-red-800';
       case 'requires_modification':
@@ -136,7 +140,7 @@ export default function ComplianceChecker() {
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">Vehicle Compliance Checker</h1>
-                  <p className="text-sm text-gray-600">Verify import eligibility using official NHTSA data</p>
+                  <p className="text-sm text-gray-600">Verify import eligibility using Australian ADR and SEVS standards</p>
                 </div>
               </div>
             </div>
