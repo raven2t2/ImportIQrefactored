@@ -1276,70 +1276,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
       } else if (isVintageVin) {
-        // Classic American muscle car VIN decoding
-        const identifierUpper = identifier.toUpperCase();
-        const vinPrefix = identifierUpper.substring(0, 3);
-        const vinPrefix2 = identifierUpper.substring(0, 2);
+        // Classic American VIN decoding requires authentic vintage VIN database
+        // Pre-1981 VINs are not standardized and require specialized decode sources
         
-        let matchedPattern = classicMusclePatterns[vinPrefix] || classicMusclePatterns[vinPrefix2];
-        
-        if (matchedPattern) {
-          // For 1969 Camaro VIN "124379N664466", extract year properly
-          let year = matchedPattern.baseYear;
-          
-          // Classic Chevrolet VIN structure: body style (124) + plant + sequence + year
-          // The year is typically in position 10 or 11 for GM vehicles
-          if (vinPrefix === "124") {
-            // 1969 Camaro specific pattern
-            const possibleYearChar = identifierUpper.charAt(10) || identifierUpper.charAt(9);
-            if (possibleYearChar === '9' || possibleYearChar === 'N') {
-              year = 1969; // 'N' was sometimes used for 1969
-            }
-          }
-          
-          // Try to extract year from other vintage VIN structures
-          const yearChar = identifierUpper.charAt(10) || identifierUpper.charAt(identifierUpper.length - 2);
-          if (yearChar && /[0-9A-Z]/.test(yearChar)) {
-            const gmYearCodes: { [key: string]: number } = {
-              '8': 1968, '9': 1969, '0': 1970, '1': 1971, '2': 1972, '3': 1973,
-              '4': 1974, '5': 1975, '6': 1976, '7': 1977, 'H': 1977, 'J': 1978,
-              'K': 1979, 'L': 1980, 'N': 1969 // Some 1969 models used 'N'
-            };
-            
-            if (gmYearCodes[yearChar]) {
-              year = gmYearCodes[yearChar];
-            }
-          }
-          
-          // Get auction samples for classic muscle cars
-          const auctionSamples = getAuctionSamples(matchedPattern.make, matchedPattern.model, year);
-          
-          res.json({
-            success: true,
-            type: "vintage_vin",
-            data: {
-              make: matchedPattern.make,
-              model: matchedPattern.model,
-              year: year.toString(),
-              trim: undefined,
-              engine: undefined,
-              fuelType: "Gasoline"
-            },
-            auctionSamples,
-            note: "Classic muscle car VIN decoded using vintage patterns"
-          });
-        } else {
-          res.json({
-            success: false,
-            error: "Vintage VIN pattern not recognized in our classic muscle car database",
-            type: "vintage_vin",
-            suggestions: [
-              { code: "124379N664466", description: "1969 Chevrolet Camaro example" },
-              { code: "9F02F123456", description: "1969 Ford Mustang example" },
-              { code: "JS23N9B123456", description: "1969 Dodge Charger example" }
-            ]
-          });
-        }
+        res.json({
+          success: false,
+          error: "Vintage VIN decoding requires access to authentic classic car database services",
+          type: "vintage_vin",
+          explanation: "Pre-1981 American vehicles used non-standardized VIN formats that vary by manufacturer and year. Accurate decoding requires access to specialized vintage automotive databases.",
+          authenticSources: [
+            "Hagerty Vehicle Identification Database",
+            "Classic Car Database APIs", 
+            "OEM Manufacturer Historical Records",
+            "Barrett-Jackson Auction Archives"
+          ],
+          recommendation: "For accurate vintage VIN decoding, consider integrating with authenticated classic car database services or consult manufacturer historical documentation.",
+          userAction: "Please provide access to authenticated vintage car database APIs for accurate classic VIN decoding, or verify VIN details manually through classic car documentation."
+        });
       } else {
         // JDM Chassis Code Lookup
         const chassisCode = identifier.toUpperCase();
