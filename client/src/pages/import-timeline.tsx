@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, Ship, FileCheck, Truck, CheckCircle2 } from "lucide-react";
+import { Calendar, Clock, Ship, FileCheck, Truck, CheckCircle2, ArrowLeft } from "lucide-react";
+import { Link } from "wouter";
 
 const timelineSchema = z.object({
   origin: z.string(),
@@ -159,6 +160,15 @@ export default function ImportTimeline() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <Link href="/dashboard">
+              <Button variant="outline" className="flex items-center gap-2">
+                <ArrowLeft className="h-4 w-4" />
+                Back to Dashboard
+              </Button>
+            </Link>
+          </div>
+          
           <div className="flex items-center space-x-3 mb-4">
             <div className="flex items-center justify-center w-12 h-12 bg-green-100 rounded-lg">
               <Calendar className="h-6 w-6 text-green-600" />
