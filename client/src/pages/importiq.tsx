@@ -236,9 +236,8 @@ export default function ImportIQ() {
               {isAuthenticated ? 'Subscribe Now' : 'Start 7-Day Free Trial'}
             </Button>
             <Button 
-              variant="outline" 
               size="lg" 
-              className="border-2 border-white text-white hover:bg-white hover:text-black px-12 py-4 text-lg rounded-full transition-all duration-300 font-medium"
+              className="bg-gray-800 text-white hover:bg-gray-700 border-2 border-gray-600 px-12 py-4 text-lg rounded-full transition-all duration-300 font-medium"
             >
               Watch Demo
             </Button>
