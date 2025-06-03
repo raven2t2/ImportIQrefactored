@@ -42,7 +42,6 @@ const aiRecommendationSchema = z.object({
 });
 
 const buildComplySchema = z.object({
-  email: z.string().email(),
   vehicle: z.string().min(1),
   state: z.string().min(1),
   budget: z.string().min(1),
