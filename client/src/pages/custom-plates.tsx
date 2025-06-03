@@ -21,40 +21,45 @@ const plateSchema = z.object({
 
 type PlateFormData = z.infer<typeof plateSchema>;
 
-interface PlateAvailabilityResult {
+interface PlateRequirementsResult {
   success: boolean;
   plateNumber: string;
   state: string;
-  availability: {
-    isAvailable: boolean;
-    status: "available" | "taken" | "reserved" | "invalid" | "restricted";
-    reason?: string;
+  validation: {
+    isValid: boolean;
+    issues?: string[];
+    complianceStatus: "compliant" | "non-compliant" | "needs-review";
   };
-  pricing?: {
+  pricing: {
     applicationFee: number;
     annualFee: number;
     totalFirstYear: number;
     currency: string;
   };
-  alternatives?: string[];
-  requirements?: {
+  requirements: {
     minLength: number;
     maxLength: number;
     allowedCharacters: string;
     restrictions: string[];
   };
-  processInfo?: {
+  processInfo: {
     processingTime: string;
     applicationMethod: string;
     renewalPeriod: string;
     transferable: boolean;
+    applicationUrl: string;
+  };
+  additionalInfo?: {
+    plateFormat: string;
+    restrictions: string[];
+    tips: string[];
   };
   error?: string;
   disclaimer: string;
 }
 
 export default function CustomPlates() {
-  const [plateResult, setPlateResult] = useState<PlateAvailabilityResult | null>(null);
+  const [plateResult, setPlateResult] = useState<PlateRequirementsResult | null>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
   const form = useForm<PlateFormData>({
@@ -71,7 +76,7 @@ export default function CustomPlates() {
       const response = await apiRequest("POST", "/api/plate-availability", data);
       return await response.json();
     },
-    onSuccess: (data: PlateAvailabilityResult) => {
+    onSuccess: (data: PlateRequirementsResult) => {
       setPlateResult(data);
       setTimeout(() => {
         resultsRef.current?.scrollIntoView({ 
@@ -224,16 +229,20 @@ export default function CustomPlates() {
                     <CardContent>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Status</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Compliance Status</p>
                           <div className="flex items-center gap-2 mt-1">
-                            <Badge variant={plateResult.availability.isAvailable ? 'default' : 'destructive'}>
-                              {plateResult.availability.status.toUpperCase()}
+                            <Badge variant={plateResult.validation.isValid ? 'default' : 'destructive'}>
+                              {plateResult.validation.complianceStatus.toUpperCase()}
                             </Badge>
                           </div>
-                          {plateResult.availability.reason && (
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                              {plateResult.availability.reason}
-                            </p>
+                          {plateResult.validation.issues && plateResult.validation.issues.length > 0 && (
+                            <div className="mt-2">
+                              {plateResult.validation.issues.map((issue, index) => (
+                                <p key={index} className="text-sm text-red-600 dark:text-red-400">
+                                  • {issue}
+                                </p>
+                              ))}
+                            </div>
                           )}
                         </div>
                         <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
@@ -280,29 +289,41 @@ export default function CustomPlates() {
                     </Card>
                   )}
 
-                  {/* Alternative Suggestions */}
-                  {plateResult.alternatives && plateResult.alternatives.length > 0 && (
-                    <Card className="shadow-lg">
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <Star className="h-5 w-5" />
-                          Alternative Suggestions
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                          {plateResult.alternatives.map((alt, index) => (
-                            <div 
-                              key={index}
-                              className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg text-center font-mono text-lg font-semibold"
-                            >
-                              {alt}
-                            </div>
+                  {/* Requirements Information */}
+                  <Card className="shadow-lg">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <FileText className="h-5 w-5" />
+                        Plate Requirements
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Length Requirements</p>
+                          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                            {plateResult.requirements.minLength} - {plateResult.requirements.maxLength} characters
+                          </p>
+                        </div>
+                        <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Allowed Characters</p>
+                          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                            {plateResult.requirements.allowedCharacters}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="mt-4">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Restrictions:</p>
+                        <div className="space-y-1">
+                          {plateResult.requirements.restrictions.map((restriction, index) => (
+                            <p key={index} className="text-sm text-gray-700 dark:text-gray-300">
+                              • {restriction}
+                            </p>
                           ))}
                         </div>
-                      </CardContent>
-                    </Card>
-                  )}
+                      </div>
+                    </CardContent>
+                  </Card>
 
                   {/* Process Information */}
                   {plateResult.processInfo && (
