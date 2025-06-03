@@ -12,6 +12,14 @@ export function useAuth() {
   // Consider user authenticated if they have an active trial or are logged in
   const isAuthenticated = !!user || !!trialEmail;
 
+  // Debug logging
+  console.log('useAuth Debug:', {
+    user,
+    trialEmail,
+    isAuthenticated,
+    isLoading
+  });
+
   return {
     user: user || (trialEmail ? { email: trialEmail } : null),
     isLoading,
