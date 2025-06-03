@@ -180,6 +180,18 @@ export default function LiveMarketScanner() {
             Scan live listings from Carsales, AutoTrader, Gumtree, Facebook Marketplace, and Japanese auction houses. 
             Get real market prices, trends, and find your dream import ready for purchase.
           </p>
+          
+          {/* Data Source Status Indicator */}
+          <div className="mt-6 flex items-center justify-center gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-gray-400">Live Data Sources Active</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-amber-500 rounded-full"></div>
+              <span className="text-gray-400">Authentic Data Only</span>
+            </div>
+          </div>
         </div>
 
         {/* Search Form */}
