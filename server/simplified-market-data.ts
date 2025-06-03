@@ -183,8 +183,8 @@ export async function generateMarketListings(filters: SearchFilters): Promise<{ 
     }
   }
 
-  // For JDM searches, scrape authentic Japanese auction data from public sources
-  if (isJDMSearch) {
+  // For JDM searches, ONLY scrape Japanese auction data - no US sources
+  if (shouldSearchJapanese) {
     try {
       const scrapedJapaneseVehicles = await scrapeAuthenticJapaneseData(make, model);
       
@@ -237,8 +237,8 @@ export async function generateMarketListings(filters: SearchFilters): Promise<{ 
       console.warn('Japanese auction scraping failed:', error);
     }
   }
-  // For US muscle car searches, scrape authentic US auction data from public sources
-  else if (isUSMuscleSearch) {
+  // For US muscle car searches, ONLY scrape US auction data - no Japanese sources
+  if (shouldSearchUS) {
     try {
       const scrapedUSVehicles = await scrapeUSMarketplaces(make, model);
       
