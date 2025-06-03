@@ -82,6 +82,17 @@ function Router() {
       <Route path="/login" component={Login} />
       <Route path="/contact" component={Contact} />
       <Route path="/compliance-checker" component={ComplianceChecker} />
+      <Route path="/shipping-calculator" component={ImportCalculator} />
+      <Route path="/market-intelligence" component={ImportVolumeDashboard} />
+      <Route path="/auction-intelligence" component={AuctionSampleExplorer} />
+      <Route path="/insurance-estimator" component={ValueEstimator} />
+      <Route path="/legal-advisory" component={ComplianceChecker} />
+      <Route path="/buildready" component={BuildComply} />
+      <Route path="/registry-lookup" component={VehicleLookup} />
+      <Route path="/documentation-assistant" component={ImportTimeline} />
+      <Route path="/roi-calculator" component={ValueEstimator} />
+      <Route path="/state-requirements" component={RegistrationStats} />
+      <Route path="/port-intelligence" component={ImportVolumeDashboard} />
       <Route component={NotFound} />
     </Switch>
   );
