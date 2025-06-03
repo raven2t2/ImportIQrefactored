@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -49,7 +49,22 @@ interface VehicleResult {
 export default function VehicleLookup() {
   const [result, setResult] = useState<VehicleResult | null>(null);
   const [auctionData, setAuctionData] = useState<any[]>([]);
+  const [userInfo, setUserInfo] = useState<{ name: string; email: string; isReturning: boolean } | null>(null);
   const { toast } = useToast();
+
+  // Check for existing trial login status
+  useEffect(() => {
+    const trialUserName = localStorage.getItem('trial_user_name');
+    const trialUserEmail = localStorage.getItem('trial_user_email');
+    
+    if (trialUserName && trialUserEmail) {
+      setUserInfo({
+        name: trialUserName,
+        email: trialUserEmail,
+        isReturning: true
+      });
+    }
+  }, []);
 
   const form = useForm<FormData>({
     resolver: zodResolver(lookupSchema),

@@ -78,6 +78,14 @@ export default function ImportCalculator() {
     },
   });
 
+  // Auto-populate user info if logged in
+  useEffect(() => {
+    if (userInfo) {
+      form.setValue('fullName', userInfo.name);
+      form.setValue('email', userInfo.email);
+    }
+  }, [userInfo, form]);
+
   const calculateMutation = useMutation({
     mutationFn: async (data: FormData): Promise<CalculationResponse> => {
       const response = await apiRequest("POST", "/api/calculate", data);
@@ -297,46 +305,65 @@ export default function ImportCalculator() {
 
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-                  <FormField
-                    control={form.control}
-                    name="fullName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-sm font-medium text-white">
-                          Full Name <span className="text-red-400">*</span>
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="Enter your full name"
-                            className="w-full"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  {/* Show user info fields only if not logged in */}
+                  {!userInfo && (
+                    <>
+                      <FormField
+                        control={form.control}
+                        name="fullName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-sm font-medium text-white">
+                              Full Name <span className="text-red-400">*</span>
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                placeholder="Enter your full name"
+                                className="w-full"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-sm font-medium text-white">
-                          Email Address <span className="text-red-400">*</span>
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            type="email"
-                            placeholder="your.email@example.com"
-                            className="w-full"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-sm font-medium text-white">
+                              Email Address <span className="text-red-400">*</span>
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                type="email"
+                                placeholder="your.email@example.com"
+                                className="w-full"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </>
+                  )}
+
+                  {/* Show logged-in user info */}
+                  {userInfo && (
+                    <div className="p-4 bg-green-900/20 border border-green-500/30 rounded-lg">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span className="text-sm font-medium text-green-400">Logged in as</span>
+                      </div>
+                      <div className="text-sm text-white">
+                        <div><strong>{userInfo.name}</strong></div>
+                        <div className="text-gray-300">{userInfo.email}</div>
+                      </div>
+                    </div>
+                  )}
 
                   <FormField
                     control={form.control}
