@@ -405,16 +405,6 @@ export default function AuctionSampleExplorer() {
               <p className="mb-4">
                 <strong>Data Coverage:</strong> 5,200+ authentic auction records from major Japanese auction houses
               </p>
-              <div className="text-xs">
-                <a 
-                  href="https://www.kaggle.com/datasets/kento280/car-auction-data-from-yahoo-auctions-japan" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-                >
-                  View Original Dataset →
-                </a>
-              </div>
             </div>
           </CardContent>
         </Card>
