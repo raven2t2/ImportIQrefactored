@@ -1251,12 +1251,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }),
         stateSpecificInfo: {
           [validatedData.state]: {
-            engineeringAuthority: validatedData.state === "nsw" ? "Transport for NSW" : 
-                                  validatedData.state === "vic" ? "VicRoads" :
-                                  validatedData.state === "qld" ? "Department of Transport and Main Roads" :
+            engineeringAuthority: validatedData.state === "NSW" ? "Transport for NSW (TfNSW)" : 
+                                  validatedData.state === "VIC" ? "VicRoads" :
+                                  validatedData.state === "QLD" ? "Department of Transport and Main Roads (TMR)" :
+                                  validatedData.state === "WA" ? "Department of Transport WA" :
+                                  validatedData.state === "SA" ? "Department for Infrastructure and Transport SA" :
+                                  validatedData.state === "TAS" ? "Department of State Growth Tasmania" :
+                                  validatedData.state === "NT" ? "Department of Infrastructure NT" :
+                                  validatedData.state === "ACT" ? "Access Canberra" :
                                   "State Transport Authority",
-            typicalProcessingTime: "2-6 weeks",
-            averageEngineeringCost: "$800-2500 depending on modifications"
+            vsiSignatories: validatedData.state === "NSW" ? "Search 'VSI14 signatory NSW' or contact TfNSW" :
+                           validatedData.state === "VIC" ? "Search 'Vehicle Safety Inspector Victoria' or contact VicRoads" :
+                           validatedData.state === "QLD" ? "Search 'Approved Person Queensland vehicles' or contact TMR" :
+                           "Contact your state transport department for approved engineers",
+            typicalProcessingTime: validatedData.state === "NSW" ? "3-8 weeks" :
+                                  validatedData.state === "VIC" ? "2-6 weeks" :
+                                  validatedData.state === "QLD" ? "4-10 weeks" :
+                                  "2-8 weeks",
+            averageEngineeringCost: validatedData.state === "NSW" ? "$1,200-3,500 (higher due to stricter requirements)" :
+                                   validatedData.state === "VIC" ? "$900-2,800 (moderate requirements)" :
+                                   validatedData.state === "QLD" ? "$800-2,500 (varies by modification complexity)" :
+                                   "$1,000-3,000 depending on state requirements",
+            specialRequirements: validatedData.state === "NSW" ? "NSW has strictest modification rules - pink slip required after engineering" :
+                                validatedData.state === "VIC" ? "VicRoads requires roadworthy certificate after major modifications" :
+                                validatedData.state === "QLD" ? "Queensland allows more modifications but requires detailed engineering reports" :
+                                "Check your state's specific modification guidelines"
           }
         },
         nextSteps: [

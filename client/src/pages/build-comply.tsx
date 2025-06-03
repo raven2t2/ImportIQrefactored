@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Settings, AlertTriangle, CheckCircle, AlertCircle, FileText, Shield, ArrowRight, Brain, Calendar, CreditCard, Save, Clock, DollarSign, ArrowLeft } from "lucide-react";
+import { Settings, AlertTriangle, CheckCircle, AlertCircle, FileText, Shield, ArrowRight, Brain, Calendar, CreditCard, Save, Clock, DollarSign, ArrowLeft, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Link } from "wouter";
@@ -547,6 +547,51 @@ export default function BuildComply() {
                       </div>
                     );
                   })}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* State-Specific Information */}
+            {analysisResults?.stateSpecificInfo && (
+              <Card className="border border-green-400/20 bg-green-950/20 backdrop-blur-sm">
+                <CardHeader className="pb-6">
+                  <CardTitle className="text-2xl font-semibold text-white flex items-center">
+                    <MapPin className="h-6 w-6 text-green-400 mr-3" />
+                    State-Specific Requirements
+                  </CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Compliance information specific to your state
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {Object.entries(analysisResults.stateSpecificInfo).map(([state, info]: [string, any]) => (
+                    <div key={state} className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-gray-800/30 p-4 rounded-lg">
+                          <h4 className="text-sm font-medium text-green-300 mb-2">Engineering Authority</h4>
+                          <p className="text-white text-sm">{info.engineeringAuthority}</p>
+                        </div>
+                        <div className="bg-gray-800/30 p-4 rounded-lg">
+                          <h4 className="text-sm font-medium text-green-300 mb-2">Processing Time</h4>
+                          <p className="text-white text-sm">{info.typicalProcessingTime}</p>
+                        </div>
+                        <div className="bg-gray-800/30 p-4 rounded-lg">
+                          <h4 className="text-sm font-medium text-green-300 mb-2">Engineering Costs</h4>
+                          <p className="text-white text-sm">{info.averageEngineeringCost}</p>
+                        </div>
+                        <div className="bg-gray-800/30 p-4 rounded-lg">
+                          <h4 className="text-sm font-medium text-green-300 mb-2">Find Engineers</h4>
+                          <p className="text-white text-sm">{info.vsiSignatories}</p>
+                        </div>
+                      </div>
+                      {info.specialRequirements && (
+                        <div className="bg-blue-950/30 p-4 rounded-lg border border-blue-500/20">
+                          <h4 className="text-sm font-medium text-blue-300 mb-2">Special Requirements</h4>
+                          <p className="text-white text-sm">{info.specialRequirements}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </CardContent>
               </Card>
             )}
