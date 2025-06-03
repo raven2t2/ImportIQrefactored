@@ -69,6 +69,7 @@ const modificationData = {
 export default function BuildComply() {
   const [showResults, setShowResults] = useState(false);
   const [selectedMods, setSelectedMods] = useState<string[]>([]);
+  const [analysisResults, setAnalysisResults] = useState<any>(null);
   const { toast } = useToast();
 
   const {
@@ -225,7 +226,8 @@ export default function BuildComply() {
       const response = await apiRequest("POST", "/api/build-comply", data);
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      setAnalysisResults(data);
       setShowResults(true);
       toast({
         title: "Analysis Complete",
@@ -472,7 +474,45 @@ export default function BuildComply() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  {selectedMods.map((modId) => {
+                  {analysisResults?.complianceRequirements?.map((requirement: any, index: number) => (
+                    <div key={index} className="p-6 bg-gray-800/30 rounded-xl border border-gray-700/50">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-medium text-white mb-2">
+                            {requirement.name}
+                          </h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div className="bg-blue-950/30 p-3 rounded-lg">
+                              <p className="text-xs text-blue-300 mb-1">Estimated Cost</p>
+                              <p className="text-sm font-medium text-white">{requirement.estimatedCost}</p>
+                            </div>
+                            <div className="bg-green-950/30 p-3 rounded-lg">
+                              <p className="text-xs text-green-300 mb-1">Best Timing</p>
+                              <p className="text-sm font-medium text-white">{requirement.timing}</p>
+                            </div>
+                          </div>
+                        </div>
+                        <Badge className={`ml-4 ${getRiskColor(requirement.riskLevel)}`}>
+                          {getRiskIcon(requirement.riskLevel)}
+                          <span className="ml-2 capitalize">{requirement.riskLevel} Risk</span>
+                        </Badge>
+                      </div>
+                      
+                      <div>
+                        <h4 className="text-sm font-medium text-white mb-3">
+                          Australian Compliance Requirements:
+                        </h4>
+                        <ul className="space-y-2">
+                          {requirement.requirements?.map((req: string, reqIndex: number) => (
+                            <li key={reqIndex} className="flex items-start text-sm text-gray-400">
+                              <div className="w-1.5 h-1.5 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0" />
+                              {req}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  )) || selectedMods.map((modId) => {
                     const mod = modificationData[modId as keyof typeof modificationData];
                     return (
                       <div key={modId} className="p-6 bg-gray-800/30 rounded-xl border border-gray-700/50">
@@ -523,35 +563,30 @@ export default function BuildComply() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4">
-                  <div className="flex items-center p-4 bg-amber-400/10 rounded-xl border border-amber-400/20">
-                    <div className="w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center mr-4">
-                      <span className="text-black text-sm font-medium">1</span>
+                  {analysisResults?.nextSteps?.map((step: string, index: number) => (
+                    <div key={index} className="flex items-start p-4 bg-amber-400/10 rounded-xl border border-amber-400/20">
+                      <div className="w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center mr-4 flex-shrink-0 mt-1">
+                        <span className="text-black text-sm font-medium">{index + 1}</span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm text-white leading-relaxed">{step}</p>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <h4 className="font-medium text-white">Document Requirements</h4>
-                      <p className="text-sm text-gray-400">Gather all necessary documentation before starting modifications</p>
+                  )) || [
+                    "Document all planned modifications",
+                    "Find certified automotive engineer in your state", 
+                    "Obtain pre-approval quotes for engineering work",
+                    "Schedule modification work in compliance order"
+                  ].map((step, index) => (
+                    <div key={index} className="flex items-center p-4 bg-amber-400/10 rounded-xl border border-amber-400/20">
+                      <div className="w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center mr-4">
+                        <span className="text-black text-sm font-medium">{index + 1}</span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm text-gray-400">{step}</p>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="flex items-center p-4 bg-amber-400/10 rounded-xl border border-amber-400/20">
-                    <div className="w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center mr-4">
-                      <span className="text-black text-sm font-medium">2</span>
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-medium text-white">Find Certified Engineer</h4>
-                      <p className="text-sm text-gray-400">Locate an approved automotive engineer in your state</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center p-4 bg-amber-400/10 rounded-xl border border-amber-400/20">
-                    <div className="w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center mr-4">
-                      <span className="text-black text-sm font-medium">3</span>
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-medium text-white">Plan Modifications</h4>
-                      <p className="text-sm text-gray-400">Complete modifications in the correct order for inspection</p>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
