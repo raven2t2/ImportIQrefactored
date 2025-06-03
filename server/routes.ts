@@ -1834,14 +1834,14 @@ Respond with a JSON object containing your recommendations.`;
           dataCompleteness: 94
         },
 
-        // Tool 8: Registration Statistics - REQUIRES AUTHENTIC DATA
+        // Tool 8: Registration Statistics - AUTHENTIC DATA ONLY
         registrationStats: {
-          dataAvailable: REGISTRATION_STATISTICS.data_available,
-          errorMessage: REGISTRATION_STATISTICS.error_message,
-          officialSource: REGISTRATION_STATISTICS.official_source,
+          dataAvailable: false,
+          errorMessage: "Official vehicle registration statistics require Australian Bureau of Statistics data access",
+          officialSource: "https://www.abs.gov.au/statistics/industry/tourism-and-transport/motor-vehicle-census-australia",
           userCalculations: {
-            // Only show user's own calculation data, not fake registration stats
-            stateDistribution: submissions.reduce((acc, s) => {
+            // Only show user's own calculation data from ImportIQ platform
+            calculationsPerState: submissions.reduce((acc: Record<string, number>, s) => {
               if (s.zipCode) {
                 const state = s.zipCode.startsWith('2') ? 'NSW' : 
                             s.zipCode.startsWith('3') ? 'VIC' : 
@@ -1850,12 +1850,12 @@ Respond with a JSON object containing your recommendations.`;
               }
               return acc;
             }, {}),
-            monthlyTrends: submissions.reduce((acc, s) => {
+            monthlyCalculations: submissions.reduce((acc: Record<number, number>, s) => {
               const month = new Date(s.createdAt).getMonth();
               acc[month] = (acc[month] || 0) + 1;
               return acc;
             }, {}),
-            calculationCompletionRate: submissions.length > 0 ? 100 : 0
+            totalCalculations: submissions.length
           }
         },
 
@@ -3795,6 +3795,26 @@ IMPORTANT GUIDELINES:
     } catch (error) {
       console.error("Error deactivating user:", error);
       res.status(500).json({ error: "Failed to deactivate user" });
+    }
+  });
+
+  // Authentic Data API - Real Government Data
+  app.get("/api/authentic-data", async (req, res) => {
+    try {
+      const { getAuthenticData } = await import('./authentic-data');
+      const data = await getAuthenticData();
+      res.json({
+        success: true,
+        data,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error("Error fetching authentic data:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to fetch authentic government data",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
     }
   });
 
