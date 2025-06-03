@@ -258,15 +258,29 @@ function generateSellerInfo(region: string, isImport: boolean): string {
 }
 
 function generateSourceUrl(region: string, make: string, model: string, year: number): string {
-  const baseUrls = {
-    "AU": "https://www.carsales.com.au",
-    "JP": "https://auction-import.com",
-    "US": "https://cars.com"
-  };
-  
-  const baseUrl = baseUrls[region as keyof typeof baseUrls];
-  const slug = `${year}-${make}-${model}`.toLowerCase().replace(/\s+/g, '-');
-  return `${baseUrl}/cars/${slug}-${Math.floor(Math.random() * 10000)}`;
+  // Generate authentic search URLs for real marketplaces
+  if (region === "AU") {
+    const makeParam = make.toLowerCase().replace(/\s+/g, '%20');
+    const modelParam = model.toLowerCase().replace(/\s+/g, '%20');
+    return `https://www.carsales.com.au/cars/results?q=${makeParam}%20${modelParam}&year-from=${year}&year-to=${year}`;
+  } else if (region === "JP") {
+    // Japanese auction and marketplace sites with real search functionality
+    const sources = [
+      `https://www.goo-net.com/usedcar/brand-${make.toLowerCase()}/`,
+      `https://www.carsensor.net/usedcar/search/?brand=${make.toLowerCase()}`,
+      `https://auction.yahoo.co.jp/search/search?p=${make}+${model}&auccat=2084005777`
+    ];
+    return sources[Math.floor(Math.random() * sources.length)];
+  } else {
+    // US marketplaces with authentic search parameters
+    const makeParam = make.toLowerCase().replace(/\s+/g, '-');
+    const sources = [
+      `https://www.autotrader.com/cars-for-sale/${makeParam}/?endYear=${year}&startYear=${year}`,
+      `https://www.cars.com/shopping/results/?stock_type=used&makes[]=${make}&year_max=${year}&year_min=${year}`,
+      `https://www.carmax.com/cars/${makeParam}`
+    ];
+    return sources[Math.floor(Math.random() * sources.length)];
+  }
 }
 
 function generateDescription(make: string, model: string, year: number, isImport: boolean): string {
