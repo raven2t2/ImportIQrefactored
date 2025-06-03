@@ -41,6 +41,7 @@ import AdminUserManagement from "@/pages/admin-user-management";
 import AdminProfile from "@/pages/admin-profile";
 import Contact from "@/pages/contact";
 import ComplianceChecker from "@/pages/compliance-checker";
+import LegalAdvisory from "@/pages/legal-advisory";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -86,7 +87,7 @@ function Router() {
       <Route path="/market-intelligence" component={ImportVolumeDashboard} />
       <Route path="/auction-intelligence" component={AuctionSampleExplorer} />
       <Route path="/insurance-estimator" component={ValueEstimator} />
-      <Route path="/legal-advisory" component={ComplianceChecker} />
+      <Route path="/legal-advisory" component={LegalAdvisory} />
       <Route path="/buildready" component={BuildComply} />
       <Route path="/registry-lookup" component={VehicleLookup} />
       <Route path="/documentation-assistant" component={ImportTimeline} />

@@ -2627,6 +2627,238 @@ Generate specific ad targeting recommendations with confidence levels (High/Medi
     }
   });
 
+  // Legal Advisory endpoint - provides comprehensive legal compliance guidance
+  app.post("/api/legal-advisory", async (req, res) => {
+    try {
+      const { vehicleType, year, make, model, intendedUse, modifications, specificConcerns, state } = req.body;
+      
+      // Validate required fields
+      if (!vehicleType || !year || !make || !model || !intendedUse || !state) {
+        return res.status(400).json({ message: "Missing required vehicle information" });
+      }
+
+      const vehicleYear = parseInt(year);
+      const currentYear = new Date().getFullYear();
+
+      // Determine import legality based on Australian import laws
+      let importLegality;
+      if (vehicleType === "passenger") {
+        if (vehicleYear < 1989) {
+          importLegality = {
+            status: "legal",
+            reason: "Vehicle qualifies as a classic/vintage car (pre-1989) and is eligible for import under SEVS (Specialist and Enthusiast Vehicle Scheme).",
+            requirements: [
+              "Must be over 25 years old",
+              "Vehicle must be in original condition or appropriately modified",
+              "Compliance with relevant ADR (Australian Design Rules)",
+              "RAW (Register of Approved Vehicles) or SEVS approval required"
+            ]
+          };
+        } else if (currentYear - vehicleYear >= 25) {
+          importLegality = {
+            status: "legal",
+            reason: "Vehicle is over 25 years old and eligible for import under the 25-year rule for classic vehicles.",
+            requirements: [
+              "Vehicle must be over 25 years old",
+              "Compliance plate required",
+              "Workshop and Transport approval needed",
+              "State registration compliance"
+            ]
+          };
+        } else {
+          importLegality = {
+            status: "restricted",
+            reason: "Vehicle does not meet the 25-year rule and must be on the RAW (Register of Approved Vehicles) or qualify for SEVS.",
+            requirements: [
+              "Check if vehicle is on RAW list",
+              "Apply for SEVS approval if eligible",
+              "Specialist compliance workshop required",
+              "Significant compliance modifications may be needed"
+            ]
+          };
+        }
+      } else if (vehicleType === "racing") {
+        importLegality = {
+          status: "legal",
+          reason: "Racing vehicles can be imported but with strict restrictions on road use.",
+          requirements: [
+            "Vehicle must remain in racing configuration",
+            "Track-only use unless modified for road compliance",
+            "Special permits required for road transportation",
+            "Engineering certification for any road-use modifications"
+          ]
+        };
+      } else {
+        importLegality = {
+          status: "legal",
+          reason: "Commercial vehicles and motorcycles have specific import pathways available.",
+          requirements: [
+            "Appropriate ADR compliance required",
+            "Vehicle type-specific regulations apply",
+            "Compliance workshop approval needed",
+            "State registration requirements"
+          ]
+        };
+      }
+
+      // Generate compliance requirements based on vehicle details
+      const complianceRequirements = [
+        {
+          category: "Federal Compliance",
+          requirements: [
+            "Australian Design Rules (ADR) compliance assessment",
+            "Emissions compliance testing",
+            "Safety feature verification",
+            "Compliance plate installation"
+          ],
+          estimated_cost: "$3,000 - $8,000 AUD",
+          timeline: "4-8 weeks"
+        },
+        {
+          category: "State Registration",
+          requirements: [
+            `${state} state vehicle inspection`,
+            "Blue slip or equivalent safety inspection",
+            "Vehicle identification number (VIN) verification",
+            "Registration fee payment"
+          ],
+          estimated_cost: "$200 - $800 AUD",
+          timeline: "1-2 weeks"
+        }
+      ];
+
+      if (modifications && modifications.trim()) {
+        complianceRequirements.push({
+          category: "Modification Approval",
+          requirements: [
+            "Engineering certification for modifications",
+            "Modified vehicle permit application",
+            "Additional safety testing if required",
+            "Documentation of all modifications"
+          ],
+          estimated_cost: "$1,500 - $5,000 AUD",
+          timeline: "2-6 weeks"
+        });
+      }
+
+      // Assess legal risks
+      let riskLevel = "low";
+      const risks = [];
+      const mitigation = [];
+
+      if (importLegality.status === "restricted") {
+        riskLevel = "medium";
+        risks.push("Vehicle may not qualify for import approval");
+        risks.push("Significant compliance costs if modifications required");
+        mitigation.push("Verify RAW eligibility before purchase");
+        mitigation.push("Consult with compliance workshop early");
+      }
+
+      if (modifications && modifications.trim()) {
+        if (riskLevel === "low") riskLevel = "medium";
+        risks.push("Modified vehicles face additional scrutiny");
+        risks.push("Engineering approval may be complex and costly");
+        mitigation.push("Document all modifications thoroughly");
+        mitigation.push("Engage qualified automotive engineer");
+      }
+
+      if (vehicleType === "racing" && intendedUse === "daily-driver") {
+        riskLevel = "high";
+        risks.push("Racing vehicles typically cannot be registered for road use");
+        risks.push("Extensive modifications required for road compliance");
+        mitigation.push("Consider track-only use");
+        mitigation.push("Budget for comprehensive road-use conversion");
+      }
+
+      // Default risk assessment for compliant vehicles
+      if (risks.length === 0) {
+        risks.push("Standard import compliance requirements");
+        risks.push("Potential delays in approval process");
+        mitigation.push("Use experienced compliance workshop");
+        mitigation.push("Allow extra time for approvals");
+      }
+
+      // Generate modification guidance
+      const modificationGuidance = {
+        allowedMods: [
+          "Performance exhaust systems (with noise compliance)",
+          "Suspension modifications (within ADR limits)",
+          "Brake upgrades (with engineering approval)",
+          "Cosmetic modifications (non-safety related)"
+        ],
+        prohibitedMods: [
+          "Modifications affecting crash safety structure",
+          "Non-compliant lighting systems",
+          "Excessive noise modifications",
+          "Modifications affecting emissions compliance"
+        ],
+        engineeringRequirements: [
+          "Qualified automotive engineer assessment",
+          "Certification for structural modifications",
+          "Documentation package for authorities",
+          "Compliance testing if required"
+        ]
+      };
+
+      // State-specific registration requirements
+      const registrationRequirements = {
+        state: state,
+        documents: [
+          "Import approval documentation",
+          "Compliance plate and certificate",
+          "Vehicle identification documents",
+          "Insurance certificate",
+          "Proof of ownership"
+        ],
+        inspections: [
+          "Safety inspection (blue slip equivalent)",
+          "Emissions testing (if required)",
+          "Identity inspection",
+          "Compliance verification"
+        ],
+        fees: "Typically $200-$800 AUD depending on vehicle type and state"
+      };
+
+      // Generate expert recommendations
+      const recommendations = [
+        "Engage a qualified compliance workshop before purchasing the vehicle overseas",
+        "Verify all import requirements and costs upfront to avoid surprises",
+        "Consider using an experienced import specialist to manage the process",
+        "Allow sufficient time and budget for compliance - rushing increases costs and risks",
+        "Keep all documentation organized and readily available throughout the process",
+        "Consider the total cost of ownership including ongoing maintenance and parts availability"
+      ];
+
+      // Add specific recommendations based on vehicle details
+      if (vehicleYear < 1995) {
+        recommendations.push("Vintage vehicles may require specialized parts - research availability before importing");
+      }
+
+      if (intendedUse === "track-car") {
+        recommendations.push("Track-only vehicles have simpler compliance requirements - consider this option to reduce costs");
+      }
+
+      const legalAdvice = {
+        importLegality,
+        complianceRequirements,
+        modificationGuidance,
+        registrationRequirements,
+        legalRisks: {
+          level: riskLevel,
+          risks,
+          mitigation
+        },
+        recommendations
+      };
+
+      res.json(legalAdvice);
+
+    } catch (error: any) {
+      console.error("Legal advisory error:", error);
+      res.status(500).json({ message: "Error generating legal advisory: " + error.message });
+    }
+  });
+
   // AI Chat Assistant endpoint for contextual help
   app.post("/api/ai-chat", isAuthenticated, async (req, res) => {
     try {
