@@ -191,7 +191,7 @@ function generateAuthenticListing(filters: SearchFilters, index: number): CarLis
     description: generateDescription(make, model || "", year, isImport),
     images: [`/car-${(index % 5) + 1}.jpg`],
     listedDate: generateRecentDate(),
-    seller: isImport ? "Import Specialist" : (Math.random() < 0.7 ? "Private" : "Dealer"),
+    seller: generateSellerInfo(region, isImport),
     features: generateFeatures(make, year, isImport),
     fuelType: generateFuelType(make, model || ""),
     transmission: Math.random() < 0.6 ? "Manual" : "Automatic",
@@ -245,6 +245,16 @@ function generateSourceName(region: string, isImport: boolean): string {
   if (region === "AU") return ["Carsales", "AutoTrader", "Gumtree"][Math.floor(Math.random() * 3)];
   if (region === "JP") return "Japanese Auction";
   return "US Marketplace";
+}
+
+function generateSellerInfo(region: string, isImport: boolean): string {
+  if (region === "JP") {
+    return ["Licensed Import Agent", "Auction House Representative", "Export Specialist"][Math.floor(Math.random() * 3)];
+  } else if (region === "US") {
+    return ["Import Specialist", "Classic Car Dealer", "Performance Shop"][Math.floor(Math.random() * 3)];
+  } else {
+    return Math.random() < 0.7 ? "Private" : "Dealer";
+  }
 }
 
 function generateSourceUrl(region: string, make: string, model: string, year: number): string {

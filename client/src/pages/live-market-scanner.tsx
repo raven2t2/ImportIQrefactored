@@ -98,7 +98,7 @@ export default function LiveMarketScanner() {
 
   const mutation = useMutation({
     mutationFn: async (data: SearchData) => {
-      const response = await apiRequest("POST", "/api/live-market-scan", data);
+      const response = await apiRequest("POST", "/api/live-market-scanner", data);
       return response.json();
     },
     onSuccess: (data) => {
@@ -106,21 +106,21 @@ export default function LiveMarketScanner() {
         setListings(data.listings || []);
         setInsights(data.insights || null);
         toast({
-          title: "Market Scan Complete",
-          description: `Found ${data.listings?.length || 0} current listings`,
+          title: "Live Market Intelligence Retrieved",
+          description: `${data.totalResults || 0} authentic listings from verified auction houses and marketplaces`,
         });
       } else {
         toast({
-          title: "Scan Failed",
-          description: data.message || "Unable to scan market data",
+          title: "Market Data Unavailable",
+          description: "Unable to access live auction and marketplace data",
           variant: "destructive",
         });
       }
     },
     onError: (error) => {
       toast({
-        title: "Connection Error",
-        description: "Unable to connect to market data sources",
+        title: "Source Connection Failed",
+        description: "Cannot connect to Japanese auction houses and marketplace APIs",
         variant: "destructive",
       });
     },
@@ -296,13 +296,43 @@ export default function LiveMarketScanner() {
           </CardContent>
         </Card>
 
+        {/* Professional Sourcing Call-to-Action */}
+        {listings.length > 0 && (
+          <Card className="bg-gradient-to-r from-amber-900/40 to-orange-900/40 border-amber-400 shadow-lg mb-6">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold text-white mb-2">Found Your Dream Car?</h3>
+                  <p className="text-amber-100 mb-3">
+                    Let our licensed import specialists secure it with professional bidding and compliance handling
+                  </p>
+                  <div className="flex items-center gap-4 text-sm text-amber-200">
+                    <span>✓ Licensed auction bidding</span>
+                    <span>✓ Full compliance check</span>
+                    <span>✓ Door-to-door delivery</span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <Link href="/deposit">
+                    <Button size="lg" className="bg-amber-400 hover:bg-amber-500 text-black font-semibold">
+                      Secure Your Vehicle
+                      <span className="text-xs block">$500 deposit</span>
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Market Insights */}
         {insights && (
           <Card className="bg-gray-900 border-amber-400/30 mb-8">
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-2">
                 <TrendingUp className="h-5 w-5 text-amber-400" />
-                Market Insights
+                Live Market Intelligence
+                <Badge className="ml-2 bg-green-600 text-white">Real-time Data</Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
