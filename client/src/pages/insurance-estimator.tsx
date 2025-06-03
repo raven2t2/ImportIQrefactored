@@ -221,7 +221,7 @@ export default function InsuranceEstimator() {
                       <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                         <p className="text-sm text-gray-600 dark:text-gray-400">Average Premium</p>
                         <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                          ${estimateData.averageMarket.toLocaleString()}
+                          ${estimateData.averageMarket?.toLocaleString() || 'N/A'}
                         </p>
                         <p className="text-xs text-gray-500">per year</p>
                       </div>

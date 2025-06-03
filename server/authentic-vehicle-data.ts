@@ -186,12 +186,12 @@ export const STATE_REGISTRATION_DATA = {
 
 export function calculateInsuranceQuote(
   vehicleValue: number,
-  vehicleType: string,
-  modifications: string[],
-  state: string
+  vehicleAge: number,
+  state: string,
+  driverAge: number,
+  usageType: string
 ): {
-  comprehensive: { min: number; max: number; recommended: number };
-  thirdParty: { min: number; max: number; recommended: number };
+  quote: { comprehensive: number; thirdParty: number };
   factors: string[];
   disclaimer: string;
 } {
@@ -206,27 +206,37 @@ export function calculateInsuranceQuote(
   let multiplier = 1.0;
   const factors: string[] = [];
   
-  // Apply risk factors
-  if (vehicleType.includes("performance") || vehicleType.includes("sports")) {
-    multiplier += AUSTRALIAN_INSURANCE_DATA.riskFactors.performance;
-    factors.push("Performance vehicle surcharge applied");
+  // Apply age-based risk factors
+  if (vehicleAge > 15) {
+    multiplier += AUSTRALIAN_INSURANCE_DATA.riskFactors.vintage;
+    factors.push("Vintage vehicle");
+  } else if (vehicleAge > 10) {
+    multiplier += 0.1;
+    factors.push("Older vehicle");
   }
   
-  if (modifications.length > 0) {
-    multiplier += AUSTRALIAN_INSURANCE_DATA.riskFactors.modified;
-    factors.push("Modified vehicle surcharge applied");
+  // Apply driver age factors
+  if (driverAge < 25) {
+    multiplier += 0.3;
+    factors.push("Young driver surcharge");
+  } else if (driverAge > 65) {
+    multiplier += 0.1;
+    factors.push("Senior driver adjustment");
   }
   
+  // Apply usage type factors
+  if (usageType === "commercial") {
+    multiplier += 0.2;
+    factors.push("Commercial use");
+  }
+  
+  const comprehensiveQuote = Math.round(base.average * multiplier);
+  const thirdPartyQuote = AUSTRALIAN_INSURANCE_DATA.averagePremiums.thirdParty.all.average;
+
   return {
-    comprehensive: {
-      min: Math.round(base.min * multiplier),
-      max: Math.round(base.max * multiplier),
-      recommended: Math.round(base.average * multiplier)
-    },
-    thirdParty: {
-      min: AUSTRALIAN_INSURANCE_DATA.averagePremiums.thirdParty.all.min,
-      max: AUSTRALIAN_INSURANCE_DATA.averagePremiums.thirdParty.all.max,
-      recommended: AUSTRALIAN_INSURANCE_DATA.averagePremiums.thirdParty.all.average
+    quote: {
+      comprehensive: comprehensiveQuote,
+      thirdParty: thirdPartyQuote
     },
     factors,
     disclaimer: "Quotes are estimates based on ACCC insurance industry data. Actual premiums depend on individual circumstances."
