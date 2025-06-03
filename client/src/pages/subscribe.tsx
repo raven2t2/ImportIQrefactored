@@ -168,23 +168,23 @@ export default function Subscribe() {
               <ul className="space-y-3">
                 <li className="flex items-center space-x-3">
                   <Check className="h-4 w-4 text-green-600" />
-                  <span>Vehicle Lookup Tool</span>
+                  <span>All 14 ImportIQ Tools</span>
                 </li>
                 <li className="flex items-center space-x-3">
                   <Check className="h-4 w-4 text-green-600" />
-                  <span>Import Cost Calculator</span>
+                  <span>Vehicle Lookup & Search</span>
                 </li>
                 <li className="flex items-center space-x-3">
                   <Check className="h-4 w-4 text-green-600" />
-                  <span>True Cost Explorer</span>
+                  <span>Cost Calculators</span>
                 </li>
                 <li className="flex items-center space-x-3">
                   <Check className="h-4 w-4 text-green-600" />
-                  <span>BuildReady™ Compliance</span>
+                  <span>Compliance Guidance</span>
                 </li>
                 <li className="flex items-center space-x-3">
                   <Check className="h-4 w-4 text-green-600" />
-                  <span>AI Recommendations Engine</span>
+                  <span>Import Timeline Planning</span>
                 </li>
               </ul>
             </CardContent>
@@ -283,8 +283,8 @@ export default function Subscribe() {
                 <div>Complete import intelligence platform with cost calculators and compliance guidance</div>
               </div>
               <div>
-                <div className="font-semibold text-[#1E1E1E] mb-2">Real-Time Data</div>
-                <div>Live auction data, exchange rates, and compliance updates from official sources</div>
+                <div className="font-semibold text-[#1E1E1E] mb-2">Official Data Sources</div>
+                <div>Import cost calculations using current rates from Australian government sources</div>
               </div>
               <div>
                 <div className="font-semibold text-[#1E1E1E] mb-2">Cancel Anytime</div>
