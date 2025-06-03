@@ -148,7 +148,18 @@ export default function VehicleLookup() {
 
   const identifier = watch("identifier");
   const isVIN = identifier.length === 17;
-  const isChassisCode = identifier.length > 0 && identifier.length < 17;
+  
+  // Check for vintage American muscle car patterns
+  const vinUpper = identifier.toUpperCase();
+  const isVintageAmerican = 
+    vinUpper.startsWith("124") || // Camaro
+    vinUpper.startsWith("123") || // Camaro  
+    vinUpper.startsWith("194") || // Corvette
+    vinUpper.startsWith("9F") ||  // Mustang
+    vinUpper.startsWith("8F") ||  // Mustang
+    vinUpper.startsWith("JS");    // Charger
+  
+  const isChassisCode = identifier.length > 0 && identifier.length < 17 && !isVintageAmerican;
 
   const getVehicleTypeIcon = () => {
     if (result?.type === 'vin') return <span className="text-lg">🇺🇸</span>;
@@ -240,11 +251,13 @@ export default function VehicleLookup() {
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
                     {identifier && identifier.length > 0 && (
                       <Badge variant="outline" className={`text-xs ${
-                        isVIN ? 'border-blue-400 text-blue-400' : 
+                        (isVIN || isVintageAmerican) ? 'border-blue-400 text-blue-400' : 
                         isChassisCode ? 'border-green-400 text-green-400' : 
                         'border-gray-400 text-gray-400'
                       }`}>
-                        {isVIN ? '🇺🇸 VIN' : isChassisCode ? '🇯🇵 JDM' : 'Type...'}
+                        {isVIN ? '🇺🇸 VIN' : 
+                         isVintageAmerican ? '🇺🇸 Classic' :
+                         isChassisCode ? '🇯🇵 JDM' : 'Type...'}
                       </Badge>
                     )}
                   </div>
