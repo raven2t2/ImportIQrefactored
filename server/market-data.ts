@@ -1,5 +1,6 @@
 // Real market data from public sources - no API keys needed
 import https from 'https';
+import { SHIPPING_DATA } from './public-data-sources';
 
 interface ExchangeRateData {
   audJpy: number;
@@ -76,7 +77,6 @@ async function fetchComplianceUpdates(): Promise<ComplianceUpdate[]> {
 // Get shipping insights from public port data
 function getShippingInsights() {
   // Real shipping data based on major Australian ports and freight forwarders
-  const { SHIPPING_DATA } = require('./public-data-sources');
   
   return {
     averageDeliveryDays: 16, // Based on major Japan-Australia shipping routes
