@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Car, Calculator, Heart, Calendar, User, Camera, Settings, Plus, LogOut } from "lucide-react";
+import { Car, Calculator, Heart, Calendar, User, Camera, Settings, Plus, LogOut, Search, TrendingUp, Shield, Zap, BarChart3, FileText, Wrench, Database, Globe } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -171,20 +171,20 @@ export default function UserDashboard() {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-5 mb-8">
             <TabsTrigger value="overview" className="flex items-center space-x-2">
-              <User className="h-4 w-4" />
-              <span>Overview</span>
+              <Zap className="h-4 w-4" />
+              <span>ImportIQ Tools</span>
             </TabsTrigger>
             <TabsTrigger value="garage" className="flex items-center space-x-2">
               <Car className="h-4 w-4" />
               <span>My Garage</span>
             </TabsTrigger>
             <TabsTrigger value="watchlist" className="flex items-center space-x-2">
-              <Heart className="h-4 w-4" />
-              <span>Personal Hub</span>
+              <BarChart3 className="h-4 w-4" />
+              <span>Market Intel</span>
             </TabsTrigger>
             <TabsTrigger value="events" className="flex items-center space-x-2">
-              <Calendar className="h-4 w-4" />
-              <span>Events</span>
+              <FileText className="h-4 w-4" />
+              <span>My Reports</span>
             </TabsTrigger>
             <TabsTrigger value="profile" className="flex items-center space-x-2">
               <Settings className="h-4 w-4" />
@@ -193,132 +193,264 @@ export default function UserDashboard() {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-8">
-            {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-blue-600 text-sm font-medium">Import Calculations</p>
-                      <p className="text-3xl font-bold text-blue-900">{dashboardStats?.totalCalculations || 0}</p>
-                    </div>
-                    <Calculator className="h-8 w-8 text-blue-600" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-green-600 text-sm font-medium">Vehicle Builds</p>
-                      <p className="text-3xl font-bold text-green-900">{dashboardStats?.totalBuilds || 0}</p>
-                    </div>
-                    <Car className="h-8 w-8 text-green-600" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-amber-600 text-sm font-medium">Parts Watching</p>
-                      <p className="text-3xl font-bold text-amber-900">{dashboardStats?.watchlistItems || 0}</p>
-                    </div>
-                    <Heart className="h-8 w-8 text-amber-600" />
-                  </div>
-                </CardContent>
-              </Card>
+            {/* Welcome Section */}
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">ImportIQ Professional Tools</h2>
+              <p className="text-gray-600 text-lg">Everything you need to make informed import decisions in one place</p>
             </div>
 
-            {/* Recent Calculations */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>Recent Calculations</span>
-                  <Button size="sm" className="bg-brand-gold hover:bg-brand-gold/90" onClick={() => window.location.href = '/import-calculator'}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    New Calculation
-                  </Button>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {userCalculations.length > 0 ? (
-                    userCalculations.slice(0, 3).map((calc: any) => (
-                      <div key={calc.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 bg-brand-gold/10 rounded-lg flex items-center justify-center">
-                            <Car className="h-5 w-5 text-brand-gold" />
-                          </div>
-                          <div>
-                            <h4 className="font-medium text-gray-900">{calc.vehicleMake} {calc.vehicleModel} {calc.vehicleYear}</h4>
-                            <p className="text-sm text-gray-600">From {calc.shippingOrigin} • {new Date(calc.createdAt).toLocaleDateString()}</p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-semibold text-gray-900">${parseFloat(calc.totalCost).toLocaleString()}</p>
-                          <Badge variant="secondary" className="text-xs">
-                            Completed
-                          </Badge>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-8">
-                      <p className="text-gray-500">No calculations yet. Start with your first import cost calculation!</p>
+            {/* Core Tools Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              
+              {/* Import Cost Calculator */}
+              <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-brand-gold"
+                    onClick={() => window.location.href = '/import-calculator'}>
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-brand-gold group-hover:text-white transition-colors">
+                      <Calculator className="h-6 w-6 text-blue-600 group-hover:text-white" />
                     </div>
-                  )}
+                    <div>
+                      <h3 className="font-semibold text-gray-900">Import Calculator</h3>
+                      <p className="text-sm text-gray-600">Complete cost breakdown</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-4">Calculate all costs including duties, taxes, shipping, and compliance fees for any vehicle import.</p>
+                  <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700 group-hover:bg-brand-gold group-hover:hover:bg-amber-600">
+                    Start Calculation
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Value Estimator */}
+              <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-brand-gold"
+                    onClick={() => window.location.href = '/value-estimator'}>
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-brand-gold group-hover:text-white transition-colors">
+                      <TrendingUp className="h-6 w-6 text-green-600 group-hover:text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">Value Estimator</h3>
+                      <p className="text-sm text-gray-600">Market value analysis</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-4">Get accurate market valuations and depreciation forecasts for imported vehicles.</p>
+                  <Button size="sm" className="w-full bg-green-600 hover:bg-green-700 group-hover:bg-brand-gold group-hover:hover:bg-amber-600">
+                    Estimate Value
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Compliance Check */}
+              <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-brand-gold"
+                    onClick={() => window.location.href = '/compliance-check'}>
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center group-hover:bg-brand-gold group-hover:text-white transition-colors">
+                      <Shield className="h-6 w-6 text-red-600 group-hover:text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">Compliance Check</h3>
+                      <p className="text-sm text-gray-600">Regulatory verification</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-4">Verify if your vehicle meets Australian import and compliance requirements.</p>
+                  <Button size="sm" className="w-full bg-red-600 hover:bg-red-700 group-hover:bg-brand-gold group-hover:hover:bg-amber-600">
+                    Check Compliance
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Vehicle Lookup */}
+              <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-brand-gold"
+                    onClick={() => window.location.href = '/vehicle-lookup'}>
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-brand-gold group-hover:text-white transition-colors">
+                      <Search className="h-6 w-6 text-purple-600 group-hover:text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">Vehicle Lookup</h3>
+                      <p className="text-sm text-gray-600">Detailed specifications</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-4">Look up detailed vehicle specifications, history, and import eligibility by VIN or chassis.</p>
+                  <Button size="sm" className="w-full bg-purple-600 hover:bg-purple-700 group-hover:bg-brand-gold group-hover:hover:bg-amber-600">
+                    Search Vehicle
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Build Ready Tool */}
+              <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-brand-gold"
+                    onClick={() => window.location.href = '/build-ready'}>
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center group-hover:bg-brand-gold group-hover:text-white transition-colors">
+                      <Wrench className="h-6 w-6 text-amber-600 group-hover:text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">BuildReady</h3>
+                      <p className="text-sm text-gray-600">Modification planning</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-4">Plan your build with compliance-friendly modifications and cost estimates.</p>
+                  <Button size="sm" className="w-full bg-amber-600 hover:bg-amber-700 group-hover:bg-brand-gold group-hover:hover:bg-amber-600">
+                    Plan Build
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Registration Stats */}
+              <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-brand-gold"
+                    onClick={() => window.location.href = '/registration-stats'}>
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-brand-gold group-hover:text-white transition-colors">
+                      <BarChart3 className="h-6 w-6 text-indigo-600 group-hover:text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">Registration Stats</h3>
+                      <p className="text-sm text-gray-600">Market insights</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-4">View registration data and trends for imported vehicles across Australia.</p>
+                  <Button size="sm" className="w-full bg-indigo-600 hover:bg-indigo-700 group-hover:bg-brand-gold group-hover:hover:bg-amber-600">
+                    View Stats
+                  </Button>
+                </CardContent>
+              </Card>
+
+            </div>
+
+            {/* Quick Actions */}
+            <Card className="bg-gradient-to-r from-brand-gold/10 to-amber-100 border-brand-gold/30">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Ready to Import?</h3>
+                    <p className="text-gray-600">Get professional help with your import project</p>
+                  </div>
+                  <div className="flex space-x-3">
+                    <Button 
+                      variant="outline" 
+                      className="border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-white"
+                      onClick={() => window.location.href = '/subscribe'}
+                    >
+                      Upgrade Plan
+                    </Button>
+                    <Button 
+                      className="bg-brand-gold hover:bg-amber-600"
+                      onClick={() => window.location.href = '/contact'}
+                    >
+                      Get Expert Help
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Saved Reports Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>Your Saved Reports</span>
-                  <Button size="sm" variant="outline">
-                    View All Reports
-                  </Button>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {savedReports.length > 0 ? (
-                    savedReports.slice(0, 3).map((report: any) => (
-                      <div key={report.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 bg-brand-gold/10 rounded-lg flex items-center justify-center">
-                            <Calculator className="h-5 w-5 text-brand-gold" />
+            {/* Recent Activity Summary */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center justify-between">
+                    <span>Recent Calculations</span>
+                    <Badge variant="outline" className="text-xs">{userCalculations?.length || 0} total</Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {userCalculations?.length > 0 ? (
+                    <div className="space-y-3">
+                      {userCalculations.slice(0, 3).map((calc: any) => (
+                        <div key={calc.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                              <Calculator className="h-4 w-4 text-blue-600" />
+                            </div>
+                            <div>
+                              <p className="font-medium text-sm">{calc.vehicleMake} {calc.vehicleModel}</p>
+                              <p className="text-xs text-gray-600">${parseFloat(calc.totalCost).toLocaleString()}</p>
+                            </div>
                           </div>
-                          <div>
-                            <h4 className="font-medium text-gray-900">{report.reportType}</h4>
-                            <p className="text-sm text-gray-600">Generated on {new Date(report.createdAt).toLocaleDateString()}</p>
-                          </div>
+                          <Badge variant="secondary" className="text-xs cursor-pointer">View</Badge>
                         </div>
-                        <div className="text-right">
-                          <Button size="sm" variant="outline">
-                            View Report
-                          </Button>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-8">
-                      <p className="text-gray-500">No reports saved yet. Use any of the ImportIQ tools to generate your first report!</p>
+                      ))}
                       <Button 
-                        className="mt-4 bg-brand-gold hover:bg-brand-gold/90"
-                        onClick={() => window.location.href = '/features'}
+                        size="sm" 
+                        variant="outline" 
+                        className="w-full mt-3"
+                        onClick={() => setActiveTab('events')}
                       >
-                        Explore ImportIQ Tools
+                        View All Calculations
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="text-center py-6">
+                      <Calculator className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                      <p className="text-sm text-gray-500 mb-3">No calculations yet</p>
+                      <Button 
+                        size="sm" 
+                        className="bg-blue-600 hover:bg-blue-700"
+                        onClick={() => window.location.href = '/import-calculator'}
+                      >
+                        Start First Calculation
                       </Button>
                     </div>
                   )}
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center justify-between">
+                    <span>My Reports</span>
+                    <Badge variant="outline" className="text-xs">{savedReports?.length || 0} saved</Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {savedReports?.length > 0 ? (
+                    <div className="space-y-3">
+                      {savedReports.slice(0, 3).map((report: any) => (
+                        <div key={report.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                              <FileText className="h-4 w-4 text-green-600" />
+                            </div>
+                            <div>
+                              <p className="font-medium text-sm">{report.reportType}</p>
+                              <p className="text-xs text-gray-600">{new Date(report.createdAt).toLocaleDateString()}</p>
+                            </div>
+                          </div>
+                          <Badge variant="secondary" className="text-xs cursor-pointer">Open</Badge>
+                        </div>
+                      ))}
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="w-full mt-3"
+                        onClick={() => setActiveTab('events')}
+                      >
+                        View All Reports
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="text-center py-6">
+                      <FileText className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                      <p className="text-sm text-gray-500 mb-3">No reports yet</p>
+                      <Button 
+                        size="sm" 
+                        className="bg-green-600 hover:bg-green-700"
+                        onClick={() => window.location.href = '/value-estimator'}
+                      >
+                        Generate First Report
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="garage" className="space-y-6">
