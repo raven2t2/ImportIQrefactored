@@ -4,7 +4,7 @@
  * Ensures authentic auction data remains current and reliable
  */
 
-import { scrapeAllJapaneseAuctions } from './japanese-auction-scraper';
+import { scrapeAllJapaneseAuctions } from './ethical-japanese-scraper';
 import { scrapeAllUSAuctions } from './us-auction-scraper';
 
 interface DataRefreshResult {
