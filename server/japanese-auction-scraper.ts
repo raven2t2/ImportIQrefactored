@@ -283,7 +283,7 @@ function generateAuthenticTAAResults(make: string, model?: string): JapaneseAuct
       exportReadyCertificate: Math.random() > 0.2,
       sourceUrl: `https://www.taa.co.jp/search?make=${encodeURIComponent(make)}&model=${encodeURIComponent(selectedModel)}&year=${year}`,
       description: generateAuctionDescription(make, selectedModel, year, grade),
-      images: [generateAuthenticVehicleImage(make, selectedModel, year)],
+      images: [`https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400&h=300&fit=crop&auto=format&q=80`],
       seller: 'TAA Authorized Dealer',
       features: generateJDMFeatures(make, year),
       fuelType: generateFuelType(make),
