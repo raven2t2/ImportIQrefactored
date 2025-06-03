@@ -302,7 +302,7 @@ export default function AIRecommendations() {
                         <FormControl>
                           <Textarea
                             {...field}
-                            placeholder="Describe your dream car... (e.g., JDM sports car, manual transmission, under 100k km, prefer Honda/Nissan, want something reliable but fun)"
+                            placeholder="Describe your dream car... (e.g., JDM sports car like Skyline GT-R, American muscle like Mustang GT, manual transmission, under 100k km, prefer performance and reliability)"
                             className="min-h-[100px]"
                           />
                         </FormControl>

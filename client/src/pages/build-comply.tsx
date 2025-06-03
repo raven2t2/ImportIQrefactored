@@ -627,7 +627,7 @@ export default function BuildComply() {
             BuildReady
           </h1>
           <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-            Get a personalized compliance strategy for your vehicle modifications before you start building
+            Get a personalized compliance strategy for your JDM or American Muscle car modifications before you start building
           </p>
         </div>
 
@@ -656,12 +656,24 @@ export default function BuildComply() {
                         <SelectValue placeholder="Select your vehicle" />
                       </SelectTrigger>
                       <SelectContent>
+                        {/* JDM Vehicles */}
                         <SelectItem value="skyline-gtr">Nissan Skyline GT-R</SelectItem>
                         <SelectItem value="supra">Toyota Supra</SelectItem>
                         <SelectItem value="evo">Mitsubishi Evolution</SelectItem>
                         <SelectItem value="impreza-sti">Subaru Impreza STI</SelectItem>
                         <SelectItem value="rx7">Mazda RX-7</SelectItem>
                         <SelectItem value="silvia">Nissan Silvia</SelectItem>
+                        <SelectItem value="civic-type-r">Honda Civic Type R</SelectItem>
+                        <SelectItem value="s2000">Honda S2000</SelectItem>
+                        {/* American Muscle */}
+                        <SelectItem value="mustang-gt">Ford Mustang GT</SelectItem>
+                        <SelectItem value="camaro-ss">Chevrolet Camaro SS</SelectItem>
+                        <SelectItem value="challenger-rt">Dodge Challenger R/T</SelectItem>
+                        <SelectItem value="corvette">Chevrolet Corvette</SelectItem>
+                        <SelectItem value="charger-rt">Dodge Charger R/T</SelectItem>
+                        <SelectItem value="firebird-trans-am">Pontiac Firebird Trans Am</SelectItem>
+                        <SelectItem value="mustang-shelby">Ford Mustang Shelby</SelectItem>
+                        <SelectItem value="gto">Pontiac GTO</SelectItem>
                         <SelectItem value="other">Other</SelectItem>
                       </SelectContent>
                     </Select>
