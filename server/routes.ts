@@ -5,7 +5,7 @@ import { insertSubmissionSchema, type CalculationResult } from "@shared/schema";
 import { AdminAuthService } from "./admin-auth";
 import { getMarketIntelligence } from "./market-data";
 import { calculateShippingCost, calculateImportDuty, calculateGST, calculateLuxuryCarTax, IMPORT_REQUIREMENTS } from "./public-data-sources";
-import { checkVehicleCompliance, getImportGuidance } from "./vehicle-compliance";
+import { checkVehicleCompliance, getImportGuidance } from "./vehicle-compliance-australia";
 import { calculateShippingCost as calculateShippingQuote, getAllPorts, getPortsByCountry, getPopularRoutes, getShippingTips } from "./shipping-calculator";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { z } from "zod";
