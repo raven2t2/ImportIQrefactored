@@ -150,8 +150,8 @@ export default function Subscribe() {
               <CardTitle className="text-2xl">Monthly Plan</CardTitle>
               <CardDescription>Perfect for active importers</CardDescription>
               <div className="mt-4">
-                <div className="text-4xl font-bold text-[#1E1E1E]">${monthlyPrice}</div>
-                <div className="text-gray-600">per month</div>
+                <div className="text-4xl font-bold text-black">${monthlyPrice}</div>
+                <div className="text-gray-800 font-medium">per month</div>
                 {isTrialUser && (
                   <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded">
                     <p className="text-sm text-amber-800 font-medium">
@@ -209,9 +209,9 @@ export default function Subscribe() {
               <CardTitle className="text-2xl">Yearly Plan</CardTitle>
               <CardDescription>Best value for serious importers</CardDescription>
               <div className="mt-4">
-                <div className="text-4xl font-bold text-[#1E1E1E]">${yearlyMonthlyEquivalent}</div>
-                <div className="text-gray-600">per month</div>
-                <div className="text-sm text-[#D4AF37] font-semibold mt-1">
+                <div className="text-4xl font-bold text-black">${yearlyMonthlyEquivalent}</div>
+                <div className="text-gray-800 font-medium">per month</div>
+                <div className="text-sm text-[#D4AF37] font-bold mt-1">
                   ${yearlyPrice} billed annually
                 </div>
               </div>
@@ -271,24 +271,24 @@ export default function Subscribe() {
           </div>
         )}
 
-        {/* Trust Signals */}
+        {/* Platform Benefits */}
         <div className="mt-12 text-center">
           <div className="bg-white rounded-xl p-6 max-w-2xl mx-auto">
             <h3 className="text-lg font-semibold text-[#1E1E1E] mb-4">
               Why ImportIQ Professional?
             </h3>
-            <div className="grid md:grid-cols-3 gap-6 text-sm text-gray-600">
+            <div className="grid md:grid-cols-3 gap-6 text-sm text-gray-700">
               <div>
-                <div className="font-semibold text-[#1E1E1E] mb-2">Proven Results</div>
-                <div>Members save an average of $4,200 per import</div>
+                <div className="font-semibold text-[#1E1E1E] mb-2">14 AI-Powered Tools</div>
+                <div>Complete import intelligence platform with cost calculators and compliance guidance</div>
               </div>
               <div>
-                <div className="font-semibold text-[#1E1E1E] mb-2">Secure & Reliable</div>
-                <div>Bank-level security with 99.9% uptime</div>
+                <div className="font-semibold text-[#1E1E1E] mb-2">Real-Time Data</div>
+                <div>Live auction data, exchange rates, and compliance updates from official sources</div>
               </div>
               <div>
                 <div className="font-semibold text-[#1E1E1E] mb-2">Cancel Anytime</div>
-                <div>No contracts, cancel in 30 seconds</div>
+                <div>No contracts, full refund within first 30 days</div>
               </div>
             </div>
           </div>
