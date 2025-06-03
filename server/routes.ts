@@ -2363,6 +2363,17 @@ Respond with a JSON object containing your recommendations.`;
       
       budgetAnalysis.avg_budget = submissions.length > 0 ? budgetAnalysis.avg_budget / submissions.length : 0;
 
+      // Conversion funnel analysis (moved up to be available for AI prompt)
+      const funnelAnalysis = {
+        visitors: emailCache.length,
+        trial_signups: trials.length,
+        active_trials: trials.filter(t => t.isActive).length,
+        calculations: submissions.length,
+        visitor_to_trial: trials.length > 0 ? (trials.length / emailCache.length) * 100 : 0,
+        trial_to_calculation: submissions.length > 0 ? (submissions.length / trials.length) * 100 : 0,
+        overall_conversion: emailCache.length > 0 ? (trials.filter(t => t.isActive).length / emailCache.length) * 100 : 0
+      };
+
       // Peak activity identification
       const peakHour = Object.entries(timePatterns.hourly).sort(([,a], [,b]) => b - a)[0]?.[0] || "12";
       const peakDay = Object.entries(timePatterns.daily).sort(([,a], [,b]) => b - a)[0]?.[0] || "1";
@@ -2423,17 +2434,6 @@ Generate specific ad targeting recommendations with confidence levels (High/Medi
           implementation: "Google/Facebook dayparting with automated bid adjustments"
         }
       ];
-
-      // Conversion funnel analysis
-      const funnelAnalysis = {
-        visitors: emailCache.length,
-        trial_signups: trials.length,
-        active_trials: trials.filter(t => t.isActive).length,
-        calculations: submissions.length,
-        visitor_to_trial: trials.length > 0 ? (trials.length / emailCache.length) * 100 : 0,
-        trial_to_calculation: submissions.length > 0 ? (submissions.length / trials.length) * 100 : 0,
-        overall_conversion: emailCache.length > 0 ? (trials.filter(t => t.isActive).length / emailCache.length) * 100 : 0
-      };
 
       // Customer lifetime value prediction
       const clvAnalysis = {
