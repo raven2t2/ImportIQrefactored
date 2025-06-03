@@ -292,7 +292,6 @@ export default function BuildComply() {
   const isFormValid = () => {
     const watchedValues = watch();
     return (
-      watchedValues.email &&
       watchedValues.vehicle &&
       watchedValues.state &&
       watchedValues.budget &&
