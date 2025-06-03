@@ -306,7 +306,7 @@ export default function About() {
               <Button 
                 variant="outline" 
                 size="lg" 
-                className="border-2 border-gray-600 text-white hover:bg-gray-800 hover:border-gray-500 px-12 py-4 text-lg rounded-full transition-all duration-300 font-medium"
+                className="border-2 border-gray-600 text-gray-900 hover:bg-gray-800 hover:text-white hover:border-gray-500 px-12 py-4 text-lg rounded-full transition-all duration-300 font-medium"
               >
                 Try Cost Calculator
               </Button>
