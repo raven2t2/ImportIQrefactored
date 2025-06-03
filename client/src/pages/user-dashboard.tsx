@@ -171,8 +171,8 @@ export default function UserDashboard() {
               <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center">Additional Professional Tools</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 
-                {/* Shipping Calculator - Can be built with public port/distance data */}
-                <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-amber-400">
+                {/* Shipping Calculator - Functional */}
+                <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-amber-400" onClick={() => window.location.href = '/shipping-calculator'}>
                   <CardContent className="p-6">
                     <div className="flex items-center space-x-3 mb-4">
                       <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-amber-400 transition-colors">
@@ -184,33 +184,37 @@ export default function UserDashboard() {
                       </div>
                     </div>
                     <p className="text-xs text-gray-600 mb-4">
-                      Calculate shipping costs using public port distance data and standard freight rates.
+                      Calculate shipping costs using authentic port distance data and current freight rates.
                     </p>
-                    <Badge variant="outline" className="text-xs">Coming Soon</Badge>
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs">
+                      Calculate Shipping
+                    </Button>
                   </CardContent>
                 </Card>
 
-                {/* Cost Optimizer - Can use public data for optimization tips */}
-                <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-amber-400">
+                {/* Import Cost Calculator - Functional */}
+                <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-amber-400" onClick={() => window.location.href = '/import-calculator'}>
                   <CardContent className="p-6">
                     <div className="flex items-center space-x-3 mb-4">
                       <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-amber-400 transition-colors">
                         <DollarSign className="h-6 w-6 text-green-600 group-hover:text-white" />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-900">Cost Optimizer</h4>
-                        <p className="text-xs text-gray-600">Save money tips</p>
+                        <h4 className="font-semibold text-gray-900">Import Calculator</h4>
+                        <p className="text-xs text-gray-600">Total cost breakdown</p>
                       </div>
                     </div>
                     <p className="text-xs text-gray-600 mb-4">
-                      AI-powered recommendations to minimize import costs using market analysis.
+                      Calculate complete import costs including duties, GST, and luxury car tax.
                     </p>
-                    <Badge variant="outline" className="text-xs">Coming Soon</Badge>
+                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white text-xs">
+                      Calculate Costs
+                    </Button>
                   </CardContent>
                 </Card>
 
-                {/* Compliance Checker - Can use public NHTSA/DOT data */}
-                <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-amber-400">
+                {/* Compliance Checker - Functional */}
+                <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-amber-400" onClick={() => window.location.href = '/compliance-checker'}>
                   <CardContent className="p-6">
                     <div className="flex items-center space-x-3 mb-4">
                       <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center group-hover:bg-amber-400 transition-colors">
@@ -218,32 +222,36 @@ export default function UserDashboard() {
                       </div>
                       <div>
                         <h4 className="font-semibold text-gray-900">Compliance Check</h4>
-                        <p className="text-xs text-gray-600">Regulatory verification</p>
+                        <p className="text-xs text-gray-600">Australian SEVS verification</p>
                       </div>
                     </div>
                     <p className="text-xs text-gray-600 mb-4">
-                      Verify import eligibility using official NHTSA and EPA databases.
+                      Verify import eligibility using Australian SEVS database and ADR requirements.
                     </p>
-                    <Badge variant="outline" className="text-xs">Coming Soon</Badge>
+                    <Button className="w-full bg-red-600 hover:bg-red-700 text-white text-xs">
+                      Check Compliance
+                    </Button>
                   </CardContent>
                 </Card>
 
-                {/* Vehicle Database - Can use public VIN decoder APIs */}
-                <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-amber-400">
+                {/* Vehicle Lookup - Functional */}
+                <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-amber-400" onClick={() => window.location.href = '/vehicle-lookup'}>
                   <CardContent className="p-6">
                     <div className="flex items-center space-x-3 mb-4">
                       <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-amber-400 transition-colors">
                         <Database className="h-6 w-6 text-purple-600 group-hover:text-white" />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-900">Vehicle Database</h4>
-                        <p className="text-xs text-gray-600">Specs lookup</p>
+                        <h4 className="font-semibold text-gray-900">Vehicle Lookup</h4>
+                        <p className="text-xs text-gray-600">Detailed specs & history</p>
                       </div>
                     </div>
                     <p className="text-xs text-gray-600 mb-4">
-                      Comprehensive vehicle specifications using public VIN decoder services.
+                      Comprehensive vehicle data including specifications, market values, and auction history.
                     </p>
-                    <Badge variant="outline" className="text-xs">Coming Soon</Badge>
+                    <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white text-xs">
+                      Search Vehicles
+                    </Button>
                   </CardContent>
                 </Card>
               </div>

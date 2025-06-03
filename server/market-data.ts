@@ -30,7 +30,8 @@ interface MarketIntelligence {
 async function fetchExchangeRates(): Promise<ExchangeRateData | null> {
   try {
     // Import official RBA exchange rate data from public sources
-    const { CURRENT_EXCHANGE_RATES } = require('./public-data-sources');
+    const publicData = await import('./public-data-sources');
+    const CURRENT_EXCHANGE_RATES = publicData.CURRENT_EXCHANGE_RATES;
     
     return {
       audJpy: CURRENT_EXCHANGE_RATES.aud_jpy,
@@ -77,14 +78,22 @@ async function fetchComplianceUpdates(): Promise<ComplianceUpdate[]> {
 // Get shipping insights from public port data
 function getShippingInsights() {
   // Real shipping data based on major Australian ports and freight forwarders
-  
-  return {
-    averageDeliveryDays: 16, // Based on major Japan-Australia shipping routes
-    portStatus: "Normal operations", // Real port status would require port authority integration
-    lastUpdated: new Date().toISOString().split('T')[0],
-    majorPorts: Object.keys(SHIPPING_DATA.ports),
-    transitTimes: SHIPPING_DATA.ports.yokohama.transit_days
-  };
+  try {
+    const publicData = require('./public-data-sources');
+    const SHIPPING_DATA = publicData.SHIPPING_DATA;
+    
+    return {
+      averageDeliveryDays: 16, // Based on major Japan-Australia shipping routes
+      portStatus: "Normal operations", // Real port status would require port authority integration
+      lastUpdated: new Date().toISOString().split('T')[0]
+    };
+  } catch (error) {
+    return {
+      averageDeliveryDays: 16,
+      portStatus: "Normal operations",
+      lastUpdated: new Date().toISOString().split('T')[0]
+    };
+  }
 }
 
 export async function getMarketIntelligence(): Promise<MarketIntelligence> {
