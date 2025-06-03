@@ -4,7 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
-import { AiChatAssistant } from "@/components/ai-chat-assistant";
+import { AiChatButton } from "@/components/ai-chat-button";
 import Landing from "@/pages/landing";
 import ImportIQ from "@/pages/importiq";
 import Features from "@/pages/features";
@@ -89,7 +89,7 @@ function App() {
       <TooltipProvider>
         <Toaster />
         <Router />
-        <AiChatAssistant />
+        <AiChatButton />
       </TooltipProvider>
     </QueryClientProvider>
   );
