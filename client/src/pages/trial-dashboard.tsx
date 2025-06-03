@@ -164,9 +164,11 @@ export default function TrialDashboard() {
               <Link href="/pricing" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Pricing</Link>
               <Link href="/about" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Our Mission</Link>
               <Link href="/affiliate-signup" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Refer & Earn</Link>
-              <Button className="bg-amber-400 hover:bg-amber-500 text-black px-6 py-2 rounded-full transition-all duration-300 font-medium shadow-lg hover:shadow-xl">
-                Upgrade Now
-              </Button>
+              <Link href="/subscribe">
+                <Button className="bg-amber-400 hover:bg-amber-500 text-black px-6 py-2 rounded-full transition-all duration-300 font-medium shadow-lg hover:shadow-xl">
+                  Upgrade Now
+                </Button>
+              </Link>
             </div>
 
             {/* Mobile menu button */}
@@ -191,9 +193,11 @@ export default function TrialDashboard() {
                 <Link href="/pricing" className="block px-3 py-2 text-gray-300 hover:text-white transition-colors duration-300">Pricing</Link>
                 <Link href="/about" className="block px-3 py-2 text-gray-300 hover:text-white transition-colors duration-300">Our Mission</Link>
                 <Link href="/affiliate-signup" className="block px-3 py-2 text-gray-300 hover:text-white transition-colors duration-300">Refer & Earn</Link>
-                <Button className="w-full mt-2 bg-amber-400 hover:bg-amber-500 text-black font-medium">
-                  Upgrade Now
-                </Button>
+                <Link href="/subscribe">
+                  <Button className="w-full mt-2 bg-amber-400 hover:bg-amber-500 text-black font-medium">
+                    Upgrade Now
+                  </Button>
+                </Link>
               </div>
             </div>
           )}
@@ -209,13 +213,14 @@ export default function TrialDashboard() {
               Free Trial Active - {trialDaysLeft} days remaining
             </span>
           </div>
-          <Button 
-            size="sm" 
-            className="bg-white text-amber-600 hover:bg-gray-100 font-medium"
-            onClick={() => window.location.href = '/pricing'}
-          >
-            Upgrade Now
-          </Button>
+          <Link href="/subscribe">
+            <Button 
+              size="sm" 
+              className="bg-white text-amber-600 hover:bg-gray-100 font-medium"
+            >
+              Upgrade Now
+            </Button>
+          </Link>
         </div>
       </div>
 
