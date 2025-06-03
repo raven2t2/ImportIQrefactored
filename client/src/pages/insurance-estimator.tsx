@@ -256,8 +256,8 @@ export default function InsuranceEstimator() {
                             <p className="text-sm text-gray-600 dark:text-gray-400">{quote.coverage}</p>
                           </div>
                           <div className="text-right">
-                            <p className="text-lg font-bold">${quote.premium.annual.toLocaleString()}</p>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">${quote.premium.monthly}/month</p>
+                            <p className="text-lg font-bold">${quote.premium?.annual?.toLocaleString() || 'N/A'}</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">${quote.premium?.monthly || 'N/A'}/month</p>
                           </div>
                         </div>
                         
