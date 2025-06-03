@@ -370,8 +370,23 @@ function generateAuthenticUSVehicles(make: string, model?: string, source: strin
       for (let i = 0; i < 5; i++) {
         const year = modelData.years[Math.floor(Math.random() * modelData.years.length)];
         const basePrice = modelData.basePrice + (Math.random() * modelData.priceVariation);
-        const age = 2024 - year;
-        const mileage = Math.floor(age * (12000 + Math.random() * 8000)); // Higher US mileage
+        const age = 2025 - year;
+        
+        // Realistic US auction vehicle mileage patterns
+        let mileage;
+        if (age > 25) {
+          // Classic muscle cars: often garage kept with low mileage
+          mileage = Math.floor(30000 + Math.random() * 70000); // 30k-100k miles total
+        } else if (age > 15) {
+          // Older performance cars: moderate usage
+          mileage = Math.floor(60000 + Math.random() * 90000); // 60k-150k miles total
+        } else if (age > 10) {
+          // Modern classics: higher usage but reasonable
+          mileage = Math.floor(80000 + Math.random() * 120000); // 80k-200k miles total
+        } else {
+          // Recent cars: normal US usage patterns
+          mileage = Math.floor(age * (12000 + Math.random() * 8000)); // 12k-20k miles/year
+        }
         
         vehicles.push({
           id: `${source.toLowerCase()}-${Date.now()}-${i}`,
