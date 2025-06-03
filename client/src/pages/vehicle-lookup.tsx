@@ -75,6 +75,7 @@ export default function VehicleLookup() {
 
   // Common vehicle builds for quick selection
   const commonBuilds = [
+    // JDM Vehicles
     { label: "Nissan Skyline GT-R R34", value: "BNR34" },
     { label: "Nissan Skyline GT-R R33", value: "BNR33" },
     { label: "Nissan Skyline GT-R R32", value: "BNR32" },
@@ -85,8 +86,13 @@ export default function VehicleLookup() {
     { label: "Subaru Impreza STI", value: "GDB" },
     { label: "Honda NSX", value: "NA1" },
     { label: "Mazda RX-7 FD", value: "FD3S" },
-    { label: "Toyota Chaser", value: "JZX100" },
-    { label: "Nissan 300ZX", value: "Z32" }
+    // American Muscle
+    { label: "Ford Mustang GT", value: "MUSTANG-GT" },
+    { label: "Chevrolet Camaro SS", value: "CAMARO-SS" },
+    { label: "Dodge Challenger R/T", value: "CHALLENGER-RT" },
+    { label: "Chevrolet Corvette", value: "CORVETTE" },
+    { label: "Ford Mustang Shelby", value: "SHELBY-GT500" },
+    { label: "Dodge Charger R/T", value: "CHARGER-RT" }
   ];
 
   const handleQuickSelect = (chassisCode: string) => {
