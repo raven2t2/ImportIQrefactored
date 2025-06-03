@@ -9,6 +9,7 @@ import { scrapeAllUSAuctions, type USAuctionListing } from './us-auction-scraper
 import { scrapeJapaneseMarketplaces, scrapeUSMarketplaces } from './enhanced-auction-scraper';
 import { scrapeAuthenticJapaneseData } from './advanced-japanese-scraper';
 import { scrapeEnhancedAuctionData } from './enhanced-scraper';
+import { scrapeWithProxyRotation } from './proxy-rotation-scraper';
 
 export interface SearchFilters {
   make: string;
@@ -190,11 +191,11 @@ export async function generateMarketListings(filters: SearchFilters): Promise<{ 
       // Try advanced Japanese scraper first
       let scrapedJapaneseVehicles = await scrapeAuthenticJapaneseData(make, model);
       
-      // If that fails, use enhanced scraper as backup
+      // If that fails, use proxy rotation system as backup
       if (scrapedJapaneseVehicles.length === 0) {
-        console.log('Falling back to enhanced auction scraper for Japanese data');
-        const enhancedVehicles = await scrapeEnhancedAuctionData(make, model);
-        scrapedJapaneseVehicles = enhancedVehicles.map(vehicle => ({
+        console.log('Falling back to proxy rotation system for Japanese data');
+        const proxyVehicles = await scrapeWithProxyRotation(make, model);
+        scrapedJapaneseVehicles = proxyVehicles.map(vehicle => ({
           id: vehicle.id,
           make: vehicle.make,
           model: vehicle.model,
