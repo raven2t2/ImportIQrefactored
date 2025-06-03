@@ -208,7 +208,7 @@ export default function Subscribe() {
               <ul className="space-y-3">
                 <li className="flex items-center space-x-3">
                   <Check className="h-4 w-4 text-green-600" />
-                  <span>All 14 ImportIQ Tools</span>
+                  <span>All 16 ImportIQ Tools</span>
                 </li>
                 <li className="flex items-center space-x-3">
                   <Check className="h-4 w-4 text-green-600" />
@@ -260,7 +260,7 @@ export default function Subscribe() {
               <ul className="space-y-3">
                 <li className="flex items-center space-x-3">
                   <Check className="h-4 w-4 text-green-600" />
-                  <span>All 14 ImportIQ Tools</span>
+                  <span>All 16 ImportIQ Tools</span>
                 </li>
                 <li className="flex items-center space-x-3">
                   <Check className="h-4 w-4 text-green-600" />
