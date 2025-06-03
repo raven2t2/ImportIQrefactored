@@ -260,8 +260,17 @@ export default function Features() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
-            <Button className="bg-amber-400 hover:bg-amber-500 text-black px-8 py-4 text-lg rounded-full font-semibold transition-all duration-300 hover:scale-105 shadow-xl">
-              Start 7-Day Free Trial
+            <Button 
+              className="bg-amber-400 hover:bg-amber-500 text-black px-8 py-4 text-lg rounded-full font-semibold transition-all duration-300 hover:scale-105 shadow-xl"
+              onClick={() => {
+                if (isAuthenticated) {
+                  window.location.href = '/subscribe';
+                } else {
+                  window.location.href = '/?trial=true';
+                }
+              }}
+            >
+              {isAuthenticated ? 'Subscribe Now' : 'Start 7-Day Free Trial'}
             </Button>
             <Button variant="outline" className="border-gray-600 text-gray-900 hover:bg-gray-800 hover:text-white px-8 py-4 text-lg rounded-full font-semibold">
               <Play className="h-5 w-5 mr-2" />
