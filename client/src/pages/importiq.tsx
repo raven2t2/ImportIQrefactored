@@ -443,11 +443,15 @@ export default function ImportIQ() {
               <Button 
                 className="w-full bg-gray-700 hover:bg-gray-600 text-white py-3 text-base rounded-full font-medium transition-all duration-300"
                 onClick={() => {
-                  setSelectedTool("ImportIQ Platform");
-                  setShowEmailGate(true);
+                  if (isAuthenticated) {
+                    window.location.href = '/subscribe';
+                  } else {
+                    setSelectedTool("ImportIQ Platform");
+                    setShowEmailGate(true);
+                  }
                 }}
               >
-                Start 7-Day Free Trial
+                {isAuthenticated ? 'Subscribe Now' : 'Start 7-Day Free Trial'}
               </Button>
             </div>
 
@@ -495,11 +499,15 @@ export default function ImportIQ() {
               <Button 
                 className="w-full bg-black hover:bg-gray-800 text-white py-3 text-base rounded-full font-bold transition-all duration-300 hover:scale-105 shadow-lg"
                 onClick={() => {
-                  setSelectedTool("ImportIQ Platform");
-                  setShowEmailGate(true);
+                  if (isAuthenticated) {
+                    window.location.href = '/subscribe';
+                  } else {
+                    setSelectedTool("ImportIQ Platform");
+                    setShowEmailGate(true);
+                  }
                 }}
               >
-                Start 7-Day Free Trial
+                {isAuthenticated ? 'Subscribe Now' : 'Start 7-Day Free Trial'}
               </Button>
             </div>
           </div>
