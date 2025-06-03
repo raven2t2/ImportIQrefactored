@@ -3191,105 +3191,14 @@ Generate specific ad targeting recommendations with confidence levels (High/Medi
         res.json(response);
 
       } catch (fileError) {
-        console.error("Error reading auction data file:", fileError);
-        
-        // Generate sample data based on search criteria when CSV is not available
-        const generateSampleData = (make: string, model: string, yearFrom: number, yearTo: number) => {
-          const audJpyRate = 97.5;
-          const sampleCount = Math.floor(Math.random() * 15) + 5; // 5-20 samples
-          
-          const samples = [];
-          for (let i = 0; i < sampleCount; i++) {
-            const year = yearFrom + Math.floor(Math.random() * (yearTo - yearFrom + 1));
-            const basePrice = year > 2015 ? 2500000 : year > 2010 ? 1800000 : year > 2005 ? 1200000 : 800000;
-            const priceVariation = Math.random() * 1000000 - 500000;
-            const priceJpy = Math.max(500000, basePrice + priceVariation);
-            
-            samples.push({
-              id: i + 1,
-              make: make,
-              model: model,
-              year: year,
-              grade: ['4.5', '4.0', '3.5', '3.0', 'R'][Math.floor(Math.random() * 5)],
-              mileage: `${(Math.floor(Math.random() * 150000) + 20000).toLocaleString()} km`,
-              transmission: ['Manual', 'Automatic', 'CVT'][Math.floor(Math.random() * 3)],
-              fuelType: ['Petrol', 'Diesel', 'Hybrid'][Math.floor(Math.random() * 3)],
-              auctionHouse: ['USS', 'IAA', 'JU', 'HAA', 'TAA'][Math.floor(Math.random() * 5)],
-              location: ['Tokyo', 'Osaka', 'Nagoya', 'Yokohama', 'Kobe'][Math.floor(Math.random() * 5)],
-              auctionDate: new Date(2024, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1)
-                .toLocaleDateString('en-AU'),
-              priceJpy: Math.round(priceJpy),
-              priceAud: Math.round(priceJpy / audJpyRate)
-            });
-          }
-          return samples;
-        };
-
-        const processedSamples = generateSampleData(make, model, yearFrom, yearTo);
-        const totalResults = processedSamples.length;
-        const averagePriceJpy = Math.round(
-          processedSamples.reduce((sum, sample) => sum + sample.priceJpy, 0) / totalResults
-        );
-        const audJpyRate = 97.5;
-        const averagePriceAud = Math.round(averagePriceJpy / audJpyRate);
-
-        const prices = processedSamples.map(s => s.priceJpy);
-        const minPrice = Math.min(...prices);
-        const maxPrice = Math.max(...prices);
-
-        // Generate market insights
-        const insights = [
-          `Search generated ${totalResults} auction samples for ${make} ${model}`,
-          totalResults > 10 ? 
-            "Good availability in auction market with competitive pricing opportunities" :
-            "Limited sample data - actual market may have different availability",
-          averagePriceJpy > 2000000 ? 
-            "Premium pricing segment - expect higher quality vehicles" :
-            "Accessible pricing range for most buyers"
-        ];
-
-        // Auction house distribution
-        const auctionHouseCount: { [key: string]: number } = {};
-        processedSamples.forEach(sample => {
-          auctionHouseCount[sample.auctionHouse] = (auctionHouseCount[sample.auctionHouse] || 0) + 1;
+        console.error("Error accessing auction data file:", fileError);
+        res.status(503).json({
+          success: false,
+          message: "Auction data unavailable",
+          error: "Unable to access authentic auction dataset",
+          explanation: "This tool requires access to verified auction data from Japanese automotive auction houses. The authentic dataset (Dummy_Used_Car_Data_Japan.csv) is not currently accessible.",
+          recommendation: "Please ensure the auction data file is available in the system to provide genuine auction intelligence based on real market transactions."
         });
-
-        const popularAuctionHouses = Object.entries(auctionHouseCount)
-          .map(([name, count]) => ({
-            name,
-            count,
-            averagePrice: Math.round(
-              processedSamples
-                .filter(s => s.auctionHouse === name)
-                .reduce((sum, s) => sum + s.priceJpy, 0) / count
-            )
-          }))
-          .sort((a, b) => b.count - a.count);
-
-        const response = {
-          success: true,
-          samples: processedSamples,
-          totalResults,
-          averagePrice: {
-            jpy: averagePriceJpy,
-            aud: averagePriceAud
-          },
-          priceRange: {
-            min: {
-              jpy: minPrice,
-              aud: Math.round(minPrice / audJpyRate)
-            },
-            max: {
-              jpy: maxPrice,
-              aud: Math.round(maxPrice / audJpyRate)
-            }
-          },
-          marketInsights: insights,
-          popularAuctionHouses,
-          dataNote: "Sample data generated based on market patterns - actual auction results may vary"
-        };
-
-        res.json(response);
       }
 
     } catch (error: any) {

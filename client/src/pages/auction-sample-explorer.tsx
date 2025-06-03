@@ -251,7 +251,7 @@ export default function AuctionSampleExplorer() {
                       <div className="text-center">
                         <TrendingUp className="h-8 w-8 text-green-600 mx-auto mb-2" />
                         <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                          ¥{searchResults.averagePrice.jpy.toLocaleString()}
+                          ¥{searchResults.averagePrice?.jpy?.toLocaleString() || '0'}
                         </p>
                         <p className="text-sm text-gray-600 dark:text-gray-300">Average Price (JPY)</p>
                       </div>
