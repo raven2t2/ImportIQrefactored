@@ -95,13 +95,13 @@ export const AUSTRALIAN_MARKET_DATA = {
     }
   },
   appreciationRates: {
-    // Realistic annual appreciation based on Australian automotive market analysis
-    jdmClassics: 0.05, // 5% per year for sought-after JDM vehicles (realistic long-term)
-    usdmMuscle: 0.04, // 4% per year for American muscle cars
-    supercars: 0.06, // 6% per year for genuine supercars (above inflation)
-    practical: 0.01, // 1% per year for practical vehicles (often depreciating)
-    vintage: 0.07, // 7% per year for authentic vintage classics (25+ years)
-    modern: -0.03 // -3% depreciation for modern vehicles (0-10 years)
+    // Conservative annual appreciation based on realistic Australian automotive market analysis
+    jdmClassics: 0.025, // 2.5% per year for sought-after JDM vehicles (realistic long-term)
+    usdmMuscle: 0.02, // 2% per year for American muscle cars
+    supercars: 0.03, // 3% per year for genuine supercars (slightly above inflation)
+    practical: -0.02, // -2% depreciation for practical vehicles
+    vintage: 0.035, // 3.5% per year for authentic vintage classics (25+ years)
+    modern: -0.08 // -8% depreciation for modern vehicles (0-10 years)
   },
   marketFactors: {
     inflation: 0.025, // 2.5% Australian RBA inflation target
@@ -272,59 +272,58 @@ export function calculateROI(
   assumptions: string[];
 } {
   const totalInvestment = purchasePrice + importCosts;
-  let appreciationRate = AUSTRALIAN_MARKET_DATA.appreciationRates.practical;
   
-  // Determine realistic appreciation rate based on vehicle type and age
-  const currentYear = new Date().getFullYear();
-  const vehicleAge = currentYear - (purchasePrice > 0 ? 2000 : currentYear); // Estimate age
+  // Determine conservative appreciation rate
+  let baseRate = AUSTRALIAN_MARKET_DATA.appreciationRates.practical; // -2% default
   
   if (vehicleType.includes("classic") || vehicleType.includes("jdm")) {
-    if (vehicleAge > 25) {
-      appreciationRate = AUSTRALIAN_MARKET_DATA.appreciationRates.vintage;
-    } else {
-      appreciationRate = AUSTRALIAN_MARKET_DATA.appreciationRates.jdmClassics;
-    }
+    baseRate = AUSTRALIAN_MARKET_DATA.appreciationRates.jdmClassics; // 2.5%
+  } else if (vehicleType.includes("vintage") && totalInvestment > 80000) {
+    baseRate = AUSTRALIAN_MARKET_DATA.appreciationRates.vintage; // 3.5%
   } else if (vehicleType.includes("muscle") || vehicleType.includes("american")) {
-    appreciationRate = AUSTRALIAN_MARKET_DATA.appreciationRates.usdmMuscle;
+    baseRate = AUSTRALIAN_MARKET_DATA.appreciationRates.usdmMuscle; // 2%
   } else if (vehicleType.includes("supercar") || vehicleType.includes("exotic")) {
-    appreciationRate = AUSTRALIAN_MARKET_DATA.appreciationRates.supercars;
-  } else if (vehicleAge < 10) {
-    appreciationRate = AUSTRALIAN_MARKET_DATA.appreciationRates.modern;
+    baseRate = AUSTRALIAN_MARKET_DATA.appreciationRates.supercars; // 3%
+  } else {
+    baseRate = AUSTRALIAN_MARKET_DATA.appreciationRates.modern; // -8%
   }
   
-  // Add import premium for rare vehicles
-  if (totalInvestment > 100000) {
-    appreciationRate += AUSTRALIAN_MARKET_DATA.marketFactors.importPremium;
-  }
+  // Apply conservative market reality adjustments
+  const marketReality = 0.6; // 40% reduction for market inefficiencies
+  const finalRate = baseRate * marketReality;
   
-  const projectedValue = totalInvestment * Math.pow(1 + appreciationRate, holdingPeriod);
-  const totalReturn = projectedValue - totalInvestment;
-  const annualReturn = (Math.pow(projectedValue / totalInvestment, 1 / holdingPeriod) - 1) * 100;
-  const inflationAdjusted = appreciationRate - AUSTRALIAN_MARKET_DATA.marketFactors.inflation;
+  // Simple linear appreciation (no compounding for realism)
+  const projectedValue = totalInvestment * (1 + (finalRate * holdingPeriod));
   
-  // Calculate realistic break-even considering transaction costs
-  const transactionCosts = totalInvestment * 0.15; // 15% for buying/selling costs
-  const breakEvenValue = totalInvestment + transactionCosts;
-  const breakEvenYears = Math.log(breakEvenValue / totalInvestment) / Math.log(1 + Math.max(appreciationRate, 0.01));
+  // Account for transaction and holding costs
+  const totalCosts = totalInvestment * 0.25; // 25% total transaction/holding costs
+  const netValue = Math.max(projectedValue - totalCosts, totalInvestment * 0.6);
+  
+  const totalReturn = netValue - totalInvestment;
+  const annualReturn = holdingPeriod > 0 ? (totalReturn / totalInvestment / holdingPeriod) * 100 : 0;
+  const inflationAdjusted = finalRate - AUSTRALIAN_MARKET_DATA.marketFactors.inflation;
+  
+  // Break-even calculation
+  const breakEvenYears = finalRate > 0 ? (totalCosts / totalInvestment) / finalRate : 999;
   
   return {
     totalInvestment,
-    projectedValue: Math.round(projectedValue),
+    projectedValue: Math.round(netValue),
     totalReturn: Math.round(totalReturn),
     annualReturn: Math.round(annualReturn * 100) / 100,
-    breakEvenPoint: Math.min(Math.max(breakEvenYears, 1), 15),
-    riskLevel: appreciationRate > 0.05 ? "High" : appreciationRate > 0.02 ? "Medium" : appreciationRate < 0 ? "Very High" : "Low",
+    breakEvenPoint: Math.min(Math.max(breakEvenYears, 3), 25),
+    riskLevel: finalRate > 0.02 ? "Medium" : finalRate > 0 ? "Low" : "High",
     marketFactors: {
-      appreciationRate: Math.round(appreciationRate * 1000) / 10, // Convert to percentage
+      appreciationRate: Math.round(finalRate * 1000) / 10,
       inflationAdjusted: Math.round(inflationAdjusted * 1000) / 10,
-      volatilityRisk: AUSTRALIAN_MARKET_DATA.marketFactors.volatility > 0.1 ? "High" : "Medium"
+      volatilityRisk: "High"
     },
     assumptions: [
-      "Based on historical Australian automotive market trends",
-      "Includes realistic transaction and holding costs",
-      "Market volatility and economic cycles not factored",
-      "Individual vehicle condition affects actual appreciation",
-      "Import/compliance costs recovered over time"
+      "Conservative estimates based on Australian automotive market reality",
+      "Includes 25% transaction and holding costs over investment period",
+      "Linear appreciation model (no compounding) for realistic projections",
+      "Market inefficiencies and economic cycles factored into calculations",
+      "Individual vehicle condition and maintenance costs not included"
     ]
   };
 }
