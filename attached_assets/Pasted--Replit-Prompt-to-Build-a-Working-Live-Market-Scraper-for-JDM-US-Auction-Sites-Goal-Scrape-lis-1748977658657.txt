@@ -1,0 +1,59 @@
+# Replit Prompt to Build a Working Live Market Scraper for JDM + US Auction Sites
+# Goal: Scrape listings for Japanese Domestic Market (JDM) cars and US classic/muscle cars from auction platforms
+# Requirements:
+# - Scraper must run from Replit and require no manual data uploads
+# - Automatically parses auction listing data
+# - Uses Puppeteer with stealth and rotating proxies to bypass anti-bot protection
+# - Feeds clean data to ImportIQ frontend or backend database
+
+### Replit Agent Prompt Start ###
+
+"""
+You are a full-stack AI developer working inside Replit.
+
+Build and implement a fully working scraper that:
+
+1. Uses Puppeteer (with stealth plugin) to access and parse vehicle listings from:
+   - [USS Auto Auction](https://www.ussnet.co.jp/english/) for JDM vehicles (requires login simulation or bypass)
+   - [Goo-net Exchange](https://www.goo-net-exchange.com/usedcars/) for Japanese used vehicles
+   - [Copart](https://www.copart.com/) or [IAAI](https://www.iaai.com/) for US muscle/classic cars
+
+2. Bypasses bot protection via:
+   - Puppeteer Stealth plugin
+   - Rotating proxies (use free list or simulate rotation logic)
+   - Headless Chrome with correct headers, user-agent, and viewport
+
+3. Parses each listing and extracts:
+   - Title / Make / Model / Year
+   - Auction Date
+   - Listing URL
+   - Price estimate or bid
+   - Location
+   - Thumbnail image
+
+4. Saves this data to a local database (JSON/SQLite), or to an endpoint usable by ImportIQ backend
+
+5. Displays data in a clean dashboard or table UI in ImportIQ
+   - Use existing ImportIQ frontend components if available
+   - Otherwise, create a new simple React or HTML table view
+
+6. Auto-refreshes once per hour or on-demand
+
+7. Do not require any manual CSV upload or intervention from the user
+
+Bonus:
+- Allow filtering listings by keyword (e.g. Skyline, Mustang, Supra)
+- Handle both Japanese and English text on listings
+
+Constraints:
+- Use Replit-friendly dependencies
+- Make code modular: `scrapeJDM()`, `scrapeUS()`, `parseResults()`, `saveToDB()`
+- Log output clearly and handle errors gracefully
+
+Test that the scraper works and populates real data during runtime.
+If access is blocked, simulate fake listings and clearly log that it is a fallback mode.
+
+Implement now and confirm working.
+"""
+
+### End Prompt ###
