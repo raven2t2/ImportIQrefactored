@@ -31,8 +31,8 @@ export function AiChatAssistant() {
   const [inputValue, setInputValue] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Don't show for non-authenticated users or while loading
-  if (isLoading || !isAuthenticated) return null;
+  // Show for all users to debug
+  console.log("AI Chat Assistant:", { isLoading, isAuthenticated, user });
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -128,19 +128,19 @@ export function AiChatAssistant() {
 
   if (!isOpen) {
     return (
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="sticky bottom-4 float-right mr-4 z-50 flex justify-end">
         <Button
           onClick={() => setIsOpen(true)}
-          className="rounded-full w-14 h-14 bg-amber-600 hover:bg-amber-700 shadow-lg"
+          className="rounded-full w-16 h-16 bg-amber-600 hover:bg-amber-700 shadow-2xl border-2 border-amber-400"
         >
-          <MessageCircle className="w-6 h-6 text-white" />
+          <MessageCircle className="w-7 h-7 text-white" />
         </Button>
       </div>
     );
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="sticky bottom-4 float-right mr-4 z-50 flex justify-end">
       <Card className={`bg-gray-900 border-amber-500/30 shadow-2xl transition-all duration-300 ${
         isMinimized ? 'w-80 h-16' : 'w-96 h-[500px]'
       }`}>
