@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -64,6 +64,7 @@ interface AuctionExplorerResponse {
 
 export default function AuctionSampleExplorer() {
   const [searchResults, setSearchResults] = useState<AuctionExplorerResponse | null>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   const form = useForm<SearchFormData>({
     resolver: zodResolver(searchSchema),
@@ -90,6 +91,14 @@ export default function AuctionSampleExplorer() {
       });
       const result: AuctionExplorerResponse = await response.json();
       setSearchResults(result);
+      
+      // Auto-scroll to results after successful search
+      setTimeout(() => {
+        resultsRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 100);
     } catch (error) {
       console.error("Search failed:", error);
     }
@@ -229,9 +238,9 @@ export default function AuctionSampleExplorer() {
 
         {/* Search Results */}
         {searchResults && (
-          <>
+          <div ref={resultsRef}>
             {searchResults.success ? (
-              <>
+              <div>
                 {/* Summary Statistics */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                   <Card>
@@ -375,7 +384,7 @@ export default function AuctionSampleExplorer() {
                 </CardContent>
               </Card>
             )}
-          </>
+          </div>
         )}
 
         {/* Data Source Information */}
