@@ -3100,13 +3100,16 @@ Generate specific ad targeting recommendations with confidence levels (High/Medi
         const recordMake = nameParts[0] || '';
         const recordModel = nameParts.slice(1).join(' ') || '';
         
-        // Parse year from manufacturing_year field
+        // Parse year from manufacturing_year field (format: DD-MMM-YY)
         let recordYear = 0;
         if (manufacturingYear && manufacturingYear.includes('-')) {
-          const yearPart = manufacturingYear.split('-')[2];
-          if (yearPart) {
+          const parts = manufacturingYear.split('-');
+          if (parts.length === 3) {
+            const yearPart = parts[2]; // Get the year part (YY)
             const shortYear = parseInt(yearPart);
-            recordYear = shortYear < 50 ? 2000 + shortYear : 1900 + shortYear;
+            if (!isNaN(shortYear)) {
+              recordYear = shortYear < 50 ? 2000 + shortYear : 1900 + shortYear;
+            }
           }
         }
 
@@ -3167,10 +3170,13 @@ Generate specific ad targeting recommendations with confidence levels (High/Medi
         const manufacturingYear = record.manufacturing_year || '';
         let recordYear = 0;
         if (manufacturingYear && manufacturingYear.includes('-')) {
-          const yearPart = manufacturingYear.split('-')[2];
-          if (yearPart) {
+          const parts = manufacturingYear.split('-');
+          if (parts.length === 3) {
+            const yearPart = parts[2]; // Get the year part (YY)
             const shortYear = parseInt(yearPart);
-            recordYear = shortYear < 50 ? 2000 + shortYear : 1900 + shortYear;
+            if (!isNaN(shortYear)) {
+              recordYear = shortYear < 50 ? 2000 + shortYear : 1900 + shortYear;
+            }
           }
         }
         
