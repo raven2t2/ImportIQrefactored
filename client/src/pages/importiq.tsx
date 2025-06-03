@@ -93,17 +93,41 @@ export default function ImportIQ() {
               <Link href="/features" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Features</Link>
               <Link href="/pricing" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Pricing</Link>
               <Link href="/about" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Our Mission</Link>
-              <Link href="/login" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Login</Link>
+              
+              {/* Show different nav based on auth status */}
+              {isAuthenticated || trialStatus?.isActive ? (
+                <>
+                  <Link href="/dashboard" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Dashboard</Link>
+                  <Link href="/api/logout" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Logout</Link>
+                </>
+              ) : (
+                <Link href="/login" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Login</Link>
+              )}
+              
               <Link href="/affiliate-signup" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Refer & Earn</Link>
-              <Button 
-                className="bg-amber-400 hover:bg-amber-500 text-black px-6 py-2 rounded-full transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
-                onClick={() => {
-                  setSelectedTool("ImportIQ Platform");
-                  setShowEmailGate(true);
-                }}
-              >
-                Start Free Trial
-              </Button>
+              
+              {/* Show trial button only if not authenticated */}
+              {!isAuthenticated && !trialStatus?.isActive && (
+                <Button 
+                  className="bg-amber-400 hover:bg-amber-500 text-black px-6 py-2 rounded-full transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
+                  onClick={() => {
+                    setSelectedTool("ImportIQ Platform");
+                    setShowEmailGate(true);
+                  }}
+                >
+                  Start Free Trial
+                </Button>
+              )}
+              
+              {/* Show upgrade button for trial users */}
+              {trialStatus?.isActive && !isAuthenticated && (
+                <Button 
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-full transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
+                  onClick={() => window.location.href = '/subscribe'}
+                >
+                  Upgrade Now
+                </Button>
+              )}
             </div>
 
             {/* Mobile menu button */}
@@ -127,16 +151,41 @@ export default function ImportIQ() {
                 <Link href="/features" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Features</Link>
                 <Link href="/pricing" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Pricing</Link>
                 <Link href="/about" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Our Mission</Link>
+                
+                {/* Show different nav based on auth status */}
+                {isAuthenticated || trialStatus?.isActive ? (
+                  <>
+                    <Link href="/dashboard" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Dashboard</Link>
+                    <Link href="/api/logout" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium">Logout</Link>
+                  </>
+                ) : (
+                  <Link href="/login" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Login</Link>
+                )}
+                
                 <Link href="/affiliate-signup" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Refer & Earn</Link>
-                <Button 
-                  className="bg-amber-400 hover:bg-amber-500 text-black w-full rounded-full mt-4 font-medium"
-                  onClick={() => {
-                    setSelectedTool("ImportIQ Platform");
-                    setShowEmailGate(true);
-                  }}
-                >
-                  Start Free Trial
-                </Button>
+                
+                {/* Show trial button only if not authenticated */}
+                {!isAuthenticated && !trialStatus?.isActive && (
+                  <Button 
+                    className="bg-amber-400 hover:bg-amber-500 text-black w-full rounded-full mt-4 font-medium"
+                    onClick={() => {
+                      setSelectedTool("ImportIQ Platform");
+                      setShowEmailGate(true);
+                    }}
+                  >
+                    Start Free Trial
+                  </Button>
+                )}
+                
+                {/* Show upgrade button for trial users */}
+                {trialStatus?.isActive && !isAuthenticated && (
+                  <Button 
+                    className="bg-green-600 hover:bg-green-700 text-white w-full rounded-full mt-4 font-medium"
+                    onClick={() => window.location.href = '/subscribe'}
+                  >
+                    Upgrade Now
+                  </Button>
+                )}
               </div>
             </div>
           )}
