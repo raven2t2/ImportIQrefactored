@@ -375,10 +375,63 @@ export default function VehicleLookup() {
                   <div>
                     <h3 className="text-lg font-semibold text-white mb-3 flex items-center">
                       <AlertCircle className="h-5 w-5 text-amber-400 mr-2" />
-                      Compliance Notes
+                      Import Compliance Pathway
                     </h3>
-                    <div className="p-4 bg-amber-400/10 rounded-lg border border-amber-400/20">
-                      <p className="text-amber-100">{result.complianceNotes}</p>
+                    <div className="p-4 bg-amber-400/10 rounded-lg border border-amber-400/20 mb-4">
+                      <p className="text-amber-100 font-medium mb-3">{result.complianceNotes}</p>
+                      
+                      {/* Compliance Explanation */}
+                      <div className="mt-4 p-3 bg-amber-950/30 rounded border border-amber-400/30">
+                        <h4 className="text-amber-200 font-medium mb-2">What this means:</h4>
+                        {result.complianceNotes.includes("SEVS eligible") && (
+                          <div className="text-amber-100 text-sm space-y-2">
+                            <p><strong>SEVS (Specialist and Enthusiast Vehicle Scheme):</strong></p>
+                            <ul className="list-disc list-inside space-y-1 text-xs text-amber-200/80">
+                              <li>For vehicles 15+ years old with historical/sporting significance</li>
+                              <li>Requires pre-approval from Department of Infrastructure</li>
+                              <li>Must be on the SEVS register or get individual approval</li>
+                              <li>Compliance costs: $15,000-25,000 typically</li>
+                              <li>Processing time: 3-6 months</li>
+                            </ul>
+                          </div>
+                        )}
+                        {result.complianceNotes.includes("25+ year rule eligible") && (
+                          <div className="text-amber-100 text-sm space-y-2">
+                            <p><strong>25+ Year Rule:</strong></p>
+                            <ul className="list-disc list-inside space-y-1 text-xs text-amber-200/80">
+                              <li>Vehicles 25+ years old can import as "classic vehicles"</li>
+                              <li>Exempt from full ADR compliance requirements</li>
+                              <li>Still requires safety inspection and registration</li>
+                              <li>Compliance costs: $5,000-10,000 typically</li>
+                              <li>Fastest pathway for eligible vehicles</li>
+                            </ul>
+                          </div>
+                        )}
+                        {result.complianceNotes.includes("specialist compliance") && (
+                          <div className="text-amber-100 text-sm space-y-2">
+                            <p><strong>Specialist Compliance Required:</strong></p>
+                            <ul className="list-disc list-inside space-y-1 text-xs text-amber-200/80">
+                              <li>Complex modifications needed for ADR compliance</li>
+                              <li>Turbo systems may need engineering certification</li>
+                              <li>Higher compliance costs due to complexity</li>
+                              <li>Estimated costs: $20,000-35,000+</li>
+                              <li>Longer processing times: 6-12 months</li>
+                            </ul>
+                          </div>
+                        )}
+                        {result.complianceNotes.includes("RAW (Racetrack)") && (
+                          <div className="text-amber-100 text-sm space-y-2">
+                            <p><strong>RAW (Racetrack) Only:</strong></p>
+                            <ul className="list-disc list-inside space-y-1 text-xs text-amber-200/80">
+                              <li>Cannot be registered for road use</li>
+                              <li>Track/display use only</li>
+                              <li>Lower import duties apply</li>
+                              <li>No compliance workshop required</li>
+                              <li>Cannot be converted to road legal later</li>
+                            </ul>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </>
