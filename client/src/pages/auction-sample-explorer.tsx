@@ -240,7 +240,7 @@ export default function AuctionSampleExplorer() {
         {searchResults && (
           <div ref={resultsRef}>
             {searchResults.success ? (
-              <div>
+              <>
                 {/* Summary Statistics */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                   <Card>
