@@ -14,6 +14,8 @@ import { z } from "zod";
 import OpenAI from "openai";
 import Stripe from "stripe";
 import bcrypt from "bcrypt";
+import fs from "fs";
+import path from "path";
 
 // Additional schemas for new tools
 const valueEstimatorSchema = z.object({
@@ -62,14 +64,7 @@ const vehicleLookupSchema = z.object({
 // Initialize OpenAI
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// Load auction sample data
-import * as fs from 'fs';
-import * as path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const auctionData = JSON.parse(fs.readFileSync(path.join(__dirname, 'auction-data.json'), 'utf8'));
+// Auction data will be loaded dynamically from CSV file
 
 // JDM Chassis Code Database - Essential Import Vehicles
 const jdmDatabase = {
@@ -3038,8 +3033,6 @@ Generate specific ad targeting recommendations with confidence levels (High/Medi
       }
 
       // Load sample auction data from CSV file (authentic Kaggle dataset)
-      const fs = require('fs');
-      const path = require('path');
       
       try {
         const csvPath = path.join(process.cwd(), 'attached_assets', 'Dummy_Used_Car_Data_Japan.csv');
