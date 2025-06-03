@@ -1,8 +1,15 @@
 /**
  * Live Market Data Aggregator
- * Pulls real car listings from publicly accessible Australian platforms
- * Based on actual market data patterns and publicly available information
+ * Aggregates publicly available vehicle data from legitimate sources
+ * Uses ethical web scraping of publicly accessible auction results and marketplace data
  */
+
+import { 
+  scrapeJapaneseAuctionResults, 
+  scrapeAustralianMarketplace, 
+  scrapeUSMuscleCarAuctions,
+  PublicListing
+} from './public-market-scraper';
 
 export interface SearchFilters {
   make: string;
@@ -131,39 +138,123 @@ const AUTHENTIC_MARKET_DATA = {
 };
 
 /**
- * Generate realistic car listings based on search filters
- * Uses authentic market data and real platform patterns
+ * Aggregate market listings from multiple public sources
+ * Combines Japanese auction data, Australian marketplace, and US market data
  */
-export function generateMarketListings(filters: SearchFilters): { listings: CarListing[], insights: MarketInsights } {
-  const { make, model, minPrice, maxPrice, location, yearFrom, yearTo } = filters;
-  
-  // Determine vehicle key for market data lookup
-  const vehicleKey = model ? `${make} ${model}` : make;
-  const marketData = AUTHENTIC_MARKET_DATA.marketPrices[vehicleKey as keyof typeof AUTHENTIC_MARKET_DATA.marketPrices];
-  
-  // Generate 8-25 realistic listings
-  const listingCount = Math.floor(Math.random() * 18) + 8;
-  const listings: CarListing[] = [];
-  
-  for (let i = 0; i < listingCount; i++) {
-    const listing = generateSingleListing(filters, marketData, i);
+export async function generateMarketListings(filters: SearchFilters): Promise<{ listings: CarListing[], insights: MarketInsights }> {
+  try {
+    // Fetch data from multiple authentic public sources
+    const [japaneseData, australianData, usData] = await Promise.all([
+      scrapeJapaneseAuctionResults(filters.make, filters.model),
+      scrapeAustralianMarketplace(filters.make, filters.model),
+      scrapeUSMuscleCarAuctions(filters.make, filters.model)
+    ]);
+
+    // Convert public listings to CarListing format
+    const allListings: CarListing[] = [
+      ...convertPublicListings(japaneseData.listings),
+      ...convertPublicListings(australianData.listings),
+      ...convertPublicListings(usData.listings)
+    ];
+
+    // Apply filters
+    let filteredListings = allListings;
     
-    // Apply price filters
-    if (minPrice && listing.price < parseInt(minPrice)) continue;
-    if (maxPrice && listing.price > parseInt(maxPrice)) continue;
+    if (filters.minPrice) {
+      const minPrice = parseFloat(filters.minPrice);
+      filteredListings = filteredListings.filter(listing => {
+        const priceInAUD = convertToAUD(listing.price, listing.currency);
+        return priceInAUD >= minPrice;
+      });
+    }
     
-    // Apply location filter
-    if (location && location.toLowerCase() !== 'all' && 
-        !listing.location.toLowerCase().includes(location.toLowerCase())) continue;
+    if (filters.maxPrice) {
+      const maxPrice = parseFloat(filters.maxPrice);
+      filteredListings = filteredListings.filter(listing => {
+        const priceInAUD = convertToAUD(listing.price, listing.currency);
+        return priceInAUD <= maxPrice;
+      });
+    }
     
-    listings.push(listing);
+    if (filters.yearFrom) {
+      filteredListings = filteredListings.filter(listing => listing.year >= parseInt(filters.yearFrom!));
+    }
+    
+    if (filters.yearTo) {
+      filteredListings = filteredListings.filter(listing => listing.year <= parseInt(filters.yearTo!));
+    }
+    
+    if (filters.location && filters.location.toLowerCase() !== 'all') {
+      filteredListings = filteredListings.filter(listing => 
+        listing.location.toLowerCase().includes(filters.location!.toLowerCase())
+      );
+    }
+
+    // Generate market insights
+    const insights = generateMarketInsights(filteredListings, {});
+
+    return { listings: filteredListings, insights };
+  } catch (error) {
+    console.error('Error generating market listings:', error);
+    // Return empty results if there's an error
+    return {
+      listings: [],
+      insights: {
+        averagePrice: 0,
+        priceRange: { min: 0, max: 0 },
+        totalListings: 0,
+        topLocations: [],
+        priceTrend: "stable",
+        popularVariants: [],
+        importPercentage: 0
+      }
+    };
   }
-  
-  // Generate market insights from listings
-  const insights = generateMarketInsights(listings, marketData);
-  
-  return { listings, insights };
 }
+
+/**
+ * Convert PublicListing to CarListing format
+ */
+function convertPublicListings(publicListings: PublicListing[]): CarListing[] {
+  return publicListings.map(listing => ({
+    id: listing.id,
+    make: listing.make,
+    model: listing.model,
+    year: listing.year,
+    price: listing.price,
+    currency: listing.currency,
+    mileage: listing.mileage,
+    location: listing.location,
+    source: listing.seller,
+    sourceUrl: listing.sourceUrl,
+    description: listing.description,
+    images: listing.images,
+    listedDate: new Date().toISOString().split('T')[0],
+    seller: listing.seller,
+    features: listing.features,
+    fuelType: listing.fuelType,
+    transmission: listing.transmission,
+    bodyType: listing.bodyType,
+    isImport: listing.isImport,
+    compliance: listing.isImport ? "ADR Compliance Required" : "Australian Delivered",
+    auctionData: listing.auctionData
+  }));
+}
+
+/**
+ * Convert currency to AUD for filtering
+ */
+function convertToAUD(price: number, currency: string): number {
+  const exchangeRates = {
+    'AUD': 1,
+    'JPY': 0.0094, // 1 JPY = 0.0094 AUD
+    'USD': 1.52    // 1 USD = 1.52 AUD
+  };
+  
+  return price * (exchangeRates[currency as keyof typeof exchangeRates] || 1);
+}
+
+
 
 function generateSingleListing(filters: SearchFilters, marketData: any, index: number): CarListing {
   const { make, model } = filters;
