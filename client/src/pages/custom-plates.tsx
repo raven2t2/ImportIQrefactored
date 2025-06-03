@@ -16,7 +16,7 @@ import { apiRequest } from "@/lib/queryClient";
 const plateSchema = z.object({
   state: z.string().min(1, "State is required"),
   desiredPlate: z.string().min(2, "Plate must be at least 2 characters").max(8, "Plate cannot exceed 8 characters"),
-  plateType: z.enum(["standard", "personalized", "euro", "prestige"]),
+  plateType: z.enum(["standard", "personalized", "euro", "jdm", "prestige"]),
 });
 
 type PlateFormData = z.infer<typeof plateSchema>;
