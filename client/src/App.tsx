@@ -71,7 +71,7 @@ function Router() {
       <Route path="/admin-profile" component={AdminProfile} />
       <Route path="/subscribe" component={Subscribe} />
       <Route path="/checkout" component={Checkout} />
-      <Route path="/booking" component={BookingCalendar} />
+      <Route path="/booking-calendar" component={BookingCalendar} />
       <Route path="/affiliate-signup" component={AffiliateSignup} />
       <Route path="/affiliate-dashboard" component={AffiliateDashboard} />
       <Route path="/trial-dashboard" component={TrialDashboard} />
