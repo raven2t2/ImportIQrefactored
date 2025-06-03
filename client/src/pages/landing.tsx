@@ -2,10 +2,90 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Zap, Calculator, Brain, Calendar, Settings, Star, Check, ArrowRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Link } from "wouter";
+import {
+  Menu,
+  X,
+} from "lucide-react";
 
 export default function Landing() {
-  return (
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showEmailGate, setShowEmailGate] = useState(false);
+  const [selectedTool, setSelectedTool] = useState("");
+  const [showTrialPage, setShowTrialPage] = useState(false);
+
+  useEffect(() => {
+    // Check if this is a trial signup flow
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('trial') === 'true') {
+      setSelectedTool("ImportIQ Platform");
+      setShowTrialPage(true);
+      setShowEmailGate(true);
+    }
+  }, []);
+
+  const logoPath = "/logo.png"; // Replace with the actual path to your logo
+
+return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* Navigation - Always show when trial=true */}
+      {showTrialPage && (
+        <nav className="fixed top-0 left-0 right-0 bg-black/95 backdrop-blur-xl border-b border-gray-800/50 z-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <Link href="/" className="flex items-center space-x-3">
+                <img 
+                  src={logoPath} 
+                  alt="ImportIQ" 
+                  className="h-8 w-8 rounded-full"
+                />
+                <span className="text-xl font-bold text-white">ImportIQ</span>
+              </Link>
+
+              {/* Desktop Navigation */}
+              <div className="hidden md:flex items-center space-x-6">
+                <Link href="/" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Home</Link>
+                <Link href="/features" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Features</Link>
+                <Link href="/pricing" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Pricing</Link>
+                <Link href="/about" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Our Mission</Link>
+                <Link href="/affiliate-signup" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Refer & Earn</Link>
+                <Button className="bg-amber-400 hover:bg-amber-500 text-black px-6 py-2 rounded-full transition-all duration-300 font-medium shadow-lg hover:shadow-xl">
+                  Start Free Trial
+                </Button>
+              </div>
+
+              {/* Mobile menu button */}
+              <div className="md:hidden">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  className="text-white hover:text-amber-400"
+                >
+                  {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                </Button>
+              </div>
+            </div>
+
+            {/* Mobile Navigation Menu */}
+            {mobileMenuOpen && (
+              <div className="md:hidden bg-gray-900 border-t border-gray-800">
+                <div className="px-2 pt-2 pb-3 space-y-1">
+                  <Link href="/" className="block px-3 py-2 text-gray-300 hover:text-white transition-colors duration-300">Home</Link>
+                  <Link href="/features" className="block px-3 py-2 text-gray-300 hover:text-white transition-colors duration-300">Features</Link>
+                  <Link href="/pricing" className="block px-3 py-2 text-gray-300 hover:text-white transition-colors duration-300">Pricing</Link>
+                  <Link href="/about" className="block px-3 py-2 text-gray-300 hover:text-white transition-colors duration-300">Our Mission</Link>
+                  <Link href="/affiliate-signup" className="block px-3 py-2 text-gray-300 hover:text-white transition-colors duration-300">Refer & Earn</Link>
+                  <Button className="w-full mt-2 bg-amber-400 hover:bg-amber-500 text-black font-medium">
+                    Start Free Trial
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </nav>
+      )}
       {/* Hero Section */}
       <div className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 text-white">
         <div className="absolute inset-0 bg-black opacity-50"></div>
@@ -16,18 +96,18 @@ export default function Landing() {
                 <Zap className="h-10 w-10 text-white" />
               </div>
             </div>
-            
+
             {/* Attention-Grabbing Headline */}
             <h1 className="text-6xl md:text-7xl font-bold mb-6 leading-tight">
               <span className="bg-gradient-to-r from-brand-gold to-amber-400 bg-clip-text text-transparent">
                 ImportIQ
               </span>
             </h1>
-            
+
             <div className="text-3xl md:text-4xl font-bold mb-4 text-gray-100">
               The $50,000+ Mistake Most Importers Make
             </div>
-            
+
             <div className="text-xl md:text-2xl text-gray-300 mb-8 max-w-4xl mx-auto">
               They wing it with outdated calculators, miss compliance deadlines, and pay <em>thousands</em> in unexpected costs. 
               <span className="text-brand-gold font-semibold"> What if there was a smarter way?</span>
@@ -38,7 +118,7 @@ export default function Landing() {
               <h2 className="text-2xl md:text-3xl font-bold mb-6 text-white">
                 Meet the Import Intelligence Platform That Professionals Guard Like a Trade Secret
               </h2>
-              
+
               <div className="grid md:grid-cols-2 gap-6 text-left">
                 <div className="space-y-4">
                   <div className="flex items-start space-x-3">
@@ -58,7 +138,7 @@ export default function Landing() {
                     <span className="text-gray-200"><strong>Timeline Simulator:</strong> Visual Gantt charts showing exactly when your car arrives, accounting for port delays and seasonal factors</span>
                   </div>
                 </div>
-                
+
                 <div className="space-y-4">
                   <div className="flex items-start space-x-3">
                     <Check className="h-5 w-5 text-brand-gold mt-1 flex-shrink-0" />
@@ -84,7 +164,7 @@ export default function Landing() {
                 Smart importers are using every advantage available. Join them.
               </div>
             </div>
-            
+
             <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
               <Button 
                 className="bg-gradient-to-r from-brand-gold to-amber-500 hover:from-amber-500 hover:to-brand-gold text-white px-12 py-4 text-xl font-bold shadow-2xl transform hover:scale-105 transition-all duration-200"
@@ -94,7 +174,7 @@ export default function Landing() {
                 <ArrowRight className="ml-3 h-6 w-6" />
               </Button>
             </div>
-            
+
             <div className="flex items-center justify-center space-x-8 text-sm text-gray-300">
               <div className="flex items-center">
                 <Check className="h-4 w-4 text-green-400 mr-2" />
@@ -113,7 +193,7 @@ export default function Landing() {
                 <span>Instant Access</span>
               </div>
             </div>
-            
+
             <div className="mt-8 text-gray-400 text-sm">
               Join 847 smart importers who stopped gambling with their investments
             </div>
@@ -415,7 +495,7 @@ export default function Landing() {
               </div>
               <div className="text-xs text-gray-500">— Melbourne Importer</div>
             </div>
-            
+
             <div className="bg-gray-50 rounded-xl p-6 text-center">
               <div className="text-2xl font-bold text-gray-900 mb-2">"3 weeks faster"</div>
               <div className="text-gray-600 text-sm mb-4">
@@ -423,7 +503,7 @@ export default function Landing() {
               </div>
               <div className="text-xs text-gray-500">— Sydney Business Owner</div>
             </div>
-            
+
             <div className="bg-gray-50 rounded-xl p-6 text-center">
               <div className="text-2xl font-bold text-gray-900 mb-2">"Best $97/month"</div>
               <div className="text-gray-600 text-sm mb-4">
@@ -609,7 +689,7 @@ export default function Landing() {
             Every day you wait is another day of making decisions without complete information. 
             Your next import should be your most profitable. Make it happen.
           </p>
-          
+
           <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-8 max-w-2xl mx-auto">
             <div className="text-red-800 font-semibold mb-2">🚨 Limited Time:</div>
             <div className="text-red-700">
@@ -625,12 +705,19 @@ export default function Landing() {
             CLAIM YOUR FREE TRIAL NOW
             <ArrowRight className="ml-4 h-8 w-8" />
           </Button>
-          
+
           <div className="mt-6 text-gray-500 text-sm">
             Join 847+ smart importers • No risk • Cancel anytime
           </div>
         </div>
       </div>
+      {/* Email Gate Modal */}
+      {showEmailGate && (
+        <EmailGate 
+          tool={selectedTool} 
+          onClose={() => setShowEmailGate(false)} 
+        />
+      )}
     </div>
   );
 }
