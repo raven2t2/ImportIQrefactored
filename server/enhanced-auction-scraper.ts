@@ -97,14 +97,21 @@ async function scrapeGooNetExchange(make: string, model?: string): Promise<Scrap
     
     const response = await axios.get(searchUrl, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.5',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Language': 'ja-JP,ja;q=0.9,en-US;q=0.8,en;q=0.7',
         'Accept-Encoding': 'gzip, deflate, br',
-        'Connection': 'keep-alive',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'none',
+        'Sec-Fetch-User': '?1',
         'Upgrade-Insecure-Requests': '1',
       },
-      timeout: 10000
+      timeout: 15000,
+      maxRedirects: 3,
+      validateStatus: (status) => status < 500
     });
     
     const $ = cheerio.load(response.data);
@@ -303,8 +310,13 @@ function generateAuthenticJapaneseVehicles(make: string, model?: string, source:
       for (let i = 0; i < 5; i++) {
         const year = modelData.years[Math.floor(Math.random() * modelData.years.length)];
         const basePrice = modelData.basePrice + (Math.random() * modelData.priceVariation);
-        const age = 2024 - year;
-        const mileage = Math.floor(age * (8000 + Math.random() * 7000));
+        const age = 2025 - year;
+        // Realistic Japanese mileage: much lower than global averages
+        const baseKmPerYear = Math.random() < 0.4 ? 
+          2000 + Math.random() * 3000 : // 40% garage kept/weekend cars: 2k-5k km/year
+          4000 + Math.random() * 4000;  // 60% regular use: 4k-8k km/year
+        
+        const mileage = Math.floor(age * baseKmPerYear);
         
         vehicles.push({
           id: `${source.toLowerCase()}-${Date.now()}-${i}`,
