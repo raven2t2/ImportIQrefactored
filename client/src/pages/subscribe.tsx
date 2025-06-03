@@ -150,8 +150,8 @@ export default function Subscribe() {
               <CardTitle className="text-2xl">Monthly Plan</CardTitle>
               <CardDescription>Perfect for active importers</CardDescription>
               <div className="mt-4">
-                <div className="text-4xl font-bold text-black">${monthlyPrice}</div>
-                <div className="text-gray-800 font-medium">per month</div>
+                <div className="text-4xl font-bold text-white">${monthlyPrice}</div>
+                <div className="text-yellow-200 font-medium">per month</div>
                 {isTrialUser && (
                   <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded">
                     <p className="text-sm text-amber-800 font-medium">
@@ -168,23 +168,23 @@ export default function Subscribe() {
               <ul className="space-y-3">
                 <li className="flex items-center space-x-3">
                   <Check className="h-4 w-4 text-green-600" />
-                  <span>Unlimited cost calculations</span>
+                  <span>Vehicle Lookup Tool</span>
                 </li>
                 <li className="flex items-center space-x-3">
                   <Check className="h-4 w-4 text-green-600" />
-                  <span>AI vehicle recommendations</span>
+                  <span>Import Cost Calculator</span>
                 </li>
                 <li className="flex items-center space-x-3">
                   <Check className="h-4 w-4 text-green-600" />
-                  <span>Compliance guidance</span>
+                  <span>True Cost Explorer</span>
                 </li>
                 <li className="flex items-center space-x-3">
                   <Check className="h-4 w-4 text-green-600" />
-                  <span>Timeline planning</span>
+                  <span>BuildReady™ Compliance</span>
                 </li>
                 <li className="flex items-center space-x-3">
                   <Check className="h-4 w-4 text-green-600" />
-                  <span>Premium support</span>
+                  <span>AI Recommendations Engine</span>
                 </li>
               </ul>
             </CardContent>
@@ -209,9 +209,9 @@ export default function Subscribe() {
               <CardTitle className="text-2xl">Yearly Plan</CardTitle>
               <CardDescription>Best value for serious importers</CardDescription>
               <div className="mt-4">
-                <div className="text-4xl font-bold text-black">${yearlyMonthlyEquivalent}</div>
-                <div className="text-gray-800 font-medium">per month</div>
-                <div className="text-sm text-[#D4AF37] font-bold mt-1">
+                <div className="text-4xl font-bold text-white">${yearlyMonthlyEquivalent}</div>
+                <div className="text-yellow-200 font-medium">per month</div>
+                <div className="text-sm text-yellow-300 font-bold mt-1">
                   ${yearlyPrice} billed annually
                 </div>
               </div>
@@ -220,23 +220,23 @@ export default function Subscribe() {
               <ul className="space-y-3">
                 <li className="flex items-center space-x-3">
                   <Check className="h-4 w-4 text-green-600" />
-                  <span>Everything in Monthly</span>
+                  <span>All 14 ImportIQ Tools</span>
                 </li>
                 <li className="flex items-center space-x-3">
                   <Check className="h-4 w-4 text-green-600" />
-                  <span>20% discount (save ${monthlyPrice * 12 - yearlyPrice}/year)</span>
+                  <span>25% yearly savings (${monthlyPrice * 12 - yearlyPrice} saved)</span>
                 </li>
                 <li className="flex items-center space-x-3">
                   <Check className="h-4 w-4 text-green-600" />
-                  <span>Priority support</span>
+                  <span>Expert Vehicle Picks</span>
                 </li>
                 <li className="flex items-center space-x-3">
                   <Check className="h-4 w-4 text-green-600" />
-                  <span>Early access to new features</span>
+                  <span>Market Intelligence Dashboard</span>
                 </li>
                 <li className="flex items-center space-x-3">
                   <Check className="h-4 w-4 text-green-600" />
-                  <span>Annual strategy review</span>
+                  <span>Priority Email Support</span>
                 </li>
               </ul>
             </CardContent>
