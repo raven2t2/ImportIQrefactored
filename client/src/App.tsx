@@ -27,7 +27,7 @@ import ValueEstimator from "@/pages/value-estimator";
 import VehicleLookup from "@/pages/vehicle-lookup";
 import CustomPlates from "@/pages/custom-plates";
 import RegistrationStats from "@/pages/registration-stats";
-import ImportVolumeDashboard from "@/pages/import-volume-dashboard";
+import PortIntelligence from "@/pages/port-intelligence";
 import AuctionSampleExplorer from "@/pages/auction-sample-explorer";
 import Checkout from "@/pages/checkout";
 import BookingCalendar from "@/pages/booking-calendar";
@@ -100,7 +100,7 @@ function Router() {
       <Route path="/documentation-assistant" component={DocumentationAssistant} />
       <Route path="/roi-calculator" component={ROICalculator} />
       <Route path="/state-requirements" component={StateRequirements} />
-      <Route path="/port-intelligence" component={ImportVolumeDashboard} />
+      <Route path="/port-intelligence" component={PortIntelligence} />
       <Route path="/import-timeline" component={ImportTimeline} />
       <Route component={NotFound} />
     </Switch>
