@@ -11,9 +11,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
-import { Anchor, MapPin, Clock, DollarSign, TrendingUp, AlertTriangle, CheckCircle, Truck, Ship, Navigation, Globe } from "lucide-react";
+import { Anchor, MapPin, Clock, DollarSign, TrendingUp, AlertTriangle, CheckCircle, Truck, Ship, Navigation, Globe, ArrowLeft } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { Link } from "wouter";
 
 interface AustralianPort {
   code: string;
@@ -313,17 +314,28 @@ export default function PortIntelligence() {
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="p-3 bg-blue-100 rounded-full">
-              <Anchor className="h-8 w-8 text-blue-600" />
-            </div>
-            <h1 className="text-4xl font-bold text-gray-900">Port Intelligence</h1>
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <Link href="/dashboard">
+              <Button variant="outline" className="flex items-center gap-2">
+                <ArrowLeft className="h-4 w-4" />
+                Back to Dashboard
+              </Button>
+            </Link>
           </div>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Comprehensive Australian port data and recommendations for vehicle imports. 
-            Make informed decisions based on authentic port authority information.
-          </p>
+          
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="p-3 bg-blue-100 rounded-full">
+                <Anchor className="h-8 w-8 text-blue-600" />
+              </div>
+              <h1 className="text-4xl font-bold text-gray-900">Port Intelligence</h1>
+            </div>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Comprehensive Australian port data and recommendations for vehicle imports. 
+              Make informed decisions based on authentic port authority information.
+            </p>
+          </div>
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
