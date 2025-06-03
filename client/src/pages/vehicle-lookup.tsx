@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Search, Car, Flag, AlertCircle, CheckCircle, RefreshCw, DollarSign, Calendar, Gauge, Wrench, Database, ArrowRight } from "lucide-react";
+import { Search, Car, Flag, AlertCircle, CheckCircle, RefreshCw, DollarSign, Calendar, Gauge, Wrench, Database, ArrowRight, Calculator, FileText, Ship } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Link } from "wouter";
@@ -457,17 +457,63 @@ export default function VehicleLookup() {
                 </>
               )}
 
-              {/* Action Button */}
+              {/* Quick Actions */}
               <Separator className="bg-gray-600" />
-              <div className="flex justify-center">
-                <Button
-                  onClick={useThisInfo}
-                  size="lg"
-                  className="bg-amber-400 text-black hover:bg-amber-500 font-medium"
-                >
-                  <RefreshCw className="h-5 w-5 mr-2" />
-                  Use This Info in Other Tools
-                </Button>
+              <div>
+                <h3 className="text-lg font-semibold text-white mb-4 text-center">Continue Your Import Journey</h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <Link href="/value-estimator">
+                    <Button 
+                      variant="outline" 
+                      className="w-full h-16 bg-blue-950/20 border-blue-400/30 text-blue-300 hover:bg-blue-950/40"
+                    >
+                      <div className="text-center">
+                        <DollarSign className="h-5 w-5 mx-auto mb-1" />
+                        <div className="text-sm font-medium">Value Estimator</div>
+                        <div className="text-xs opacity-75">Get market value estimate</div>
+                      </div>
+                    </Button>
+                  </Link>
+                  
+                  <Link href="/import-cost-calculator">
+                    <Button 
+                      variant="outline" 
+                      className="w-full h-16 bg-green-950/20 border-green-400/30 text-green-300 hover:bg-green-950/40"
+                    >
+                      <div className="text-center">
+                        <Calculator className="h-5 w-5 mx-auto mb-1" />
+                        <div className="text-sm font-medium">Import Calculator</div>
+                        <div className="text-xs opacity-75">Calculate total costs</div>
+                      </div>
+                    </Button>
+                  </Link>
+                  
+                  <Link href="/state-requirements">
+                    <Button 
+                      variant="outline" 
+                      className="w-full h-16 bg-purple-950/20 border-purple-400/30 text-purple-300 hover:bg-purple-950/40"
+                    >
+                      <div className="text-center">
+                        <FileText className="h-5 w-5 mx-auto mb-1" />
+                        <div className="text-sm font-medium">State Requirements</div>
+                        <div className="text-xs opacity-75">Check compliance needs</div>
+                      </div>
+                    </Button>
+                  </Link>
+                  
+                  <Link href="/port-intelligence">
+                    <Button 
+                      variant="outline" 
+                      className="w-full h-16 bg-cyan-950/20 border-cyan-400/30 text-cyan-300 hover:bg-cyan-950/40"
+                    >
+                      <div className="text-center">
+                        <Ship className="h-5 w-5 mx-auto mb-1" />
+                        <div className="text-sm font-medium">Port Intelligence</div>
+                        <div className="text-xs opacity-75">Choose best arrival port</div>
+                      </div>
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </CardContent>
           </Card>
