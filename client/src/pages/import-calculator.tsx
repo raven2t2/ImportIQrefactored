@@ -199,29 +199,29 @@ export default function ImportCalculator() {
   // For authenticated users, skip email gate completely
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-card shadow-sm border-b border-brand-gray">
+      <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="flex items-center justify-center w-10 h-10 bg-brand-gold rounded-lg">
-                <Calculator className="h-5 w-5 text-black" />
+              <div className="flex items-center justify-center w-10 h-10 bg-amber-500 rounded-lg">
+                <Calculator className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-brand-white">Immaculate Imports Calculator</h1>
-                <p className="text-sm text-brand-gray">Your Dream Car, Delivered - Calculate total landed costs for importing vehicles to Australia</p>
+                <h1 className="text-2xl font-bold text-gray-900">Import Cost Calculator</h1>
+                <p className="text-sm text-gray-600">Calculate total landed costs for importing vehicles to Australia</p>
               </div>
             </div>
             <div className="flex space-x-2">
               <Link href="/ai-recommendations">
-                <Button variant="outline" size="sm" className="border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-black">AI Recommendations</Button>
+                <Button variant="outline" size="sm" className="border-amber-500 text-amber-600 hover:bg-amber-500 hover:text-white">AI Recommendations</Button>
               </Link>
               <Link href="/compliance-estimate">
-                <Button variant="outline" size="sm" className="border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-black">Compliance</Button>
+                <Button variant="outline" size="sm" className="border-amber-500 text-amber-600 hover:bg-amber-500 hover:text-white">Compliance</Button>
               </Link>
               <Link href="/mod-estimator">
-                <Button variant="outline" size="sm" className="border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-black">Mods</Button>
+                <Button variant="outline" size="sm" className="border-amber-500 text-amber-600 hover:bg-amber-500 hover:text-white">Mods</Button>
               </Link>
             </div>
           </div>
@@ -231,31 +231,31 @@ export default function ImportCalculator() {
       <main className="max-w-4xl mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Form Section */}
-          <Card className="bg-card border-brand-gray shadow-sm">
+          <Card className="bg-white border-gray-200 shadow-sm">
             <CardContent className="p-6">
               <div className="mb-6">
-                <h2 className="text-xl font-semibold text-brand-white mb-2">Vehicle Import Calculator</h2>
-                <p className="text-sm text-brand-gray mb-4">Calculate accurate landed costs for importing vehicles to Australia</p>
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">Vehicle Import Calculator</h2>
+                <p className="text-sm text-gray-600 mb-4">Calculate accurate landed costs for importing vehicles to Australia</p>
                 
                 {/* What's Included */}
-                <div className="p-4 bg-gray-900/50 border border-amber-400/30 rounded-lg">
+                <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
                   <div className="text-sm">
-                    <p className="font-semibold text-white mb-2">This calculation includes:</p>
-                    <div className="space-y-1 text-xs text-gray-300">
+                    <p className="font-semibold text-gray-900 mb-2">This calculation includes:</p>
+                    <div className="space-y-1 text-xs text-gray-700">
                       <div className="flex items-center space-x-2">
-                        <div className="w-1 h-1 bg-amber-400 rounded-full"></div>
+                        <div className="w-1 h-1 bg-amber-500 rounded-full"></div>
                         <span>Complete landed cost breakdown</span>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <div className="w-1 h-1 bg-amber-400 rounded-full"></div>
+                        <div className="w-1 h-1 bg-amber-500 rounded-full"></div>
                         <span>Service tier recommendation</span>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <div className="w-1 h-1 bg-amber-400 rounded-full"></div>
+                        <div className="w-1 h-1 bg-amber-500 rounded-full"></div>
                         <span>All duties, taxes, and fees</span>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <div className="w-1 h-1 bg-amber-400 rounded-full"></div>
+                        <div className="w-1 h-1 bg-amber-500 rounded-full"></div>
                         <span>Service tier comparison</span>
                       </div>
                     </div>
@@ -267,14 +267,14 @@ export default function ImportCalculator() {
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                   {/* Show logged-in user info only if available */}
                   {userInfo && (
-                    <div className="p-4 bg-green-900/20 border border-green-500/30 rounded-lg">
+                    <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                       <div className="flex items-center space-x-2 mb-2">
                         <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        <span className="text-sm font-medium text-green-400">Logged in as</span>
+                        <span className="text-sm font-medium text-green-700">Logged in as</span>
                       </div>
-                      <div className="text-sm text-white">
+                      <div className="text-sm text-gray-900">
                         <div><strong>{userInfo.name}</strong></div>
-                        <div className="text-gray-300">{userInfo.email}</div>
+                        <div className="text-gray-600">{userInfo.email}</div>
                       </div>
                     </div>
                   )}
@@ -284,17 +284,17 @@ export default function ImportCalculator() {
                     name="zipCode"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-medium text-white">
-                          Delivery Zip/Postal Code <span className="text-red-400">*</span>
+                        <FormLabel className="text-sm font-medium text-gray-900">
+                          Delivery Zip/Postal Code <span className="text-red-500">*</span>
                         </FormLabel>
                         <FormControl>
                           <Input
                             {...field}
                             placeholder="e.g., 2000, 3000, 4000"
-                            className="w-full"
+                            className="w-full bg-white border-gray-300 text-gray-900"
                           />
                         </FormControl>
-                        <p className="text-xs text-gray-400">For accurate freight costs to your location</p>
+                        <p className="text-xs text-gray-600">For accurate freight costs to your location</p>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -307,8 +307,8 @@ export default function ImportCalculator() {
                       name="vehicleYear"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-white">
-                            Year <span className="text-red-400">*</span>
+                          <FormLabel className="text-sm font-medium text-gray-900">
+                            Year <span className="text-red-500">*</span>
                           </FormLabel>
                           <FormControl>
                             <Input
@@ -317,6 +317,7 @@ export default function ImportCalculator() {
                               min="1950"
                               max={new Date().getFullYear() + 1}
                               placeholder="2020"
+                              className="bg-white border-gray-300 text-gray-900"
                               onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
                             />
                           </FormControl>
@@ -330,14 +331,14 @@ export default function ImportCalculator() {
                       name="vehicleMake"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-white">
-                            Make <span className="text-red-400">*</span>
+                          <FormLabel className="text-sm font-medium text-gray-900">
+                            Make <span className="text-red-500">*</span>
                           </FormLabel>
                           <FormControl>
                             <Input
                               {...field}
                               placeholder="Toyota"
-                              className="w-full"
+                              className="w-full bg-white border-gray-300 text-gray-900"
                             />
                           </FormControl>
                           <FormMessage />
@@ -350,14 +351,14 @@ export default function ImportCalculator() {
                       name="vehicleModel"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-white">
-                            Model <span className="text-red-400">*</span>
+                          <FormLabel className="text-sm font-medium text-gray-900">
+                            Model <span className="text-red-500">*</span>
                           </FormLabel>
                           <FormControl>
                             <Input
                               {...field}
                               placeholder="Supra"
-                              className="w-full"
+                              className="w-full bg-white border-gray-300 text-gray-900"
                             />
                           </FormControl>
                           <FormMessage />
@@ -371,8 +372,8 @@ export default function ImportCalculator() {
                     name="vehiclePrice"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-medium text-white">
-                          Vehicle Purchase Price (AUD) <span className="text-red-400">*</span>
+                        <FormLabel className="text-sm font-medium text-gray-900">
+                          Vehicle Purchase Price (AUD) <span className="text-red-500">*</span>
                         </FormLabel>
                         <FormControl>
                           <div className="relative">
@@ -383,7 +384,7 @@ export default function ImportCalculator() {
                               min="1000"
                               step="1000"
                               placeholder="85,000"
-                              className="pl-8"
+                              className="pl-8 bg-white border-gray-300 text-gray-900"
                               onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                             />
                           </div>
@@ -391,7 +392,7 @@ export default function ImportCalculator() {
                         
                         {/* Price Anchoring Examples */}
                         <div className="mt-3 space-y-2">
-                          <p className="text-xs font-medium text-gray-300">Most popular price ranges our clients choose:</p>
+                          <p className="text-xs font-medium text-gray-700">Most popular price ranges our clients choose:</p>
                           <div className="grid grid-cols-3 gap-2 text-xs">
                             <button
                               type="button"
@@ -404,11 +405,11 @@ export default function ImportCalculator() {
                             <button
                               type="button"
                               onClick={() => field.onChange(85000)}
-                              className="p-2 bg-brand-gold bg-opacity-10 hover:bg-opacity-20 rounded border border-brand-gold border-opacity-30 text-center transition-colors"
+                              className="p-2 bg-amber-50 hover:bg-amber-100 rounded border border-amber-300 text-center transition-colors"
                             >
-                              <div className="font-medium text-brand-gold">$85,000</div>
-                              <div className="text-gray-600">Premium Sports</div>
-                              <div className="text-xs text-brand-gold font-medium">MOST POPULAR</div>
+                              <div className="font-medium text-amber-700">$85,000</div>
+                              <div className="text-gray-700">Premium Sports</div>
+                              <div className="text-xs text-amber-700 font-medium">MOST POPULAR</div>
                             </button>
                             <button
                               type="button"
