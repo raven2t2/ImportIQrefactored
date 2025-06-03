@@ -234,7 +234,7 @@ export default function ImportIQ() {
             <Button 
               variant="outline" 
               size="lg" 
-              className="border-2 border-gray-600 text-white hover:bg-gray-800 hover:border-gray-500 px-12 py-4 text-lg rounded-full transition-all duration-300 font-medium"
+              className="border-2 border-gray-600 text-white hover:bg-gray-800 hover:border-gray-500 px-12 py-4 text-lg rounded-full transition-all duration-300 font-medium hover:text-white"
             >
               Watch Demo
             </Button>

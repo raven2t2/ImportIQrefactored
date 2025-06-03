@@ -4,11 +4,13 @@ import { Check, Calculator, TrendingUp, Shield, Clock, Users, ArrowRight, Menu, 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/useAuth";
 import logoPath from "@assets/circular imi logo (3).png";
 
 export default function Pricing() {
   const [isYearly, setIsYearly] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   const monthlyPrice = 97;
   const yearlyPrice = Math.round(monthlyPrice * 12 * 0.8); // 20% discount
@@ -187,8 +189,11 @@ export default function Pricing() {
                   )}
                 </div>
 
-                <Button className="w-full bg-amber-400 hover:bg-amber-500 text-black py-3 text-lg font-semibold mb-6 transition-all duration-300 hover:scale-105">
-                  Start 7-Day Free Trial
+                <Button 
+                  className="w-full bg-amber-400 hover:bg-amber-500 text-black py-3 text-lg font-semibold mb-6 transition-all duration-300 hover:scale-105"
+                  onClick={() => window.location.href = isAuthenticated ? '/subscribe' : '/?trial=true'}
+                >
+                  {isAuthenticated ? 'Subscribe Now' : 'Start 7-Day Free Trial'}
                 </Button>
 
                 <div className="text-xs text-gray-400 mb-8">
