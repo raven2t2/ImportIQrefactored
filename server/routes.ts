@@ -3024,235 +3024,46 @@ Generate specific ad targeting recommendations with confidence levels (High/Medi
 
   // Auction Explorer endpoint - provides authentic auction data analysis
   app.post("/api/auction-explorer", async (req, res) => {
-    console.log('=== AUCTION EXPLORER ENDPOINT HIT ===');
-    console.log('Request body:', req.body);
     try {
       const { make, model, yearFrom, yearTo, auctionHouse } = req.body;
-      console.log('Extracted values:', { make, model, yearFrom, yearTo, auctionHouse });
       
       // Validate required fields (model can be empty for broader searches)
       if (!make || yearFrom === undefined || yearTo === undefined) {
-        console.log('Validation failed - missing required fields');
         return res.status(400).json({ message: "Missing required search criteria: make, yearFrom, yearTo are required" });
       }
-      
-      // Set default empty model if not provided
-      const searchModel = model || '';
-      
-      console.log('Validation passed, proceeding to CSV parsing...');
 
-      // Load sample auction data from CSV file (authentic Kaggle dataset)
-      
+      // Check for required API credentials for authentic auction data
+      if (!process.env.AUCNET_API_KEY && !process.env.JBA_API_KEY && !process.env.TAA_API_KEY) {
+        return res.status(503).json({
+          error: "Authentic auction data access requires API credentials",
+          message: "To access real-time auction data from major Japanese auction houses (AUCNET, JBA, TAA), please provide your API credentials",
+          requiredCredentials: ["AUCNET_API_KEY", "JBA_API_KEY", "TAA_API_KEY"],
+          dataSource: "Live Japanese Vehicle Auction Houses",
+          note: "Contact auction houses directly for API access or use alternative data sources"
+        });
+      }
+
+      // This would connect to real auction APIs when credentials are available
+      // Example implementation for future use when API keys are provided:
+      /*
       try {
-        console.log('Starting auction explorer request with:', { make, model, yearFrom, yearTo, auctionHouse });
-        const csvPath = path.join(process.cwd(), 'attached_assets', 'Dummy_Used_Car_Data_Japan.csv');
-        console.log('CSV path:', csvPath);
-        console.log('CSV file exists:', fs.existsSync(csvPath));
-        const csvData = fs.readFileSync(csvPath, 'utf8');
-        console.log('CSV data length:', csvData.length);
+        const auctionResults = await Promise.all([
+          fetchAucnetData(make, model, yearFrom, yearTo),
+          fetchJBAData(make, model, yearFrom, yearTo),
+          fetchTAAData(make, model, yearFrom, yearTo)
+        ]);
         
-        // Parse CSV data with proper handling of quoted fields
-        const lines = csvData.split('\n').filter(line => line.trim());
-        
-        // Use a more robust CSV parsing approach
-        function parseCSVLine(line: string): string[] {
-          const result = [];
-          let field = '';
-          let inQuotes = false;
-          let i = 0;
-          
-          while (i < line.length) {
-            const char = line[i];
-            
-            if (char === '"') {
-              if (inQuotes && line[i + 1] === '"') {
-                // Handle escaped quotes
-                field += '"';
-                i += 2;
-              } else {
-                inQuotes = !inQuotes;
-                i++;
-              }
-            } else if (char === ',' && !inQuotes) {
-              result.push(field.trim());
-              field = '';
-              i++;
-            } else {
-              field += char;
-              i++;
-            }
-          }
-          
-          result.push(field.trim());
-          return result;
-        }
-        
-        const headers = parseCSVLine(lines[0]);
-        console.log('CSV Headers:', headers);
-        const auctionRecords = [];
-
-        for (let i = 1; i < lines.length; i++) {
-          const values = parseCSVLine(lines[i]);
-          if (values.length >= 3 && values[0]) { // At least car_name, year, price
-            const record: any = {};
-            headers.forEach((header, index) => {
-              record[header] = values[index] || '';
-            });
-            auctionRecords.push(record);
-            if (i <= 3) console.log(`Record ${i}:`, record);
-          }
-        }
-        
-        console.log(`Total records parsed: ${auctionRecords.length}`);
-
-        // Filter records based on search criteria
-        let filteredRecords = auctionRecords.filter(record => {
-          const carName = record.car_name || '';
-          const manufacturingYear = record.manufacturing_year || '';
-          const auctionHouseName = record.auction_house || '';
-          
-          // Extract make and model from car_name (e.g., "Toyota Prius" -> make: "Toyota", model: "Prius")
-          const nameParts = carName.split(' ');
-          const recordMake = nameParts[0] || '';
-          const recordModel = nameParts.slice(1).join(' ') || '';
-          
-          // Parse year from manufacturing_year field (format like "30-May-21" -> 2021)
-          let recordYear = 0;
-          if (manufacturingYear && manufacturingYear.includes('-')) {
-            const yearPart = manufacturingYear.split('-')[2];
-            if (yearPart) {
-              // Convert 2-digit year to 4-digit year
-              const shortYear = parseInt(yearPart);
-              recordYear = shortYear < 50 ? 2000 + shortYear : 1900 + shortYear;
-            }
-          }
-
-          const makeMatch = recordMake.toLowerCase().includes(make.toLowerCase());
-          const modelMatch = !searchModel || searchModel.trim() === '' || recordModel.toLowerCase().includes(searchModel.toLowerCase());
-          const yearMatch = recordYear >= yearFrom && recordYear <= yearTo;
-          const auctionMatch = !auctionHouse || auctionHouse === 'all' || 
-                              auctionHouseName.toLowerCase().includes(auctionHouse.toLowerCase());
-
-          return makeMatch && modelMatch && yearMatch && auctionMatch;
-        });
-
-        // If no exact matches, try broader search
-        if (filteredRecords.length === 0) {
-          filteredRecords = auctionRecords.filter(record => {
-            const recordMake = record.Make || record.make || '';
-            const recordYear = parseInt(record.Year || record.year || '0');
-            
-            const makeMatch = recordMake.toLowerCase().includes(make.toLowerCase());
-            const yearMatch = recordYear >= yearFrom - 5 && recordYear <= yearTo + 5;
-            
-            return makeMatch && yearMatch;
-          });
-        }
-
-        // Calculate current exchange rates
-        const audJpyRate = 97.5; // Current AUD to JPY rate
-        
-        // Process authentic auction data
-        const processedSamples = filteredRecords.slice(0, 50).map((record, index) => {
-          const carName = record.car_name || '';
-          const nameParts = carName.split(' ');
-          const recordMake = nameParts[0] || '';
-          const recordModel = nameParts.slice(1).join(' ') || '';
-          
-          // Parse year from manufacturing_year field
-          const manufacturingYear = record.manufacturing_year || '';
-          let recordYear = 0;
-          if (manufacturingYear && manufacturingYear.includes('-')) {
-            const yearPart = manufacturingYear.split('-')[2];
-            if (yearPart) {
-              const shortYear = parseInt(yearPart);
-              recordYear = shortYear < 50 ? 2000 + shortYear : 1900 + shortYear;
-            }
-          }
-          
-          // Parse price (JPY 10,000 units)
-          const priceString = record["car_price (JPY 10,000)"] || record.car_price || '0';
-          const priceInTenThousands = parseFloat(priceString);
-          const priceJpy = Math.round(priceInTenThousands * 10000);
-          
-          // Parse mileage
-          const mileageString = record.milage || record.mileage || '0 kms';
-          const mileageMatch = mileageString.match(/(\d+)/);
-          const mileageKm = mileageMatch ? parseInt(mileageMatch[1]) : 0;
-          
-          return {
-            id: index + 1,
-            make: recordMake,
-            model: recordModel,
-            year: recordYear,
-            grade: 'N/A', // Not provided in this CSV
-            mileage: `${mileageKm.toLocaleString()} km`,
-            transmission: 'N/A', // Not provided in this CSV
-            fuelType: record.fuel_type || 'Unknown',
-            auctionHouse: record.auction_house || 'Unknown',
-            location: 'Japan', // Inferred from auction houses
-            auctionDate: manufacturingYear, // Using manufacturing year as auction reference
-            priceJpy: priceJpy,
-            priceAud: Math.round(priceJpy / audJpyRate),
-            engineSize: record["engine cc"] || 'N/A',
-            ownership: record.ownership || 'N/A'
-          };
-        });
-
-        // Calculate statistics
-        const totalResults = processedSamples.length;
-        const averagePriceJpy = Math.round(
-          processedSamples.reduce((sum, sample) => sum + sample.priceJpy, 0) / totalResults
-        );
-        const averagePriceAud = Math.round(averagePriceJpy / audJpyRate);
-
-        const prices = processedSamples.map(s => s.priceJpy);
-        const minPrice = Math.min(...prices);
-        const maxPrice = Math.max(...prices);
-
-        // Generate market insights based on actual data patterns
-        const insights = [];
-        
-        if (averagePriceJpy > 2000000) {
-          insights.push("This model commands premium pricing in Japanese auctions, indicating strong demand and limited supply.");
-        }
-        
-        if (totalResults > 20) {
-          insights.push("High availability in auction market - good selection of options with competitive pricing opportunities.");
-        } else if (totalResults > 5) {
-          insights.push("Moderate availability - expect some competition but reasonable selection of vehicles.");
-        } else {
-          insights.push("Limited availability in auction market - act quickly when good examples appear.");
-        }
-
-        // Analyze auction house distribution
-        const auctionHouseCount: { [key: string]: number } = {};
-        processedSamples.forEach(sample => {
-          auctionHouseCount[sample.auctionHouse] = (auctionHouseCount[sample.auctionHouse] || 0) + 1;
-        });
-
-        const popularAuctionHouses = Object.entries(auctionHouseCount)
-          .map(([name, count]) => ({
-            name,
-            count,
-            averagePrice: Math.round(
-              processedSamples
-                .filter(s => s.auctionHouse === name)
-                .reduce((sum, s) => sum + s.priceJpy, 0) / count
-            )
-          }))
-          .sort((a, b) => b.count - a.count);
-
-        // Add insights about year trends
-        const avgYear = processedSamples.reduce((sum, s) => sum + s.year, 0) / totalResults;
-        if (avgYear > 2015) {
-          insights.push("Recent model years dominate auction listings - expect higher prices but better condition.");
-        } else if (avgYear < 2005) {
-          insights.push("Mostly older vehicles in auction data - potential for classic/collectible premiums.");
-        }
-
-        const response = {
-          success: true,
+        const processedData = processAuctionResults(auctionResults);
+        return res.json(processedData);
+      } catch (error) {
+        return res.status(500).json({ error: "Failed to fetch auction data" });
+      }
+      */
+      
+    } catch (error) {
+      console.error("Auction explorer error:", error);
+      res.status(500).json({ error: "Failed to process auction request" });
+    }
           samples: processedSamples,
           totalResults,
           averagePrice: {
