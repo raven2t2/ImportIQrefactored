@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Shield, CheckCircle, XCircle, AlertTriangle, Clock, Car, FileText, DollarSign, Calendar } from "lucide-react";
+import { Shield, CheckCircle, XCircle, AlertTriangle, Clock, Car, FileText, DollarSign, Calendar, Star } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -239,8 +239,8 @@ export default function ComplianceChecker() {
               <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
                 <h4 className="font-medium text-blue-900 mb-2">Data Sources</h4>
                 <p className="text-sm text-blue-700">
-                  This tool uses authentic data from NHTSA (National Highway Traffic Safety Administration) 
-                  and EPA databases to verify vehicle compliance with US import regulations.
+                  This tool uses authentic data from Australian Department of Infrastructure and SEVS 
+                  (Specialist and Enthusiast Vehicle Scheme) databases to verify vehicle compliance with Australian import regulations.
                 </p>
               </div>
             </CardContent>
@@ -277,18 +277,18 @@ export default function ComplianceChecker() {
                   <CardTitle className="text-lg">Compliance Assessment</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {/* FMVSS Compliance */}
+                  {/* ADR Compliance */}
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-3">
-                      {result.complianceData.complianceDetails.fmvss.compliant ? (
+                      {result.complianceData.complianceDetails.adr.compliant ? (
                         <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
                       ) : (
                         <XCircle className="h-5 w-5 text-red-600 mt-0.5" />
                       )}
                       <div>
-                        <h4 className="font-medium">FMVSS Safety Standards</h4>
+                        <h4 className="font-medium">Australian Design Rules (ADR)</h4>
                         <p className="text-sm text-gray-600">
-                          {result.complianceData.complianceDetails.fmvss.notes}
+                          {result.complianceData.complianceDetails.adr.notes}
                         </p>
                       </div>
                     </div>
@@ -296,21 +296,21 @@ export default function ComplianceChecker() {
 
                   <Separator />
 
-                  {/* Emissions Compliance */}
+                  {/* SEVS Eligibility */}
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-3">
-                      {result.complianceData.complianceDetails.emissions.compliant ? (
+                      {result.complianceData.complianceDetails.sevs.eligible ? (
                         <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
                       ) : (
                         <XCircle className="h-5 w-5 text-red-600 mt-0.5" />
                       )}
                       <div>
-                        <h4 className="font-medium">EPA Emissions Standards</h4>
+                        <h4 className="font-medium">SEVS (Specialist & Enthusiast Vehicle Scheme)</h4>
                         <p className="text-sm text-gray-600">
-                          Status: {result.complianceData.complianceDetails.emissions.epaStatus}
+                          Status: {result.complianceData.complianceDetails.sevs.status}
                         </p>
                         <p className="text-sm text-gray-600">
-                          {result.complianceData.complianceDetails.emissions.notes}
+                          {result.complianceData.complianceDetails.sevs.notes}
                         </p>
                       </div>
                     </div>
@@ -403,8 +403,8 @@ export default function ComplianceChecker() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-xs text-gray-600 space-y-1">
-                    <p>NHTSA API: {result.complianceData.sources.nhtsa}</p>
-                    <p>EPA Reference: {result.complianceData.sources.epa}</p>
+                    <p>Infrastructure Dept: {result.complianceData.sources.infrastructure}</p>
+                    <p>SEVS Database: {result.complianceData.sources.sevs}</p>
                     <p>Last Checked: {new Date(result.complianceData.sources.lastChecked).toLocaleString()}</p>
                   </div>
                 </CardContent>
