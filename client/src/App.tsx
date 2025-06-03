@@ -40,6 +40,7 @@ import AdminLogin from "@/pages/admin-login";
 import AdminUserManagement from "@/pages/admin-user-management";
 import AdminProfile from "@/pages/admin-profile";
 import Contact from "@/pages/contact";
+import ComplianceChecker from "@/pages/compliance-checker";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -80,6 +81,7 @@ function Router() {
       <Route path="/trial-dashboard" component={TrialDashboard} />
       <Route path="/login" component={Login} />
       <Route path="/contact" component={Contact} />
+      <Route path="/compliance-checker" component={ComplianceChecker} />
       <Route component={NotFound} />
     </Switch>
   );
