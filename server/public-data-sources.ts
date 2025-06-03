@@ -85,12 +85,19 @@ export const SHIPPING_DATA = {
   }
 };
 
-// Real exchange rate data (manually updated from RBA)
+// Exchange rates - requires RBA API access for real-time data
 export const CURRENT_EXCHANGE_RATES = {
-  aud_jpy: 97.50, // As of latest RBA data
-  aud_usd: 0.66,
-  last_updated: "2024-06-02",
-  source: "Reserve Bank of Australia"
+  data_available: false,
+  error_message: "Live exchange rates require RBA API access or external service integration",
+  official_source: "https://www.rba.gov.au/statistics/frequency/exchange-rates.html",
+  
+  // Placeholder structure - DO NOT DISPLAY AS REAL DATA
+  structure: {
+    aud_jpy: null,
+    aud_usd: null,
+    last_updated: null,
+    source: "Reserve Bank of Australia"
+  }
 };
 
 // Vehicle registration statistics - REQUIRES AUTHENTIC DATA SOURCE

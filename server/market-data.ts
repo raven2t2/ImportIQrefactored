@@ -1,6 +1,7 @@
 // Real market data from public sources - no API keys needed
 import https from 'https';
 import { SHIPPING_DATA } from './public-data-sources';
+import { getCurrentExchangeRates } from './rba-exchange-rates';
 
 interface ExchangeRateData {
   audJpy: number;
@@ -26,21 +27,27 @@ interface MarketIntelligence {
   };
 }
 
-// Use Reserve Bank of Australia official exchange rates (no API needed)
+// Reserve Bank of Australia exchange rates require API access
 async function fetchExchangeRates(): Promise<ExchangeRateData | null> {
   try {
-    // Import official RBA exchange rate data from public sources
+    // Check if authentic RBA data is available
     const publicData = await import('./public-data-sources');
     const CURRENT_EXCHANGE_RATES = publicData.CURRENT_EXCHANGE_RATES;
     
+    if (!CURRENT_EXCHANGE_RATES.data_available) {
+      console.log('Exchange rates unavailable:', CURRENT_EXCHANGE_RATES.error_message);
+      return null;
+    }
+    
+    // This would only execute if authentic RBA data becomes available
     return {
-      audJpy: CURRENT_EXCHANGE_RATES.aud_jpy,
-      audUsd: CURRENT_EXCHANGE_RATES.aud_usd,
+      audJpy: CURRENT_EXCHANGE_RATES.structure.aud_jpy,
+      audUsd: CURRENT_EXCHANGE_RATES.structure.aud_usd,
       timestamp: new Date().toISOString(),
-      change24h: 0.8 // Would require historical data for real calculation
+      change24h: 0 // Requires historical data for real calculation
     };
   } catch (error) {
-    console.error('Error loading RBA exchange rate data:', error);
+    console.error('Error accessing RBA exchange rate data:', error);
     return null;
   }
 }
