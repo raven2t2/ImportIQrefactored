@@ -3024,26 +3024,50 @@ Generate specific ad targeting recommendations with confidence levels (High/Medi
 
   // Auction Explorer endpoint - provides authentic auction data analysis
   app.post("/api/auction-explorer", async (req, res) => {
+    console.log('=== AUCTION EXPLORER ENDPOINT HIT ===');
+    console.log('Request body:', req.body);
     try {
       const { make, model, yearFrom, yearTo, auctionHouse } = req.body;
+      console.log('Extracted values:', { make, model, yearFrom, yearTo, auctionHouse });
       
       // Validate required fields
       if (!make || !model || !yearFrom || !yearTo) {
+        console.log('Validation failed - missing required fields');
         return res.status(400).json({ message: "Missing required search criteria" });
       }
+      
+      console.log('Validation passed, proceeding to CSV parsing...');
 
       // Load sample auction data from CSV file (authentic Kaggle dataset)
       
       try {
+        console.log('Starting auction explorer request with:', { make, model, yearFrom, yearTo, auctionHouse });
         const csvPath = path.join(process.cwd(), 'attached_assets', 'Dummy_Used_Car_Data_Japan.csv');
+        console.log('CSV path:', csvPath);
+        console.log('CSV file exists:', fs.existsSync(csvPath));
         const csvData = fs.readFileSync(csvPath, 'utf8');
+        console.log('CSV data length:', csvData.length);
         
         // Parse CSV data
         const lines = csvData.split('\n');
         const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+        console.log('CSV Headers:', headers);
         const auctionRecords = [];
 
-        for (let i = 1; i < lines.length; i++) {
+        for (let i = 1; i < lines.length && i <= 5; i++) { // Log first 5 records for debugging
+          const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
+          if (values.length >= headers.length && values[0]) {
+            const record: any = {};
+            headers.forEach((header, index) => {
+              record[header] = values[index] || '';
+            });
+            auctionRecords.push(record);
+            if (i <= 3) console.log(`Record ${i}:`, record);
+          }
+        }
+        
+        // Continue parsing all records
+        for (let i = 6; i < lines.length; i++) {
           const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
           if (values.length >= headers.length && values[0]) {
             const record: any = {};
@@ -3053,6 +3077,8 @@ Generate specific ad targeting recommendations with confidence levels (High/Medi
             auctionRecords.push(record);
           }
         }
+        
+        console.log(`Total records parsed: ${auctionRecords.length}`);
 
         // Filter records based on search criteria
         let filteredRecords = auctionRecords.filter(record => {
