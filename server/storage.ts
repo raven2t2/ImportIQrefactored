@@ -89,6 +89,12 @@ export interface IStorage {
   // Shop Suggestions
   createShopSuggestion(suggestion: Omit<any, 'id' | 'createdAt'>): Promise<any>;
 
+  // Auction Data Management
+  createAuctionListing(listing: Omit<InsertAuctionListing, 'id'>): Promise<AuctionListing>;
+  getAuctionListings(filters: { make?: string; model?: string; sourceSite?: string; limit: number; offset: number }): Promise<AuctionListing[]>;
+  createDataIngestionLog(log: Omit<InsertDataIngestionLog, 'id'>): Promise<DataIngestionLog>;
+  getDataIngestionLogs(limit: number): Promise<DataIngestionLog[]>;
+
   // Admin user management
   createAdminUser(admin: Omit<InsertAdminUser, 'id' | 'createdAt' | 'updatedAt'>): Promise<AdminUser>;
   getAdminUser(id: number): Promise<AdminUser | undefined>;

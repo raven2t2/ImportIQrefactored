@@ -5750,6 +5750,187 @@ IMPORTANT GUIDELINES:
     }
   });
 
+  // Webhook endpoint for external auction data ingestion
+  app.post("/api/receive-scan", async (req, res) => {
+    const startTime = Date.now();
+    
+    try {
+      const { listings } = req.body;
+      
+      if (!listings || !Array.isArray(listings)) {
+        return res.status(400).json({ 
+          success: false, 
+          error: "Request must contain 'listings' array" 
+        });
+      }
+
+      const errors: string[] = [];
+      let processedCount = 0;
+      let skippedCount = 0;
+
+      // Process each listing
+      for (const listingData of listings) {
+        try {
+          // Validate and sanitize the listing data
+          const validatedListing = insertAuctionListingSchema.parse({
+            ...listingData,
+            dataSource: 'webhook'
+          });
+
+          // Extract vehicle details from title if not provided
+          if (!validatedListing.make || !validatedListing.model) {
+            const extractedDetails = extractVehicleDetails(validatedListing.title);
+            validatedListing.make = validatedListing.make || extractedDetails.make;
+            validatedListing.model = validatedListing.model || extractedDetails.model;
+            validatedListing.year = validatedListing.year || extractedDetails.year;
+          }
+
+          // Store the listing
+          await storage.createAuctionListing(validatedListing);
+          processedCount++;
+
+        } catch (validationError) {
+          errors.push(`Listing validation failed: ${validationError instanceof Error ? validationError.message : 'Unknown error'}`);
+          skippedCount++;
+        }
+      }
+
+      // Log the ingestion process
+      await storage.createDataIngestionLog({
+        sourceName: req.headers['user-agent'] || 'Unknown',
+        recordsReceived: listings.length,
+        recordsProcessed: processedCount,
+        recordsSkipped: skippedCount,
+        errors: errors.length > 0 ? errors : null,
+        requestPayload: listings,
+        status: errors.length === 0 ? 'success' : (processedCount > 0 ? 'partial' : 'failed'),
+        processingTimeMs: Date.now() - startTime,
+        ipAddress: req.ip,
+        userAgent: req.headers['user-agent']
+      });
+
+      res.json({
+        success: true,
+        message: "Auction data processed successfully",
+        summary: {
+          totalReceived: listings.length,
+          processed: processedCount,
+          skipped: skippedCount,
+          errors: errors.length > 0 ? errors : null,
+          processingTimeMs: Date.now() - startTime
+        }
+      });
+
+    } catch (error) {
+      console.error("Error processing auction data:", error);
+      
+      // Log the failed ingestion
+      await storage.createDataIngestionLog({
+        sourceName: req.headers['user-agent'] || 'Unknown',
+        recordsReceived: 0,
+        recordsProcessed: 0,
+        recordsSkipped: 0,
+        errors: [error instanceof Error ? error.message : 'Unknown error'],
+        requestPayload: req.body,
+        status: 'failed',
+        processingTimeMs: Date.now() - startTime,
+        ipAddress: req.ip,
+        userAgent: req.headers['user-agent']
+      });
+
+      res.status(500).json({
+        success: false,
+        error: "Failed to process auction data",
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Get auction listings with filtering
+  app.get("/api/auction-listings", async (req, res) => {
+    try {
+      const { make, model, sourceSite, limit = 50, offset = 0 } = req.query;
+      
+      const filters = {
+        make: make as string,
+        model: model as string,
+        sourceSite: sourceSite as string,
+        limit: parseInt(limit as string),
+        offset: parseInt(offset as string)
+      };
+
+      const listings = await storage.getAuctionListings(filters);
+      
+      res.json({
+        success: true,
+        listings,
+        count: listings.length,
+        filters: filters
+      });
+
+    } catch (error) {
+      console.error("Error fetching auction listings:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to fetch auction listings"
+      });
+    }
+  });
+
+  // Data ingestion logs endpoint
+  app.get("/api/ingestion-logs", async (req, res) => {
+    try {
+      const { limit = 20 } = req.query;
+      const logs = await storage.getDataIngestionLogs(parseInt(limit as string));
+      
+      res.json({
+        success: true,
+        logs
+      });
+
+    } catch (error) {
+      console.error("Error fetching ingestion logs:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to fetch ingestion logs"
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
+}
+
+// Helper function to extract vehicle details from title
+function extractVehicleDetails(title: string): { make?: string; model?: string; year?: number } {
+  const makes = ['toyota', 'nissan', 'honda', 'mazda', 'subaru', 'mitsubishi', 'ford', 'chevrolet', 'dodge', 'bmw', 'mercedes', 'audi', 'volkswagen'];
+  const yearMatch = title.match(/\b(19|20)\d{2}\b/);
+  
+  let make: string | undefined;
+  let model: string | undefined;
+  let year: number | undefined;
+
+  // Extract year
+  if (yearMatch) {
+    year = parseInt(yearMatch[0]);
+  }
+
+  // Extract make
+  for (const m of makes) {
+    if (title.toLowerCase().includes(m)) {
+      make = m.charAt(0).toUpperCase() + m.slice(1);
+      break;
+    }
+  }
+
+  // Extract model (simplified - would need more sophisticated logic for real use)
+  if (make) {
+    const titleParts = title.toLowerCase().split(' ');
+    const makeIndex = titleParts.findIndex(part => part.includes(make.toLowerCase()));
+    if (makeIndex !== -1 && makeIndex + 1 < titleParts.length) {
+      model = titleParts[makeIndex + 1].charAt(0).toUpperCase() + titleParts[makeIndex + 1].slice(1);
+    }
+  }
+
+  return { make, model, year };
 }
