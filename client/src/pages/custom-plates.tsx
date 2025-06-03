@@ -95,10 +95,10 @@ export default function CustomPlates() {
             <Car className="h-8 w-8 text-blue-600 dark:text-blue-400" />
           </div>
           <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            Custom License Plate Checker
+            Australian License Plate Requirements Guide
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Check availability and pricing for personalized license plates across Australian states
+            Official requirements, pricing, and application procedures for custom license plates across all Australian states
           </p>
         </div>
 
@@ -107,10 +107,10 @@ export default function CustomPlates() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Search className="h-5 w-5" />
-              Plate Availability Check
+              License Plate Requirements
             </CardTitle>
             <CardDescription>
-              Enter your desired custom plate combination to check availability and pricing
+              View official requirements, pricing, and application procedures for your desired plate
             </CardDescription>
           </CardHeader>
           <CardContent>
