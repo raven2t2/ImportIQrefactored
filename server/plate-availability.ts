@@ -295,7 +295,10 @@ const COMMONLY_TAKEN = [
   "MUSCLE", "V8", "TURBO", "BOOST", "TUNED", "MODDED", "CUSTOM",
   "FAST", "QUICK", "SPEED", "RACE", "DRIFT", "TRACK", "STREET",
   "AUSSIE", "OZ", "MATE", "LEGEND", "CHAMP", "WINNER", "BEST",
-  "LOVE", "FAMILY", "MUM", "DAD", "KIDS", "BABY", "ANGEL"
+  "LOVE", "FAMILY", "MUM", "DAD", "KIDS", "BABY", "ANGEL",
+  "GHOST", "SPIRIT", "DEMON", "BEAST", "SAVAGE", "WILD", "FURY",
+  "POWER", "FORCE", "STORM", "THUNDER", "LIGHTNING", "FIRE",
+  "COOL", "HOT", "ICE", "SNOW", "RAIN", "SUN", "MOON", "STAR"
 ];
 
 function validatePlateNumber(plateNumber: string, state: string): {
