@@ -95,10 +95,11 @@ function Router() {
       <Route path="/buildready" component={BuildComply} />
       <Route path="/registry-lookup" component={CustomPlates} />
       <Route path="/custom-plates" component={CustomPlates} />
-      <Route path="/documentation-assistant" component={ImportTimeline} />
+      <Route path="/documentation-assistant" component={DocumentationAssistant} />
       <Route path="/roi-calculator" component={ValueEstimator} />
       <Route path="/state-requirements" component={RegistrationStats} />
       <Route path="/port-intelligence" component={ImportVolumeDashboard} />
+      <Route path="/import-timeline" component={ImportTimeline} />
       <Route component={NotFound} />
     </Switch>
   );
