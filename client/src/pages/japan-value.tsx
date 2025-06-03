@@ -119,8 +119,8 @@ export default function JapanValue() {
                 <p className="text-sm text-gray-600">Search real Japanese auction data to find current market values</p>
               </div>
             </div>
-            <Link href="/">
-              <Button variant="outline">Back to Calculator</Button>
+            <Link href="/dashboard">
+              <Button variant="outline">Back to Dashboard</Button>
             </Link>
           </div>
         </div>

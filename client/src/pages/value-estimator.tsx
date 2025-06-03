@@ -92,8 +92,8 @@ export default function ValueEstimator() {
                 <p className="text-sm text-gray-600">Professional vehicle valuation across global markets</p>
               </div>
             </div>
-            <Link href="/">
-              <Button variant="outline">Back to Tools</Button>
+            <Link href="/dashboard">
+              <Button variant="outline">Back to Dashboard</Button>
             </Link>
           </div>
         </div>

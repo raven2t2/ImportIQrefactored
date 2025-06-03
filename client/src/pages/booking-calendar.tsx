@@ -97,11 +97,11 @@ export default function BookingCalendar() {
                   View Your Dashboard
                 </Button>
                 <Button
-                  onClick={() => window.location.href = '/'}
+                  onClick={() => window.location.href = '/dashboard'}
                   variant="outline"
                   className="w-full"
                 >
-                  Back to Tools
+                  Back to Dashboard
                 </Button>
               </div>
             </CardContent>
