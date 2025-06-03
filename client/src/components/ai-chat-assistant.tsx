@@ -23,7 +23,7 @@ interface AIResponse {
 }
 
 export function AiChatAssistant() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const [location] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -31,8 +31,8 @@ export function AiChatAssistant() {
   const [inputValue, setInputValue] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Don't show for non-authenticated users
-  if (!isAuthenticated) return null;
+  // Don't show for non-authenticated users or while loading
+  if (isLoading || !isAuthenticated) return null;
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
