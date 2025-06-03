@@ -82,50 +82,42 @@ const stateRegistrationData = {
   nsw: {
     authority: "Service NSW",
     cost: "From $349",
-    inspectionRequired: true,
-    link: "https://www.service.nsw.gov.au/transaction/register-vehicle-first-time"
+    inspectionRequired: true
   },
   vic: {
     authority: "VicRoads",
     cost: "From $318",
-    inspectionRequired: true,
-    link: "https://www.vicroads.vic.gov.au/registration/buy-sell-or-transfer/register-a-vehicle"
+    inspectionRequired: true
   },
   qld: {
     authority: "Queensland Transport",
     cost: "From $295",
-    inspectionRequired: true,
-    link: "https://www.qld.gov.au/transport/registration/register"
+    inspectionRequired: true
   },
   wa: {
     authority: "Department of Transport WA",
     cost: "From $387",
-    inspectionRequired: true,
-    link: "https://www.transport.wa.gov.au/licensing/vehicle-licensing.asp"
+    inspectionRequired: true
   },
   sa: {
     authority: "Service SA",
     cost: "From $445",
-    inspectionRequired: true,
-    link: "https://www.sa.gov.au/topics/transport-travel-and-motoring/registration"
+    inspectionRequired: true
   },
   tas: {
     authority: "Service Tasmania",
     cost: "From $329",
-    inspectionRequired: true,
-    link: "https://www.service.tas.gov.au/services/transport"
+    inspectionRequired: true
   },
   act: {
     authority: "Access Canberra",
     cost: "From $478",
-    inspectionRequired: true,
-    link: "https://www.accesscanberra.act.gov.au/app/home/transport_and_motoring"
+    inspectionRequired: true
   },
   nt: {
     authority: "NT Government",
     cost: "From $289",
-    inspectionRequired: true,
-    link: "https://nt.gov.au/driving/registration"
+    inspectionRequired: true
   }
 };
 
@@ -235,14 +227,13 @@ export default function DocumentationAssistant() {
                       </div>
                     </div>
 
-                    {step.officialLink !== "Varies by state" && (
-                      <Button variant="outline" size="sm" asChild>
-                        <a href={step.officialLink} target="_blank" rel="noopener noreferrer">
-                          Official Information
-                          <ExternalLink className="ml-2 h-4 w-4" />
-                        </a>
-                      </Button>
-                    )}
+                    <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border">
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        <strong>Official Authority:</strong> {step.authority}
+                        <br />
+                        Contact directly for current requirements and processing times.
+                      </p>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
@@ -374,18 +365,11 @@ export default function DocumentationAssistant() {
                     </div>
                   </div>
 
-                  <div className="mt-6">
-                    <Button asChild>
-                      <a 
-                        href={stateRegistrationData[selectedState as keyof typeof stateRegistrationData].link} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2"
-                      >
-                        Official {selectedState.toUpperCase()} Registration Portal
-                        <ExternalLink className="h-4 w-4" />
-                      </a>
-                    </Button>
+                  <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200">
+                    <p className="text-sm text-blue-800 dark:text-blue-300">
+                      <strong>Note:</strong> Visit your state's transport authority website or local office to complete the registration process. 
+                      Requirements and processing times may vary by location and individual circumstances.
+                    </p>
                   </div>
                 </CardContent>
               </Card>
