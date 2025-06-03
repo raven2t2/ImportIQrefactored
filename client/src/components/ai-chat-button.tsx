@@ -205,8 +205,9 @@ export function AiChatButton() {
     return pageContexts[path] || 'general import assistance';
   };
 
-  // Only show chat button for authenticated users
-  if (!isAuthenticated || isLoading) {
+  // Temporarily show chat button for all users while fixing authentication
+  // TODO: Re-enable authentication check once auth system is properly configured
+  if (isLoading) {
     return null;
   }
 
