@@ -214,6 +214,14 @@ export default function UserDashboard() {
           />
 
           <ToolCard
+            title="Value Estimator"
+            description="Professional market valuation using authentic dealer, auction, and broker pricing data."
+            icon={<Calculator className="h-6 w-6" />}
+            color="green"
+            onClick={() => window.location.href = '/value-estimator'}
+          />
+
+          <ToolCard
             title="ROI Calculator"
             description="Investment analysis and profit potential for imported vehicles."
             icon={<TrendingUp className="h-6 w-6" />}
