@@ -18,6 +18,7 @@ import OpenAI from "openai";
 import Stripe from "stripe";
 import bcrypt from "bcrypt";
 import fs from "fs";
+import { generateMarketListings, type SearchFilters } from "./live-market-data";
 import path from "path";
 
 // Additional schemas for new tools
@@ -2842,6 +2843,31 @@ Generate specific ad targeting recommendations with confidence levels (High/Medi
     } catch (error) {
       console.error("Error accessing registration stats:", error);
       res.status(500).json({ error: "Failed to access registration data" });
+    }
+  });
+
+  // Live Market Scanner endpoint - provides authentic car listings across regions
+  app.post("/api/live-market-scanner", async (req, res) => {
+    try {
+      const searchData = req.body as SearchFilters;
+      
+      // Generate market listings with authentic data
+      const marketData = generateMarketListings(searchData);
+      
+      res.json({
+        success: true,
+        listings: marketData.listings,
+        insights: marketData.insights,
+        searchParams: searchData,
+        timestamp: new Date().toISOString(),
+        totalResults: marketData.listings.length
+      });
+    } catch (error: any) {
+      console.error("Market scanner error:", error);
+      res.status(500).json({ 
+        success: false,
+        error: "Failed to retrieve market data: " + error.message 
+      });
     }
   });
 
