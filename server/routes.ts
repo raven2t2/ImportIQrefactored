@@ -2272,6 +2272,30 @@ Respond with a JSON object containing your recommendations.`;
       const trials = await storage.getAllTrials();
       const emailCache = await storage.getAllEmailCache();
 
+      // If no data, return empty analytics structure
+      if (submissions.length === 0) {
+        return res.json({
+          message: "Insufficient data for analytics",
+          dataStatus: {
+            submissions: 0,
+            trials: trials.length,
+            emailCache: emailCache.length
+          },
+          recommendations: {
+            immediate_actions: [],
+            test_opportunities: [],
+            data_collection_needed: [
+              {
+                category: "Data Collection",
+                recommendation: "Need more user submissions to generate meaningful analytics",
+                confidence: "High",
+                implementation: "Drive traffic to cost calculator and features"
+              }
+            ]
+          }
+        });
+      }
+
       // Time pattern analysis
       const timePatterns = submissions.reduce((acc, sub) => {
         const date = new Date(sub.createdAt);
@@ -2344,42 +2368,59 @@ Respond with a JSON object containing your recommendations.`;
       const peakDay = Object.entries(timePatterns.daily).sort(([,a], [,b]) => b - a)[0]?.[0] || "1";
       const peakState = Object.entries(locationAnalysis.states).sort(([,a], [,b]) => b - a)[0]?.[0] || "NSW";
 
-      // Generate AI-powered ad targeting suggestions
+      // Generate AI-powered ad targeting suggestions using OpenAI
+      let aiInsights = [];
+      try {
+        const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+        
+        const analyticsPrompt = `Analyze this vehicle import business data and generate 5 specific, actionable ad targeting recommendations:
+
+User Demographics:
+- Peak activity hour: ${peakHour}:00
+- Top performing state: ${peakState}
+- Most popular vehicle brand: ${Object.entries(vehicleAnalysis.makes).sort(([,a], [,b]) => b - a)[0]?.[0] || 'Toyota'}
+- Average import value: $${Math.round(budgetAnalysis.avg_budget).toLocaleString()}
+- Top budget segment: ${Object.entries(budgetAnalysis.budget_ranges).sort(([,a], [,b]) => b - a)[0]?.[0]}
+- Conversion rate: ${funnelAnalysis.overall_conversion.toFixed(1)}%
+
+Total submissions: ${submissions.length}
+Active trials: ${funnelAnalysis.active_trials}
+
+Generate specific ad targeting recommendations with confidence levels (High/Medium/Low) and implementation details. Focus on practical Facebook/Google Ads strategies. Return as JSON with structure: {"recommendations": [{"category": "", "recommendation": "", "confidence": "", "data_support": "", "implementation": ""}]}`;
+
+        const response = await openai.chat.completions.create({
+          model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+          messages: [{ role: "user", content: analyticsPrompt }],
+          response_format: { type: "json_object" },
+          max_tokens: 1500,
+          temperature: 0.3
+        });
+
+        const aiResponse = JSON.parse(response.choices[0].message.content);
+        aiInsights = aiResponse.recommendations || [];
+      } catch (error) {
+        console.error("OpenAI API error:", error);
+        // Fallback to basic recommendations if OpenAI fails
+        aiInsights = [
+          {
+            category: "Data Collection Priority",
+            recommendation: "Increase data collection before generating AI insights",
+            confidence: "High",
+            data_support: "Limited data available for accurate AI analysis",
+            implementation: "Focus on driving more traffic to cost calculator"
+          }
+        ];
+      }
+
+      // Combine AI insights with basic analytics
       const adTargetingSuggestions = [
+        ...aiInsights,
         {
-          category: "Optimal Timing",
-          recommendation: `Peak activity at ${peakHour}:00 - Schedule ads 1-2 hours before (${parseInt(peakHour) - 2}:00-${parseInt(peakHour) - 1}:00)`,
+          category: "Peak Performance Timing",
+          recommendation: `Schedule ads 1-2 hours before peak activity (${parseInt(peakHour) - 2}:00-${parseInt(peakHour) - 1}:00)`,
           confidence: "High",
-          data_support: `${Math.round((timePatterns.hourly[peakHour] / submissions.length) * 100)}% of submissions occur during this hour`,
-          implementation: "Facebook/Google Ads dayparting"
-        },
-        {
-          category: "Geographic Targeting",
-          recommendation: `Focus ad spend on ${peakState} - highest conversion state`,
-          confidence: "High",
-          data_support: `${Math.round((locationAnalysis.states[peakState] / submissions.length) * 100)}% of users from ${peakState}`,
-          implementation: "State-level geo-targeting with +30% bid adjustment"
-        },
-        {
-          category: "Interest Targeting",
-          recommendation: `Target ${Object.entries(vehicleAnalysis.makes).sort(([,a], [,b]) => b - a)[0]?.[0]} enthusiasts`,
-          confidence: "Medium",
-          data_support: `Most popular vehicle brand among users`,
-          implementation: "Interest-based targeting + lookalike audiences"
-        },
-        {
-          category: "Budget-Based Audiences",
-          recommendation: `Create separate campaigns for ${Object.entries(budgetAnalysis.budget_ranges).sort(([,a], [,b]) => b - a)[0]?.[0]} segment`,
-          confidence: "Medium",
-          data_support: `Largest user segment by budget range`,
-          implementation: "Income-based targeting with tailored messaging"
-        },
-        {
-          category: "Seasonal Optimization",
-          recommendation: submissions.length > 30 ? "Increase ad spend during peak months" : "Collect more data for seasonal patterns",
-          confidence: submissions.length > 30 ? "Medium" : "Low",
-          data_support: "Based on monthly submission patterns",
-          implementation: "Budget scheduling with seasonal multipliers"
+          data_support: `${Math.round((timePatterns.hourly[peakHour] / submissions.length) * 100)}% of activity occurs at ${peakHour}:00`,
+          implementation: "Google/Facebook dayparting with automated bid adjustments"
         }
       ];
 
