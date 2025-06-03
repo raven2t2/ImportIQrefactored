@@ -80,7 +80,13 @@ export default function LiveMarketScanner() {
     count: number; 
     filters: any; 
   }>({
-    queryKey: ["/api/auction-listings", buildQueryParams()],
+    queryKey: ["/api/auction-listings", filters, searchTerm],
+    queryFn: async () => {
+      const params = buildQueryParams();
+      const url = params ? `/api/auction-listings?${params}` : '/api/auction-listings';
+      const response = await fetch(url);
+      return response.json();
+    },
     refetchInterval: 30000, // Auto-refresh every 30 seconds
   });
 

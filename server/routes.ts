@@ -5849,15 +5849,39 @@ IMPORTANT GUIDELINES:
   // Get auction listings with filtering
   app.get("/api/auction-listings", async (req, res) => {
     try {
-      const { make, model, sourceSite, limit = 50, offset = 0 } = req.query;
+      const { 
+        make, 
+        model, 
+        sourceSite, 
+        source,
+        search,
+        minPrice, 
+        maxPrice, 
+        yearFrom, 
+        yearTo,
+        limit = 50, 
+        offset = 0 
+      } = req.query;
       
       const filters = {
         make: make as string,
         model: model as string,
-        sourceSite: sourceSite as string,
+        sourceSite: (sourceSite || source) as string,
+        search: search as string,
+        minPrice: minPrice ? parseInt(minPrice as string) : undefined,
+        maxPrice: maxPrice ? parseInt(maxPrice as string) : undefined,
+        yearFrom: yearFrom ? parseInt(yearFrom as string) : undefined,
+        yearTo: yearTo ? parseInt(yearTo as string) : undefined,
         limit: parseInt(limit as string),
         offset: parseInt(offset as string)
       };
+
+      // Remove undefined values
+      Object.keys(filters).forEach(key => {
+        if (filters[key as keyof typeof filters] === undefined) {
+          delete filters[key as keyof typeof filters];
+        }
+      });
 
       const listings = await storage.getAuctionListings(filters);
       
