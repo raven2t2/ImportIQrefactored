@@ -3809,9 +3809,45 @@ IMPORTANT GUIDELINES:
 
       const searchQuery = identifier.trim().toUpperCase();
       
-      // Determine if it's a VIN (17 characters) or chassis code
-      if (searchQuery.length === 17) {
-        // VIN Lookup using NHTSA API
+      // Enhanced VIN/Code Detection for classic American muscle cars
+      const isModernVin = searchQuery.length === 17 && /^[A-HJ-NPR-Z0-9]{17}$/i.test(searchQuery);
+      const isVintageVin = /^[0-9A-Z]{11,13}[0-9N][0-9A-Z]{0,2}$/i.test(searchQuery) && searchQuery.length >= 11 && searchQuery.length <= 15;
+      
+      // Classic American muscle car VIN patterns (1968-1980)
+      const classicMusclePatterns = {
+        // Chevrolet patterns
+        "124": { make: "CHEVROLET", model: "Camaro", baseYear: 1969 },
+        "123": { make: "CHEVROLET", model: "Camaro", baseYear: 1968 },
+        "125": { make: "CHEVROLET", model: "Camaro", baseYear: 1970 },
+        "194": { make: "CHEVROLET", model: "Chevelle", baseYear: 1969 },
+        "136": { make: "CHEVROLET", model: "Chevelle", baseYear: 1968 },
+        "138": { make: "CHEVROLET", model: "Chevelle", baseYear: 1970 },
+        "164": { make: "CHEVROLET", model: "Nova", baseYear: 1969 },
+        "111": { make: "CHEVROLET", model: "Corvette", baseYear: 1969 },
+        
+        // Ford patterns
+        "9F": { make: "FORD", model: "Mustang", baseYear: 1969 },
+        "8F": { make: "FORD", model: "Mustang", baseYear: 1968 },
+        "0F": { make: "FORD", model: "Mustang", baseYear: 1970 },
+        "63": { make: "FORD", model: "Torino", baseYear: 1969 },
+        "42": { make: "FORD", model: "Fairlane", baseYear: 1968 },
+        
+        // Dodge patterns
+        "JS": { make: "DODGE", model: "Charger", baseYear: 1969 },
+        "XS": { make: "DODGE", model: "Charger", baseYear: 1968 },
+        "WS": { make: "DODGE", model: "Charger", baseYear: 1970 },
+        "RM": { make: "DODGE", model: "Coronet", baseYear: 1969 },
+        "WM": { make: "DODGE", model: "Coronet", baseYear: 1968 },
+        
+        // Plymouth patterns
+        "RM": { make: "PLYMOUTH", model: "Road Runner", baseYear: 1969 },
+        "RH": { make: "PLYMOUTH", model: "Road Runner", baseYear: 1968 },
+        "RM": { make: "PLYMOUTH", model: "GTX", baseYear: 1969 },
+        "RS": { make: "PLYMOUTH", model: "Barracuda", baseYear: 1969 },
+      };
+
+      if (isModernVin) {
+        // Modern 17-character VIN Lookup using NHTSA API
         try {
           const vinResponse = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/${searchQuery}?format=json`);
           const vinData = await vinResponse.json();
@@ -3845,6 +3881,61 @@ IMPORTANT GUIDELINES:
         } catch (error) {
           console.error("NHTSA VIN lookup error:", error);
           return res.json({ success: false, message: "Unable to decode VIN" });
+        }
+      } else if (isVintageVin) {
+        // Classic American muscle car VIN decoding
+        const vinPrefix = searchQuery.substring(0, 3);
+        const vinPrefix2 = searchQuery.substring(0, 2);
+        
+        let matchedPattern = classicMusclePatterns[vinPrefix] || classicMusclePatterns[vinPrefix2];
+        
+        if (matchedPattern) {
+          // Extract year from VIN position (varies by manufacturer)
+          let year = matchedPattern.baseYear;
+          
+          // Try to extract year from vintage VIN structure
+          const yearChar = searchQuery.charAt(searchQuery.length - 2) || searchQuery.charAt(10);
+          if (yearChar && /[0-9A-Z]/.test(yearChar)) {
+            // Classic GM year codes
+            const gmYearCodes: { [key: string]: number } = {
+              '8': 1968, '9': 1969, '0': 1970, '1': 1971, '2': 1972, '3': 1973,
+              '4': 1974, '5': 1975, '6': 1976, '7': 1977, 'H': 1977, 'J': 1978,
+              'K': 1979, 'L': 1980
+            };
+            
+            if (gmYearCodes[yearChar]) {
+              year = gmYearCodes[yearChar];
+            }
+          }
+          
+          // Get auction samples for classic muscle cars
+          const auctionSamples = getAuctionSamples(matchedPattern.make, matchedPattern.model, year);
+          
+          return res.json({
+            success: true,
+            type: "vintage_vin",
+            data: {
+              make: matchedPattern.make,
+              model: matchedPattern.model,
+              year: year.toString(),
+              trim: undefined,
+              engine: undefined,
+              fuelType: "Gasoline"
+            },
+            auctionSamples,
+            note: "Classic muscle car VIN decoded using vintage patterns"
+          });
+        } else {
+          return res.json({
+            success: false,
+            error: "Vintage VIN pattern not recognized in our classic muscle car database",
+            type: "vintage_vin",
+            suggestions: [
+              { code: "124379N664466", description: "1969 Chevrolet Camaro example" },
+              { code: "9F02F123456", description: "1969 Ford Mustang example" },
+              { code: "JS23N9B123456", description: "1969 Dodge Charger example" }
+            ]
+          });
         }
       } else {
         // JDM Chassis Code Lookup
