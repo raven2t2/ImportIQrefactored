@@ -281,11 +281,11 @@ export default function Features() {
           {/* Trust indicators */}
           <div className="text-gray-400 text-sm space-y-2">
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
-              <span>Trusted by 10,000+ importers</span>
+              <span>Professional-grade tools</span>
               <span className="hidden sm:inline">•</span>
-              <span>$50M+ in savings</span>
+              <span>Real-time data integration</span>
               <span className="hidden sm:inline">•</span>
-              <span>Industry-leading AI accuracy</span>
+              <span>Comprehensive import intelligence</span>
             </div>
           </div>
         </div>

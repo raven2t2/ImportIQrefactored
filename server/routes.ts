@@ -2519,17 +2519,53 @@ Generate specific ad targeting recommendations with confidence levels (High/Medi
     try {
       const { plan, email } = req.body;
       
-      // Check if user is in trial for special pricing
-      const trialStatus = email ? await storage.getTrialStatus(email) : null;
-      const isTrialUser = trialStatus?.isActive;
+      // Check multiple sources for trial user status
+      let isTrialUser = false;
+      let trialInfo = null;
+      
+      if (email) {
+        // Check if user has active trial
+        const trialStatus = await storage.getTrialStatus(email);
+        if (trialStatus?.isActive) {
+          isTrialUser = true;
+          trialInfo = trialStatus;
+        }
+      }
+      
+      // Also check localStorage values passed from frontend for trial users
+      const { trialUserEmail } = req.body;
+      if (!isTrialUser && trialUserEmail) {
+        const trialStatus = await storage.getTrialStatus(trialUserEmail);
+        if (trialStatus?.isActive) {
+          isTrialUser = true;
+          trialInfo = trialStatus;
+        }
+      }
       
       let amount;
+      let discountInfo = null;
+      
       if (plan === 'yearly') {
-        // Yearly: Regular $97/month * 12 * 0.75 = $873 AUD
+        // Yearly: $97/month * 12 * 0.75 = $873 AUD (25% discount)
         amount = Math.round(97 * 12 * 0.75 * 100);
+        discountInfo = {
+          type: 'yearly_discount',
+          percentage: 25,
+          savings: Math.round(97 * 12 * 0.25)
+        };
       } else {
-        // Monthly: Trial users get first month for $77, regular users pay $97
-        amount = isTrialUser ? 77 * 100 : 97 * 100;
+        // Monthly pricing with trial discount
+        if (isTrialUser) {
+          amount = 77 * 100; // $77 for trial users upgrading
+          discountInfo = {
+            type: 'trial_upgrade_discount',
+            originalPrice: 97,
+            discountedPrice: 77,
+            savings: 20
+          };
+        } else {
+          amount = 97 * 100; // Regular price for new users
+        }
       }
       
       const paymentIntent = await stripe.paymentIntents.create({
@@ -2537,9 +2573,10 @@ Generate specific ad targeting recommendations with confidence levels (High/Medi
         currency: "aud",
         metadata: {
           plan: plan,
-          email: email || '',
+          email: email || trialUserEmail || '',
           subscription_type: 'importiq_professional',
-          trial_user: isTrialUser ? 'true' : 'false'
+          trial_user: isTrialUser ? 'true' : 'false',
+          discount_applied: discountInfo ? JSON.stringify(discountInfo) : 'none'
         },
       });
       
@@ -2547,9 +2584,15 @@ Generate specific ad targeting recommendations with confidence levels (High/Medi
         clientSecret: paymentIntent.client_secret,
         amount: amount / 100,
         isTrialUser,
-        plan
+        plan,
+        discountInfo,
+        trialInfo: isTrialUser ? {
+          daysRemaining: trialInfo?.daysRemaining || 0,
+          email: email || trialUserEmail
+        } : null
       });
     } catch (error: any) {
+      console.error("Subscription creation error:", error);
       res.status(500).json({ 
         message: "Error creating subscription: " + error.message 
       });
