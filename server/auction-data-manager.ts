@@ -4,7 +4,7 @@
  * Ensures authentic auction data remains current and reliable
  */
 
-import { scrapeAllJapaneseAuctions } from './ethical-japanese-scraper';
+import { getAuthenticJapaneseListings } from './legitimate-japanese-data';
 import { scrapeAllUSAuctions } from './us-auction-scraper';
 
 interface DataRefreshResult {
@@ -49,7 +49,8 @@ export async function performDailyDataRefresh(): Promise<DataRefreshResult> {
     const japaneseResults = [];
     for (const make of POPULAR_MAKES.slice(0, 6)) { // Limit to avoid rate limiting
       try {
-        const listings = await scrapeAllJapaneseAuctions(make);
+        const result = await getAuthenticJapaneseListings(make);
+        const listings = result.success ? result.listings : [];
         japaneseResults.push(...listings);
         japaneseListings += listings.length;
         
