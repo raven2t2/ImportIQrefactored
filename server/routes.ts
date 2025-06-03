@@ -3030,11 +3030,14 @@ Generate specific ad targeting recommendations with confidence levels (High/Medi
       const { make, model, yearFrom, yearTo, auctionHouse } = req.body;
       console.log('Extracted values:', { make, model, yearFrom, yearTo, auctionHouse });
       
-      // Validate required fields
-      if (!make || !model || !yearFrom || !yearTo) {
+      // Validate required fields (model can be empty for broader searches)
+      if (!make || yearFrom === undefined || yearTo === undefined) {
         console.log('Validation failed - missing required fields');
-        return res.status(400).json({ message: "Missing required search criteria" });
+        return res.status(400).json({ message: "Missing required search criteria: make, yearFrom, yearTo are required" });
       }
+      
+      // Set default empty model if not provided
+      const searchModel = model || '';
       
       console.log('Validation passed, proceeding to CSV parsing...');
 
@@ -3125,7 +3128,7 @@ Generate specific ad targeting recommendations with confidence levels (High/Medi
           }
 
           const makeMatch = recordMake.toLowerCase().includes(make.toLowerCase());
-          const modelMatch = recordModel.toLowerCase().includes(model.toLowerCase());
+          const modelMatch = !searchModel || searchModel.trim() === '' || recordModel.toLowerCase().includes(searchModel.toLowerCase());
           const yearMatch = recordYear >= yearFrom && recordYear <= yearTo;
           const auctionMatch = !auctionHouse || auctionHouse === 'all' || 
                               auctionHouseName.toLowerCase().includes(auctionHouse.toLowerCase());
