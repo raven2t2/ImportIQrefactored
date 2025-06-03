@@ -26,6 +26,7 @@ export function AiChatButton() {
   const [location] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [isClosed, setIsClosed] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -99,14 +100,32 @@ export function AiChatButton() {
   // Show button for all users (temporarily for testing)
   // TODO: Re-enable authentication check later
 
+  // If completely closed, show small reopener
+  if (isClosed) {
+    return (
+      <div className="fixed bottom-6 right-6 z-[9999]">
+        <Button
+          onClick={() => {
+            setIsClosed(false);
+            setIsOpen(true);
+          }}
+          className="rounded-full w-12 h-12 bg-gray-600 hover:bg-amber-600 shadow-lg border border-gray-400 transition-all duration-200 hover:scale-105 opacity-75 hover:opacity-100"
+          title="Open AI Assistant"
+        >
+          <Bot className="w-5 h-5 text-white" />
+        </Button>
+      </div>
+    );
+  }
+
   if (!isOpen) {
     return (
       <div className="fixed bottom-6 right-6 z-[9999]">
         <Button
           onClick={() => setIsOpen(true)}
-          className="rounded-full w-16 h-16 bg-amber-600 hover:bg-amber-700 shadow-2xl border-2 border-amber-400 transition-all duration-200 hover:scale-105"
+          className="rounded-full w-14 h-14 bg-amber-600 hover:bg-amber-700 shadow-xl border-2 border-amber-400 transition-all duration-200 hover:scale-105"
         >
-          <MessageCircle className="w-7 h-7 text-white" />
+          <MessageCircle className="w-6 h-6 text-white" />
         </Button>
       </div>
     );
@@ -133,7 +152,10 @@ export function AiChatButton() {
                 <Minus className="w-4 h-4" />
               </Button>
               <Button
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  setIsOpen(false);
+                  setIsClosed(true);
+                }}
                 variant="ghost"
                 size="sm"
                 className="h-8 w-8 p-0 text-gray-400 hover:text-red-400"
