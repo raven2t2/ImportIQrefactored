@@ -1,4 +1,4 @@
-import { users, submissions, aiRecommendations, emailCache, trials, userProjects, userAchievements, carEvents, reports, bookings, affiliates, influencerProfiles, referralClicks, referralSignups, payoutRequests, vehicleBuilds, modShopPartners, modShopDeals, partsWatchlist, adminUsers, adminSessions, deposits, type User, type InsertUser, type Submission, type InsertSubmission, type Booking, type InsertBooking, type Affiliate, type InsertAffiliate, type InfluencerProfile, type InsertInfluencerProfile, type ReferralClick, type InsertReferralClick, type ReferralSignup, type InsertReferralSignup, type PayoutRequest, type InsertPayoutRequest, type VehicleBuild, type InsertVehicleBuild, type ModShopPartner, type InsertModShopPartner, type ModShopDeal, type InsertModShopDeal, type PartsWatchlistItem, type InsertPartsWatchlistItem, type AdminUser, type InsertAdminUser, type AdminSession, type InsertAdminSession, type Deposit, type InsertDeposit } from "@shared/schema";
+import { users, submissions, aiRecommendations, emailCache, trials, userProjects, userAchievements, carEvents, reports, bookings, affiliates, influencerProfiles, referralClicks, referralSignups, payoutRequests, vehicleBuilds, modShopPartners, modShopDeals, partsWatchlist, adminUsers, adminSessions, deposits, chatInteractions, chatProfiles, type User, type InsertUser, type Submission, type InsertSubmission, type Booking, type InsertBooking, type Affiliate, type InsertAffiliate, type InfluencerProfile, type InsertInfluencerProfile, type ReferralClick, type InsertReferralClick, type ReferralSignup, type InsertReferralSignup, type PayoutRequest, type InsertPayoutRequest, type VehicleBuild, type InsertVehicleBuild, type ModShopPartner, type InsertModShopPartner, type ModShopDeal, type InsertModShopDeal, type PartsWatchlistItem, type InsertPartsWatchlistItem, type AdminUser, type InsertAdminUser, type AdminSession, type InsertAdminSession, type Deposit, type InsertDeposit, type ChatInteraction, type InsertChatInteraction, type ChatProfile, type InsertChatProfile } from "@shared/schema";
 import { db } from "./db";
 import { eq, lt, desc, and, gte } from "drizzle-orm";
 import fs from 'fs';
@@ -109,6 +109,12 @@ export interface IStorage {
   storeModCostEstimate(data: any): Promise<any>;
   storeRegistrationStatsLookup(data: any): Promise<any>;
   storeImportVolumeView(data: any): Promise<any>;
+
+  // Chat interaction tracking methods
+  createChatInteraction(interaction: Omit<InsertChatInteraction, 'id' | 'createdAt'>): Promise<ChatInteraction>;
+  getChatProfile(userIdentifier: string): Promise<ChatProfile | undefined>;
+  updateChatProfile(userIdentifier: string, updates: { totalInteractions?: number; lastInteractionDate?: Date; toolContext?: string; topicCategory?: string }): Promise<ChatProfile>;
+  createChatProfile(profile: Omit<InsertChatProfile, 'id' | 'createdAt' | 'updatedAt'>): Promise<ChatProfile>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -851,6 +857,89 @@ export class DatabaseStorage implements IStorage {
   async getDepositById(id: number): Promise<Deposit | undefined> {
     const [deposit] = await db.select().from(deposits).where(eq(deposits.id, id));
     return deposit;
+  }
+
+  // Chat interaction tracking methods
+  async createChatInteraction(interaction: Omit<InsertChatInteraction, 'id' | 'createdAt'>): Promise<ChatInteraction> {
+    const [result] = await db
+      .insert(chatInteractions)
+      .values({ ...interaction, createdAt: new Date() })
+      .returning();
+    return result;
+  }
+
+  async getChatProfile(userIdentifier: string): Promise<ChatProfile | undefined> {
+    const [profile] = await db
+      .select()
+      .from(chatProfiles)
+      .where(eq(chatProfiles.userIdentifier, userIdentifier));
+    return profile;
+  }
+
+  async updateChatProfile(userIdentifier: string, updates: { totalInteractions?: number; lastInteractionDate?: Date; toolContext?: string; topicCategory?: string }): Promise<ChatProfile> {
+    const existingProfile = await this.getChatProfile(userIdentifier);
+    
+    if (!existingProfile) {
+      // Create new profile
+      return await this.createChatProfile({
+        userIdentifier,
+        totalInteractions: updates.totalInteractions || 1,
+        lastInteractionDate: updates.lastInteractionDate || new Date(),
+        favoriteTools: updates.toolContext ? [updates.toolContext] : [],
+        preferredTopics: updates.topicCategory ? [updates.topicCategory] : [],
+        userExpertiseLevel: 'beginner',
+        iconPersonality: 'friendly',
+        customIconEnabled: true
+      });
+    }
+
+    // Update existing profile
+    const favoriteTools = existingProfile.favoriteTools as string[] || [];
+    const preferredTopics = existingProfile.preferredTopics as string[] || [];
+    
+    if (updates.toolContext && !favoriteTools.includes(updates.toolContext)) {
+      favoriteTools.push(updates.toolContext);
+    }
+    
+    if (updates.topicCategory && !preferredTopics.includes(updates.topicCategory)) {
+      preferredTopics.push(updates.topicCategory);
+    }
+
+    // Determine expertise level based on interaction count
+    const totalInteractions = (existingProfile.totalInteractions || 0) + (updates.totalInteractions || 0);
+    let userExpertiseLevel = 'beginner';
+    if (totalInteractions > 20) {
+      userExpertiseLevel = 'expert';
+    } else if (totalInteractions > 10) {
+      userExpertiseLevel = 'intermediate';
+    }
+
+    const [updatedProfile] = await db
+      .update(chatProfiles)
+      .set({
+        totalInteractions,
+        lastInteractionDate: updates.lastInteractionDate || new Date(),
+        favoriteTools,
+        preferredTopics,
+        userExpertiseLevel,
+        updatedAt: new Date()
+      })
+      .where(eq(chatProfiles.userIdentifier, userIdentifier))
+      .returning();
+
+    return updatedProfile;
+  }
+
+  async createChatProfile(profile: Omit<InsertChatProfile, 'id' | 'createdAt' | 'updatedAt'>): Promise<ChatProfile> {
+    const [result] = await db
+      .insert(chatProfiles)
+      .values({
+        ...profile,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning();
+    return result;
   }
 }
 

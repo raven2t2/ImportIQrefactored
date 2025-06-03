@@ -173,6 +173,36 @@ export const reports = pgTable("reports", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Chat interaction tracking for personalized icons
+export const chatInteractions = pgTable("chat_interactions", {
+  id: serial("id").primaryKey(),
+  sessionId: varchar("session_id").notNull(), // Anonymous session tracking
+  userIdentifier: varchar("user_identifier"), // Could be email or user ID if authenticated
+  interactionType: varchar("interaction_type").notNull(), // "message_sent", "tool_used", "session_started"
+  toolContext: varchar("tool_context"), // Which ImportIQ tool they were using
+  messageCount: integer("message_count").default(0),
+  sessionDuration: integer("session_duration"), // in seconds
+  helpfulnessRating: integer("helpfulness_rating"), // 1-5 if user provides feedback
+  topicCategory: varchar("topic_category"), // "import_costs", "compliance", "vehicle_lookup", etc.
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Chat personalization profiles
+export const chatProfiles = pgTable("chat_profiles", {
+  id: serial("id").primaryKey(),
+  userIdentifier: varchar("user_identifier").notNull().unique(),
+  totalInteractions: integer("total_interactions").default(0),
+  preferredTopics: jsonb("preferred_topics"), // Array of most discussed topics
+  avgSessionDuration: integer("avg_session_duration"),
+  lastInteractionDate: timestamp("last_interaction_date"),
+  userExpertiseLevel: varchar("user_expertise_level").default("beginner"), // beginner, intermediate, expert
+  favoriteTools: jsonb("favorite_tools"), // Most used ImportIQ tools
+  iconPersonality: varchar("icon_personality").default("friendly"), // friendly, professional, expert, enthusiastic
+  customIconEnabled: boolean("custom_icon_enabled").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const bookings = pgTable("bookings", {
   id: serial("id").primaryKey(),
   name: varchar("name").notNull(),
@@ -368,6 +398,12 @@ export type PayoutRequest = typeof payoutRequests.$inferSelect;
 export type InsertPayoutRequest = typeof payoutRequests.$inferInsert;
 
 export type AdminUser = typeof adminUsers.$inferSelect;
+
+// Chat System Types
+export type ChatInteraction = typeof chatInteractions.$inferSelect;
+export type InsertChatInteraction = typeof chatInteractions.$inferInsert;
+export type ChatProfile = typeof chatProfiles.$inferSelect;
+export type InsertChatProfile = typeof chatProfiles.$inferInsert;
 export type InsertAdminUser = typeof adminUsers.$inferInsert;
 
 export type AdminSession = typeof adminSessions.$inferSelect;
