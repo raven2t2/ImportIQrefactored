@@ -93,8 +93,8 @@ export default function ComplianceEstimate() {
                 <p className="text-sm text-gray-600">Get realistic timeframes for Australian vehicle compliance</p>
               </div>
             </div>
-            <Link href="/">
-              <Button variant="outline">Back to Calculator</Button>
+            <Link href="/dashboard">
+              <Button variant="outline">Back to Dashboard</Button>
             </Link>
           </div>
         </div>

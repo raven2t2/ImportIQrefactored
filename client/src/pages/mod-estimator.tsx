@@ -127,8 +127,8 @@ export default function ModEstimator() {
                 <p className="text-sm text-gray-600">Plan your build with staged modification packages</p>
               </div>
             </div>
-            <Link href="/">
-              <Button variant="outline">Back to Calculator</Button>
+            <Link href="/dashboard">
+              <Button variant="outline">Back to Dashboard</Button>
             </Link>
           </div>
         </div>
