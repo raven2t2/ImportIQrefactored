@@ -522,7 +522,7 @@ export default function Features() {
             Start Your 7-Day Free Trial
           </h2>
           <p className="text-xl text-amber-900 mb-8">
-            $97/month — all 14 tools included
+            $97/month — all 18 tools included
           </p>
           <Button className="bg-black hover:bg-gray-800 text-white px-8 py-4 text-lg rounded-full font-semibold transition-all duration-300 hover:scale-105 shadow-xl mb-4">
             Start Free Trial

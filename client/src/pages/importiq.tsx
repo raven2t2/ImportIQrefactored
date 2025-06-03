@@ -301,7 +301,7 @@ export default function ImportIQ() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-8 tracking-tight">
-              14 AI-Powered Tools.
+              18 AI-Powered Tools.
               <br />
               <span className="text-amber-400">One Platform.</span>
             </h2>

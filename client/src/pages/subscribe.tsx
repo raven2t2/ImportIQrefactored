@@ -101,9 +101,14 @@ export default function Subscribe() {
   const discountInfo = pricingData?.discountInfo;
   const trialInfo = pricingData?.trialInfo;
   
-  const monthlyPrice = isTrialUser ? 77 : 97; // Trial users get $77 first month
+  // Standard pricing is $97/month - $77 only available during trial upgrade
+  const monthlyPrice = 97; // Standard monthly price
+  const trialUpgradePrice = 77; // Special upgrade price only during trial
   const yearlyPrice = Math.round(97 * 12 * 0.75); // 25% discount for yearly
   const yearlyMonthlyEquivalent = Math.round(yearlyPrice / 12);
+  
+  // Show trial upgrade pricing only if user is actively in trial
+  const displayPrice = (isTrialUser && trialInfo?.daysRemaining > 0) ? trialUpgradePrice : monthlyPrice;
 
   return (
     <div className="min-h-screen bg-[#F9FAFB]">
@@ -180,16 +185,21 @@ export default function Subscribe() {
               <CardTitle className="text-2xl">Monthly Plan</CardTitle>
               <CardDescription>Perfect for active importers</CardDescription>
               <div className="mt-4">
-                <div className="text-4xl font-bold text-gray-900">${monthlyPrice}</div>
+                <div className="text-4xl font-bold text-gray-900">${displayPrice}</div>
                 <div className="text-gray-600 font-medium">per month</div>
-                {isTrialUser && (
+                {(isTrialUser && trialInfo?.daysRemaining > 0) && (
                   <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded">
                     <p className="text-sm text-amber-800 font-medium">
-                      🎯 Trial Member Special: First month only $77
+                      🎯 Trial Upgrade Special: First month only $77
                     </p>
                     <p className="text-xs text-amber-700">
                       Save $20 on your first month (regular price $97)
                     </p>
+                  </div>
+                )}
+                {(!isTrialUser || !trialInfo?.daysRemaining) && (
+                  <div className="text-sm text-gray-600 mt-1">
+                    Standard monthly subscription
                   </div>
                 )}
               </div>
