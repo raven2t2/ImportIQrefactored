@@ -29,6 +29,9 @@ export function AiChatButton() {
   const [isClosed, setIsClosed] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -38,6 +41,50 @@ export function AiChatButton() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Drag functionality
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.target !== e.currentTarget) return; // Only drag from the button itself
+    
+    setIsDragging(true);
+    const rect = e.currentTarget.getBoundingClientRect();
+    setDragOffset({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    });
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return;
+
+      const newX = e.clientX - dragOffset.x - 24; // Adjust for default bottom-right position
+      const newY = e.clientY - dragOffset.y - 24;
+
+      // Keep within viewport bounds
+      const maxX = window.innerWidth - (isOpen ? 384 : 56); // Adjust for chat width
+      const maxY = window.innerHeight - (isOpen && !isMinimized ? 500 : 56);
+
+      setPosition({
+        x: Math.max(-24, Math.min(newX, maxX)),
+        y: Math.max(-24, Math.min(newY, maxY))
+      });
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, dragOffset, isOpen, isMinimized]);
 
   const chatMutation = useMutation({
     mutationFn: async ({ message, page }: { message: string; page: string }) => {
@@ -103,7 +150,16 @@ export function AiChatButton() {
   // If completely closed, show small reopener
   if (isClosed) {
     return (
-      <div className="fixed bottom-6 right-6 z-[9999]">
+      <div 
+        className="fixed z-[9999] cursor-move"
+        style={{
+          bottom: position.y === 0 ? '24px' : 'auto',
+          right: position.x === 0 ? '24px' : 'auto',
+          top: position.y !== 0 ? `${position.y + 24}px` : 'auto',
+          left: position.x !== 0 ? `${position.x + 24}px` : 'auto',
+        }}
+        onMouseDown={handleMouseDown}
+      >
         <Button
           onClick={() => {
             setIsClosed(false);
@@ -120,7 +176,16 @@ export function AiChatButton() {
 
   if (!isOpen) {
     return (
-      <div className="fixed bottom-6 right-6 z-[9999]">
+      <div 
+        className="fixed z-[9999] cursor-move"
+        style={{
+          bottom: position.y === 0 ? '24px' : 'auto',
+          right: position.x === 0 ? '24px' : 'auto',
+          top: position.y !== 0 ? `${position.y + 24}px` : 'auto',
+          left: position.x !== 0 ? `${position.x + 24}px` : 'auto',
+        }}
+        onMouseDown={handleMouseDown}
+      >
         <Button
           onClick={() => setIsOpen(true)}
           className="rounded-full w-14 h-14 bg-amber-600 hover:bg-amber-700 shadow-xl border-2 border-amber-400 transition-all duration-200 hover:scale-105"
@@ -132,11 +197,19 @@ export function AiChatButton() {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-[9999]">
+    <div 
+      className="fixed z-[9999]"
+      style={{
+        bottom: position.y === 0 ? '24px' : 'auto',
+        right: position.x === 0 ? '24px' : 'auto',
+        top: position.y !== 0 ? `${position.y + 24}px` : 'auto',
+        left: position.x !== 0 ? `${position.x + 24}px` : 'auto',
+      }}
+    >
       <Card className={`bg-gray-900 border-amber-500/30 shadow-2xl transition-all duration-300 ${
         isMinimized ? 'w-80 h-16' : 'w-96 h-[500px]'
       }`}>
-        <CardHeader className="pb-3 border-b border-gray-700">
+        <CardHeader className="pb-3 border-b border-gray-700 cursor-move" onMouseDown={handleMouseDown}>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Bot className="w-5 h-5 text-amber-500" />
