@@ -225,11 +225,15 @@ export default function ImportIQ() {
               size="lg" 
               className="bg-amber-400 hover:bg-amber-500 text-black px-12 py-4 text-lg rounded-full transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 font-semibold"
               onClick={() => {
-                setSelectedTool("ImportIQ Platform");
-                setShowEmailGate(true);
+                if (isAuthenticated) {
+                  window.location.href = '/subscribe';
+                } else {
+                  setSelectedTool("ImportIQ Platform");
+                  setShowEmailGate(true);
+                }
               }}
             >
-              Start 7-Day Free Trial
+              {isAuthenticated ? 'Subscribe Now' : 'Start 7-Day Free Trial'}
             </Button>
             <Button 
               variant="outline" 

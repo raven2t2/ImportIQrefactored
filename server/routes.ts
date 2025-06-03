@@ -5,7 +5,7 @@ import { insertSubmissionSchema, type CalculationResult } from "@shared/schema";
 import { AdminAuthService } from "./admin-auth";
 import { getMarketIntelligence } from "./market-data";
 import { calculateShippingCost, calculateImportDuty, calculateGST, calculateLuxuryCarTax, IMPORT_REQUIREMENTS } from "./public-data-sources";
-import { isAuthenticated } from "./replitAuth";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 import { z } from "zod";
 import OpenAI from "openai";
 import Stripe from "stripe";
@@ -313,6 +313,18 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Simple auth endpoint that checks session/trial status
+  app.get('/api/auth/user', async (req, res) => {
+    try {
+      // For now, return null to indicate no authenticated user
+      // This will be updated when proper auth is configured
+      res.status(401).json({ message: "Not authenticated" });
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
   // Email checking endpoint for smart gating
   app.post("/api/check-email", async (req, res) => {
     try {
