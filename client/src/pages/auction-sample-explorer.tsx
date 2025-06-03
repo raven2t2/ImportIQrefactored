@@ -204,7 +204,7 @@ export default function AuctionSampleExplorer() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="">All Auction Houses</SelectItem>
+                            <SelectItem value="all">All Auction Houses</SelectItem>
                             <SelectItem value="USS">USS</SelectItem>
                             <SelectItem value="IAA">IAA</SelectItem>
                             <SelectItem value="JU">JU</SelectItem>
