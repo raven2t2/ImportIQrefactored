@@ -90,21 +90,20 @@ export default function About() {
                 {isAuthenticated ? (
                   <>
                     <Link href="/dashboard" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Dashboard</Link>
+                    <Link href="/affiliate-signup" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Refer & Earn</Link>
                     <Link href="/api/logout" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium">Logout</Link>
                   </>
                 ) : (
-                  <>
-                    <Link href="/affiliate-signup" className="text-gray-300 hover:text-white transition-colors duration-300 py-3 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Refer & Earn</Link>
-                    <Button 
-                      className="bg-amber-400 hover:bg-amber-500 text-black w-full rounded-full mt-4 font-medium"
-                      onClick={() => {
-                        setSelectedTool("ImportIQ Platform");
-                        setShowEmailGate(true);
-                      }}
-                    >
-                      Start Free Trial
-                    </Button>
-                  </>
+                  <Button 
+                    className="bg-amber-400 hover:bg-amber-500 text-black w-full rounded-full mt-4 font-medium"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      setSelectedTool("ImportIQ Platform");
+                      setShowEmailGate(true);
+                    }}
+                  >
+                    Start Free Trial
+                  </Button>
                 )}
               </div>
             </div>
