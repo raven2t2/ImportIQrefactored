@@ -342,11 +342,18 @@ export default function ModEstimator() {
                     </div>
                     
                     <div className="mt-4 flex space-x-3">
-                      <Button className="flex-1 bg-brand-gold hover:bg-brand-gold-dark">
-                        Get Detailed Quote
+                      <Button 
+                        className="flex-1 bg-brand-gold hover:bg-brand-gold-dark"
+                        onClick={() => window.location.href = '/checkout?amount=500&type=deposit&service=mod-package'}
+                      >
+                        Get Started - $500 Deposit
                       </Button>
-                      <Button variant="outline" className="flex-1">
-                        View Partner Shops
+                      <Button 
+                        variant="outline" 
+                        className="flex-1"
+                        onClick={() => window.location.href = '/booking-calendar'}
+                      >
+                        Book Consultation
                       </Button>
                     </div>
                   </CardContent>
