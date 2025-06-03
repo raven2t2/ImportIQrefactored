@@ -277,7 +277,7 @@ export default function ModCostEstimator() {
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
             <Link to="/dashboard">
-              <Button variant="ghost" size="sm" className="text-white hover:bg-white/10">
+              <Button variant="ghost" size="sm" className="text-white hover:bg-gray-700">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Dashboard
               </Button>

@@ -36,7 +36,7 @@ export default function CTASection({
           <Button 
             size="lg"
             variant="outline"
-            className="border-white text-white hover:bg-white/10 px-8 py-3"
+            className="border-white text-white hover:bg-white hover:text-[#D4AF37] px-8 py-3"
             onClick={() => window.open('https://driveimmaculate.com/howitworks/', '_blank')}
           >
             <Globe className="mr-2 h-4 w-4" />
