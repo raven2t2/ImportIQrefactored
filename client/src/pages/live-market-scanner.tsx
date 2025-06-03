@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Search, Car, TrendingUp, DollarSign, MapPin, Clock, ExternalLink, Filter, RefreshCw, Globe, Camera } from "lucide-react";
+import { Search, Car, TrendingUp, DollarSign, MapPin, Clock, ExternalLink, Filter, RefreshCw, Globe, Camera, Gavel } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Link } from "wouter";
