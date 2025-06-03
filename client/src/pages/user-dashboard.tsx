@@ -86,10 +86,10 @@ export default function UserDashboard() {
           <TabsContent value="overview" className="space-y-6">
             {/* Hero Section */}
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Professional Import Tools</h2>
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">14 AI-Powered Professional Tools</h2>
               <p className="text-gray-600 text-lg max-w-3xl mx-auto">
-                Three powerful tools that provide real value using authentic data sources. 
-                Calculate accurate import costs, get AI-powered consultation, and access live market intelligence.
+                Complete vehicle import intelligence platform with authentic government data, AI consultation, 
+                market analysis, and comprehensive cost calculations. Every tool provides genuine value.
               </p>
             </div>
 
@@ -166,12 +166,12 @@ export default function UserDashboard() {
               </Card>
             </div>
 
-            {/* Potential Additional Tools Using Public Data */}
+            {/* Comprehensive 14-Tool Grid */}
             <div className="mt-16">
-              <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center">Additional Professional Tools</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center">Complete AI-Powered Tool Suite</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 
-                {/* Shipping Calculator - Functional */}
+                {/* Tool 5: Shipping Calculator */}
                 <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-amber-400" onClick={() => window.location.href = '/shipping-calculator'}>
                   <CardContent className="p-6">
                     <div className="flex items-center space-x-3 mb-4">
@@ -192,28 +192,7 @@ export default function UserDashboard() {
                   </CardContent>
                 </Card>
 
-                {/* Import Cost Calculator - Functional */}
-                <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-amber-400" onClick={() => window.location.href = '/import-calculator'}>
-                  <CardContent className="p-6">
-                    <div className="flex items-center space-x-3 mb-4">
-                      <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-amber-400 transition-colors">
-                        <DollarSign className="h-6 w-6 text-green-600 group-hover:text-white" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-gray-900">Import Calculator</h4>
-                        <p className="text-xs text-gray-600">Total cost breakdown</p>
-                      </div>
-                    </div>
-                    <p className="text-xs text-gray-600 mb-4">
-                      Calculate complete import costs including duties, GST, and luxury car tax.
-                    </p>
-                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white text-xs">
-                      Calculate Costs
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                {/* Compliance Checker - Functional */}
+                {/* Tool 6: Compliance Checker */}
                 <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-amber-400" onClick={() => window.location.href = '/compliance-checker'}>
                   <CardContent className="p-6">
                     <div className="flex items-center space-x-3 mb-4">
@@ -234,7 +213,7 @@ export default function UserDashboard() {
                   </CardContent>
                 </Card>
 
-                {/* Vehicle Lookup - Functional */}
+                {/* Tool 7: Vehicle Lookup */}
                 <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-amber-400" onClick={() => window.location.href = '/vehicle-lookup'}>
                   <CardContent className="p-6">
                     <div className="flex items-center space-x-3 mb-4">
@@ -251,6 +230,153 @@ export default function UserDashboard() {
                     </p>
                     <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white text-xs">
                       Search Vehicles
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Tool 8: Market Analytics */}
+                <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-amber-400" onClick={() => window.location.href = '/market-analytics'}>
+                  <CardContent className="p-6">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-amber-400 transition-colors">
+                        <TrendingUp className="h-6 w-6 text-indigo-600 group-hover:text-white" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Market Analytics</h4>
+                        <p className="text-xs text-gray-600">Price trends & forecasts</p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-600 mb-4">
+                      AI-powered market analysis with price predictions and optimal buying times.
+                    </p>
+                    <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs">
+                      View Analytics
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Tool 9: BuildReady Compliance */}
+                <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-amber-400" onClick={() => window.location.href = '/buildready'}>
+                  <CardContent className="p-6">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center group-hover:bg-amber-400 transition-colors">
+                        <Wrench className="h-6 w-6 text-orange-600 group-hover:text-white" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">BuildReady</h4>
+                        <p className="text-xs text-gray-600">Modification planning</p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-600 mb-4">
+                      Tailored compliance strategies and modification roadmaps for your build.
+                    </p>
+                    <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white text-xs">
+                      Plan Build
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Tool 10: Registry Lookup */}
+                <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-amber-400" onClick={() => window.location.href = '/registry-lookup'}>
+                  <CardContent className="p-6">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center group-hover:bg-amber-400 transition-colors">
+                        <FileText className="h-6 w-6 text-teal-600 group-hover:text-white" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Registry Lookup</h4>
+                        <p className="text-xs text-gray-600">Registration verification</p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-600 mb-4">
+                      Check registration status and history using official registry databases.
+                    </p>
+                    <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white text-xs">
+                      Check Registry
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Tool 11: Auction Intelligence */}
+                <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-amber-400" onClick={() => window.location.href = '/auction-intelligence'}>
+                  <CardContent className="p-6">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center group-hover:bg-amber-400 transition-colors">
+                        <BarChart3 className="h-6 w-6 text-emerald-600 group-hover:text-white" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Auction Intelligence</h4>
+                        <p className="text-xs text-gray-600">Bidding strategies</p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-600 mb-4">
+                      AI analysis of auction patterns and optimal bidding recommendations.
+                    </p>
+                    <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs">
+                      Analyze Auctions
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Tool 12: Insurance Estimator */}
+                <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-amber-400" onClick={() => window.location.href = '/insurance-estimator'}>
+                  <CardContent className="p-6">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="w-12 h-12 bg-cyan-100 rounded-lg flex items-center justify-center group-hover:bg-amber-400 transition-colors">
+                        <Shield className="h-6 w-6 text-cyan-600 group-hover:text-white" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Insurance Estimator</h4>
+                        <p className="text-xs text-gray-600">Coverage & costs</p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-600 mb-4">
+                      Calculate insurance costs and coverage options for imported vehicles.
+                    </p>
+                    <Button className="w-full bg-cyan-600 hover:bg-cyan-700 text-white text-xs">
+                      Get Quote
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Tool 13: Documentation Assistant */}
+                <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-amber-400" onClick={() => window.location.href = '/documentation-assistant'}>
+                  <CardContent className="p-6">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="w-12 h-12 bg-rose-100 rounded-lg flex items-center justify-center group-hover:bg-amber-400 transition-colors">
+                        <FileText className="h-6 w-6 text-rose-600 group-hover:text-white" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Documentation Assistant</h4>
+                        <p className="text-xs text-gray-600">Paperwork guidance</p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-600 mb-4">
+                      Step-by-step guidance for all import documentation and customs forms.
+                    </p>
+                    <Button className="w-full bg-rose-600 hover:bg-rose-700 text-white text-xs">
+                      Get Help
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Tool 14: ROI Calculator */}
+                <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-amber-400" onClick={() => window.location.href = '/roi-calculator'}>
+                  <CardContent className="p-6">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center group-hover:bg-amber-400 transition-colors">
+                        <TrendingUp className="h-6 w-6 text-yellow-600 group-hover:text-white" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">ROI Calculator</h4>
+                        <p className="text-xs text-gray-600">Investment analysis</p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-600 mb-4">
+                      Calculate return on investment and profit potential for imported vehicles.
+                    </p>
+                    <Button className="w-full bg-yellow-600 hover:bg-yellow-700 text-white text-xs">
+                      Calculate ROI
                     </Button>
                   </CardContent>
                 </Card>
