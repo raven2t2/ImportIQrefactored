@@ -409,8 +409,8 @@ export default function ImportCalculator() {
                       name="vehicleModel"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-gray-700">
-                            Model <span className="text-red-500">*</span>
+                          <FormLabel className="text-sm font-medium text-white">
+                            Model <span className="text-red-400">*</span>
                           </FormLabel>
                           <FormControl>
                             <Input
@@ -430,8 +430,8 @@ export default function ImportCalculator() {
                     name="vehiclePrice"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-medium text-gray-700">
-                          Vehicle Purchase Price (AUD) <span className="text-red-500">*</span>
+                        <FormLabel className="text-sm font-medium text-white">
+                          Vehicle Purchase Price (AUD) <span className="text-red-400">*</span>
                         </FormLabel>
                         <FormControl>
                           <div className="relative">
@@ -450,7 +450,7 @@ export default function ImportCalculator() {
                         
                         {/* Price Anchoring Examples */}
                         <div className="mt-3 space-y-2">
-                          <p className="text-xs font-medium text-gray-700">Most popular price ranges our clients choose:</p>
+                          <p className="text-xs font-medium text-gray-300">Most popular price ranges our clients choose:</p>
                           <div className="grid grid-cols-3 gap-2 text-xs">
                             <button
                               type="button"
@@ -501,8 +501,8 @@ export default function ImportCalculator() {
                     name="shippingOrigin"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-medium text-gray-700">
-                          Shipping Origin <span className="text-red-500">*</span>
+                        <FormLabel className="text-sm font-medium text-white">
+                          Shipping Origin <span className="text-red-400">*</span>
                         </FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
