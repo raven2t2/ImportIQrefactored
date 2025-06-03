@@ -184,52 +184,110 @@ async function scrapeSearchAggregators(make: string, model?: string): Promise<En
  * Enhanced request with sophisticated anti-bot bypass
  */
 async function makeEnhancedRequest(url: string, config: AxiosRequestConfig = {}): Promise<any> {
-  const maxRetries = 4;
+  const maxRetries = 6;
   let lastError: Error | null = null;
   
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      // Progressive delay and header rotation
+      // Simulate human browsing patterns with realistic delays
       if (attempt > 1) {
-        const delayMs = Math.pow(2, attempt) * 1000 + Math.random() * 2000;
-        await delay(delayMs);
+        const baseDelay = Math.pow(1.5, attempt) * 2000;
+        const randomDelay = Math.random() * 4000;
+        const humanDelay = baseDelay + randomDelay;
+        await delay(humanDelay);
       }
       
+      // Advanced header spoofing with browser fingerprinting
       const headers: any = {
-        ...getBaseHeaders(),
-        'User-Agent': getRandomUserAgent(),
-        'Accept-Language': getRandomLanguage(),
+        ...getAdvancedHeaders(attempt),
+        'User-Agent': getRealisticUserAgent(attempt),
+        'Accept-Language': getGeoLanguage(),
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1',
+        'Sec-Fetch-Site': attempt === 1 ? 'none' : 'same-origin',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-User': '?1',
+        'Sec-Fetch-Dest': 'document',
         ...config.headers
       };
       
-      // Add realistic browser fingerprints
+      // Add realistic session persistence
       if (attempt > 1) {
-        headers['Cookie'] = generateSessionCookie();
-        headers['Cache-Control'] = 'no-cache';
+        headers['Cookie'] = generateAdvancedSessionCookie(attempt);
+        headers['Cache-Control'] = attempt > 3 ? 'no-cache, no-store' : 'max-age=0';
+        headers['Pragma'] = attempt > 3 ? 'no-cache' : undefined;
+        headers['Referer'] = getRealisticReferer(url);
+      }
+      
+      // Add realistic viewport and screen resolution
+      if (attempt > 2) {
+        headers['Viewport-Width'] = getRandomViewport();
+        headers['Device-Memory'] = getRandomDeviceMemory();
       }
       
       const response = await axios({
         url,
-        timeout: 15000 + (attempt * 3000),
-        maxRedirects: 5,
-        validateStatus: (status) => status < 500 && status !== 403,
+        timeout: 25000 + (attempt * 5000),
+        maxRedirects: 8,
+        validateStatus: (status) => status < 500,
         ...config,
-        headers
+        headers,
+        // Simulate different network conditions
+        httpAgent: new (require('http').Agent)({
+          keepAlive: true,
+          maxSockets: attempt > 3 ? 1 : 5,
+          timeout: 30000
+        }),
+        httpsAgent: new (require('https').Agent)({
+          keepAlive: true,
+          maxSockets: attempt > 3 ? 1 : 5,
+          timeout: 30000,
+          rejectUnauthorized: false
+        })
       });
       
-      if (response.status >= 200 && response.status < 300) {
+      // Success criteria - accept more status codes
+      if (response.status >= 200 && response.status < 400) {
         return response;
       }
       
-      throw new Error(`HTTP ${response.status}`);
+      // Handle specific error codes
+      if (response.status === 403) {
+        throw new Error(`Anti-bot detection: ${response.status}`);
+      } else if (response.status === 429) {
+        throw new Error(`Rate limited: ${response.status}`);
+      } else if (response.status >= 400) {
+        throw new Error(`Client error: ${response.status}`);
+      }
+      
+      throw new Error(`Unexpected status: ${response.status}`);
       
     } catch (error) {
       lastError = error as Error;
       
-      if (error instanceof Error && error.message.includes('403')) {
-        console.warn(`Anti-bot detected on attempt ${attempt}, rotating headers`);
-        if (attempt < maxRetries) {
-          await delay(5000 + Math.random() * 5000);
+      if (error instanceof Error) {
+        const errorMessage = error.message.toLowerCase();
+        
+        if (errorMessage.includes('403') || errorMessage.includes('anti-bot')) {
+          console.warn(`Anti-bot detection triggered on attempt ${attempt}/${maxRetries}, implementing countermeasures`);
+          if (attempt < maxRetries) {
+            // Aggressive anti-detection delay with jitter
+            const antiDetectionDelay = 8000 + Math.random() * 12000;
+            await delay(antiDetectionDelay);
+          }
+        } else if (errorMessage.includes('429') || errorMessage.includes('rate')) {
+          console.warn(`Rate limit detected on attempt ${attempt}/${maxRetries}, backing off`);
+          if (attempt < maxRetries) {
+            // Exponential backoff for rate limiting
+            const backoffDelay = Math.pow(3, attempt) * 5000 + Math.random() * 10000;
+            await delay(backoffDelay);
+          }
+        } else if (errorMessage.includes('timeout') || errorMessage.includes('econnreset')) {
+          console.warn(`Network issue on attempt ${attempt}/${maxRetries}, retrying with different approach`);
+          if (attempt < maxRetries) {
+            await delay(3000 + Math.random() * 5000);
+          }
         }
       }
     }
@@ -415,6 +473,101 @@ function extractModelFromTitle(title: string): string {
     }
   }
   return 'Unknown';
+}
+
+function getAdvancedHeaders(attempt: number): Record<string, string> {
+  const baseHeaders: Record<string, string> = {
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'DNT': '1',
+    'Connection': 'keep-alive',
+    'Upgrade-Insecure-Requests': '1'
+  };
+  
+  // Add progressive sophistication based on attempt
+  if (attempt > 1) {
+    baseHeaders['Sec-CH-UA'] = '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"';
+    baseHeaders['Sec-CH-UA-Mobile'] = '?0';
+    baseHeaders['Sec-CH-UA-Platform'] = '"Windows"';
+  }
+  
+  if (attempt > 2) {
+    baseHeaders['Sec-CH-UA-Platform-Version'] = '"15.0.0"';
+    baseHeaders['Sec-CH-UA-Arch'] = '"x86"';
+    baseHeaders['Sec-CH-UA-Bitness'] = '"64"';
+  }
+  
+  return baseHeaders;
+}
+
+function getRealisticUserAgent(attempt: number): string {
+  const userAgents = [
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15'
+  ];
+  
+  // Use different agents based on attempt to simulate user switching
+  return userAgents[attempt % userAgents.length];
+}
+
+function getGeoLanguage(): string {
+  const languages = [
+    'en-US,en;q=0.9',
+    'en-AU,en;q=0.9',
+    'en-GB,en;q=0.8,en-US;q=0.7,en;q=0.6'
+  ];
+  return languages[Math.floor(Math.random() * languages.length)];
+}
+
+function generateAdvancedSessionCookie(attempt: number): string {
+  const timestamp = Date.now();
+  const sessionId = Math.random().toString(36).substring(2, 15);
+  const visitorId = Math.random().toString(36).substring(2, 10);
+  
+  let cookies = [
+    `sessionid=${sessionId}`,
+    `_ga=GA1.1.${timestamp}`,
+    `_gid=GA1.1.${Math.floor(timestamp / 1000)}`,
+    `visitor_id=${visitorId}`
+  ];
+  
+  // Add progressive cookies based on attempt
+  if (attempt > 2) {
+    cookies.push(`_fbp=fb.1.${timestamp}.${Math.random().toString().substring(2, 12)}`);
+    cookies.push(`_gcl_au=1.1.${Math.random().toString().substring(2, 12)}.${Math.floor(timestamp / 1000)}`);
+  }
+  
+  if (attempt > 3) {
+    cookies.push(`__cf_bm=${Math.random().toString(36).substring(2, 45)}`);
+    cookies.push(`cf_clearance=${Math.random().toString(36).substring(2, 45)}`);
+  }
+  
+  return cookies.join('; ');
+}
+
+function getRealisticReferer(url: string): string {
+  const domain = new URL(url).hostname;
+  const referers = [
+    'https://www.google.com/',
+    'https://www.google.com.au/',
+    `https://${domain}/`,
+    'https://duckduckgo.com/',
+    'https://www.bing.com/'
+  ];
+  return referers[Math.floor(Math.random() * referers.length)];
+}
+
+function getRandomViewport(): string {
+  const viewports = ['1920', '1366', '1536', '1440', '1280'];
+  return viewports[Math.floor(Math.random() * viewports.length)];
+}
+
+function getRandomDeviceMemory(): string {
+  const memories = ['4', '8', '16', '32'];
+  return memories[Math.floor(Math.random() * memories.length)];
 }
 
 function delay(ms: number): Promise<void> {
