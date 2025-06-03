@@ -92,120 +92,197 @@ const MARKET_DATA = {
 };
 
 /**
+ * Determine if a vehicle is a JDM import candidate
+ */
+function isJDMImportVehicle(make: string, model?: string): boolean {
+  const jdmMakes = ['Toyota', 'Nissan', 'Honda', 'Mazda', 'Subaru', 'Mitsubishi', 'Isuzu', 'Daihatsu'];
+  const jdmModels = [
+    'Skyline', 'GT-R', 'Silvia', 'S13', 'S14', 'S15', 'R32', 'R33', 'R34', 'R35',
+    'Supra', 'Chaser', 'Mark II', 'Soarer', 'Celica', 'MR2', 'AE86', 'Corolla',
+    'RX-7', 'RX-8', 'FD', 'FC', 'Miata', 'MX-5', 'Roadster',
+    'WRX', 'STI', 'Impreza', 'Legacy', 'Forester',
+    'Type R', 'Civic', 'Integra', 'NSX', 'S2000', 'CR-X', 'CRX',
+    'Evo', 'Evolution', 'Lancer', '3000GT', 'GTO', 'Pajero'
+  ];
+
+  // Check if make is Japanese
+  const isJapaneseMake = jdmMakes.some(jdmMake => 
+    make.toLowerCase().includes(jdmMake.toLowerCase())
+  );
+
+  // Check if model is JDM-specific
+  const isJDMModel = model ? jdmModels.some(jdmModel => 
+    model.toLowerCase().includes(jdmModel.toLowerCase())
+  ) : false;
+
+  return isJapaneseMake || isJDMModel;
+}
+
+/**
+ * Determine if a vehicle is a US muscle car
+ */
+function isUSMuscleCarVehicle(make: string, model?: string): boolean {
+  const usMakes = ['Ford', 'Chevrolet', 'Dodge', 'Plymouth', 'Pontiac', 'Buick', 'Oldsmobile', 'Cadillac'];
+  const muscleModels = [
+    'Mustang', 'Camaro', 'Challenger', 'Charger', 'Corvette', 'Firebird', 'Trans Am',
+    'GTO', 'Nova', 'Chevelle', 'Impala', 'Monte Carlo', 'El Camino',
+    'Barracuda', 'Cuda', 'Road Runner', 'Super Bee', 'Demon', 'Hellcat',
+    'Bronco', 'F-150', 'Raptor', 'Lightning', 'Shelby', 'Boss', 'Mach'
+  ];
+
+  // Check if make is US
+  const isUSMake = usMakes.some(usMake => 
+    make.toLowerCase().includes(usMake.toLowerCase())
+  );
+
+  // Check if model is muscle car specific
+  const isMuscleModel = model ? muscleModels.some(muscleModel => 
+    model.toLowerCase().includes(muscleModel.toLowerCase())
+  ) : false;
+
+  return isUSMake || isMuscleModel;
+}
+
+/**
  * Generate authentic market listings based on real market patterns
- * Prioritizes Japanese auction data for JDM importers
+ * Intelligently filters sources based on vehicle type and user search intent
  */
 export async function generateMarketListings(filters: SearchFilters): Promise<{ listings: CarListing[], insights: MarketInsights }> {
   const { make, model, minPrice, maxPrice, location, yearFrom, yearTo } = filters;
   const listings: CarListing[] = [];
 
-  // Get authentic Japanese auction data
-  try {
-    const japaneseAuctions = await scrapeAllJapaneseAuctions(make, model);
-    
-    // Convert Japanese auction listings to CarListing format
-    japaneseAuctions.forEach((auction, index) => {
-      const audPrice = auction.currency === 'JPY' ? Math.floor(auction.price * 0.0094) : auction.price;
-      
-      // Apply price filters
-      if (minPrice && audPrice < parseInt(minPrice)) return;
-      if (maxPrice && audPrice > parseInt(maxPrice)) return;
-      
-      // Apply location filter
-      if (location && location.toLowerCase() !== 'all' && 
-          location.toLowerCase() !== 'japan' && !location.toLowerCase().includes('jp')) return;
-      
-      const carListing: CarListing = {
-        id: auction.id,
-        make: auction.make,
-        model: auction.model,
-        year: auction.year,
-        price: audPrice,
-        currency: 'AUD',
-        mileage: auction.mileage,
-        location: `${auction.location}, Japan`,
-        source: auction.auctionHouse,
-        sourceUrl: auction.sourceUrl,
-        description: auction.description,
-        images: auction.images,
-        listedDate: auction.auctionDate,
-        seller: auction.seller,
-        features: auction.features,
-        fuelType: auction.fuelType,
-        transmission: auction.transmission,
-        bodyType: auction.bodyType,
-        isImport: true,
-        compliance: 'Requires ADR compliance for Australian registration',
-        auctionData: {
-          auctionHouse: auction.auctionHouse,
-          lotNumber: auction.lotNumber,
-          inspectionGrade: auction.inspectionGrade,
-          auctionDate: auction.auctionDate,
-          estimatedBid: auction.estimatedBid ? Math.floor(auction.estimatedBid * 0.0094) : undefined,
-          reservePrice: auction.reservePrice ? Math.floor(auction.reservePrice * 0.0094) : undefined,
-          conditionReport: auction.conditionReport,
-          exportReadyCertificate: auction.exportReadyCertificate
-        }
-      };
-      listings.push(carListing);
-    });
-  } catch (error) {
-    console.warn('Japanese auction data unavailable:', error);
+  // Determine if this is a JDM search based on make/model
+  const isJDMSearch = isJDMImportVehicle(make, model);
+  const isUSMuscleSearch = isUSMuscleCarVehicle(make, model);
+
+  // Only search Japanese auctions for JDM vehicles or when specifically searching Japan
+  let shouldSearchJapanese = isJDMSearch || 
+    (location && (location.toLowerCase().includes('japan') || location.toLowerCase().includes('jp')));
+
+  // Only search US auctions for US muscle cars or when specifically searching USA
+  let shouldSearchUS = isUSMuscleSearch || 
+    (location && (location.toLowerCase().includes('usa') || location.toLowerCase().includes('us') || 
+                  location.toLowerCase().includes('america')));
+
+  // If no specific region preference, search appropriate sources based on vehicle type
+  if (!location || location.toLowerCase() === 'all') {
+    if (isJDMSearch && !isUSMuscleSearch) {
+      // Pure JDM search - only Japanese sources
+      shouldSearchJapanese = true;
+      shouldSearchUS = false;
+    } else if (isUSMuscleSearch && !isJDMSearch) {
+      // Pure US muscle search - only US sources
+      shouldSearchJapanese = false;
+      shouldSearchUS = true;
+    } else {
+      // Generic search - include both sources
+      shouldSearchJapanese = true;
+      shouldSearchUS = true;
+    }
   }
 
-  // Get authentic US auction data
-  try {
-    const usAuctions = await scrapeAllUSAuctions(make, model);
-    
-    // Convert US auction listings to CarListing format
-    usAuctions.forEach((auction, index) => {
-      const audPrice = auction.price; // Already converted to AUD in US scraper
+  // Get authentic Japanese auction data for JDM vehicles
+  if (shouldSearchJapanese || isJDMSearch) {
+    try {
+      const japaneseAuctions = await scrapeAllJapaneseAuctions(make, model);
       
-      // Apply price filters
-      if (minPrice && audPrice < parseInt(minPrice)) return;
-      if (maxPrice && audPrice > parseInt(maxPrice)) return;
+      // Convert Japanese auction listings to CarListing format
+      japaneseAuctions.forEach((auction, index) => {
+        const audPrice = auction.currency === 'JPY' ? Math.floor(auction.price * 0.0094) : auction.price;
+        
+        // Apply price filters
+        if (minPrice && audPrice < parseInt(minPrice)) return;
+        if (maxPrice && audPrice > parseInt(maxPrice)) return;
+        
+        const carListing: CarListing = {
+          id: auction.id,
+          make: auction.make,
+          model: auction.model,
+          year: auction.year,
+          price: audPrice,
+          currency: 'AUD',
+          mileage: auction.mileage,
+          location: `${auction.location}, Japan`,
+          source: auction.auctionHouse,
+          sourceUrl: auction.sourceUrl,
+          description: auction.description,
+          images: auction.images,
+          listedDate: auction.auctionDate,
+          seller: auction.seller,
+          features: auction.features,
+          fuelType: auction.fuelType,
+          transmission: auction.transmission,
+          bodyType: auction.bodyType,
+          isImport: true,
+          compliance: 'Requires ADR compliance for Australian registration',
+          auctionData: {
+            auctionHouse: auction.auctionHouse,
+            lotNumber: auction.lotNumber,
+            inspectionGrade: auction.inspectionGrade,
+            auctionDate: auction.auctionDate,
+            estimatedBid: auction.estimatedBid ? Math.floor(auction.estimatedBid * 0.0094) : undefined,
+            reservePrice: auction.reservePrice ? Math.floor(auction.reservePrice * 0.0094) : undefined,
+            conditionReport: auction.conditionReport,
+            exportReadyCertificate: auction.exportReadyCertificate
+          }
+        };
+        listings.push(carListing);
+      });
+    } catch (error) {
+      console.warn('Japanese auction data unavailable:', error);
+    }
+  }
+
+  // Get authentic US auction data for US muscle cars only
+  if (shouldSearchUS || isUSMuscleSearch) {
+    try {
+      const usAuctions = await scrapeAllUSAuctions(make, model);
       
-      // Apply location filter
-      if (location && location.toLowerCase() !== 'all' && 
-          location.toLowerCase() !== 'usa' && location.toLowerCase() !== 'us' && 
-          !location.toLowerCase().includes('usa') && !location.toLowerCase().includes('america')) return;
-      
-      const carListing: CarListing = {
-        id: auction.id,
-        make: auction.make,
-        model: auction.model,
-        year: auction.year,
-        price: audPrice,
-        currency: 'AUD',
-        mileage: auction.mileage,
-        location: `${auction.location}, USA`,
-        source: auction.auctionHouse,
-        sourceUrl: auction.sourceUrl,
-        description: auction.description,
-        images: auction.images,
-        listedDate: auction.auctionDate,
-        seller: auction.seller,
-        features: auction.features,
-        fuelType: auction.fuelType,
-        transmission: auction.transmission,
-        bodyType: auction.bodyType,
-        isImport: true,
-        compliance: 'Requires 25-year rule compliance or EPA/DOT exemption for Australian import',
-        auctionData: {
-          auctionHouse: auction.auctionHouse,
-          lotNumber: auction.lotNumber,
-          inspectionGrade: auction.condition,
-          auctionDate: auction.auctionDate,
-          estimatedBid: auction.estimatedValue,
-          reservePrice: auction.reservePrice,
-          conditionReport: auction.damageReport || auction.description,
-          exportReadyCertificate: auction.titleStatus === 'Clean Title'
-        }
-      };
-      listings.push(carListing);
-    });
-  } catch (error) {
-    console.warn('US auction data unavailable:', error);
+      // Convert US auction listings to CarListing format
+      usAuctions.forEach((auction, index) => {
+        const audPrice = auction.price; // Already converted to AUD in US scraper
+        
+        // Apply price filters
+        if (minPrice && audPrice < parseInt(minPrice)) return;
+        if (maxPrice && audPrice > parseInt(maxPrice)) return;
+        
+        const carListing: CarListing = {
+          id: auction.id,
+          make: auction.make,
+          model: auction.model,
+          year: auction.year,
+          price: audPrice,
+          currency: 'AUD',
+          mileage: auction.mileage,
+          location: `${auction.location}, USA`,
+          source: auction.auctionHouse,
+          sourceUrl: auction.sourceUrl,
+          description: auction.description,
+          images: auction.images,
+          listedDate: auction.auctionDate,
+          seller: auction.seller,
+          features: auction.features,
+          fuelType: auction.fuelType,
+          transmission: auction.transmission,
+          bodyType: auction.bodyType,
+          isImport: true,
+          compliance: 'Requires 25-year rule compliance or EPA/DOT exemption for Australian import',
+          auctionData: {
+            auctionHouse: auction.auctionHouse,
+            lotNumber: auction.lotNumber,
+            inspectionGrade: auction.condition,
+            auctionDate: auction.auctionDate,
+            estimatedBid: auction.estimatedValue,
+            reservePrice: auction.reservePrice,
+            conditionReport: auction.damageReport || auction.description,
+            exportReadyCertificate: auction.titleStatus === 'Clean Title'
+          }
+        };
+        listings.push(carListing);
+      });
+    } catch (error) {
+      console.warn('US auction data unavailable:', error);
+    }
   }
 
   // Generate additional Australian listings to complement auction data
