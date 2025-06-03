@@ -14,6 +14,7 @@ import { Settings, AlertTriangle, CheckCircle, AlertCircle, FileText, Shield, Ar
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Link } from "wouter";
+import logoPath from "@assets/circular imi logo (3).png";
 
 const buildComplySchema = z.object({
   email: z.string().email("Valid email required"),
@@ -323,7 +324,31 @@ export default function BuildComply() {
   if (showResults) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
-        <div className="max-w-4xl mx-auto px-6 py-12">
+        {/* Navigation */}
+        <nav className="fixed top-0 left-0 right-0 bg-black/95 backdrop-blur-xl border-b border-gray-800/50 z-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <div className="flex items-center space-x-3">
+                <img src={logoPath} alt="Immaculate Imports" className="h-10 w-10" />
+                <div className="text-2xl font-semibold text-white">
+                  Import<span className="text-amber-400">IQ</span>
+                </div>
+              </div>
+              
+              <div className="hidden md:flex items-center space-x-8">
+                <Link href="/" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Home</Link>
+                <Link href="/features" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Features</Link>
+                <Link href="/pricing" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Pricing</Link>
+                <Link href="/about" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Our Mission</Link>
+                <Button className="bg-amber-400 hover:bg-amber-500 text-black px-6 py-2 rounded-full transition-all duration-300 font-medium shadow-lg hover:shadow-xl">
+                  Dashboard
+                </Button>
+              </div>
+            </div>
+          </div>
+        </nav>
+
+        <div className="max-w-4xl mx-auto px-6 py-12 pt-32">
           {/* Header */}
           <div className="mb-12">
             <Button 
@@ -570,16 +595,33 @@ export default function BuildComply() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
-      <div className="max-w-4xl mx-auto px-6 py-12">
+      {/* Navigation */}
+      <nav className="fixed top-0 left-0 right-0 bg-black/95 backdrop-blur-xl border-b border-gray-800/50 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-3">
+              <img src={logoPath} alt="Immaculate Imports" className="h-10 w-10" />
+              <div className="text-2xl font-semibold text-white">
+                Import<span className="text-amber-400">IQ</span>
+              </div>
+            </div>
+            
+            <div className="hidden md:flex items-center space-x-8">
+              <Link href="/" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Home</Link>
+              <Link href="/features" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Features</Link>
+              <Link href="/pricing" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Pricing</Link>
+              <Link href="/about" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium" onClick={() => window.scrollTo(0, 0)}>Our Mission</Link>
+              <Button className="bg-amber-400 hover:bg-amber-500 text-black px-6 py-2 rounded-full transition-all duration-300 font-medium shadow-lg hover:shadow-xl">
+                Dashboard
+              </Button>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div className="max-w-4xl mx-auto px-6 py-12 pt-32">
         {/* Header */}
         <div className="text-center mb-12">
-          <Link href="/">
-            <Button variant="ghost" className="mb-6 text-gray-400 hover:text-amber-400">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Dashboard
-            </Button>
-          </Link>
-          
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-2xl mb-6">
             <Settings className="h-8 w-8 text-black" />
           </div>
