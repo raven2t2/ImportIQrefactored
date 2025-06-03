@@ -117,6 +117,11 @@ export default function SecureAdminDashboard() {
     enabled: isAuthenticated,
   });
 
+  const { data: deposits = [], isLoading: depositsLoading } = useQuery({
+    queryKey: ["/api/deposits"],
+    enabled: isAuthenticated,
+  });
+
   const handleAdminLogin = async () => {
     try {
       const response = await fetch("/api/admin/login", {
@@ -272,6 +277,10 @@ export default function SecureAdminDashboard() {
             <TabsTrigger value="bookings" className="data-[state=active]:bg-amber-600">
               <Calendar className="w-4 h-4 mr-2" />
               Bookings
+            </TabsTrigger>
+            <TabsTrigger value="deposits" className="data-[state=active]:bg-amber-600">
+              <DollarSign className="w-4 h-4 mr-2" />
+              Deposits
             </TabsTrigger>
           </TabsList>
 
@@ -745,6 +754,80 @@ export default function SecureAdminDashboard() {
                                 Cancel
                               </Button>
                             )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="deposits" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span className="flex items-center">
+                    <DollarSign className="w-5 h-5 mr-2 text-green-600" />
+                    Mod Package Deposits
+                  </span>
+                  <Badge variant="secondary" className="bg-green-100 text-green-800">
+                    ${deposits.reduce((sum: number, deposit: any) => sum + (deposit.amount || 0), 0).toLocaleString()} Total
+                  </Badge>
+                </CardTitle>
+                <CardDescription>
+                  Track all $500 deposits from mod package estimator get started flow
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {depositsLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="animate-spin w-8 h-8 border-4 border-amber-600 border-t-transparent rounded-full"></div>
+                  </div>
+                ) : deposits.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <DollarSign className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>No deposits received yet</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {deposits.map((deposit: any) => (
+                      <div key={deposit.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-4">
+                              <div>
+                                <h4 className="font-medium text-gray-900">{deposit.customerName}</h4>
+                                <p className="text-sm text-gray-600">{deposit.customerEmail}</p>
+                              </div>
+                              <div className="text-right">
+                                <div className="font-bold text-green-600">${deposit.amount}</div>
+                                <div className="text-xs text-gray-500">
+                                  {new Date(deposit.createdAt).toLocaleDateString()}
+                                </div>
+                              </div>
+                            </div>
+                            {deposit.vehicleDetails && (
+                              <div className="mt-2 text-sm text-gray-600">
+                                <strong>Project:</strong> {deposit.vehicleDetails}
+                              </div>
+                            )}
+                            {deposit.stripePaymentIntentId && (
+                              <div className="mt-2">
+                                <Badge variant="outline" className="text-xs">
+                                  Payment ID: {deposit.stripePaymentIntentId}
+                                </Badge>
+                              </div>
+                            )}
+                          </div>
+                          <div className="ml-4">
+                            <Badge 
+                              variant={deposit.status === 'completed' ? 'default' : 'secondary'}
+                              className={deposit.status === 'completed' ? 'bg-green-600' : ''}
+                            >
+                              {deposit.status || 'completed'}
+                            </Badge>
                           </div>
                         </div>
                       </div>

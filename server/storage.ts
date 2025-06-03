@@ -1,4 +1,4 @@
-import { users, submissions, aiRecommendations, emailCache, trials, userProjects, userAchievements, carEvents, reports, bookings, affiliates, influencerProfiles, referralClicks, referralSignups, payoutRequests, vehicleBuilds, modShopPartners, modShopDeals, partsWatchlist, adminUsers, adminSessions, type User, type InsertUser, type Submission, type InsertSubmission, type Booking, type InsertBooking, type Affiliate, type InsertAffiliate, type InfluencerProfile, type InsertInfluencerProfile, type ReferralClick, type InsertReferralClick, type ReferralSignup, type InsertReferralSignup, type PayoutRequest, type InsertPayoutRequest, type VehicleBuild, type InsertVehicleBuild, type ModShopPartner, type InsertModShopPartner, type ModShopDeal, type InsertModShopDeal, type PartsWatchlistItem, type InsertPartsWatchlistItem, type AdminUser, type InsertAdminUser, type AdminSession, type InsertAdminSession } from "@shared/schema";
+import { users, submissions, aiRecommendations, emailCache, trials, userProjects, userAchievements, carEvents, reports, bookings, affiliates, influencerProfiles, referralClicks, referralSignups, payoutRequests, vehicleBuilds, modShopPartners, modShopDeals, partsWatchlist, adminUsers, adminSessions, deposits, type User, type InsertUser, type Submission, type InsertSubmission, type Booking, type InsertBooking, type Affiliate, type InsertAffiliate, type InfluencerProfile, type InsertInfluencerProfile, type ReferralClick, type InsertReferralClick, type ReferralSignup, type InsertReferralSignup, type PayoutRequest, type InsertPayoutRequest, type VehicleBuild, type InsertVehicleBuild, type ModShopPartner, type InsertModShopPartner, type ModShopDeal, type InsertModShopDeal, type PartsWatchlistItem, type InsertPartsWatchlistItem, type AdminUser, type InsertAdminUser, type AdminSession, type InsertAdminSession, type Deposit, type InsertDeposit } from "@shared/schema";
 import { db } from "./db";
 import { eq, lt, desc, and, gte } from "drizzle-orm";
 import fs from 'fs';
@@ -39,6 +39,11 @@ export interface IStorage {
   createBooking(booking: Omit<Booking, 'id' | 'createdAt'>): Promise<Booking>;
   getAllBookings(): Promise<Booking[]>;
   updateBookingStatus(id: number, status: string): Promise<Booking>;
+  
+  // Deposit Management Methods
+  createDeposit(deposit: Omit<InsertDeposit, 'id'>): Promise<Deposit>;
+  getAllDeposits(): Promise<Deposit[]>;
+  getDepositById(id: number): Promise<Deposit | undefined>;
   
   // Affiliate System Methods
   createAffiliate(affiliate: Omit<InsertAffiliate, 'id' | 'createdAt' | 'updatedAt'>): Promise<Affiliate>;

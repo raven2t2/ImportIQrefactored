@@ -2427,6 +2427,39 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
+  // Deposits tracking endpoint
+  app.get("/api/deposits", async (req, res) => {
+    try {
+      const deposits = await storage.getAllDeposits();
+      res.json(deposits);
+    } catch (error) {
+      console.error("Error fetching deposits:", error);
+      res.status(500).json({ error: "Failed to fetch deposits" });
+    }
+  });
+
+  // Create deposit endpoint for mod package $500 payments
+  app.post("/api/create-deposit", async (req, res) => {
+    try {
+      const { amount, customerName, customerEmail, vehicleDetails, stripePaymentIntentId } = req.body;
+      
+      const deposit = await storage.createDeposit({
+        amount: amount || 500,
+        customerName,
+        customerEmail,
+        vehicleDetails,
+        stripePaymentIntentId,
+        status: 'completed',
+        createdAt: new Date(),
+      });
+      
+      res.json(deposit);
+    } catch (error) {
+      console.error("Error creating deposit:", error);
+      res.status(500).json({ error: "Failed to create deposit" });
+    }
+  });
+
   // Stripe subscription endpoint with trial user pricing
   app.post("/api/create-subscription", async (req, res) => {
     try {
