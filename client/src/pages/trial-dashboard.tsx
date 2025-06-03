@@ -418,7 +418,7 @@ export default function TrialDashboard() {
             <Button 
               variant="outline"
               size="lg"
-              className="border-white text-white hover:bg-white hover:text-amber-600 px-8 py-3 rounded-full font-medium"
+              className="border-gray-600 text-gray-900 hover:bg-gray-800 hover:text-white px-8 py-3 rounded-full font-medium"
               onClick={() => window.location.href = '/affiliate-signup'}
             >
               Refer & Earn 20%

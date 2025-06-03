@@ -243,7 +243,7 @@ export default function Features() {
             <Button className="bg-amber-400 hover:bg-amber-500 text-black px-8 py-4 text-lg rounded-full font-semibold transition-all duration-300 hover:scale-105 shadow-xl">
               Start 7-Day Free Trial
             </Button>
-            <Button variant="outline" className="border-gray-600 text-white hover:bg-gray-800 px-8 py-4 text-lg rounded-full font-semibold">
+            <Button variant="outline" className="border-gray-600 text-gray-900 hover:bg-gray-800 hover:text-white px-8 py-4 text-lg rounded-full font-semibold">
               <Play className="h-5 w-5 mr-2" />
               Watch Demo
             </Button>
