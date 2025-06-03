@@ -218,11 +218,17 @@ function generateSingleListing(filters: SearchFilters, marketData: any, index: n
   // Generate realistic features
   const features = generateRealisticFeatures(make, model || "", year, isImport);
   
-  // Generate auction data for Japanese imports
+  // Generate detailed auction data for Japanese imports
   const auctionData = (isImport && region === "JP") ? {
     auctionHouse: source,
     lotNumber: `${Math.floor(Math.random() * 9000) + 1000}`,
-    inspectionGrade: ["4", "4.5", "5", "R", "A"][Math.floor(Math.random() * 5)]
+    inspectionGrade: ["4", "4.5", "5", "R", "A"][Math.floor(Math.random() * 5)],
+    auctionDate: new Date(Date.now() + Math.random() * 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Next 14 days
+    estimatedBid: Math.floor(finalPrice * 0.8), // Starting estimate
+    bidIncrement: Math.floor(finalPrice * 0.05), // 5% increments
+    reservePrice: Math.floor(finalPrice * 0.9), // Reserve at 90% of listing
+    conditionReport: generateConditionReport(make, model, year),
+    exportReadyCertificate: Math.random() > 0.3 // 70% have export cert
   } : undefined;
   
   // Generate realistic mileage
@@ -374,6 +380,33 @@ function determineBodyType(make: string, model: string): string {
   if (modelLower.includes("suv") || modelLower.includes("forester")) return "SUV";
   
   return Math.random() < 0.6 ? "Coupe" : "Sedan";
+}
+
+function generateConditionReport(make: string, model: string, year: number): string {
+  const age = 2024 - year;
+  const conditions = [];
+  
+  // Age-based conditions
+  if (age < 5) {
+    conditions.push("Excellent overall condition", "Minor wear on interior", "Clean engine bay");
+  } else if (age < 10) {
+    conditions.push("Good condition", "Some wear on seats", "Regular maintenance evident");
+  } else if (age < 20) {
+    conditions.push("Fair condition", "Age-appropriate wear", "Some rust spots");
+  } else {
+    conditions.push("Vintage condition", "Restoration potential", "Period-correct patina");
+  }
+  
+  // Brand-specific conditions
+  if (make.toLowerCase().includes("toyota") || make.toLowerCase().includes("honda")) {
+    conditions.push("Reliable drivetrain", "Well-maintained mechanics");
+  } else if (make.toLowerCase().includes("nissan")) {
+    conditions.push("Performance modifications evident", "Enthusiast owned");
+  } else if (make.toLowerCase().includes("mazda")) {
+    conditions.push("Rotary engine inspected", "Compression tested");
+  }
+  
+  return conditions.slice(0, 4).join(", ");
 }
 
 function generateRecentDate(): string {

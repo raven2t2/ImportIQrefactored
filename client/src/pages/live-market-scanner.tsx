@@ -51,6 +51,12 @@ interface CarListing {
     auctionHouse: string;
     lotNumber: string;
     inspectionGrade?: string;
+    auctionDate?: string;
+    estimatedBid?: number;
+    bidIncrement?: number;
+    reservePrice?: number;
+    conditionReport?: string;
+    exportReadyCertificate?: boolean;
   };
 }
 
@@ -402,11 +408,61 @@ export default function LiveMarketScanner() {
                     )}
 
                     {listing.auctionData && (
-                      <div className="bg-red-900/20 p-3 rounded border border-red-400/30">
-                        <div className="text-sm text-red-400 font-medium">Japanese Auction</div>
-                        <div className="text-xs text-gray-400">
-                          {listing.auctionData.auctionHouse} • Lot #{listing.auctionData.lotNumber}
-                          {listing.auctionData.inspectionGrade && ` • Grade ${listing.auctionData.inspectionGrade}`}
+                      <div className="bg-yellow-900/30 p-4 rounded border border-yellow-400/30">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Gavel className="h-4 w-4 text-yellow-400" />
+                          <div className="text-sm text-yellow-400 font-semibold">Live Auction Intelligence</div>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-3 text-xs">
+                          <div className="space-y-1">
+                            <div className="text-gray-300">
+                              <span className="text-yellow-400">House:</span> {listing.auctionData.auctionHouse}
+                            </div>
+                            <div className="text-gray-300">
+                              <span className="text-yellow-400">Lot:</span> #{listing.auctionData.lotNumber}
+                            </div>
+                            {listing.auctionData.inspectionGrade && (
+                              <div className="text-gray-300">
+                                <span className="text-yellow-400">Grade:</span> {listing.auctionData.inspectionGrade}
+                              </div>
+                            )}
+                            {listing.auctionData.auctionDate && (
+                              <div className="text-gray-300">
+                                <span className="text-yellow-400">Date:</span> {listing.auctionData.auctionDate}
+                              </div>
+                            )}
+                          </div>
+                          
+                          <div className="space-y-1">
+                            {listing.auctionData.estimatedBid && (
+                              <div className="text-gray-300">
+                                <span className="text-yellow-400">Est. Bid:</span> ¥{listing.auctionData.estimatedBid.toLocaleString()}
+                              </div>
+                            )}
+                            {listing.auctionData.reservePrice && (
+                              <div className="text-gray-300">
+                                <span className="text-yellow-400">Reserve:</span> ¥{listing.auctionData.reservePrice.toLocaleString()}
+                              </div>
+                            )}
+                            {listing.auctionData.exportReadyCertificate !== undefined && (
+                              <div className="text-gray-300">
+                                <span className="text-yellow-400">Export Ready:</span> {listing.auctionData.exportReadyCertificate ? "✓" : "⚠"}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {listing.auctionData.conditionReport && (
+                          <div className="mt-3 pt-2 border-t border-yellow-400/20">
+                            <div className="text-gray-300 text-xs">
+                              <span className="text-yellow-400 font-medium">Condition:</span> {listing.auctionData.conditionReport}
+                            </div>
+                          </div>
+                        )}
+                        
+                        <div className="mt-3 pt-2 border-t border-yellow-400/20 text-xs text-yellow-300">
+                          Professional auction data - same intelligence import agents use
                         </div>
                       </div>
                     )}
