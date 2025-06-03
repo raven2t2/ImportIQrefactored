@@ -3239,6 +3239,50 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
+  // Initialize super admin - one-time setup
+  app.post("/api/admin/initialize", async (req, res) => {
+    try {
+      // Check if any admin users exist
+      const existingAdmins = await storage.getAllAdminUsers();
+      if (existingAdmins.length > 0) {
+        return res.status(400).json({ error: "Admin users already exist" });
+      }
+
+      const { username, email, password, firstName, lastName } = req.body;
+      
+      if (!username || !email || !password) {
+        return res.status(400).json({ error: "Username, email, and password required" });
+      }
+
+      const result = await AdminAuthService.createAdminUser({
+        username,
+        email,
+        password,
+        firstName: firstName || "Super",
+        lastName: lastName || "Admin",
+        role: "super_admin"
+      });
+
+      if (!result.success) {
+        return res.status(400).json({ error: result.error });
+      }
+
+      res.json({ 
+        success: true, 
+        message: "Super admin created successfully",
+        user: {
+          username: result.adminUser.username,
+          email: result.adminUser.email,
+          role: result.adminUser.role
+        }
+      });
+
+    } catch (error) {
+      console.error("Admin initialization error:", error);
+      res.status(500).json({ error: "Failed to initialize admin" });
+    }
+  });
+
   // Admin Authentication Routes
   app.post("/api/admin/login", async (req, res) => {
     try {
