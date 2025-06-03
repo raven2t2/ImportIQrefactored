@@ -237,7 +237,7 @@ export default function UserDashboard() {
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <span>Recent Calculations</span>
-                  <Button size="sm" className="bg-brand-gold hover:bg-brand-gold/90" onClick={() => window.location.href = '/calculator'}>
+                  <Button size="sm" className="bg-brand-gold hover:bg-brand-gold/90" onClick={() => window.location.href = '/import-calculator'}>
                     <Plus className="h-4 w-4 mr-2" />
                     New Calculation
                   </Button>
@@ -308,7 +308,10 @@ export default function UserDashboard() {
                   ) : (
                     <div className="text-center py-8">
                       <p className="text-gray-500">No reports saved yet. Use any of the ImportIQ tools to generate your first report!</p>
-                      <Button className="mt-4 bg-brand-gold hover:bg-brand-gold/90">
+                      <Button 
+                        className="mt-4 bg-brand-gold hover:bg-brand-gold/90"
+                        onClick={() => window.location.href = '/features'}
+                      >
                         Explore ImportIQ Tools
                       </Button>
                     </div>
