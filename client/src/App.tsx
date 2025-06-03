@@ -25,6 +25,7 @@ import Subscribe from "@/pages/subscribe";
 import Pricing from "@/pages/pricing";
 import ValueEstimator from "@/pages/value-estimator";
 import VehicleLookup from "@/pages/vehicle-lookup";
+import RegistryLookup from "@/pages/registry-lookup";
 import RegistrationStats from "@/pages/registration-stats";
 import ImportVolumeDashboard from "@/pages/import-volume-dashboard";
 import AuctionSampleExplorer from "@/pages/auction-sample-explorer";
@@ -91,7 +92,7 @@ function Router() {
       <Route path="/insurance-estimator" component={InsuranceEstimator} />
       <Route path="/legal-advisory" component={LegalAdvisory} />
       <Route path="/buildready" component={BuildComply} />
-      <Route path="/registry-lookup" component={VehicleLookup} />
+      <Route path="/registry-lookup" component={RegistryLookup} />
       <Route path="/documentation-assistant" component={ImportTimeline} />
       <Route path="/roi-calculator" component={ValueEstimator} />
       <Route path="/state-requirements" component={RegistrationStats} />
