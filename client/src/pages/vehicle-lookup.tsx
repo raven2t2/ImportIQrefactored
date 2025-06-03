@@ -410,15 +410,27 @@ export default function VehicleLookup() {
                           </div>
                         )}
                         
-                        {result.complianceNotes.includes("specialist compliance") && (
+                        {(result.complianceNotes.includes("specialist compliance") || 
+                          result.complianceNotes.includes("Twin turbo requires") ||
+                          result.complianceNotes.includes("Rotary engine compliance") ||
+                          result.complianceNotes.includes("Turbo model may require")) && (
                           <div className="text-amber-100 text-sm space-y-2 mb-4">
                             <p><strong>⚠ Specialist Compliance Required:</strong></p>
                             <ul className="list-disc list-inside space-y-1 text-xs text-amber-200/80 ml-4">
-                              <li>Complex modifications needed for ADR compliance</li>
-                              <li>Turbo systems may need engineering certification</li>
-                              <li>Higher compliance costs due to complexity</li>
-                              <li>Estimated costs: $20,000-35,000+</li>
-                              <li>Longer processing times: 6-12 months</li>
+                              {result.complianceNotes.includes("Twin turbo") && (
+                                <li>Twin turbo systems require complex emissions modifications</li>
+                              )}
+                              {result.complianceNotes.includes("Rotary engine") && (
+                                <li>Rotary engines need specialized emissions compliance work</li>
+                              )}
+                              {result.complianceNotes.includes("emissions testing") && (
+                                <li>Additional state-specific emissions testing required</li>
+                              )}
+                              <li>Engineering certification typically required</li>
+                              <li>ADR compliance modifications needed</li>
+                              <li>Estimated costs: $18,000-30,000+ (varies by complexity)</li>
+                              <li>Processing time: 4-8 months depending on modifications</li>
+                              <li>May require multiple engineering inspections</li>
                             </ul>
                           </div>
                         )}
@@ -436,14 +448,43 @@ export default function VehicleLookup() {
                           </div>
                         )}
                         
+                        {/* Fallback for any other compliance notes */}
+                        {(!result.complianceNotes.includes("SEVS eligible") && 
+                          !result.complianceNotes.includes("25+ year rule") &&
+                          !result.complianceNotes.includes("Twin turbo requires") &&
+                          !result.complianceNotes.includes("Rotary engine compliance") &&
+                          !result.complianceNotes.includes("Turbo model may require") &&
+                          !result.complianceNotes.includes("RAW") &&
+                          !result.complianceNotes.includes("specialist compliance")) && (
+                          <div className="text-amber-100 text-sm space-y-2 mb-4">
+                            <p><strong>⚠ Specific Compliance Required:</strong></p>
+                            <ul className="list-disc list-inside space-y-1 text-xs text-amber-200/80 ml-4">
+                              <li>Vehicle-specific modifications may be required</li>
+                              <li>Consult with compliance workshop for exact requirements</li>
+                              <li>Estimated costs: $12,000-25,000+ (varies significantly)</li>
+                              <li>Processing time: 3-8 months depending on complexity</li>
+                              <li>May require engineering certification</li>
+                            </ul>
+                          </div>
+                        )}
+
                         {(result.complianceNotes.includes("SEVS eligible") && result.complianceNotes.includes("25+ year rule")) && (
                           <div className="p-3 bg-green-950/30 rounded border border-green-400/30">
-                            <p className="text-green-200 text-xs font-medium">💡 Best Strategy:</p>
+                            <p className="text-green-200 text-xs font-medium">Best Strategy:</p>
                             <p className="text-green-100 text-xs mt-1">
                               Wait for 25+ year eligibility if close to the age threshold - significantly cheaper and faster than SEVS pathway.
                             </p>
                           </div>
                         )}
+                        
+                        {/* Cost Disclaimer */}
+                        <div className="mt-4 p-2 bg-gray-900/50 rounded border border-gray-600/30">
+                          <p className="text-gray-300 text-xs">
+                            <strong>Cost Disclaimer:</strong> These are estimated ranges based on industry averages. 
+                            Actual compliance costs vary significantly based on vehicle condition, modifications required, 
+                            and chosen compliance workshop. Always obtain quotes from certified compliance providers.
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
