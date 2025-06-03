@@ -263,7 +263,7 @@ export default function AuctionSampleExplorer() {
                       <div className="text-center">
                         <TrendingUp className="h-8 w-8 text-purple-600 mx-auto mb-2" />
                         <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                          ${searchResults.averagePrice.aud.toLocaleString()}
+                          ${searchResults.averagePrice?.aud?.toLocaleString() || '0'}
                         </p>
                         <p className="text-sm text-gray-600 dark:text-gray-300">Average Price (AUD)</p>
                       </div>
@@ -275,7 +275,7 @@ export default function AuctionSampleExplorer() {
                       <div className="text-center">
                         <Gavel className="h-8 w-8 text-orange-600 mx-auto mb-2" />
                         <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                          {searchResults.popularAuctionHouses.length}
+                          {searchResults.popularAuctionHouses?.length || 0}
                         </p>
                         <p className="text-sm text-gray-600 dark:text-gray-300">Auction Houses</p>
                       </div>
