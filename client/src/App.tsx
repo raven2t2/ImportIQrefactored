@@ -39,6 +39,7 @@ import SecureAdminDashboard from "@/pages/secure-admin";
 import AdminLogin from "@/pages/admin-login";
 import AdminUserManagement from "@/pages/admin-user-management";
 import AdminProfile from "@/pages/admin-profile";
+import Contact from "@/pages/contact";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -78,6 +79,7 @@ function Router() {
       <Route path="/affiliate-dashboard" component={AffiliateDashboard} />
       <Route path="/trial-dashboard" component={TrialDashboard} />
       <Route path="/login" component={Login} />
+      <Route path="/contact" component={Contact} />
       <Route component={NotFound} />
     </Switch>
   );
