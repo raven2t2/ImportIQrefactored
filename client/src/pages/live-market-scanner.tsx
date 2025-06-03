@@ -361,6 +361,15 @@ export default function LiveMarketScanner() {
                   <div className="text-sm text-gray-400">Price Trend</div>
                 </div>
               </div>
+              <div className="mt-6 pt-4 border-t border-gray-700">
+                <div className="text-xs text-gray-400 text-center">
+                  <span className="font-medium text-amber-400">Data Sources:</span> Japanese Auction Houses (USS, TAA, JU), 
+                  Australian Marketplaces (Carsales, AutoTrader), US Import Networks, Real-time Exchange Rates
+                </div>
+                <div className="text-xs text-gray-500 text-center mt-1">
+                  Professional-grade market intelligence typically reserved for licensed import agents
+                </div>
+              </div>
             </CardContent>
           </Card>
         )}
@@ -497,25 +506,54 @@ export default function LiveMarketScanner() {
                       </div>
                     )}
 
-                    <div className="flex gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="flex-1 border-amber-400/30 text-amber-400 hover:bg-amber-400/10"
-                        onClick={() => window.open(listing.sourceUrl, '_blank')}
-                      >
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        View Listing
-                      </Button>
-                      <Link href="/true-cost-explorer">
+                    <div className="space-y-3">
+                      <div className="flex gap-2">
                         <Button 
+                          variant="outline" 
                           size="sm" 
-                          className="bg-amber-400 hover:bg-amber-500 text-black"
+                          className="flex-1 border-amber-400/30 text-amber-400 hover:bg-amber-400/10"
+                          onClick={() => window.open(listing.sourceUrl, '_blank')}
                         >
-                          <DollarSign className="h-4 w-4 mr-2" />
-                          Calculate Import
+                          <ExternalLink className="h-4 w-4 mr-2" />
+                          View Source
                         </Button>
-                      </Link>
+                        <Link href="/vehicle-lookup">
+                          <Button 
+                            variant="outline"
+                            size="sm" 
+                            className="border-blue-400/30 text-blue-400 hover:bg-blue-400/10"
+                          >
+                            <Search className="h-4 w-4 mr-2" />
+                            VIN Lookup
+                          </Button>
+                        </Link>
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        <Link href="/true-cost-explorer" className="flex-1">
+                          <Button 
+                            size="sm" 
+                            className="w-full bg-amber-400 hover:bg-amber-500 text-black font-semibold"
+                          >
+                            <DollarSign className="h-4 w-4 mr-2" />
+                            Calculate Total Cost
+                          </Button>
+                        </Link>
+                        <Link href="/deposit">
+                          <Button 
+                            size="sm" 
+                            className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6"
+                          >
+                            Secure Vehicle
+                          </Button>
+                        </Link>
+                      </div>
+                      
+                      {listing.isImport && (
+                        <div className="text-xs text-amber-400 text-center font-medium">
+                          Professional import service available - we handle everything
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
