@@ -49,6 +49,7 @@ import DocumentationAssistant from "@/pages/documentation-assistant";
 import ROICalculator from "@/pages/roi-calculator";
 import StateRequirements from "@/pages/state-requirements";
 import LiveMarketScanner from "@/pages/live-market-scanner";
+import WebhookIntegration from "@/pages/webhook-integration";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -103,6 +104,7 @@ function Router() {
       <Route path="/state-requirements" component={StateRequirements} />
       <Route path="/port-intelligence" component={PortIntelligence} />
       <Route path="/live-market-scanner" component={LiveMarketScanner} />
+      <Route path="/webhook-integration" component={WebhookIntegration} />
       <Route path="/import-timeline" component={ImportTimeline} />
       <Route component={NotFound} />
     </Switch>
