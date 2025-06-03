@@ -161,7 +161,7 @@ export async function scrapeCopartAuctions(make: string, model?: string): Promis
             'Sec-Fetch-User': '?1',
             'Upgrade-Insecure-Requests': '1'
           },
-          timeout: 15000
+          // timeout: 15000 // Remove timeout as it's not supported in fetch
         });
 
         if (response.ok) {

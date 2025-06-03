@@ -5,6 +5,7 @@
  */
 
 import { scrapeAllJapaneseAuctions, type JapaneseAuctionListing } from './japanese-auction-scraper';
+import { scrapeAllUSAuctions, type USAuctionListing } from './us-auction-scraper';
 
 export interface SearchFilters {
   make: string;
@@ -98,13 +99,13 @@ export async function generateMarketListings(filters: SearchFilters): Promise<{ 
   const { make, model, minPrice, maxPrice, location, yearFrom, yearTo } = filters;
   const listings: CarListing[] = [];
 
-  // First, get authentic Japanese auction data
+  // Get authentic Japanese auction data
   try {
     const japaneseAuctions = await scrapeAllJapaneseAuctions(make, model);
     
     // Convert Japanese auction listings to CarListing format
     japaneseAuctions.forEach((auction, index) => {
-      const audPrice = Math.floor(auction.price * 0.0094); // Convert JPY to AUD
+      const audPrice = auction.currency === 'JPY' ? Math.floor(auction.price * 0.0094) : auction.price;
       
       // Apply price filters
       if (minPrice && audPrice < parseInt(minPrice)) return;
@@ -152,7 +153,62 @@ export async function generateMarketListings(filters: SearchFilters): Promise<{ 
     console.warn('Japanese auction data unavailable:', error);
   }
 
-  // Generate additional Australian and US listings to complement Japanese data
+  // Get authentic US auction data
+  try {
+    const usAuctions = await scrapeAllUSAuctions(make, model);
+    
+    // Convert US auction listings to CarListing format
+    usAuctions.forEach((auction, index) => {
+      const audPrice = auction.price; // Already converted to AUD in US scraper
+      
+      // Apply price filters
+      if (minPrice && audPrice < parseInt(minPrice)) return;
+      if (maxPrice && audPrice > parseInt(maxPrice)) return;
+      
+      // Apply location filter
+      if (location && location.toLowerCase() !== 'all' && 
+          location.toLowerCase() !== 'usa' && location.toLowerCase() !== 'us' && 
+          !location.toLowerCase().includes('usa') && !location.toLowerCase().includes('america')) return;
+      
+      const carListing: CarListing = {
+        id: auction.id,
+        make: auction.make,
+        model: auction.model,
+        year: auction.year,
+        price: audPrice,
+        currency: 'AUD',
+        mileage: auction.mileage,
+        location: `${auction.location}, USA`,
+        source: auction.auctionHouse,
+        sourceUrl: auction.sourceUrl,
+        description: auction.description,
+        images: auction.images,
+        listedDate: auction.auctionDate,
+        seller: auction.seller,
+        features: auction.features,
+        fuelType: auction.fuelType,
+        transmission: auction.transmission,
+        bodyType: auction.bodyType,
+        isImport: true,
+        compliance: 'Requires 25-year rule compliance or EPA/DOT exemption for Australian import',
+        auctionData: {
+          auctionHouse: auction.auctionHouse,
+          lotNumber: auction.lotNumber,
+          inspectionGrade: auction.condition,
+          auctionDate: auction.auctionDate,
+          estimatedBid: auction.estimatedValue,
+          reservePrice: auction.reservePrice,
+          conditionReport: auction.damageReport || auction.description,
+          exportReadyCertificate: auction.titleStatus === 'Clean Title'
+        }
+      };
+      listings.push(carListing);
+    });
+  } catch (error) {
+    console.warn('US auction data unavailable:', error);
+  }
+
+  // Generate additional Australian listings to complement auction data
   const additionalCount = Math.max(5, 15 - listings.length); // Ensure comprehensive market coverage
   
   for (let i = 0; i < additionalCount; i++) {
