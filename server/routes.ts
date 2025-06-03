@@ -3048,33 +3048,55 @@ Generate specific ad targeting recommendations with confidence levels (High/Medi
         const csvData = fs.readFileSync(csvPath, 'utf8');
         console.log('CSV data length:', csvData.length);
         
-        // Parse CSV data
-        const lines = csvData.split('\n');
-        const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+        // Parse CSV data with proper handling of quoted fields
+        const lines = csvData.split('\n').filter(line => line.trim());
+        
+        // Use a more robust CSV parsing approach
+        function parseCSVLine(line: string): string[] {
+          const result = [];
+          let field = '';
+          let inQuotes = false;
+          let i = 0;
+          
+          while (i < line.length) {
+            const char = line[i];
+            
+            if (char === '"') {
+              if (inQuotes && line[i + 1] === '"') {
+                // Handle escaped quotes
+                field += '"';
+                i += 2;
+              } else {
+                inQuotes = !inQuotes;
+                i++;
+              }
+            } else if (char === ',' && !inQuotes) {
+              result.push(field.trim());
+              field = '';
+              i++;
+            } else {
+              field += char;
+              i++;
+            }
+          }
+          
+          result.push(field.trim());
+          return result;
+        }
+        
+        const headers = parseCSVLine(lines[0]);
         console.log('CSV Headers:', headers);
         const auctionRecords = [];
 
-        for (let i = 1; i < lines.length && i <= 5; i++) { // Log first 5 records for debugging
-          const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
-          if (values.length >= headers.length && values[0]) {
+        for (let i = 1; i < lines.length; i++) {
+          const values = parseCSVLine(lines[i]);
+          if (values.length >= 3 && values[0]) { // At least car_name, year, price
             const record: any = {};
             headers.forEach((header, index) => {
               record[header] = values[index] || '';
             });
             auctionRecords.push(record);
             if (i <= 3) console.log(`Record ${i}:`, record);
-          }
-        }
-        
-        // Continue parsing all records
-        for (let i = 6; i < lines.length; i++) {
-          const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
-          if (values.length >= headers.length && values[0]) {
-            const record: any = {};
-            headers.forEach((header, index) => {
-              record[header] = values[index] || '';
-            });
-            auctionRecords.push(record);
           }
         }
         
@@ -3459,24 +3481,7 @@ IMPORTANT GUIDELINES:
     }
   });
 
-  // Auction explorer endpoint - connects to Kaggle Japanese auction dataset
-  app.post("/api/auction-explorer", async (req, res) => {
-    const { make, model, yearFrom, yearTo, auctionHouse } = req.body;
-    
-    try {
-      // Connect to Kaggle API for the Japanese vehicle auction dataset
-      // This requires Kaggle API credentials to access the dataset
-      res.status(503).json({
-        error: "Auction data requires Kaggle API access to Japanese vehicle auction dataset",
-        message: "To access historical auction data from major Japanese auction houses, please provide your Kaggle API credentials",
-        requiredCredentials: ["KAGGLE_USERNAME", "KAGGLE_KEY"],
-        datasetInfo: "Dataset: japanese-used-car-auction-prices",
-        dataSource: "Kaggle - Japanese Vehicle Auction Historical Data"
-      });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch auction data" });
-    }
-  });
+
 
   // Save report to dashboard and email
   app.post("/api/save-report", async (req, res) => {
