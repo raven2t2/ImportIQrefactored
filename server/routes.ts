@@ -3288,6 +3288,8 @@ Respond with a JSON object containing your recommendations.`;
     try {
       const { username, password } = req.body;
       
+      console.log("Admin login attempt:", { username, passwordLength: password?.length });
+      
       if (!username || !password) {
         return res.status(400).json({ error: "Username and password required" });
       }
@@ -3298,6 +3300,8 @@ Respond with a JSON object containing your recommendations.`;
         req.ip, 
         req.get('User-Agent')
       );
+
+      console.log("Authentication result:", { success: result.success, error: result.error });
 
       if (!result.success) {
         return res.status(401).json({ error: result.error });

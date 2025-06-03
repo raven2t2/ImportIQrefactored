@@ -117,14 +117,20 @@ export class AdminAuthService {
 
   static async authenticateAdmin(username: string, password: string, ipAddress?: string, userAgent?: string): Promise<AdminAuthResult> {
     try {
+      console.log("AuthService: Looking up user:", username);
       const adminUser = await storage.getAdminUserByUsername(username);
+      console.log("AuthService: User found:", !!adminUser, "Active:", adminUser?.isActive);
+      
       if (!adminUser || !adminUser.isActive) {
         return { success: false, error: "Invalid credentials" };
       }
 
+      console.log("AuthService: Verifying password against hash:", adminUser.passwordHash.substring(0, 20) + "...");
       const isValidPassword = await this.verifyPassword(password, adminUser.passwordHash);
+      console.log("AuthService: Password valid:", isValidPassword);
+      
       if (!isValidPassword) {
-        return { success: false, error: "Invalid credentials" };
+        return { success: false, error: "Invalid admin password" };
       }
 
       // Update last login
