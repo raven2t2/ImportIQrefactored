@@ -93,6 +93,7 @@ function Router() {
       <Route path="/legal-advisory" component={LegalAdvisory} />
       <Route path="/buildready" component={BuildComply} />
       <Route path="/registry-lookup" component={CustomPlates} />
+      <Route path="/custom-plates" component={CustomPlates} />
       <Route path="/documentation-assistant" component={ImportTimeline} />
       <Route path="/roi-calculator" component={ValueEstimator} />
       <Route path="/state-requirements" component={RegistrationStats} />
