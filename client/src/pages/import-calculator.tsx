@@ -270,24 +270,24 @@ export default function ImportCalculator() {
                 <p className="text-sm text-brand-gray mb-4">Calculate accurate landed costs for importing vehicles to Australia</p>
                 
                 {/* What's Included */}
-                <div className="p-4 bg-brand-dark-gray border border-brand-gold rounded-lg">
+                <div className="p-4 bg-gray-900/50 border border-amber-400/30 rounded-lg">
                   <div className="text-sm">
-                    <p className="font-semibold text-gray-900 mb-2">This calculation includes:</p>
-                    <div className="space-y-1 text-xs">
+                    <p className="font-semibold text-white mb-2">This calculation includes:</p>
+                    <div className="space-y-1 text-xs text-gray-300">
                       <div className="flex items-center space-x-2">
-                        <div className="w-1 h-1 bg-blue-600 rounded-full"></div>
+                        <div className="w-1 h-1 bg-amber-400 rounded-full"></div>
                         <span>Complete landed cost breakdown</span>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <div className="w-1 h-1 bg-blue-600 rounded-full"></div>
+                        <div className="w-1 h-1 bg-amber-400 rounded-full"></div>
                         <span>Service tier recommendation</span>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <div className="w-1 h-1 bg-blue-600 rounded-full"></div>
+                        <div className="w-1 h-1 bg-amber-400 rounded-full"></div>
                         <span>All duties, taxes, and fees</span>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <div className="w-1 h-1 bg-blue-600 rounded-full"></div>
+                        <div className="w-1 h-1 bg-amber-400 rounded-full"></div>
                         <span>Service tier comparison</span>
                       </div>
                     </div>
@@ -302,8 +302,8 @@ export default function ImportCalculator() {
                     name="fullName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-medium text-gray-700">
-                          Full Name <span className="text-red-500">*</span>
+                        <FormLabel className="text-sm font-medium text-white">
+                          Full Name <span className="text-red-400">*</span>
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -322,8 +322,8 @@ export default function ImportCalculator() {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-medium text-gray-700">
-                          Email Address <span className="text-red-500">*</span>
+                        <FormLabel className="text-sm font-medium text-white">
+                          Email Address <span className="text-red-400">*</span>
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -343,8 +343,8 @@ export default function ImportCalculator() {
                     name="zipCode"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-medium text-gray-700">
-                          Delivery Zip/Postal Code <span className="text-red-500">*</span>
+                        <FormLabel className="text-sm font-medium text-white">
+                          Delivery Zip/Postal Code <span className="text-red-400">*</span>
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -353,7 +353,7 @@ export default function ImportCalculator() {
                             className="w-full"
                           />
                         </FormControl>
-                        <p className="text-xs text-gray-600">For accurate freight costs to your location</p>
+                        <p className="text-xs text-gray-400">For accurate freight costs to your location</p>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -366,8 +366,8 @@ export default function ImportCalculator() {
                       name="vehicleYear"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-gray-700">
-                            Year <span className="text-red-500">*</span>
+                          <FormLabel className="text-sm font-medium text-white">
+                            Year <span className="text-red-400">*</span>
                           </FormLabel>
                           <FormControl>
                             <Input
@@ -389,8 +389,8 @@ export default function ImportCalculator() {
                       name="vehicleMake"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-gray-700">
-                            Make <span className="text-red-500">*</span>
+                          <FormLabel className="text-sm font-medium text-white">
+                            Make <span className="text-red-400">*</span>
                           </FormLabel>
                           <FormControl>
                             <Input
