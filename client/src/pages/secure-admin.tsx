@@ -12,7 +12,7 @@ import {
   Shield, Users, FileText, TrendingUp, Search, Download, 
   UserCheck, Target, Calendar, BarChart3, AlertTriangle,
   DollarSign, Globe, TrendingDown, Activity, Clock, Phone, 
-  Mail, User, Car, MessageSquare
+  Mail, User, Car, MessageSquare, MapPin
 } from "lucide-react";
 import { format } from "date-fns";
 
