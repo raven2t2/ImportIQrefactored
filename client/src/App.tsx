@@ -69,7 +69,7 @@ function Router() {
       <Route path="/value-estimator" component={ValueEstimator} />
       <Route path="/vehicle-lookup" component={VehicleLookup} />
       <Route path="/registration-stats" component={RegistrationStats} />
-      <Route path="/import-volume-dashboard" component={ImportVolumeDashboard} />
+      <Route path="/import-volume-dashboard" component={PortIntelligence} />
       <Route path="/auction-sample-explorer" component={AuctionSampleExplorer} />
       <Route path="/dashboard" component={UserDashboard} />
       <Route path="/user-dashboard" component={UserDashboard} />
@@ -90,7 +90,7 @@ function Router() {
       <Route path="/contact" component={Contact} />
       <Route path="/compliance-checker" component={ComplianceChecker} />
       <Route path="/shipping-calculator" component={ShippingCalculator} />
-      <Route path="/market-intelligence" component={ImportVolumeDashboard} />
+      <Route path="/market-intelligence" component={PortIntelligence} />
       <Route path="/auction-intelligence" component={AuctionSampleExplorer} />
       <Route path="/insurance-estimator" component={InsuranceEstimator} />
       <Route path="/legal-advisory" component={LegalAdvisory} />

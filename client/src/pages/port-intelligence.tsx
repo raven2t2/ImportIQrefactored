@@ -433,14 +433,16 @@ export default function PortIntelligence() {
                           </div>
 
                           {/* Compliance */}
-                          <div className="flex gap-2">
-                            <Badge className={getDifficultyColor(port.compliance.quarantineStrictness)}>
-                              {port.compliance.quarantineStrictness} Bio-security
-                            </Badge>
-                            <Badge className={getDifficultyColor(port.compliance.customsComplexity)}>
-                              {port.compliance.customsComplexity} Customs
-                            </Badge>
-                          </div>
+                          {port.compliance && (
+                            <div className="flex gap-2">
+                              <Badge className={getDifficultyColor(port.compliance.quarantineStrictness)}>
+                                {port.compliance.quarantineStrictness} Bio-security
+                              </Badge>
+                              <Badge className={getDifficultyColor(port.compliance.customsComplexity)}>
+                                {port.compliance.customsComplexity} Customs
+                              </Badge>
+                            </div>
+                          )}
                         </CardContent>
                       </Card>
                     ))}
