@@ -369,6 +369,9 @@ export default function LiveMarketScanner() {
                 <div className="text-xs text-gray-500 text-center mt-1">
                   Professional-grade market intelligence typically reserved for licensed import agents
                 </div>
+                <div className="text-xs text-yellow-400 text-center mt-2 bg-yellow-900/20 p-2 rounded border border-yellow-400/30">
+                  Note: Source links direct to marketplace search results. Individual listings may vary by availability.
+                </div>
               </div>
             </CardContent>
           </Card>
