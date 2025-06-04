@@ -62,8 +62,9 @@ interface LiveMarketData {
   };
 }
 
-// API endpoints for authentic datasets
-const JDM_GOONET_API = `https://api.apify.com/v2/datasets/VMNgVmAgcCNYQZtNI/items?clean=true&format=json&token=${process.env.APIFY_API_TOKEN}`;
+// API endpoints for authentic datasets (now in English)
+const JDM_SKYLINE_API = `https://api.apify.com/v2/datasets/BOwRnzKkfbtVVzgfu/items?clean=true&format=json&token=${process.env.APIFY_API_TOKEN}`;
+const JDM_CLASSICS_API = `https://api.apify.com/v2/datasets/ZNQXj1F51xyzo0kiK/items?clean=true&format=json&token=${process.env.APIFY_API_TOKEN}`;
 const US_CLASSIC_API = `https://api.apify.com/v2/datasets/EFjwLXRVn4w9QKgPV/items?clean=true&format=json&token=${process.env.APIFY_API_TOKEN}`;
 
 // Exchange rate API (free tier)
@@ -135,16 +136,24 @@ async function getExchangeRates(): Promise<{ jpyToAud: number; usdToAud: number 
 }
 
 /**
- * Fetch and process JDM vehicles from GOONET
+ * Fetch and process JDM vehicles from multiple English datasets
  */
 async function fetchJDMVehicles(exchangeRates: { jpyToAud: number; usdToAud: number }): Promise<JDMVehicle[]> {
   try {
-    console.log('Fetching authentic JDM vehicles from GOONET...');
-    const response = await axios.get(JDM_GOONET_API, { timeout: 30000 });
-    const rawData = response.data;
+    console.log('Fetching authentic JDM vehicles from English datasets...');
     
-    if (!Array.isArray(rawData)) {
-      console.error('JDM API returned invalid data format');
+    // Fetch from both Skyline and JDM Classics datasets
+    const [skylineResponse, classicsResponse] = await Promise.all([
+      axios.get(JDM_SKYLINE_API, { timeout: 30000 }),
+      axios.get(JDM_CLASSICS_API, { timeout: 30000 })
+    ]);
+    
+    const skylineData = Array.isArray(skylineResponse.data) ? skylineResponse.data : [];
+    const classicsData = Array.isArray(classicsResponse.data) ? classicsResponse.data : [];
+    const rawData = [...skylineData, ...classicsData];
+    
+    if (rawData.length === 0) {
+      console.error('JDM APIs returned no data');
       return [];
     }
 
@@ -207,25 +216,13 @@ async function fetchJDMVehicles(exchangeRates: { jpyToAud: number; usdToAud: num
           engineSize: `${(Math.random() * 2 + 1).toFixed(1)}L`,
           description: searchResult.description || '',
           lastUpdated: new Date().toISOString(),
-          source: 'GOONET' as const,
+          source: item.source || 'JDM_CLASSICS' as const,
         };
       })
       .filter((vehicle: JDMVehicle) => vehicle.priceAUD > 5000 && vehicle.priceAUD < 500000); // Realistic price range
 
-    // Translate Japanese titles to English using OpenAI
-    console.log('Translating Japanese vehicle titles to English...');
-    const translatedVehicles = await Promise.all(
-      vehicles.map(async (vehicle) => {
-        const translatedTitle = await translateJapaneseToEnglish(vehicle.title);
-        return {
-          ...vehicle,
-          title: translatedTitle
-        };
-      })
-    );
-
-    console.log(`Successfully processed ${translatedVehicles.length} JDM vehicles from GOONET`);
-    return translatedVehicles;
+    console.log(`Successfully processed ${vehicles.length} JDM vehicles from English datasets`);
+    return vehicles;
   } catch (error) {
     console.error('Failed to fetch JDM vehicles:', error);
     return [];
