@@ -22,20 +22,22 @@ export default function ImportIQ() {
   });
 
   const tools = [
-    { name: "Import Cost Calculator", path: "/import-calculator", icon: Calculator, description: "Get accurate import costs instantly" },
-    { name: "True Cost Explorer", path: "/true-cost-explorer", icon: TrendingUp, description: "Explore total ownership costs" },
-    { name: "Import Timeline", path: "/import-timeline", icon: Clock, description: "Plan your import timeline" },
-    { name: "BuildReady™", path: "/build-comply", icon: Shield, description: "AI compliance & build planning" },
-    { name: "AI Recommendations", path: "/ai-recommendations", icon: Brain, description: "ML-powered vehicle suggestions" },
-    { name: "Expert Vehicle Picks", path: "/expert-picks", icon: Star, description: "Curated expert recommendations" },
-    { name: "Compliance Estimate", path: "/compliance-estimate", icon: Shield, description: "Estimate compliance costs" },
-    { name: "Mod Cost Estimator", path: "/mod-estimator", icon: Calculator, description: "Calculate modification costs" },
-    { name: "Value Estimator", path: "/value-estimator", icon: BarChart3, description: "ML market value analysis" },
-    { name: "Vehicle Lookup", path: "/vehicle-lookup", icon: Globe, description: "Comprehensive vehicle database" },
-    { name: "Registration Stats", path: "/registration-stats", icon: Users, description: "Market registration data" },
-    { name: "Import Volume Dashboard", path: "/import-volume-dashboard", icon: TrendingUp, description: "Track import volumes" },
-    { name: "Auction Sample Explorer", path: "/auction-sample-explorer", icon: Globe, description: "Explore auction samples" },
-    { name: "Dashboard", path: "/dashboard", icon: Users, description: "Your personal dashboard" }
+    { name: "Import Cost Calculator", path: "/import-calculator", icon: Calculator, description: "Calculate total import costs with authentic Australian government duty rates and fees." },
+    { name: "Vehicle Lookup", path: "/vehicle-lookup", icon: Globe, description: "Comprehensive vehicle verification using official registry and compliance databases." },
+    { name: "Compliance Checker", path: "/compliance-checker", icon: Shield, description: "ADR compliance verification with official Australian Design Rules database." },
+    { name: "Shipping Calculator", path: "/shipping-calculator", icon: Package, description: "Real shipping costs between major ports using current freight rates." },
+    { name: "Market Intelligence", path: "/market-intelligence", icon: TrendingUp, description: "Live exchange rates and market trends from Reserve Bank of Australia." },
+    { name: "Auction Intelligence", path: "/auction-intelligence", icon: BarChart3, description: "Auction analysis and bidding strategies based on historical data." },
+    { name: "Insurance Estimator", path: "/insurance-estimator", icon: Shield, description: "Calculate insurance costs for imported vehicles with major providers." },
+    { name: "Legal Advisory", path: "/legal-advisory", icon: Users, description: "Legal compliance guidance for vehicle imports and modifications." },
+    { name: "BuildReady", path: "/buildready", icon: Settings, description: "Modification compliance strategies and build planning assistance." },
+    { name: "Registry Lookup", path: "/registry-lookup", icon: Globe, description: "Vehicle registration verification using official state databases." },
+    { name: "Documentation Assistant", path: "/documentation-assistant", icon: Users, description: "Step-by-step guidance for import paperwork and customs forms." },
+    { name: "Value Estimator", path: "/value-estimator", icon: Calculator, description: "Professional market valuation using authentic dealer, auction, and broker pricing data." },
+    { name: "ROI Calculator", path: "/roi-calculator", icon: TrendingUp, description: "Investment analysis and profit potential for imported vehicles." },
+    { name: "State Requirements", path: "/state-requirements", icon: Users, description: "State-specific registration and compliance requirements." },
+    { name: "Port Intelligence", path: "/port-intelligence", icon: Package, description: "Real-time port status and shipping schedules for major Australian ports." },
+    { name: "Import Timeline", path: "/import-timeline", icon: Clock, description: "Complete timeline and milestones for vehicle import process in Australia." }
   ];
 
   const handleToolAccess = (toolName: string, toolPath: string) => {
