@@ -298,18 +298,18 @@ export default function LiveMarketData() {
               <div>
                 <h4 className="font-medium mb-3">Price Ranges</h4>
                 <div className="space-y-2">
-                  {analysis.priceRanges.map((range, index) => (
+                  {analysis?.priceRanges?.map((range, index) => (
                     <div key={index} className="flex justify-between items-center">
                       <span className="text-sm">{range.range}</span>
                       <Badge variant="secondary">{range.count}</Badge>
                     </div>
-                  ))}
+                  )) || []}
                 </div>
               </div>
               <div>
                 <h4 className="font-medium mb-3">Top Makes</h4>
                 <div className="space-y-2">
-                  {analysis.topMakes.slice(0, 5).map((make, index) => (
+                  {analysis?.topMakes?.slice(0, 5).map((make, index) => (
                     <div key={index} className="flex justify-between items-center">
                       <span className="text-sm">{make.make}</span>
                       <div className="text-right">
@@ -350,7 +350,7 @@ export default function LiveMarketData() {
 
         <TabsContent value="both" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[...marketData.jdmVehicles, ...marketData.usVehicles]
+            {marketData.jdmVehicles && marketData.usVehicles && [...marketData.jdmVehicles, ...marketData.usVehicles]
               .sort((a, b) => b.priceAUD - a.priceAUD)
               .slice(0, 12)
               .map((vehicle) => (
@@ -361,7 +361,7 @@ export default function LiveMarketData() {
 
         <TabsContent value="jdm" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {marketData.jdmVehicles.slice(0, 12).map((vehicle) => (
+            {marketData.jdmVehicles && marketData.jdmVehicles.slice(0, 12).map((vehicle) => (
               <VehicleCard key={vehicle.id} vehicle={vehicle} />
             ))}
           </div>
@@ -369,7 +369,7 @@ export default function LiveMarketData() {
 
         <TabsContent value="us" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {marketData.usVehicles.slice(0, 12).map((vehicle) => (
+            {marketData.usVehicles && marketData.usVehicles.slice(0, 12).map((vehicle) => (
               <VehicleCard key={vehicle.id} vehicle={vehicle} />
             ))}
           </div>
