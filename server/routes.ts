@@ -6013,61 +6013,6 @@ IMPORTANT GUIDELINES:
     }
   });
 
-      // Calculate average days on market
-      const daysOnMarket = filteredData
-        .map((v: any) => v.daysOnSite)
-        .filter((d: any) => d && d > 0);
-      const averageDaysOnMarket = daysOnMarket.length > 0 
-        ? daysOnMarket.reduce((a: number, b: number) => a + b, 0) / daysOnMarket.length 
-        : 0;
-
-      // Determine market trend
-      const recentYears = Object.keys(avgPriceByYear).sort().slice(-3);
-      let marketTrend = "stable";
-      if (recentYears.length >= 2) {
-        const oldPrice = avgPriceByYear[recentYears[0]];
-        const newPrice = avgPriceByYear[recentYears[recentYears.length - 1]];
-        const change = ((newPrice - oldPrice) / oldPrice) * 100;
-        if (change > 5) marketTrend = "rising";
-        else if (change < -5) marketTrend = "falling";
-      }
-
-      const analysis = {
-        averagePrice: Math.round(averagePrice),
-        medianPrice: Math.round(medianPrice),
-        priceRange: {
-          min: sortedPrices.length > 0 ? sortedPrices[0] : 0,
-          max: sortedPrices.length > 0 ? sortedPrices[sortedPrices.length - 1] : 0
-        },
-        averageMileage: Math.round(averageMileage),
-        totalListings: filteredData.length,
-        yearDistribution,
-        priceByYear: avgPriceByYear,
-        depreciationRate: 0,
-        marketTrend,
-        popularFeatures,
-        averageDaysOnMarket: Math.round(averageDaysOnMarket)
-      };
-
-      // Get unique brands, models, and years for filters
-      const brands = [...new Set(autoTraderData.map((v: any) => v.brand).filter(Boolean))].sort();
-      const models = [...new Set(autoTraderData.map((v: any) => v.model).filter(Boolean))].sort();
-      const years = [...new Set(autoTraderData.map((v: any) => v.year).filter(Boolean))].sort((a, b) => b - a);
-
-      res.json({
-        listings: filteredData.slice(0, 50),
-        analysis,
-        brands,
-        models,
-        years
-      });
-
-    } catch (error) {
-      console.error('Error in US market intelligence:', error);
-      res.status(500).json({ error: 'Failed to analyze market data' });
-    }
-  });
-
   // Market pricing data endpoint
   app.get("/api/market-pricing", async (req, res) => {
     try {
