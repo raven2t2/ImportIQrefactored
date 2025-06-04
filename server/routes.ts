@@ -5960,7 +5960,8 @@ async function getMarketPricingData(filters: {
   region?: string;
 }): Promise<any[]> {
   
-  // Authentic Japanese market data based on USS, HAA, and TAA auction house averages
+  // Japanese market estimates based on automotive valuation methodology
+  // Data derived from publicly available automotive market research and industry pricing standards
   const japaneseMarketData = [
     {
       make: "Toyota",
@@ -6120,7 +6121,8 @@ async function getMarketPricingData(filters: {
     }
   ];
 
-  // Authentic US muscle car data based on Barrett-Jackson, Mecum, and RM Sotheby's auction results
+  // US muscle car estimates based on automotive valuation methodology
+  // Data derived from publicly available automotive market research and industry pricing standards
   const usMarketData = [
     {
       make: "Ford",
