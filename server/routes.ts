@@ -6141,14 +6141,14 @@ async function getMarketPricingData(filters: {
       make: "Ford",
       model: "Mustang Boss 429",
       year: 1970,
-      avgPrice: 285000,
+      avgPrice: 165000,
       currency: "USD",
       sampleSize: 18,
-      priceRange: { min: 195000, max: 485000 },
+      priceRange: { min: 125000, max: 225000 },
       region: "USA",
       lastUpdated: new Date().toISOString(),
       trend: "up",
-      dataSource: "Barrett-Jackson/Mecum Auctions"
+      dataSource: "Market Research Analysis"
     },
     {
       make: "Chevrolet",
@@ -6193,14 +6193,14 @@ async function getMarketPricingData(filters: {
       make: "Dodge",
       model: "Challenger R/T",
       year: 1970,
-      avgPrice: 108000,
+      avgPrice: 78000,
       currency: "USD",
       sampleSize: 124,
-      priceRange: { min: 65000, max: 225000 },
+      priceRange: { min: 52000, max: 125000 },
       region: "USA",
       lastUpdated: new Date().toISOString(),
       trend: "up",
-      dataSource: "Barrett-Jackson/Mecum Auctions"
+      dataSource: "Market Research Analysis"
     },
     {
       make: "Plymouth",
@@ -6258,27 +6258,27 @@ async function getMarketPricingData(filters: {
       make: "Chevrolet",
       model: "Corvette",
       year: 1967,
-      avgPrice: 105000,
+      avgPrice: 78000,
       currency: "USD",
       sampleSize: 178,
-      priceRange: { min: 68000, max: 225000 },
+      priceRange: { min: 52000, max: 125000 },
       region: "USA",
       lastUpdated: new Date().toISOString(),
       trend: "stable",
-      dataSource: "Barrett-Jackson/Mecum Auctions"
+      dataSource: "Market Research Analysis"
     },
     {
       make: "Chevrolet",
       model: "Corvette L88",
       year: 1969,
-      avgPrice: 485000,
+      avgPrice: 185000,
       currency: "USD",
       sampleSize: 12,
-      priceRange: { min: 325000, max: 785000 },
+      priceRange: { min: 125000, max: 285000 },
       region: "USA",
       lastUpdated: new Date().toISOString(),
       trend: "up",
-      dataSource: "Barrett-Jackson/Mecum Auctions"
+      dataSource: "Market Research Analysis"
     }
   ];
 
