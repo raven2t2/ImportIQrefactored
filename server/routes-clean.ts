@@ -1,5 +1,7 @@
 import express, { type Express } from "express";
 import { createServer, type Server } from "http";
+import fs from 'fs';
+import path from 'path';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   app.use(express.json());
@@ -8,9 +10,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // US Market Intelligence API endpoint using authentic AutoTrader data
   app.get("/api/us-market-intelligence", (req, res) => {
     try {
-      const fs = require('fs');
-      const path = require('path');
-      
       console.log('Loading AutoTrader dataset...');
       
       // Load authentic AutoTrader dataset
