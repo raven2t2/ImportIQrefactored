@@ -69,11 +69,14 @@ export default function MarketPricing() {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Market Pricing Intelligence
+            Vehicle Import Pricing Guide
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Real-time pricing data for Japanese imports and US muscle cars
+            Market pricing estimates for Japanese imports and US muscle cars based on established valuation methodologies
           </p>
+          <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+            Pricing estimates derived from automotive market research and industry valuation standards
+          </div>
         </div>
 
         {/* Search Controls */}
@@ -171,12 +174,18 @@ export default function MarketPricing() {
                       </div>
 
                       <div className="flex justify-between text-sm text-gray-500">
-                        <span>{item.sampleSize} sales</span>
+                        <span>{item.sampleSize} market samples</span>
                         <div className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
                           <span>{new Date(item.lastUpdated).toLocaleDateString()}</span>
                         </div>
                       </div>
+
+                      {(item as any).dataSource && (
+                        <div className="text-xs text-gray-400 mt-2 border-t pt-2">
+                          Source: {(item as any).dataSource}
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
