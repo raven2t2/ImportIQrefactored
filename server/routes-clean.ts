@@ -2,6 +2,7 @@ import express, { type Express } from "express";
 import { createServer, type Server } from "http";
 import fs from 'fs';
 import path from 'path';
+import { getLiveMarketData, getMarketAnalysis, refreshLiveMarketData } from "./live-market-data";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   app.use(express.json());
@@ -93,6 +94,94 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error in US market intelligence:', error);
       res.status(500).json({ error: 'Failed to analyze market data' });
+    }
+  });
+
+  // Live Market Data API endpoints for authentic JDM and US datasets
+  app.get("/api/live-market-data", (req, res) => {
+    try {
+      const marketData = getLiveMarketData();
+      
+      if (!marketData) {
+        return res.status(503).json({ 
+          error: 'Market data not available', 
+          message: 'Data is being refreshed, please try again in a few minutes' 
+        });
+      }
+      
+      // Apply filters if provided
+      const { make, source, maxPriceAUD, minYear } = req.query;
+      let jdmVehicles = marketData.jdmVehicles;
+      let usVehicles = marketData.usVehicles;
+      
+      if (make) {
+        const makeFilter = (make as string).toLowerCase();
+        jdmVehicles = jdmVehicles.filter(v => v.make.toLowerCase().includes(makeFilter));
+        usVehicles = usVehicles.filter(v => v.make.toLowerCase().includes(makeFilter));
+      }
+      
+      if (maxPriceAUD) {
+        const maxPrice = parseInt(maxPriceAUD as string);
+        jdmVehicles = jdmVehicles.filter(v => v.priceAUD <= maxPrice);
+        usVehicles = usVehicles.filter(v => v.priceAUD <= maxPrice);
+      }
+      
+      if (minYear) {
+        const yearFilter = parseInt(minYear as string);
+        jdmVehicles = jdmVehicles.filter(v => v.year >= yearFilter);
+        usVehicles = usVehicles.filter(v => v.year >= yearFilter);
+      }
+      
+      if (source === 'jdm') {
+        usVehicles = [];
+      } else if (source === 'us') {
+        jdmVehicles = [];
+      }
+      
+      res.json({
+        jdmVehicles: jdmVehicles.slice(0, 50), // Limit to 50 per source
+        usVehicles: usVehicles.slice(0, 50),
+        lastUpdated: marketData.lastUpdated,
+        nextUpdate: marketData.nextUpdate,
+        exchangeRates: marketData.exchangeRates,
+        totalResults: {
+          jdm: jdmVehicles.length,
+          us: usVehicles.length
+        }
+      });
+    } catch (error) {
+      console.error('Error serving live market data:', error);
+      res.status(500).json({ error: 'Failed to retrieve market data' });
+    }
+  });
+
+  app.get("/api/live-market-analysis", (req, res) => {
+    try {
+      const analysis = getMarketAnalysis();
+      res.json(analysis);
+    } catch (error) {
+      console.error('Error generating market analysis:', error);
+      res.status(500).json({ error: 'Failed to generate market analysis' });
+    }
+  });
+
+  app.post("/api/refresh-market-data", async (req, res) => {
+    try {
+      console.log('Manual market data refresh requested');
+      const refreshedData = await refreshLiveMarketData();
+      res.json({ 
+        success: true, 
+        message: 'Market data refreshed successfully',
+        jdmCount: refreshedData.jdmVehicles.length,
+        usCount: refreshedData.usVehicles.length,
+        lastUpdated: refreshedData.lastUpdated
+      });
+    } catch (error) {
+      console.error('Error refreshing market data:', error);
+      res.status(500).json({ 
+        error: 'Failed to refresh market data',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 

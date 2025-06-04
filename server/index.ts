@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes-clean";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeDataRefreshScheduler } from "./auction-data-manager";
+import { initializeLiveMarketData } from "./live-market-data";
 
 const app = express();
 app.use(express.json());
@@ -69,5 +70,7 @@ app.use((req, res, next) => {
     log(`serving on port ${port}`);
     // Initialize automated auction data refresh after server starts
     initializeDataRefreshScheduler();
+    // Initialize live market data monitoring
+    initializeLiveMarketData();
   });
 })();
