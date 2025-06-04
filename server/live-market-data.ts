@@ -142,8 +142,10 @@ async function fetchJDMVehicles(exchangeRates: { jpyToAud: number; usdToAud: num
         
         const priceAUD = Math.round(priceJPY * exchangeRates.jpyToAud);
 
-        // Extract vehicle details from title
-        const title = searchResult.title;
+        // Extract vehicle details from title and translate Japanese
+        const originalTitle = searchResult.title;
+        const translatedTitle = await translateJapaneseTitle(originalTitle);
+        const title = translatedTitle || originalTitle;
         const make = extractMake(title);
         const model = extractModel(title, make);
         const year = extractYear(title) || (new Date().getFullYear() - Math.floor(Math.random() * 20));
