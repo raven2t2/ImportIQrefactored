@@ -7,6 +7,7 @@
 import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
+import OpenAI from 'openai';
 
 interface JDMVehicle {
   id: string;
@@ -67,6 +68,37 @@ const US_CLASSIC_API = `https://api.apify.com/v2/datasets/EFjwLXRVn4w9QKgPV/item
 
 // Exchange rate API (free tier)
 const EXCHANGE_RATE_API = 'https://api.exchangerate-api.com/v4/latest/USD';
+
+// Initialize OpenAI for Japanese translation
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+/**
+ * Translate Japanese text to English using OpenAI
+ */
+async function translateJapaneseToEnglish(japaneseText: string): Promise<string> {
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+      messages: [
+        {
+          role: "system",
+          content: "You are a professional automotive translator. Translate Japanese car listings to natural English. Focus on car makes, models, and specifications. Keep the translation concise and automotive-focused."
+        },
+        {
+          role: "user",
+          content: `Translate this Japanese car listing title to English: ${japaneseText}`
+        }
+      ],
+      max_tokens: 100,
+      temperature: 0.1
+    });
+
+    return response.choices[0].message.content?.trim() || japaneseText;
+  } catch (error) {
+    console.error('Translation failed:', error);
+    return japaneseText; // Return original if translation fails
+  }
+}
 
 let cachedMarketData: LiveMarketData | null = null;
 let updateInterval: NodeJS.Timeout | null = null;
@@ -151,15 +183,15 @@ async function fetchJDMVehicles(exchangeRates: { jpyToAud: number; usdToAud: num
         // Convert JPY to AUD using accurate exchange rate
         const priceAUD = Math.round(priceJPY * exchangeRates.jpyToAud);
 
-        // Extract vehicle details from title
-        const title = searchResult.title;
-        const make = extractMake(title);
-        const model = extractModel(title, make);
-        const year = extractYear(title) || (new Date().getFullYear() - Math.floor(Math.random() * 20));
+        // Extract vehicle details from original title
+        const originalTitle = searchResult.title;
+        const make = extractMake(originalTitle);
+        const model = extractModel(originalTitle, make);
+        const year = extractYear(originalTitle) || (new Date().getFullYear() - Math.floor(Math.random() * 20));
 
         return {
           id: `jdm_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          title,
+          title: originalTitle, // Will be translated later
           price: priceJPY,
           currency: 'JPY',
           priceAUD,
@@ -180,8 +212,20 @@ async function fetchJDMVehicles(exchangeRates: { jpyToAud: number; usdToAud: num
       })
       .filter((vehicle: JDMVehicle) => vehicle.priceAUD > 5000 && vehicle.priceAUD < 500000); // Realistic price range
 
-    console.log(`Successfully processed ${vehicles.length} JDM vehicles from GOONET`);
-    return vehicles;
+    // Translate Japanese titles to English using OpenAI
+    console.log('Translating Japanese vehicle titles to English...');
+    const translatedVehicles = await Promise.all(
+      vehicles.map(async (vehicle) => {
+        const translatedTitle = await translateJapaneseToEnglish(vehicle.title);
+        return {
+          ...vehicle,
+          title: translatedTitle
+        };
+      })
+    );
+
+    console.log(`Successfully processed ${translatedVehicles.length} JDM vehicles from GOONET`);
+    return translatedVehicles;
   } catch (error) {
     console.error('Failed to fetch JDM vehicles:', error);
     return [];
