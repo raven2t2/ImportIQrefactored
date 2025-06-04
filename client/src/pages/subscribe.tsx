@@ -319,7 +319,7 @@ export default function Subscribe() {
             </h3>
             <div className="grid md:grid-cols-3 gap-6 text-sm text-gray-700">
               <div>
-                <div className="font-semibold text-[#1E1E1E] mb-2">14 AI-Powered Tools</div>
+                <div className="font-semibold text-[#1E1E1E] mb-2">16 AI-Powered Tools</div>
                 <div>Complete import intelligence platform with cost calculators and compliance guidance</div>
               </div>
               <div>

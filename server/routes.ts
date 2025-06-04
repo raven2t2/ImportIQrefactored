@@ -1967,7 +1967,7 @@ Respond with a JSON object containing your recommendations.`;
       const affiliates = await storage.getAllAffiliates();
       const aiRecommendations = await storage.getAllAIRecommendations();
 
-      // All 14 tool analytics with real data
+      // All 16 tool analytics with real data
       const toolInsights = {
         // Tool 1: Import Cost Calculator
         importCalculator: {
