@@ -319,7 +319,7 @@ export default function LiveMarketData() {
                         </div>
                       </div>
                     </div>
-                  ))}
+                  )) || []}
                 </div>
               </div>
               <div>
