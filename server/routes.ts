@@ -20,6 +20,7 @@ import bcrypt from "bcrypt";
 import fs from "fs";
 import { generateMarketListings, type SearchFilters } from "./simplified-market-data";
 import { getDataFreshnessStatus, getSystemHealthStatus, triggerManualRefresh, getCachedAuctionData } from "./auction-data-manager";
+import { refreshLiveMarketDataFixed, getLiveMarketDataFixed } from "./live-market-data-fixed";
 import path from "path";
 
 // Additional schemas for new tools
