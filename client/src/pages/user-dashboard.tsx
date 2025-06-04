@@ -117,7 +117,7 @@ export default function UserDashboard() {
               Premium Active
             </Badge>
             <Badge variant="outline" className="border-amber-200 text-amber-700">
-              16 AI-Powered Tools
+              17 AI-Powered Tools
             </Badge>
           </div>
         </div>
@@ -277,7 +277,7 @@ export default function UserDashboard() {
                 <div className="text-sm text-gray-600">7-day trial available</div>
               </div>
               <div>
-                <div className="text-3xl font-bold text-amber-600 mb-2">16 Tools</div>
+                <div className="text-3xl font-bold text-amber-600 mb-2">17 Tools</div>
                 <div className="text-sm text-gray-600">AI-powered intelligence</div>
               </div>
               <div>
