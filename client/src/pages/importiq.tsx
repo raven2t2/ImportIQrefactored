@@ -214,7 +214,7 @@ export default function ImportIQ() {
           </h1>
           
           <p className="text-xl sm:text-2xl text-gray-300 max-w-4xl mx-auto mb-6 leading-relaxed font-light">
-            14 professional-grade tools worth $2,000+ individually. Get the complete vehicle import intelligence platform for just $97/month.
+            16 professional-grade tools worth $2,000+ individually. Get the complete vehicle import intelligence platform for just $97/month.
           </p>
           
           {/* Action Buttons */}

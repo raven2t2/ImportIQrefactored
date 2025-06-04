@@ -256,7 +256,7 @@ export default function Features() {
           </h1>
           
           <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-12 leading-relaxed">
-            14 professional-grade tools worth $2,000+ individually. Get the complete vehicle import intelligence platform for just $97/month.
+            16 professional-grade tools worth $2,000+ individually. Get the complete vehicle import intelligence platform for just $97/month.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">

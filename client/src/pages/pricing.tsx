@@ -106,7 +106,7 @@ export default function Pricing() {
           
           <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-12 leading-relaxed">
             Members typically save more in their first month than a full year subscription costs. 
-            Get instant access to all 14 professional-grade tools.
+            Get instant access to all 16 professional-grade tools.
           </p>
 
           {/* ROI Stats */}
