@@ -1,5 +1,5 @@
 import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes-clean";
+import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeDataRefreshScheduler } from "./auction-data-manager";
 import { initializeLiveMarketData } from "./live-market-data";
