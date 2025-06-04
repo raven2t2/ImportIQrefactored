@@ -68,15 +68,6 @@ interface USVehicle {
   source: 'US_CLASSIC';
 }
 
-interface MarketAnalysis {
-  totalVehicles: number;
-  averagePriceAUD: number;
-  jdmCount: number;
-  usCount: number;
-  priceRanges: { range: string; count: number }[];
-  topMakes: { make: string; count: number; avgPrice: number }[];
-}
-
 export default function LiveMarketData() {
   const [filters, setFilters] = useState({
     make: "",
@@ -95,11 +86,6 @@ export default function LiveMarketData() {
       return fetch(`/api/live-market-data?${params}`).then(res => res.json());
     },
     refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
-  });
-
-  const { data: analysis, isLoading: analysisLoading } = useQuery<MarketAnalysis>({
-    queryKey: ['/api/live-market-analysis'],
-    refetchInterval: 10 * 60 * 1000, // Refetch every 10 minutes
   });
 
   const handleRefresh = async () => {
@@ -201,7 +187,7 @@ export default function LiveMarketData() {
               <div>
                 <p className="text-sm text-muted-foreground">USD → AUD</p>
                 <p className="text-lg font-semibold">
-                  {marketData.exchangeRates.usdToAud.toFixed(2)}
+                  {marketData.exchangeRates.usdToAud.toFixed(4)}
                 </p>
               </div>
               <DollarSign className="h-5 w-5 text-muted-foreground" />
@@ -212,7 +198,7 @@ export default function LiveMarketData() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">JDM Vehicles</p>
+                <p className="text-sm text-muted-foreground">JDM Classics</p>
                 <p className="text-lg font-semibold">{marketData.totalResults.jdm}</p>
               </div>
               <TrendingUp className="h-5 w-5 text-muted-foreground" />
@@ -286,60 +272,6 @@ export default function LiveMarketData() {
         </CardContent>
       </Card>
 
-      {/* Market Analysis */}
-      {analysis && !analysisLoading && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Market Analysis</CardTitle>
-            <CardDescription>Insights from authentic pricing data</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div>
-                <h4 className="font-medium mb-3">Price Ranges</h4>
-                <div className="space-y-2">
-                  {analysis?.priceRanges?.map((range, index) => (
-                    <div key={index} className="flex justify-between items-center">
-                      <span className="text-sm">{range.range}</span>
-                      <Badge variant="secondary">{range.count}</Badge>
-                    </div>
-                  )) || []}
-                </div>
-              </div>
-              <div>
-                <h4 className="font-medium mb-3">Top Makes</h4>
-                <div className="space-y-2">
-                  {analysis?.topMakes?.slice(0, 5).map((make, index) => (
-                    <div key={index} className="flex justify-between items-center">
-                      <span className="text-sm">{make.make}</span>
-                      <div className="text-right">
-                        <div className="text-sm font-medium">{make.count} cars</div>
-                        <div className="text-xs text-muted-foreground">
-                          Avg {formatPrice(make.avgPrice, 'AUD')}
-                        </div>
-                      </div>
-                    </div>
-                  )) || []}
-                </div>
-              </div>
-              <div>
-                <h4 className="font-medium mb-3">Market Summary</h4>
-                <div className="space-y-3">
-                  <div>
-                    <div className="text-sm text-muted-foreground">Total Vehicles</div>
-                    <div className="text-lg font-semibold">{analysis.totalVehicles}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-muted-foreground">Average Price</div>
-                    <div className="text-lg font-semibold">{formatPrice(analysis.averagePriceAUD, 'AUD')}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Vehicle Listings */}
       <Tabs defaultValue="both" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
@@ -393,50 +325,69 @@ function VehicleCard({ vehicle }: VehicleCardProps) {
   };
 
   return (
-    <Card className="h-full hover:shadow-lg transition-shadow">
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200">
+      <div className="aspect-video relative bg-gray-100">
+        {vehicle.images && vehicle.images.length > 0 ? (
+          <img
+            src={vehicle.images[0]}
+            alt={vehicle.title}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+            No Image Available
+          </div>
+        )}
+        <div className="absolute top-2 right-2">
+          <Badge variant="secondary" className="text-xs">
+            {vehicle.source === 'GOONET' ? 'JDM' : 'US'}
+          </Badge>
+        </div>
+      </div>
       <CardContent className="p-4">
-        <div className="space-y-3">
-          <div className="flex justify-between items-start">
-            <Badge variant={vehicle.source === 'GOONET' ? 'default' : 'secondary'}>
-              {vehicle.source === 'GOONET' ? 'JDM' : 'US Classic'}
-            </Badge>
-            <div className="text-right">
-              <div className="font-bold text-lg">{formatPrice(vehicle.priceAUD, 'AUD')}</div>
-              <div className="text-sm text-muted-foreground">
-                {formatPrice(vehicle.price, vehicle.currency)}
-              </div>
-            </div>
+        <h3 className="font-semibold text-lg mb-2 line-clamp-2">{vehicle.title}</h3>
+        <div className="space-y-2 text-sm text-muted-foreground">
+          <div className="flex justify-between">
+            <span>Price (Original):</span>
+            <span className="font-medium">{formatPrice(vehicle.price, vehicle.currency)}</span>
           </div>
-
-          <div>
-            <h3 className="font-semibold line-clamp-2">{vehicle.title}</h3>
-            <div className="text-sm text-muted-foreground mt-1">
-              {vehicle.year} • {vehicle.make} {vehicle.model}
-            </div>
+          <div className="flex justify-between">
+            <span>Price (AUD):</span>
+            <span className="font-medium text-primary">{formatPrice(vehicle.priceAUD, 'AUD')}</span>
           </div>
-
-          <Separator />
-
-          <div className="space-y-2 text-sm">
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-muted-foreground" />
-              <span>{vehicle.location}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span>{vehicle.mileage} • {vehicle.transmission}</span>
-            </div>
+          <div className="flex justify-between">
+            <span>Year:</span>
+            <span>{vehicle.year}</span>
           </div>
-
+          <div className="flex justify-between">
+            <span>Mileage:</span>
+            <span>{vehicle.mileage}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Location:</span>
+            <span>{vehicle.location}</span>
+          </div>
+          {vehicle.transmission && (
+            <div className="flex justify-between">
+              <span>Transmission:</span>
+              <span>{vehicle.transmission}</span>
+            </div>
+          )}
+        </div>
+        <Separator className="my-3" />
+        <div className="flex items-center justify-between">
+          <div className="text-xs text-muted-foreground">
+            Updated: {new Date(vehicle.lastUpdated).toLocaleDateString()}
+          </div>
           {vehicle.url && (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="w-full"
-              onClick={() => window.open(vehicle.url, '_blank')}
+            <a
+              href={vehicle.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline text-sm"
             >
-              View Listing
-            </Button>
+              View Listing →
+            </a>
           )}
         </div>
       </CardContent>
