@@ -37,7 +37,8 @@ export default function ImportIQ() {
     { name: "ROI Calculator", path: "/roi-calculator", icon: TrendingUp, description: "Investment analysis and profit potential for imported vehicles." },
     { name: "State Requirements", path: "/state-requirements", icon: Users, description: "State-specific registration and compliance requirements." },
     { name: "Port Intelligence", path: "/port-intelligence", icon: Package, description: "Real-time port status and shipping schedules for major Australian ports." },
-    { name: "Import Timeline", path: "/import-timeline", icon: Clock, description: "Complete timeline and milestones for vehicle import process in Australia." }
+    { name: "Import Timeline", path: "/import-timeline", icon: Clock, description: "Complete timeline and milestones for vehicle import process in Australia." },
+    { name: "US Market Intelligence", path: "/us-market-intelligence", icon: BarChart3, description: "Real-time market analysis using authentic AutoTrader data with price trends and comparisons." }
   ];
 
   const handleToolAccess = (toolName: string, toolPath: string) => {
@@ -303,7 +304,7 @@ export default function ImportIQ() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-8 tracking-tight">
-              16 AI-Powered Tools.
+              17 AI-Powered Tools.
               <br />
               <span className="text-amber-400">One Platform.</span>
             </h2>

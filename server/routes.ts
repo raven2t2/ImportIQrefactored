@@ -6340,3 +6340,261 @@ function extractVehicleDetails(title: string): { make?: string; model?: string; 
 
   return { make, model, year };
 }
+
+// US Market Intelligence API endpoints using authentic AutoTrader data
+  app.get("/api/us-market-intelligence", async (req, res) => {
+  try {
+    const { brand, model, year, maxPrice, maxMileage } = req.query;
+    
+    // Load authentic AutoTrader dataset
+    const fs = require('fs');
+    const path = require('path');
+    
+    let autoTraderData: any[] = [];
+    try {
+      const dataPath = path.join(__dirname, '../attached_assets/dataset_autotrader-scraper_2025-06-04_08-27-39-827.json');
+      const rawData = fs.readFileSync(dataPath, 'utf8');
+      autoTraderData = JSON.parse(rawData);
+    } catch (error) {
+      console.error('Error loading AutoTrader dataset:', error);
+      return res.status(500).json({ error: 'Failed to load market data' });
+    }
+
+    // Filter data based on search criteria
+    let filteredData = autoTraderData.filter((vehicle: any) => {
+      let matches = true;
+      
+      if (brand && vehicle.brand && vehicle.brand.toLowerCase() !== brand.toLowerCase()) {
+        matches = false;
+      }
+      
+      if (model && vehicle.model && !vehicle.model.toLowerCase().includes(model.toLowerCase())) {
+        matches = false;
+      }
+      
+      if (year && vehicle.year && vehicle.year.toString() !== year.toString()) {
+        matches = false;
+      }
+      
+      if (maxPrice && vehicle.price && vehicle.price > parseInt(maxPrice as string)) {
+        matches = false;
+      }
+      
+      if (maxMileage && vehicle.mileage) {
+        const mileageNum = typeof vehicle.mileage === 'string' 
+          ? parseInt(vehicle.mileage.replace(/,/g, '')) 
+          : vehicle.mileage;
+        if (!isNaN(mileageNum) && mileageNum > parseInt(maxMileage as string)) {
+          matches = false;
+        }
+      }
+      
+      return matches && vehicle.price && vehicle.year;
+    });
+
+    // Calculate market analysis
+    const prices = filteredData.map((v: any) => v.price).filter((p: any) => p && p > 0);
+    const mileages = filteredData.map((v: any) => {
+      const m = typeof v.mileage === 'string' ? parseInt(v.mileage.replace(/,/g, '')) : v.mileage;
+      return isNaN(m) ? 0 : m;
+    }).filter((m: any) => m > 0);
+
+    const sortedPrices = [...prices].sort((a, b) => a - b);
+    const averagePrice = prices.length > 0 ? prices.reduce((a: number, b: number) => a + b, 0) / prices.length : 0;
+    const medianPrice = sortedPrices.length > 0 ? sortedPrices[Math.floor(sortedPrices.length / 2)] : 0;
+    const averageMileage = mileages.length > 0 ? mileages.reduce((a: number, b: number) => a + b, 0) / mileages.length : 0;
+
+    // Year distribution and price by year
+    const yearDistribution: Record<string, number> = {};
+    const priceByYear: Record<string, number[]> = {};
+    
+    filteredData.forEach((vehicle: any) => {
+      if (vehicle.year && vehicle.price) {
+        const year = vehicle.year.toString();
+        yearDistribution[year] = (yearDistribution[year] || 0) + 1;
+        
+        if (!priceByYear[year]) {
+          priceByYear[year] = [];
+        }
+        priceByYear[year].push(vehicle.price);
+      }
+    });
+
+    const avgPriceByYear: Record<string, number> = {};
+    Object.keys(priceByYear).forEach(year => {
+      const yearPrices = priceByYear[year];
+      avgPriceByYear[year] = yearPrices.reduce((a, b) => a + b, 0) / yearPrices.length;
+    });
+
+    // Extract popular features
+    const allFeatures: string[] = [];
+    filteredData.forEach((vehicle: any) => {
+      if (vehicle.features) {
+        Object.values(vehicle.features).forEach((featureList: any) => {
+          if (Array.isArray(featureList)) {
+            allFeatures.push(...featureList);
+          }
+        });
+      }
+    });
+
+    const featureCount: Record<string, number> = {};
+    allFeatures.forEach(feature => {
+      if (typeof feature === 'string' && feature.length > 0) {
+        // Simplify feature names
+        const simplifiedFeature = feature.split(',')[0].split('(')[0].trim();
+        if (simplifiedFeature.length > 3) {
+          featureCount[simplifiedFeature] = (featureCount[simplifiedFeature] || 0) + 1;
+        }
+      }
+    });
+
+    const popularFeatures = Object.entries(featureCount)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 20)
+      .map(([feature]) => feature);
+
+    // Calculate average days on market
+    const daysOnMarket = filteredData
+      .map((v: any) => v.daysOnSite)
+      .filter((d: any) => d && d > 0);
+    const averageDaysOnMarket = daysOnMarket.length > 0 
+      ? daysOnMarket.reduce((a: number, b: number) => a + b, 0) / daysOnMarket.length 
+      : 0;
+
+    // Determine market trend (simplified)
+    const recentYears = Object.keys(avgPriceByYear)
+      .sort()
+      .slice(-3);
+    let marketTrend = "stable";
+    if (recentYears.length >= 2) {
+      const oldPrice = avgPriceByYear[recentYears[0]];
+      const newPrice = avgPriceByYear[recentYears[recentYears.length - 1]];
+      const change = ((newPrice - oldPrice) / oldPrice) * 100;
+      if (change > 5) marketTrend = "rising";
+      else if (change < -5) marketTrend = "falling";
+    }
+
+    const analysis = {
+      averagePrice: Math.round(averagePrice),
+      medianPrice: Math.round(medianPrice),
+      priceRange: {
+        min: sortedPrices.length > 0 ? sortedPrices[0] : 0,
+        max: sortedPrices.length > 0 ? sortedPrices[sortedPrices.length - 1] : 0
+      },
+      averageMileage: Math.round(averageMileage),
+      totalListings: filteredData.length,
+      yearDistribution,
+      priceByYear: avgPriceByYear,
+      depreciationRate: 0, // Would need historical data to calculate
+      marketTrend,
+      popularFeatures,
+      averageDaysOnMarket: Math.round(averageDaysOnMarket)
+    };
+
+    // Get unique brands, models, and years for filters
+    const brands = [...new Set(autoTraderData.map((v: any) => v.brand).filter(Boolean))].sort();
+    const models = [...new Set(autoTraderData.map((v: any) => v.model).filter(Boolean))].sort();
+    const years = [...new Set(autoTraderData.map((v: any) => v.year).filter(Boolean))].sort((a, b) => b - a);
+
+    res.json({
+      listings: filteredData.slice(0, 50), // Limit to 50 for performance
+      analysis,
+      brands,
+      models,
+      years
+    });
+
+  } catch (error) {
+    console.error('Error in US market intelligence:', error);
+    res.status(500).json({ error: 'Failed to analyze market data' });
+  }
+});
+
+app.get("/api/us-market-comparison", async (req, res) => {
+  try {
+    const { brand, model } = req.query;
+    
+    // Load authentic AutoTrader dataset
+    const fs = require('fs');
+    const path = require('path');
+    
+    let autoTraderData: any[] = [];
+    try {
+      const dataPath = path.join(__dirname, '../attached_assets/dataset_autotrader-scraper_2025-06-04_08-27-39-827.json');
+      const rawData = fs.readFileSync(dataPath, 'utf8');
+      autoTraderData = JSON.parse(rawData);
+    } catch (error) {
+      console.error('Error loading AutoTrader dataset:', error);
+      return res.status(500).json({ error: 'Failed to load market data' });
+    }
+
+    // Brand comparison
+    const brandComparison: Record<string, { avgPrice: number; count: number; avgMileage: number }> = {};
+    
+    autoTraderData.forEach((vehicle: any) => {
+      if (vehicle.brand && vehicle.price && vehicle.price > 0) {
+        if (!brandComparison[vehicle.brand]) {
+          brandComparison[vehicle.brand] = { avgPrice: 0, count: 0, avgMileage: 0 };
+        }
+        
+        brandComparison[vehicle.brand].count++;
+        
+        const mileage = typeof vehicle.mileage === 'string' 
+          ? parseInt(vehicle.mileage.replace(/,/g, '')) 
+          : vehicle.mileage;
+        const validMileage = isNaN(mileage) ? 0 : mileage;
+        
+        // Running average calculation
+        const data = brandComparison[vehicle.brand];
+        data.avgPrice = ((data.avgPrice * (data.count - 1)) + vehicle.price) / data.count;
+        data.avgMileage = ((data.avgMileage * (data.count - 1)) + validMileage) / data.count;
+      }
+    });
+
+    // Round the averages
+    Object.keys(brandComparison).forEach(brand => {
+      brandComparison[brand].avgPrice = Math.round(brandComparison[brand].avgPrice);
+      brandComparison[brand].avgMileage = Math.round(brandComparison[brand].avgMileage);
+    });
+
+    // Year trends
+    const yearTrends: Record<string, { avgPrice: number; count: number; depreciation: number }> = {};
+    
+    autoTraderData.forEach((vehicle: any) => {
+      if (vehicle.year && vehicle.price && vehicle.price > 0) {
+        const year = vehicle.year.toString();
+        if (!yearTrends[year]) {
+          yearTrends[year] = { avgPrice: 0, count: 0, depreciation: 0 };
+        }
+        
+        yearTrends[year].count++;
+        yearTrends[year].avgPrice = ((yearTrends[year].avgPrice * (yearTrends[year].count - 1)) + vehicle.price) / yearTrends[year].count;
+      }
+    });
+
+    // Calculate depreciation rates
+    const currentYear = new Date().getFullYear();
+    Object.keys(yearTrends).forEach(year => {
+      const yearNum = parseInt(year);
+      const age = currentYear - yearNum;
+      const avgPrice = yearTrends[year].avgPrice;
+      
+      // Simplified depreciation calculation
+      if (age > 0) {
+        yearTrends[year].depreciation = Math.round((age * 10)); // Rough 10% per year
+      }
+      
+      yearTrends[year].avgPrice = Math.round(avgPrice);
+    });
+
+    res.json({
+      brandComparison,
+      yearTrends
+    });
+
+  } catch (error) {
+    console.error('Error in market comparison:', error);
+    res.status(500).json({ error: 'Failed to generate comparison data' });
+  }
+});

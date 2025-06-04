@@ -48,6 +48,7 @@ import InsuranceEstimator from "@/pages/insurance-estimator";
 import DocumentationAssistant from "@/pages/documentation-assistant";
 import ROICalculator from "@/pages/roi-calculator";
 import StateRequirements from "@/pages/state-requirements";
+import USMarketIntelligence from "@/pages/us-market-intelligence";
 import LiveMarketScanner from "@/pages/live-market-scanner";
 import WebhookIntegration from "@/pages/webhook-integration";
 
