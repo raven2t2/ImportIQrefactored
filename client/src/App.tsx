@@ -109,6 +109,7 @@ function Router() {
       <Route path="/live-market-scanner" component={LiveMarketScanner} />
       <Route path="/webhook-integration" component={WebhookIntegration} />
       <Route path="/import-timeline" component={ImportTimeline} />
+      <Route path="/us-market-intelligence" component={USMarketIntelligence} />
       <Route component={NotFound} />
     </Switch>
   );
