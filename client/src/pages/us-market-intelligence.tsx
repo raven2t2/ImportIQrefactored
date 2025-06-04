@@ -155,7 +155,7 @@ export default function USMarketIntelligence() {
                     <SelectValue placeholder="Any Brand" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Any Brand</SelectItem>
+                    <SelectItem value="all">Any Brand</SelectItem>
                     {marketData?.brands.map(brand => (
                       <SelectItem key={brand} value={brand}>{brand}</SelectItem>
                     ))}
@@ -180,7 +180,7 @@ export default function USMarketIntelligence() {
                     <SelectValue placeholder="Any Year" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Any Year</SelectItem>
+                    <SelectItem value="all">Any Year</SelectItem>
                     {marketData?.years.map(year => (
                       <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
                     ))}
@@ -234,7 +234,7 @@ export default function USMarketIntelligence() {
                   <div>
                     <p className="text-sm font-medium text-gray-600">Total Listings</p>
                     <p className="text-2xl font-bold text-gray-900">
-                      {marketData.analysis.totalListings.toLocaleString()}
+                      {marketData.analysis.totalListings?.toLocaleString() || '0'}
                     </p>
                   </div>
                   <Car className="h-8 w-8 text-green-500" />
@@ -248,7 +248,7 @@ export default function USMarketIntelligence() {
                   <div>
                     <p className="text-sm font-medium text-gray-600">Avg. Mileage</p>
                     <p className="text-2xl font-bold text-gray-900">
-                      {marketData.analysis.averageMileage.toLocaleString()}
+                      {marketData.analysis.averageMileage?.toLocaleString() || '0'}
                     </p>
                   </div>
                   <Gauge className="h-8 w-8 text-orange-500" />
@@ -383,7 +383,7 @@ export default function USMarketIntelligence() {
                           </div>
                           <div className="text-right">
                             <div className="font-semibold">{formatPrice(data.avgPrice)}</div>
-                            <div className="text-sm text-gray-600">{data.avgMileage.toLocaleString()} mi avg</div>
+                            <div className="text-sm text-gray-600">{data.avgMileage?.toLocaleString() || '0'} mi avg</div>
                           </div>
                         </div>
                       ))}
