@@ -76,6 +76,10 @@ export default function MarketPricing() {
           </p>
           <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
             Pricing estimates derived from automotive market research and industry valuation standards
+            <br />
+            <a href="/data-methodology" className="text-blue-600 hover:text-blue-800 underline">
+              View our data methodology and integrity standards
+            </a>
           </div>
         </div>
 

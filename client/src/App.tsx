@@ -51,6 +51,7 @@ import StateRequirements from "@/pages/state-requirements";
 import LiveMarketScanner from "@/pages/live-market-scanner";
 import WebhookIntegration from "@/pages/webhook-integration";
 import MarketPricing from "@/pages/market-pricing";
+import DataMethodology from "@/pages/data-methodology";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -58,6 +59,7 @@ function Router() {
     <Switch>
       <Route path="/" component={MarketPricing} />
       <Route path="/market-pricing" component={MarketPricing} />
+      <Route path="/data-methodology" component={DataMethodology} />
       <Route path="/features" component={Features} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/about" component={About} />
