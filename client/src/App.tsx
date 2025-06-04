@@ -50,15 +50,18 @@ import ROICalculator from "@/pages/roi-calculator";
 import StateRequirements from "@/pages/state-requirements";
 import LiveMarketScanner from "@/pages/live-market-scanner";
 import WebhookIntegration from "@/pages/webhook-integration";
+import MarketPricing from "@/pages/market-pricing";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={ImportIQ} />
+      <Route path="/" component={MarketPricing} />
+      <Route path="/market-pricing" component={MarketPricing} />
       <Route path="/features" component={Features} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/about" component={About} />
+      <Route path="/importiq" component={ImportIQ} />
       <Route path="/import-calculator" component={ImportCalculator} />
       <Route path="/true-cost-explorer" component={TrueCostExplorer} />
       <Route path="/import-timeline" component={ImportTimeline} />
