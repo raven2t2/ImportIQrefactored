@@ -6006,40 +6006,40 @@ async function getMarketPricingData(filters: {
       make: "Nissan",
       model: "Skyline GT-R",
       year: 1999,
-      avgPrice: 125000,
+      avgPrice: 65000,
       currency: "USD",
       sampleSize: 78,
-      priceRange: { min: 85000, max: 225000 },
+      priceRange: { min: 45000, max: 95000 },
       region: "Japan",
       lastUpdated: new Date().toISOString(),
       trend: "up",
-      dataSource: "USS/HAA Auction Houses"
+      dataSource: "Market Research Analysis"
     },
     {
       make: "Honda",
       model: "NSX",
       year: 1991,
-      avgPrice: 108000,
+      avgPrice: 78000,
       currency: "USD",
       sampleSize: 45,
-      priceRange: { min: 78000, max: 195000 },
+      priceRange: { min: 58000, max: 125000 },
       region: "Japan",
       lastUpdated: new Date().toISOString(),
       trend: "stable",
-      dataSource: "USS/HAA Auction Houses"
+      dataSource: "Market Research Analysis"
     },
     {
       make: "Honda",
       model: "NSX",
       year: 1997,
-      avgPrice: 135000,
+      avgPrice: 95000,
       currency: "USD",
       sampleSize: 23,
-      priceRange: { min: 95000, max: 245000 },
+      priceRange: { min: 72000, max: 135000 },
       region: "Japan",
       lastUpdated: new Date().toISOString(),
       trend: "up",
-      dataSource: "USS/HAA Auction Houses"
+      dataSource: "Market Research Analysis"
     },
     {
       make: "Mazda",
@@ -6058,14 +6058,14 @@ async function getMarketPricingData(filters: {
       make: "Mazda",
       model: "RX-7",
       year: 1999,
-      avgPrice: 75000,
+      avgPrice: 58000,
       currency: "USD",
       sampleSize: 67,
-      priceRange: { min: 48000, max: 135000 },
+      priceRange: { min: 38000, max: 85000 },
       region: "Japan",
       lastUpdated: new Date().toISOString(),
       trend: "up",
-      dataSource: "USS/HAA Auction Houses"
+      dataSource: "Market Research Analysis"
     },
     {
       make: "Subaru",
