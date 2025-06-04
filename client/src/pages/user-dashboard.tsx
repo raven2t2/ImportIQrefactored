@@ -253,6 +253,14 @@ export default function UserDashboard() {
             onClick={() => window.location.href = '/import-timeline'}
           />
 
+          <ToolCard
+            title="US Market Intelligence"
+            description="Real-time market analysis using authentic AutoTrader data with price trends and comparisons."
+            icon={<BarChart3 className="h-6 w-6" />}
+            color="blue"
+            onClick={() => window.location.href = '/us-market-intelligence'}
+          />
+
         </div>
 
         {/* Value Proposition */}
