@@ -3949,11 +3949,13 @@ IMPORTANT GUIDELINES:
         return res.status(404).json({ message: "Vehicle not found" });
       }
 
-      // Update the vehicle's image order in memory
-      marketData.vehicles[vehicleIndex].images = imageOrder;
+      // Save customization to preserve admin changes
+      const { saveVehicleCustomization } = require('./vehicle-customizations');
+      saveVehicleCustomization(id, { customImages: imageOrder });
       
       // Update the cached vehicle data to ensure frontend reflects changes immediately
-      updateCachedVehicle(id, marketData.vehicles[vehicleIndex]);
+      const customizedVehicle = { ...marketData.vehicles[vehicleIndex], images: imageOrder };
+      updateCachedVehicle(id, customizedVehicle);
 
       res.json({ 
         success: true, 
