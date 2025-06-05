@@ -425,7 +425,7 @@ export const insertSubmissionSchema = createInsertSchema(submissions).pick({
   vehiclePrice: true,
   shippingOrigin: true,
 }).extend({
-  vehiclePrice: z.coerce.number().min(1000, "Vehicle price must be at least $1,000"),
+  vehiclePrice: z.coerce.number().min(500, "Vehicle price must be at least $500"),
   shippingOrigin: z.enum(["japan", "usa"], {
     required_error: "Please select a shipping origin",
   }),
