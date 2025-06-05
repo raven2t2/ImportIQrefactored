@@ -132,8 +132,12 @@ export default function UserDashboard() {
               <Link href="/affiliate-signup" className="text-gray-700 hover:text-amber-600 transition-colors">
                 Refer & Earn
               </Link>
-              <Button className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-lg">
-                Upgrade Now
+              <Button 
+                variant="outline" 
+                className="border-gray-300 text-gray-700 hover:bg-gray-50 px-6 py-2 rounded-lg"
+                onClick={() => window.location.href = '/api/logout'}
+              >
+                Logout
               </Button>
             </div>
 
@@ -173,8 +177,12 @@ export default function UserDashboard() {
                   Refer & Earn
                 </Link>
                 <div className="px-3 py-2">
-                  <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white">
-                    Upgrade Now
+                  <Button 
+                    variant="outline" 
+                    className="w-full border-gray-300 text-gray-700 hover:bg-gray-50"
+                    onClick={() => window.location.href = '/api/logout'}
+                  >
+                    Logout
                   </Button>
                 </div>
               </div>
