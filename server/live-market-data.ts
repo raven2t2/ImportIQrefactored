@@ -143,7 +143,7 @@ function processEnhancedItem(item: any, exchangeRates: { jpyToAud: number; usdTo
     }
 
     const { make, model } = extractMakeModel(item.title);
-    const year = item.year ? parseInt(item.year) : extractYear(item.title) || 2020;
+    const year = item.year ? parseInt(item.year) : extractYearFromGoonetData(item) || 1995;
     const price = parseFloat(item.price.toString().replace(/[^\d.]/g, ''));
     const currency = item.currency || 'JPY';
     
@@ -167,7 +167,13 @@ function processEnhancedItem(item: any, exchangeRates: { jpyToAud: number; usdTo
       mileage: item.mileage || 'Unknown',
       location: 'Japan',
       url: item.url || '',
-      images: item.images.filter((img: string) => img && img.startsWith('http')),
+      images: item.images.filter((img: string) => 
+        img && 
+        img.startsWith('http') && 
+        !img.includes('englishNR.jpg') && // Remove catalog/promotional images
+        !img.includes('E2301R6') && // Remove dealer promotional content
+        img.includes('W00') // Keep only inspection photos with W00 pattern
+      ),
       transmission: item.transmission || 'Unknown',
       fuelType: item.fuelType || 'Gasoline',
       engineSize: '3.0L',
