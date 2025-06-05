@@ -19,6 +19,7 @@ import Stripe from "stripe";
 import bcrypt from "bcrypt";
 import fs from "fs";
 import { getLiveMarketData, updateCachedVehicle, removeCachedVehicle } from "./live-market-data";
+import { saveVehicleCustomization } from "./vehicle-customizations";
 import { generateMarketListings, type SearchFilters } from "./simplified-market-data";
 import { getDataFreshnessStatus, getSystemHealthStatus, triggerManualRefresh, getCachedAuctionData } from "./auction-data-manager";
 import path from "path";
@@ -3950,7 +3951,6 @@ IMPORTANT GUIDELINES:
       }
 
       // Save customization to preserve admin changes
-      const { saveVehicleCustomization } = require('./vehicle-customizations');
       saveVehicleCustomization(id, { customImages: imageOrder });
       
       // Update the cached vehicle data to ensure frontend reflects changes immediately
