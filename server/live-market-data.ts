@@ -6,6 +6,7 @@
 
 import axios from 'axios';
 import { filterAuthenticVehicleImages } from './image-filter';
+import { applyCustomizations, saveVehicleCustomization } from './vehicle-customizations';
 
 interface ApifyVehicle {
   id: string;
@@ -679,9 +680,13 @@ export function invalidateMarketDataCache(): void {
 export async function getLiveMarketData(): Promise<LiveMarketData> {
   const now = Date.now();
   
-  // Return cached data if less than 12 hours old
+  // Return cached data if less than 12 hours old, but apply customizations
   if (marketDataCache && (now - lastFetchTime) < CACHE_DURATION) {
-    return marketDataCache;
+    const customizedVehicles = marketDataCache.vehicles.map(vehicle => applyCustomizations(vehicle));
+    return {
+      ...marketDataCache,
+      vehicles: customizedVehicles
+    };
   }
 
   console.log('Refreshing live market data...');
