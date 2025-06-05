@@ -328,7 +328,7 @@ export default function LiveMarketDataPage() {
   });
 
   // Get unique makes for filter dropdown
-  const availableMakes = [...new Set(vehicles.map(v => v.make))].sort();
+  const availableMakes = Array.from(new Set(vehicles.map(v => v.make))).sort();
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-AU', {
