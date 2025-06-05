@@ -198,7 +198,42 @@ export default function Dashboard() {
             <TabsTrigger value="events" className="whitespace-nowrap">Car Events</TabsTrigger>
           </TabsList>
 
-
+          <TabsContent value="market" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold">Market Data Backend</h2>
+              <Button onClick={() => fetch('/api/refresh-market-data', { method: 'POST' })}>
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Refresh Data
+              </Button>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card>
+                <CardContent className="p-4 text-center">
+                  <div className="text-2xl font-bold">70</div>
+                  <div className="text-sm text-gray-600">Total Vehicles</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4 text-center">
+                  <div className="text-2xl font-bold">510</div>
+                  <div className="text-sm text-gray-600">Total Images</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4 text-center">
+                  <div className="text-2xl font-bold">Live</div>
+                  <div className="text-sm text-gray-600">Data Status</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4 text-center">
+                  <div className="text-2xl font-bold">12h</div>
+                  <div className="text-sm text-gray-600">Refresh Interval</div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
 
           <TabsContent value="overview" className="space-y-6">
             {/* Stats Cards */}
