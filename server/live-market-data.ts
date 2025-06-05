@@ -704,7 +704,13 @@ export async function getLiveMarketData(): Promise<LiveMarketData> {
     lastFetchTime = now;
     
     console.log(`Market data refresh completed: ${vehicles.length} vehicles`);
-    return marketDataCache;
+    
+    // Apply customizations to fresh data before returning
+    const customizedVehicles = marketDataCache.vehicles.map(vehicle => applyCustomizations(vehicle));
+    return {
+      ...marketDataCache,
+      vehicles: customizedVehicles
+    };
   } catch (error) {
     console.error('Error refreshing market data:', error);
     
