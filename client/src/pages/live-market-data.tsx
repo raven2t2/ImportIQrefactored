@@ -54,6 +54,96 @@ interface LiveMarketData {
   totalResults: number;
 }
 
+function ImageZoomModal({ images, initialIndex, title }: { images: string[], initialIndex: number, title: string }) {
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
+
+  const nextImage = () => {
+    setCurrentIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const prevImage = () => {
+    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowRight') nextImage();
+    if (e.key === 'ArrowLeft') prevImage();
+  };
+
+  return (
+    <DialogContent 
+      className="max-w-7xl max-h-[95vh] p-0 bg-black/95" 
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+    >
+      <DialogHeader className="sr-only">
+        <DialogTitle>{title} - Image {currentIndex + 1} of {images.length}</DialogTitle>
+        <DialogDescription>Vehicle inspection photos with navigation controls</DialogDescription>
+      </DialogHeader>
+      <div className="relative flex items-center justify-center min-h-[80vh]">
+        <img
+          src={images[currentIndex]}
+          alt={`${title} - Image ${currentIndex + 1}`}
+          className="max-w-full max-h-[90vh] object-contain"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = "/placeholder-car.jpg";
+          }}
+        />
+        
+        {/* Navigation Controls */}
+        {images.length > 1 && (
+          <>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white border-white/20"
+              onClick={prevImage}
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white border-white/20"
+              onClick={nextImage}
+            >
+              <ChevronRight className="h-6 w-6" />
+            </Button>
+          </>
+        )}
+        
+        {/* Image Counter */}
+        <div className="absolute top-4 left-4 bg-black/70 text-white px-3 py-2 rounded-lg">
+          <div className="font-medium">{title}</div>
+          <div className="text-sm opacity-90">Image {currentIndex + 1} of {images.length}</div>
+        </div>
+        
+        {/* Thumbnail Navigation */}
+        {images.length > 1 && (
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 bg-black/70 p-2 rounded-lg max-w-[90vw] overflow-x-auto">
+            {images.map((image, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`flex-shrink-0 w-12 h-12 rounded border-2 overflow-hidden ${
+                  index === currentIndex ? 'border-white' : 'border-white/30'
+                }`}
+              >
+                <img
+                  src={image}
+                  alt={`Thumbnail ${index + 1}`}
+                  className="w-full h-full object-cover"
+                />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </DialogContent>
+  );
+}
+
 function ImageGallery({ images, title }: { images: string[]; title: string }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
