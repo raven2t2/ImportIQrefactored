@@ -76,7 +76,31 @@ async function getExchangeRates(): Promise<{ jpyToAud: number; usdToAud: number 
  */
 async function fetchApifyVehicles(): Promise<ApifyVehicle[]> {
   try {
-    console.log('Fetching vehicles from Apify dataset...');
+    console.log('Fetching vehicles from enhanced dataset...');
+    
+    // Try to load from local file first (contains comprehensive image data)
+    const fs = await import('fs');
+    try {
+      const localData = fs.readFileSync('./live-market-data.json', 'utf8');
+      const rawData = JSON.parse(localData);
+      console.log('Using enhanced local dataset with comprehensive images');
+      
+      const exchangeRates = await getExchangeRates();
+      const vehicles: ApifyVehicle[] = [];
+
+      for (const item of rawData) {
+        const processed = processEnhancedItem(item, exchangeRates);
+        if (processed) {
+          vehicles.push(processed);
+        }
+      }
+
+      console.log(`Successfully processed ${vehicles.length} vehicles from enhanced dataset`);
+      return vehicles;
+    } catch (localError) {
+      console.log('Local dataset not found, fetching from Apify...');
+    }
+    
     const response = await axios.get('https://api.apify.com/v2/datasets/sWaxRHE9a8UN4sM7F/items?clean=true&format=json');
     const rawData = response.data;
 
@@ -104,6 +128,56 @@ async function fetchApifyVehicles(): Promise<ApifyVehicle[]> {
   } catch (error) {
     console.error('Error fetching Apify dataset:', error);
     return [];
+  }
+}
+
+
+
+/**
+ * Process individual enhanced dataset item
+ */
+function processEnhancedItem(item: any, exchangeRates: { jpyToAud: number; usdToAud: number }): ApifyVehicle | null {
+  try {
+    if (!item || !item.title || !item.price || !item.images || !Array.isArray(item.images)) {
+      return null;
+    }
+
+    const { make, model } = extractMakeModel(item.title);
+    const year = item.year ? parseInt(item.year) : extractYear(item.title) || 2020;
+    const price = parseFloat(item.price.toString().replace(/[^\d.]/g, ''));
+    const currency = item.currency || 'JPY';
+    
+    // Convert price to AUD
+    let priceAUD = price;
+    if (currency === 'JPY') {
+      priceAUD = price * exchangeRates.jpyToAud;
+    } else if (currency === 'USD') {
+      priceAUD = price * exchangeRates.usdToAud;
+    }
+
+    return {
+      id: `enhanced_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      title: item.title.trim(),
+      price: Math.round(priceAUD),
+      currency: 'AUD',
+      priceAUD: Math.round(priceAUD),
+      make,
+      model,
+      year,
+      mileage: item.mileage || 'Unknown',
+      location: 'Japan',
+      url: item.url || '',
+      images: item.images.filter((img: string) => img && img.startsWith('http')),
+      transmission: item.transmission || 'Unknown',
+      fuelType: item.fuelType || 'Gasoline',
+      engineSize: '3.0L',
+      description: `${make} ${model} ${year} - Premium Japanese import vehicle`,
+      lastUpdated: new Date().toISOString(),
+      source: 'APIFY_DATASET'
+    };
+  } catch (error) {
+    console.warn('Error processing enhanced item:', error);
+    return null;
   }
 }
 
