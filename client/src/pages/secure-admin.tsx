@@ -12,7 +12,8 @@ import {
   Shield, Users, FileText, TrendingUp, Search, Download, 
   UserCheck, Target, Calendar, BarChart3, AlertTriangle,
   DollarSign, Globe, TrendingDown, Activity, Clock, Phone, 
-  Mail, User, Car, MessageSquare, MapPin
+  Mail, User, Car, MessageSquare, MapPin, Image, Edit,
+  Save, RefreshCw, Camera, ArrowUp, ArrowDown, Eye
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -62,6 +63,26 @@ interface Booking {
   message?: string;
   status: string;
   createdAt: string;
+}
+
+interface Vehicle {
+  id: string;
+  title: string;
+  make: string;
+  model: string;
+  year: number;
+  price: number;
+  priceAUD: number;
+  currency: string;
+  mileage: string;
+  location: string;
+  images: string[];
+  transmission: string;
+  fuelType: string;
+  engineSize: string;
+  description: string;
+  source: string;
+  lastUpdated: string;
 }
 
 export default function SecureAdminDashboard() {
@@ -122,6 +143,12 @@ export default function SecureAdminDashboard() {
   const { data: deposits = [], isLoading: depositsLoading } = useQuery({
     queryKey: ["/api/deposits"],
     enabled: isAuthenticated,
+  });
+
+  const { data: vehicles = [], isLoading: vehiclesLoading, refetch: refetchVehicles } = useQuery({
+    queryKey: ["/api/live-market-data"],
+    enabled: isAuthenticated,
+    select: (data: any) => data.vehicles || [],
   });
 
   const handleAdminLogin = async () => {
@@ -296,6 +323,10 @@ export default function SecureAdminDashboard() {
             <TabsTrigger value="deposits" className="data-[state=active]:bg-amber-600">
               <DollarSign className="w-4 h-4 mr-2" />
               Deposits
+            </TabsTrigger>
+            <TabsTrigger value="vehicles" className="data-[state=active]:bg-amber-600">
+              <Car className="w-4 h-4 mr-2" />
+              Vehicle Management
             </TabsTrigger>
           </TabsList>
 
