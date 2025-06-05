@@ -268,13 +268,13 @@ export default function UserDashboard() {
           <div className="text-center">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">Premium Tools for Serious Importers</h3>
             <p className="text-gray-700 mb-6 max-w-3xl mx-auto">
-              Professional-grade tools that provide real value using authentic data sources. 
-              No fake statistics or placeholder data - just accurate, actionable information.
+              Professional-grade tools delivering real value through authentic data sources. 
+              Built for importers who demand accurate, actionable intelligence.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
               <div>
-                <div className="text-3xl font-bold text-amber-600 mb-2">$77/month</div>
-                <div className="text-sm text-gray-600">7-day trial available</div>
+                <div className="text-3xl font-bold text-amber-600 mb-2">$97/month</div>
+                <div className="text-sm text-gray-600">$77 upgrade special during trial</div>
               </div>
               <div>
                 <div className="text-3xl font-bold text-amber-600 mb-2">17 Tools</div>
