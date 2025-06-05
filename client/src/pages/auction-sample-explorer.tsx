@@ -77,7 +77,16 @@ export default function AuctionSampleExplorer() {
 
   const searchMutation = useMutation({
     mutationFn: async (data: SearchFormData) => {
-      const response = await apiRequest("POST", "/api/auction-explorer", data);
+      // Transform data to match backend expectations
+      const requestData = {
+        make: data.make,
+        model: data.model || '',
+        yearFrom: data.year || 1980,
+        yearTo: data.year || 2025,
+        maxPrice: data.maxPrice,
+        auctionHouse: 'all'
+      };
+      const response = await apiRequest("POST", "/api/auction-explorer", requestData);
       return await response.json();
     },
     onSuccess: (data: AuctionExplorerResponse) => {
