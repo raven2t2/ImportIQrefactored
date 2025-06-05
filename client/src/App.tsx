@@ -96,7 +96,7 @@ function Router() {
       <Route path="/contact" component={Contact} />
       <Route path="/compliance-checker" component={ComplianceChecker} />
       <Route path="/shipping-calculator" component={ShippingCalculator} />
-      <Route path="/market-intelligence" component={PortIntelligence} />
+      <Route path="/market-intelligence" component={LiveMarketData} />
       <Route path="/auction-intelligence" component={AuctionSampleExplorer} />
       <Route path="/insurance-estimator" component={InsuranceEstimator} />
       <Route path="/legal-advisory" component={LegalAdvisory} />
