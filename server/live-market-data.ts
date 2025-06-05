@@ -150,9 +150,21 @@ function processComprehensiveDatasetItem(item: any, exchangeRates: { jpyToAud: n
     // Filter images to get only authentic vehicle inspection photos
     const authenticImages = filterAuthenticVehicleImages(item.images);
     
-    // Only process vehicles with sufficient authentic images
-    if (authenticImages.length < 5) {
-      console.log(`Skipping vehicle with insufficient images: ${authenticImages.length} authentic images found`);
+    // Ensure vehicles have sufficient authentic images
+    // If filtering results in too few images, include more from the original set
+    if (authenticImages.length < 3 && item.images.length > 0) {
+      console.log(`Adding fallback images to ensure minimum coverage: ${authenticImages.length} filtered, ${item.images.length} total`);
+      // Add up to first 10 images as fallback to prevent 0 photo listings
+      const fallbackImages = item.images.slice(0, 10).filter(img => 
+        !img.includes('englishNR.jpg') && 
+        !img.includes('/E23/') && 
+        !img.includes('/O/')
+      );
+      authenticImages.push(...fallbackImages.slice(0, 10 - authenticImages.length));
+    }
+
+    if (authenticImages.length === 0) {
+      console.log(`Skipping vehicle with no authentic images after filtering`);
       return null;
     }
 

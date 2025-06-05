@@ -89,13 +89,14 @@ export function filterAuthenticVehicleImages(images: string[]): string[] {
       if (sequenceMatch) {
         const sequenceNum = parseInt(sequenceMatch[1]);
         
-        // Keep authentic vehicle inspection photos in the 101-160 range
-        // This covers comprehensive inspection angles while avoiding promotional sequences
-        if (sequenceNum >= 101 && sequenceNum <= 160) {
+        // Keep authentic vehicle inspection photos from multiple ranges
+        // 101-160: Primary inspection sequence
+        // 201-260: Secondary inspection sequence for additional views
+        if ((sequenceNum >= 101 && sequenceNum <= 160) || (sequenceNum >= 201 && sequenceNum <= 260)) {
           console.log(`Keeping authentic vehicle inspection photo at sequence ${sequenceNum}: ${imageUrl.substring(0, 80)}...`);
           return true;
         } else {
-          console.log(`Skipping sequence ${sequenceNum} - outside authentic inspection range: ${imageUrl.substring(0, 80)}...`);
+          console.log(`Skipping sequence ${sequenceNum} - outside authentic inspection ranges: ${imageUrl.substring(0, 80)}...`);
           return false;
         }
       }
