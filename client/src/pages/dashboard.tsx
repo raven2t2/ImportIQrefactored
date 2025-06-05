@@ -188,14 +188,119 @@ export default function Dashboard() {
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="auctions">USA & JDM Auctions</TabsTrigger>
             <TabsTrigger value="calculator">Calculator Leads</TabsTrigger>
             <TabsTrigger value="ai-recs">AI Recommendations</TabsTrigger>
             <TabsTrigger value="garage">My Garage</TabsTrigger>
             <TabsTrigger value="watchlist">Parts Watchlist</TabsTrigger>
             <TabsTrigger value="events">Car Events</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="auctions" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold">USA & JDM Auction Intelligence</h2>
+              <Link href="/live-market-data">
+                <Button>
+                  <Eye className="h-4 w-4 mr-2" />
+                  View Live Auctions
+                </Button>
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+                    JDM Market (Japan)
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">Active Listings</span>
+                      <span className="font-medium">4 vehicles</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">Price Range</span>
+                      <span className="font-medium">¥2.8M - ¥6.2M</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">Popular Makes</span>
+                      <span className="font-medium">Toyota, Nissan</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">Avg Condition</span>
+                      <span className="font-medium">Grade 4.5/5</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <div className="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
+                    USA Market
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">Active Listings</span>
+                      <span className="font-medium">64 vehicles</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">Price Range</span>
+                      <span className="font-medium">$35K - $180K</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">Popular Makes</span>
+                      <span className="font-medium">Toyota, Honda, Nissan</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">Avg Condition</span>
+                      <span className="font-medium">Excellent</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>True Landed Cost Comparison</CardTitle>
+                <p className="text-sm text-gray-600">Compare total costs including shipping, taxes, and compliance for both markets</p>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="text-center p-4 border rounded-lg">
+                    <div className="text-2xl font-bold text-red-600">¥4.2M</div>
+                    <div className="text-sm text-gray-600">JDM Avg Price</div>
+                    <div className="text-xs text-gray-500">~$64,600 AUD</div>
+                  </div>
+                  <div className="flex items-center justify-center">
+                    <div className="text-lg font-medium text-gray-400">vs</div>
+                  </div>
+                  <div className="text-center p-4 border rounded-lg">
+                    <div className="text-2xl font-bold text-blue-600">$85K</div>
+                    <div className="text-sm text-gray-600">USA Avg Price</div>
+                    <div className="text-xs text-gray-500">~$131,000 AUD</div>
+                  </div>
+                </div>
+                <div className="mt-4 p-3 bg-green-50 rounded-lg">
+                  <div className="text-sm font-medium text-green-800">
+                    JDM Import Advantage: ~$66,400 AUD savings potential
+                  </div>
+                  <div className="text-xs text-green-600 mt-1">
+                    Including shipping, taxes, and compliance costs
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="overview" className="space-y-6">
             {/* Stats Cards */}
