@@ -1,15 +1,12 @@
 /**
  * Live Market Data Integration
- * Monitors authentic JDM and US car datasets every 12 hours
+ * Uses Apify dataset exclusively with comprehensive image extraction
  * Provides real-time pricing with currency conversion
  */
 
 import axios from 'axios';
-import fs from 'fs';
-import path from 'path';
-import OpenAI from 'openai';
 
-interface JDMVehicle {
+interface ApifyVehicle {
   id: string;
   title: string;
   price: number;
@@ -27,554 +24,291 @@ interface JDMVehicle {
   engineSize: string;
   description: string;
   lastUpdated: string;
-  source: 'GOONET';
-}
-
-interface USVehicle {
-  id: string;
-  title: string;
-  price: number;
-  currency: string;
-  priceAUD: number;
-  make: string;
-  model: string;
-  year: number;
-  mileage: string;
-  location: string;
-  url: string;
-  images: string[];
-  transmission: string;
-  fuelType: string;
-  engineSize: string;
-  description: string;
-  lastUpdated: string;
-  source: 'US_CLASSIC';
+  source: 'APIFY_DATASET';
 }
 
 interface LiveMarketData {
-  jdmVehicles: JDMVehicle[];
-  usVehicles: USVehicle[];
+  vehicles: ApifyVehicle[];
   lastUpdated: string;
-  nextUpdate: string;
   exchangeRates: {
     jpyToAud: number;
     usdToAud: number;
   };
 }
 
-// API endpoints for authentic datasets (now in English)
-const JDM_SKYLINE_API = `https://api.apify.com/v2/datasets/BOwRnzKkfbtVVzgfu/items?clean=true&format=json&token=${process.env.APIFY_API_TOKEN}`;
-const JDM_CLASSICS_API = `https://api.apify.com/v2/datasets/ZNQXj1F51xyzo0kiK/items?clean=true&format=json&token=${process.env.APIFY_API_TOKEN}`;
-const US_CLASSIC_API = `https://api.apify.com/v2/datasets/EFjwLXRVn4w9QKgPV/items?clean=true&format=json&token=${process.env.APIFY_API_TOKEN}`;
-const SUPRA_WITH_IMAGES_API = `https://api.apify.com/v2/datasets/xe3ghePOPcJnkq2hq/items?clean=true&format=json&token=${process.env.APIFY_API_TOKEN}`;
-
-// Exchange rate API (free tier)
-const EXCHANGE_RATE_API = 'https://api.exchangerate-api.com/v4/latest/USD';
-
-// Initialize OpenAI for Japanese translation
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// Exchange rate cache
+let exchangeRateCache: { jpyToAud: number; usdToAud: number; lastUpdated: Date } | null = null;
 
 /**
- * Translate Japanese text to English using OpenAI
- */
-async function translateJapaneseToEnglish(japaneseText: string): Promise<string> {
-  try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-      messages: [
-        {
-          role: "system",
-          content: "You are a professional automotive translator. Translate Japanese car listings to natural English. Focus on car makes, models, and specifications. Keep the translation concise and automotive-focused."
-        },
-        {
-          role: "user",
-          content: `Translate this Japanese car listing title to English: ${japaneseText}`
-        }
-      ],
-      max_tokens: 100,
-      temperature: 0.1
-    });
-
-    return response.choices[0].message.content?.trim() || japaneseText;
-  } catch (error) {
-    console.error('Translation failed:', error);
-    return japaneseText; // Return original if translation fails
-  }
-}
-
-let cachedMarketData: LiveMarketData | null = null;
-let updateInterval: NodeJS.Timeout | null = null;
-
-/**
- * Get current exchange rates for currency conversion
+ * Fetch current exchange rates
  */
 async function getExchangeRates(): Promise<{ jpyToAud: number; usdToAud: number }> {
+  // Return cached rates if less than 1 hour old
+  if (exchangeRateCache && Date.now() - exchangeRateCache.lastUpdated.getTime() < 3600000) {
+    return { jpyToAud: exchangeRateCache.jpyToAud, usdToAud: exchangeRateCache.usdToAud };
+  }
+
   try {
     console.log('Fetching current exchange rates...');
-    const response = await axios.get(EXCHANGE_RATE_API, { timeout: 10000 });
+    const response = await axios.get('https://api.exchangerate-api.com/v4/latest/USD');
     const rates = response.data.rates;
     
-    // Calculate accurate conversion rates
-    const audRate = rates.AUD || 1.52; // Fallback rate
-    const jpyRate = rates.JPY || 148.5; // Fallback rate
-    
-    const jpyToAud = audRate / jpyRate; // Convert JPY to AUD via USD
-    const usdToAud = audRate; // Direct USD to AUD rate
-    
-    console.log(`Exchange rates - JPY to AUD: ${jpyToAud.toFixed(6)}, USD to AUD: ${usdToAud.toFixed(4)}`);
-    
-    return {
+    const usdToAud = rates.AUD || 1.54;
+    const jpyToAud = (1 / rates.JPY) * usdToAud || 0.0108;
+
+    // Cache the rates
+    exchangeRateCache = {
       jpyToAud,
-      usdToAud
+      usdToAud,
+      lastUpdated: new Date()
     };
+
+    console.log(`Exchange rates - JPY to AUD: ${jpyToAud.toFixed(6)}, USD to AUD: ${usdToAud.toFixed(4)}`);
+    return { jpyToAud, usdToAud };
   } catch (error) {
-    console.error('Failed to fetch exchange rates, using fallback rates:', error);
-    return {
-      jpyToAud: 0.0102, // ~148.5 JPY = 1 USD, 1 USD = 1.52 AUD
-      usdToAud: 1.52
-    };
+    console.error('Error fetching exchange rates, using fallback rates:', error);
+    return { jpyToAud: 0.0108, usdToAud: 1.54 };
   }
 }
 
 /**
- * Process Supra dataset with structured schema data
+ * Fetch and process vehicles from Apify dataset
  */
-async function processSupraDataset(supraData: any[], exchangeRates: { jpyToAud: number; usdToAud: number }): Promise<JDMVehicle[]> {
-  const processedVehicles: JDMVehicle[] = [];
-  
-  const validItems = supraData
-    .filter((item: any) => item.metadata?.jsonLd && item.metadata.jsonLd.length > 0)
-    .slice(0, 5); // Limit to 5 Supra listings for testing
-    
-  for (const item of validItems) {
-    const productSchema = item.metadata.jsonLd.find((schema: any) => schema['@type'] === 'Product');
-    if (!productSchema) continue;
-
-    const priceJPY = parseInt(productSchema.offers?.price || '0');
-    const priceAUD = Math.round(priceJPY * exchangeRates.jpyToAud);
-    
-    // Skip if price is out of realistic range
-    if (priceAUD < 5000 || priceAUD > 500000) continue;
-    
-    const title = productSchema.name || item.metadata.title || 'Unknown Vehicle';
-    const make = extractMake(title);
-    const model = extractModel(title, make);
-    const year = extractYear(title) || 1988; // Default for classic Supras
-
-    const vehicle: JDMVehicle = {
-      id: `supra_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      title: title.replace(/\n/g, ' ').trim(),
-      price: priceJPY,
-      currency: 'JPY',
-      priceAUD,
-      make,
-      model,
-      year,
-      mileage: `${Math.floor(Math.random() * 200000) + 50000} km`,
-      location: 'Japan',
-      url: item.url || '',
-      images: productSchema.image ? [productSchema.image] : [],
-      transmission: 'Manual',
-      fuelType: 'Petrol',
-      engineSize: '3.0L',
-      description: item.metadata.description || '',
-      lastUpdated: new Date().toISOString(),
-      source: 'GOONET' as const,
-    };
-    
-    processedVehicles.push(vehicle);
-  }
-  
-  return processedVehicles;
-}
-
-/**
- * Fetch and process JDM vehicles from multiple English datasets
- */
-async function fetchJDMVehicles(exchangeRates: { jpyToAud: number; usdToAud: number }): Promise<JDMVehicle[]> {
+async function fetchApifyVehicles(): Promise<ApifyVehicle[]> {
   try {
-    console.log('Fetching authentic JDM vehicles from English datasets...');
-    
-    // Fetch from multiple JDM datasets including Supra with images
-    const [skylineResponse, classicsResponse, supraResponse] = await Promise.all([
-      axios.get(JDM_SKYLINE_API, { timeout: 30000 }),
-      axios.get(JDM_CLASSICS_API, { timeout: 30000 }),
-      axios.get(SUPRA_WITH_IMAGES_API, { timeout: 30000 })
-    ]);
-    
-    const skylineData = Array.isArray(skylineResponse.data) ? skylineResponse.data : [];
-    const classicsData = Array.isArray(classicsResponse.data) ? classicsResponse.data : [];
-    const supraData = Array.isArray(supraResponse.data) ? supraResponse.data : [];
-    
-    // Process Supra data separately due to different structure
-    const supraVehicles = await processSupraDataset(supraData, exchangeRates);
-    
-    // Process other datasets with original logic
-    const rawData = [...skylineData, ...classicsData];
-    
-    if (rawData.length === 0) {
-      console.error('JDM APIs returned no data');
-      return [];
-    }
-
-    const vehicles = rawData
-      .filter((item: any) => item.searchResult && item.searchResult.title)
-      .slice(0, 15)
-      .map((item: any) => {
-        const searchResult = item.searchResult;
-        
-        // Extract price from title or description (common patterns in JDM listings)
-        const titleAndDesc = `${searchResult.title} ${searchResult.description || ''}`;
-        const priceMatch = titleAndDesc.match(/(\d{1,4})[万]|(\d{2,4})[万円]|(\d{1,3})[,\.](\d{3})[,\.](\d{3})|(\d{1,3})[,\.](\d{3})/);
-        
-        let priceJPY = 0;
-        if (priceMatch) {
-          if (priceMatch[1]) {
-            // Format: XXX万 (multiply by 10,000)
-            priceJPY = parseInt(priceMatch[1]) * 10000;
-          } else if (priceMatch[2]) {
-            // Format: XXX万円 (multiply by 10,000)
-            priceJPY = parseInt(priceMatch[2]) * 10000;
-          } else if (priceMatch[3] && priceMatch[4] && priceMatch[5]) {
-            // Format: X,XXX,XXX
-            priceJPY = parseInt(priceMatch[3] + priceMatch[4] + priceMatch[5]);
-          } else if (priceMatch[6] && priceMatch[7]) {
-            // Format: XXX,XXX
-            priceJPY = parseInt(priceMatch[6] + priceMatch[7]);
-          }
-        }
-        
-        // If no price found, estimate based on typical JDM pricing (¥500k-¥5M)
-        if (priceJPY === 0) {
-          priceJPY = Math.floor(Math.random() * (5000000 - 500000) + 500000);
-        }
-        
-        // Convert JPY to AUD using accurate exchange rate
-        const priceAUD = Math.round(priceJPY * exchangeRates.jpyToAud);
-
-        // Extract vehicle details from original title
-        const originalTitle = searchResult.title;
-        const make = extractMake(originalTitle);
-        const model = extractModel(originalTitle, make);
-        const year = extractYear(originalTitle) || (new Date().getFullYear() - Math.floor(Math.random() * 20));
-
-        // Extract images if available (especially from Supra dataset)
-        let images: string[] = [];
-        if (searchResult.images) {
-          if (Array.isArray(searchResult.images)) {
-            images = searchResult.images.filter((img: string) => img && img.startsWith('http'));
-          } else if (typeof searchResult.images === 'string' && searchResult.images.startsWith('http')) {
-            images = [searchResult.images];
-          }
-        }
-
-        return {
-          id: `jdm_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          title: originalTitle, // Will be translated later
-          price: priceJPY,
-          currency: 'JPY',
-          priceAUD,
-          make,
-          model,
-          year,
-          mileage: `${Math.floor(Math.random() * 200000) + 10000} km`,
-          location: 'Japan',
-          url: searchResult.url || '',
-          images,
-          transmission: Math.random() > 0.5 ? 'Manual' : 'Automatic',
-          fuelType: 'Petrol',
-          engineSize: `${(Math.random() * 2 + 1).toFixed(1)}L`,
-          description: searchResult.description || '',
-          lastUpdated: new Date().toISOString(),
-          source: item.source || 'JDM_CLASSICS' as const,
-        };
-      })
-      .filter((vehicle: JDMVehicle) => vehicle.priceAUD > 5000 && vehicle.priceAUD < 500000); // Realistic price range
-
-    // Combine all JDM vehicles including Supra with images
-    const allJDMVehicles = [...supraVehicles, ...vehicles];
-    
-    console.log(`Successfully processed ${allJDMVehicles.length} JDM vehicles from English datasets (${supraVehicles.length} Supra with images)`);
-    return allJDMVehicles;
-  } catch (error) {
-    console.error('Failed to fetch JDM vehicles:', error);
-    return [];
-  }
-}
-
-/**
- * Fetch and process US vehicles from classic car dataset
- */
-async function fetchUSVehicles(exchangeRates: { jpyToAud: number; usdToAud: number }): Promise<USVehicle[]> {
-  try {
-    console.log('Fetching authentic US classic/muscle cars...');
-    const response = await axios.get(US_CLASSIC_API, { timeout: 30000 });
+    console.log('Fetching vehicles from Apify dataset...');
+    const response = await axios.get('https://api.apify.com/v2/datasets/sWaxRHE9a8UN4sM7F/items?clean=true&format=json');
     const rawData = response.data;
-    
-    if (!Array.isArray(rawData)) {
-      console.error('US API returned invalid data format');
+
+    if (!Array.isArray(rawData) || rawData.length === 0) {
+      console.warn('No data received from Apify dataset');
       return [];
     }
 
-    const vehicles = rawData
-      .filter((item: any) => item.searchResult && item.searchResult.title)
-      .slice(0, 15)
-      .map((item: any) => {
-        const searchResult = item.searchResult;
-        
-        // Extract price from title or description (common patterns in US classic car listings)
-        const titleAndDesc = `${searchResult.title} ${searchResult.description || ''}`;
-        const priceMatch = titleAndDesc.match(/\$(\d{1,3})[,\.]?(\d{3})[,\.]?(\d{3})?|\$(\d{1,3}),?(\d{3})?|(\d{2,6})\s*(?:dollars?|USD|\$)/i);
-        
-        let priceUSD = 0;
-        if (priceMatch) {
-          if (priceMatch[1] && priceMatch[2] && priceMatch[3]) {
-            // Format: $XXX,XXX,XXX
-            priceUSD = parseInt(priceMatch[1] + priceMatch[2] + priceMatch[3]);
-          } else if (priceMatch[1] && priceMatch[2]) {
-            // Format: $XXX,XXX
-            priceUSD = parseInt(priceMatch[1] + priceMatch[2]);
-          } else if (priceMatch[4] && priceMatch[5]) {
-            // Format: $XX,XXX
-            priceUSD = parseInt(priceMatch[4] + priceMatch[5]);
-          } else if (priceMatch[4]) {
-            // Format: $XXX
-            priceUSD = parseInt(priceMatch[4]) * 1000; // Assume thousands
-          } else if (priceMatch[6]) {
-            // Format: XXXXX dollars
-            priceUSD = parseInt(priceMatch[6]);
-          }
+    const exchangeRates = await getExchangeRates();
+    const vehicles: ApifyVehicle[] = [];
+
+    for (const item of rawData) {
+      try {
+        const vehicle = processApifyItem(item, exchangeRates);
+        if (vehicle) {
+          vehicles.push(vehicle);
         }
-        
-        // If no price found, estimate based on typical US classic car pricing ($15k-$80k)
-        if (priceUSD === 0) {
-          priceUSD = Math.floor(Math.random() * (80000 - 15000) + 15000);
-        }
-        
-        // Convert USD to AUD using accurate exchange rate
-        const priceAUD = Math.round(priceUSD * exchangeRates.usdToAud);
+      } catch (error) {
+        console.warn('Error processing vehicle item:', error);
+      }
+    }
 
-        // Extract vehicle details from title
-        const title = searchResult.title;
-        const make = extractMake(title);
-        const model = extractModel(title, make);
-        const year = extractYear(title) || (new Date().getFullYear() - Math.floor(Math.random() * 50 + 10));
-
-        return {
-          id: `us_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          title,
-          price: priceUSD,
-          currency: 'USD',
-          priceAUD,
-          make,
-          model,
-          year,
-          mileage: `${Math.floor(Math.random() * 200000) + 10000} miles`,
-          location: 'USA',
-          url: searchResult.url || '',
-          images: [],
-          transmission: Math.random() > 0.5 ? 'Manual' : 'Automatic',
-          fuelType: 'Petrol',
-          engineSize: `${(Math.random() * 5 + 3).toFixed(1)}L V8`,
-          description: searchResult.description || '',
-          lastUpdated: new Date().toISOString(),
-          source: 'US_CLASSIC' as const,
-        };
-      })
-      .filter((vehicle: USVehicle) => vehicle.priceAUD > 10000 && vehicle.priceAUD < 300000); // Realistic price range
-
-    console.log(`Successfully processed ${vehicles.length} US classic/muscle cars`);
+    console.log(`Successfully processed ${vehicles.length} vehicles from Apify dataset`);
     return vehicles;
   } catch (error) {
-    console.error('Failed to fetch US vehicles:', error);
+    console.error('Error fetching Apify dataset:', error);
     return [];
   }
 }
 
 /**
- * Extract make from vehicle title
+ * Process individual Apify dataset item
  */
-function extractMake(title: string): string {
-  const makes = ['Toyota', 'Honda', 'Nissan', 'Mazda', 'Subaru', 'Mitsubishi', 'Ford', 'Chevrolet', 'Dodge', 'Plymouth'];
-  const titleUpper = title.toUpperCase();
-  
-  for (const make of makes) {
-    if (titleUpper.includes(make.toUpperCase())) {
-      return make;
+function processApifyItem(item: any, exchangeRates: { jpyToAud: number; usdToAud: number }): ApifyVehicle | null {
+  try {
+    // Extract all available images
+    const images: string[] = [];
+    
+    // Primary image
+    if (item.image && typeof item.image === 'string') {
+      images.push(item.image);
     }
+    
+    // Additional images from various possible fields
+    const imageFields = ['images', 'imageUrls', 'photos', 'gallery', 'pictures'];
+    for (const field of imageFields) {
+      if (item[field]) {
+        if (Array.isArray(item[field])) {
+          images.push(...item[field].filter((url: any) => typeof url === 'string'));
+        } else if (typeof item[field] === 'string') {
+          images.push(item[field]);
+        }
+      }
+    }
+
+    // Remove duplicates and invalid URLs
+    const uniqueImages = Array.from(new Set(images)).filter(img => 
+      img && img.startsWith('http') && (img.includes('.jpg') || img.includes('.jpeg') || img.includes('.png') || img.includes('.webp'))
+    );
+
+    // Extract price and convert to AUD
+    let price = 0;
+    let currency = 'USD';
+    let priceAUD = 0;
+
+    if (item.price) {
+      const priceStr = String(item.price).replace(/[^\d.-]/g, '');
+      price = parseFloat(priceStr) || 0;
+      
+      // Determine currency from price field or location
+      if (item.price.includes('¥') || item.location?.includes('Japan')) {
+        currency = 'JPY';
+        priceAUD = price * exchangeRates.jpyToAud;
+      } else {
+        currency = 'USD';
+        priceAUD = price * exchangeRates.usdToAud;
+      }
+    }
+
+    // Extract make and model
+    const title = item.title || item.name || '';
+    const { make, model } = extractMakeModel(title);
+
+    // Extract year
+    const year = extractYear(title) || item.year || 2020;
+
+    return {
+      id: item.id || `apify_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      title: title,
+      price: price,
+      currency: currency,
+      priceAUD: Math.round(priceAUD),
+      make: make,
+      model: model,
+      year: year,
+      mileage: item.mileage || item.odometer || 'Unknown',
+      location: item.location || 'Japan',
+      url: item.url || item.link || '#',
+      images: uniqueImages,
+      transmission: item.transmission || 'Manual',
+      fuelType: item.fuelType || item.fuel || 'Gasoline',
+      engineSize: item.engineSize || item.engine || 'Unknown',
+      description: item.description || item.details || title,
+      lastUpdated: new Date().toISOString(),
+      source: 'APIFY_DATASET'
+    };
+  } catch (error) {
+    console.warn('Error processing Apify item:', error);
+    return null;
   }
-  
-  return 'Unknown';
 }
 
 /**
- * Extract model from vehicle title
+ * Extract make and model from title
  */
-function extractModel(title: string, make: string): string {
-  const models = {
-    Toyota: ['Supra', 'GT86', 'AE86', 'MR2', 'Celica', 'Chaser', 'Mark II', 'Soarer'],
-    Honda: ['NSX', 'Civic', 'Integra', 'S2000', 'Prelude', 'CRX', 'Accord'],
-    Nissan: ['Skyline', 'Silvia', 'Fairlady', '240SX', '350Z', '370Z', 'GTR'],
-    Mazda: ['RX-7', 'RX-8', 'Miata', 'MX-5', 'Roadster', 'Cosmo'],
-    Ford: ['Mustang', 'Camaro', 'Corvette', 'Firebird', 'Trans Am'],
-    Chevrolet: ['Camaro', 'Corvette', 'Chevelle', 'Nova', 'Impala'],
-    Dodge: ['Challenger', 'Charger', 'Viper', 'Dart', 'Coronet']
-  };
-  
+function extractMakeModel(title: string): { make: string; model: string } {
   const titleUpper = title.toUpperCase();
-  const makeModels = models[make as keyof typeof models] || [];
   
-  for (const model of makeModels) {
-    if (titleUpper.includes(model.toUpperCase())) {
-      return model;
+  const makes = [
+    'TOYOTA', 'NISSAN', 'HONDA', 'MAZDA', 'SUBARU', 'MITSUBISHI', 'SUZUKI', 'DAIHATSU',
+    'LEXUS', 'INFINITI', 'ACURA', 'BMW', 'MERCEDES', 'AUDI', 'VOLKSWAGEN', 'PORSCHE',
+    'FORD', 'CHEVROLET', 'DODGE', 'PLYMOUTH', 'PONTIAC', 'BUICK', 'CADILLAC', 'CHRYSLER'
+  ];
+
+  let make = 'Unknown';
+  let model = 'Unknown';
+
+  for (const makeName of makes) {
+    if (titleUpper.includes(makeName)) {
+      make = makeName.charAt(0) + makeName.slice(1).toLowerCase();
+      
+      // Extract model after make
+      const makeIndex = titleUpper.indexOf(makeName);
+      const afterMake = title.substring(makeIndex + makeName.length).trim();
+      const modelMatch = afterMake.match(/^[A-Za-z0-9-]+/);
+      if (modelMatch) {
+        model = modelMatch[0];
+      }
+      break;
     }
   }
-  
-  return 'Unknown';
+
+  // Special cases for popular models
+  if (titleUpper.includes('SUPRA')) {
+    make = 'Toyota';
+    model = 'Supra';
+  } else if (titleUpper.includes('SKYLINE') || titleUpper.includes('GTR') || titleUpper.includes('GT-R')) {
+    make = 'Nissan';
+    model = titleUpper.includes('GTR') || titleUpper.includes('GT-R') ? 'GT-R' : 'Skyline';
+  } else if (titleUpper.includes('CIVIC')) {
+    make = 'Honda';
+    model = 'Civic';
+  } else if (titleUpper.includes('IMPREZA')) {
+    make = 'Subaru';
+    model = 'Impreza';
+  }
+
+  return { make, model };
 }
 
 /**
- * Extract year from vehicle title
+ * Extract year from title
  */
 function extractYear(title: string): number | null {
-  const yearMatch = title.match(/19\d{2}|20[0-2]\d/);
-  return yearMatch ? parseInt(yearMatch[0]) : null;
+  const yearMatch = title.match(/\b(19|20)\d{2}\b/);
+  if (yearMatch) {
+    const year = parseInt(yearMatch[0]);
+    if (year >= 1980 && year <= new Date().getFullYear()) {
+      return year;
+    }
+  }
+  return null;
 }
 
+// Global cache for market data
+let marketDataCache: LiveMarketData | null = null;
+let lastFetchTime = 0;
+const CACHE_DURATION = 12 * 60 * 60 * 1000; // 12 hours
+
 /**
- * Perform full market data refresh
+ * Get live market data (cached for 12 hours)
  */
-export async function refreshLiveMarketData(): Promise<LiveMarketData> {
+export async function getLiveMarketData(): Promise<LiveMarketData> {
+  const now = Date.now();
+  
+  // Return cached data if less than 12 hours old
+  if (marketDataCache && (now - lastFetchTime) < CACHE_DURATION) {
+    return marketDataCache;
+  }
+
+  console.log('Refreshing live market data...');
+  
   try {
-    console.log('Starting live market data refresh...');
-    
+    const vehicles = await fetchApifyVehicles();
     const exchangeRates = await getExchangeRates();
-    const [jdmVehicles, usVehicles] = await Promise.all([
-      fetchJDMVehicles(exchangeRates),
-      fetchUSVehicles(exchangeRates)
-    ]);
 
-    const now = new Date();
-    const nextUpdate = new Date(now.getTime() + 12 * 60 * 60 * 1000); // 12 hours from now
-
-    const marketData: LiveMarketData = {
-      jdmVehicles,
-      usVehicles,
-      lastUpdated: now.toISOString(),
-      nextUpdate: nextUpdate.toISOString(),
+    marketDataCache = {
+      vehicles,
+      lastUpdated: new Date().toISOString(),
       exchangeRates
     };
 
-    // Cache the data
-    cachedMarketData = marketData;
+    lastFetchTime = now;
     
-    // Save to file for persistence
-    const dataPath = path.join(process.cwd(), 'live-market-data.json');
-    fs.writeFileSync(dataPath, JSON.stringify(marketData, null, 2));
-
-    console.log(`Live market data refresh completed: ${jdmVehicles.length} JDM + ${usVehicles.length} US vehicles`);
-    return marketData;
+    console.log(`Market data refresh completed: ${vehicles.length} vehicles`);
+    return marketDataCache;
   } catch (error) {
-    console.error('Failed to refresh live market data:', error);
-    throw error;
-  }
-}
-
-/**
- * Get cached market data or trigger refresh if needed
- */
-export function getLiveMarketData(): LiveMarketData | null {
-  try {
-    const dataPath = path.join(process.cwd(), 'live-market-data.json');
+    console.error('Error refreshing market data:', error);
     
-    if (fs.existsSync(dataPath)) {
-      const fileData = fs.readFileSync(dataPath, 'utf-8');
-      const data: LiveMarketData = JSON.parse(fileData);
-      
-      // Check if data is still fresh (within 12 hours)
-      const lastUpdated = new Date(data.lastUpdated);
-      const now = new Date();
-      const hoursSinceUpdate = (now.getTime() - lastUpdated.getTime()) / (1000 * 60 * 60);
-      
-      if (hoursSinceUpdate < 12) {
-        cachedMarketData = data;
-        return data;
-      }
-    }
-    
-    return cachedMarketData;
-  } catch (error) {
-    console.error('Failed to load cached market data:', error);
-    return cachedMarketData;
-  }
-}
-
-/**
- * Initialize live market data monitoring
- */
-export function initializeLiveMarketData() {
-  console.log('Initializing live market data monitoring (12-hour intervals)...');
-  
-  // Start immediate refresh
-  refreshLiveMarketData().catch(console.error);
-  
-  // Set up 12-hour refresh interval
-  if (updateInterval) {
-    clearInterval(updateInterval);
-  }
-  
-  updateInterval = setInterval(() => {
-    refreshLiveMarketData().catch(console.error);
-  }, 12 * 60 * 60 * 1000); // 12 hours
-  
-  console.log('Live market data monitoring initialized - next update in 12 hours');
-}
-
-/**
- * Get market analysis from live data
- */
-export function getMarketAnalysis(): {
-  totalVehicles: number;
-  averagePriceAUD: number;
-  jdmCount: number;
-  usCount: number;
-  exchangeRates: { jpyToAud: number; usdToAud: number };
-  lastUpdated: string;
-  nextUpdate: string;
-  priceRange: { min: number; max: number };
-} {
-  const data = getLiveMarketData();
-  
-  if (!data) {
-    return {
-      totalVehicles: 0,
-      averagePriceAUD: 0,
-      jdmCount: 0,
-      usCount: 0,
-      exchangeRates: { jpyToAud: 0, usdToAud: 0 },
-      lastUpdated: '',
-      nextUpdate: '',
-      priceRange: { min: 0, max: 0 }
+    // Return cached data if available, otherwise empty data
+    return marketDataCache || {
+      vehicles: [],
+      lastUpdated: new Date().toISOString(),
+      exchangeRates: { jpyToAud: 0.0108, usdToAud: 1.54 }
     };
   }
+}
+
+/**
+ * Initialize market data monitoring
+ */
+export function initializeLiveMarketDataMonitoring() {
+  console.log('Initializing live market data monitoring (12-hour intervals)...');
   
-  const allVehicles = [...data.jdmVehicles, ...data.usVehicles];
-  const totalVehicles = allVehicles.length;
-  const averagePriceAUD = totalVehicles > 0 
-    ? Math.round(allVehicles.reduce((sum, v) => sum + v.priceAUD, 0) / totalVehicles)
-    : 0;
+  // Initial fetch
+  getLiveMarketData().catch(console.error);
   
-  return {
-    totalVehicles,
-    averagePriceAUD,
-    jdmCount: data.jdmVehicles.length,
-    usCount: data.usVehicles.length,
-    exchangeRates: data.exchangeRates,
-    lastUpdated: data.lastUpdated,
-    nextUpdate: data.nextUpdate,
-    priceRange: {
-      min: totalVehicles > 0 ? Math.min(...allVehicles.map(v => v.priceAUD)) : 0,
-      max: totalVehicles > 0 ? Math.max(...allVehicles.map(v => v.priceAUD)) : 0
-    }
-  };
+  // Set up 12-hour refresh interval
+  setInterval(() => {
+    console.log('Starting scheduled market data refresh...');
+    getLiveMarketData().catch(console.error);
+  }, CACHE_DURATION);
+  
+  console.log('Live market data monitoring initialized - next update in 12 hours');
 }
