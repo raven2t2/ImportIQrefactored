@@ -528,14 +528,6 @@ export default function LiveMarketDataPage() {
               onChange={(e) => setMinYear(e.target.value)}
             />
           </div>
-          <div className="mt-4 text-sm text-gray-600">
-            Showing {filteredVehicles.length} of {vehicles.length} vehicles
-            {marketData.lastUpdated && (
-              <span className="ml-4">
-                Last updated: {new Date(marketData.lastUpdated).toLocaleDateString()}
-              </span>
-            )}
-          </div>
         </CardContent>
       </Card>
 
