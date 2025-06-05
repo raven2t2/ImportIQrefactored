@@ -64,6 +64,7 @@ function Router() {
       <Route path="/about" component={About} />
       <Route path="/importiq" component={ImportIQ} />
       <Route path="/import-calculator" component={ImportCalculator} />
+      <Route path="/import-cost-calculator" component={ImportCalculator} />
       <Route path="/true-cost-explorer" component={TrueCostExplorer} />
       <Route path="/import-timeline" component={ImportTimeline} />
       <Route path="/build-comply" component={BuildComply} />

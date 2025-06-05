@@ -334,10 +334,13 @@ function ImageGallery({ images, title }: { images: string[]; title: string }) {
           View Images ({images.length})
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-4xl">
+      <DialogContent className="max-w-4xl" aria-describedby="image-gallery-description">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
+        <p id="image-gallery-description" className="sr-only">
+          Browse through vehicle images using navigation controls or thumbnail selection
+        </p>
         <div className="relative">
           <img
             src={images[currentIndex]}

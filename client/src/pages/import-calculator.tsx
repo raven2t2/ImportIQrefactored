@@ -30,7 +30,7 @@ export default function ImportCalculator() {
   const [userInfo, setUserInfo] = useState<{ name: string; email: string; isReturning: boolean } | null>(null);
   const { toast } = useToast();
 
-  // Check for existing trial login status
+  // Check for existing trial login status and URL parameters
   useEffect(() => {
     const trialUserName = localStorage.getItem('trial_user_name');
     const trialUserEmail = localStorage.getItem('trial_user_email');
@@ -64,15 +64,28 @@ export default function ImportCalculator() {
     },
   });
 
+  // Extract URL parameters for vehicle data
+  const getUrlParams = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    return {
+      price: urlParams.get('price') ? parseInt(urlParams.get('price')!) : 0,
+      year: urlParams.get('year') ? parseInt(urlParams.get('year')!) : 2020,
+      make: urlParams.get('make') || '',
+      model: urlParams.get('model') || '',
+    };
+  };
+
+  const urlParams = getUrlParams();
+
   const form = useForm<FormData>({
     resolver: zodResolver(insertSubmissionSchema),
     defaultValues: {
-      vehiclePrice: 0,
+      vehiclePrice: urlParams.price,
       shippingOrigin: undefined,
       zipCode: "",
-      vehicleMake: "",
-      vehicleModel: "",
-      vehicleYear: 2020,
+      vehicleMake: urlParams.make,
+      vehicleModel: urlParams.model,
+      vehicleYear: urlParams.year,
     },
   });
 
@@ -229,6 +242,23 @@ export default function ImportCalculator() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-8">
+        {/* Pre-populated Data Banner */}
+        {(urlParams.price > 0 || urlParams.make || urlParams.model) && (
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+              <span className="text-sm font-medium text-blue-900">
+                Vehicle data pre-populated from Market Intelligence
+              </span>
+            </div>
+            <p className="text-sm text-blue-700 mt-1">
+              {urlParams.make && urlParams.model ? `${urlParams.make} ${urlParams.model}` : 'Vehicle details'} 
+              {urlParams.year && ` (${urlParams.year})`}
+              {urlParams.price > 0 && ` - $${urlParams.price.toLocaleString()} AUD`}
+            </p>
+          </div>
+        )}
+
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Form Section */}
           <Card className="bg-white border-gray-200 shadow-sm">
