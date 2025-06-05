@@ -223,7 +223,7 @@ function processApifyItem(item: any, exchangeRates: { jpyToAud: number; usdToAud
     }
     
     // Additional image fields for different dataset structures
-    const imageFields = ['images', 'imageUrls', 'photos', 'gallery', 'pictures', 'vehicleImages'];
+    const imageFields = ['images', 'imageUrls', 'photos', 'gallery', 'pictures', 'vehicleImages', 'imageList', 'photoGallery'];
     for (const field of imageFields) {
       if (item[field]) {
         if (Array.isArray(item[field])) {
@@ -234,14 +234,46 @@ function processApifyItem(item: any, exchangeRates: { jpyToAud: number; usdToAud
       }
     }
 
-    // Extract images from text content if needed
-    if (item.text && images.length === 0) {
-      const imageRegex = /https?:\/\/[^\s]+\.(?:jpg|jpeg|png|webp)/gi;
-      const textImages = item.text.match(imageRegex);
+    // Check for nested image objects
+    if (item.vehicle?.images) {
+      if (Array.isArray(item.vehicle.images)) {
+        images.push(...item.vehicle.images.filter((url: any) => typeof url === 'string'));
+      }
+    }
+
+    // Check for auction-specific image fields
+    if (item.auction?.images || item.auctionImages) {
+      const auctionImages = item.auction?.images || item.auctionImages;
+      if (Array.isArray(auctionImages)) {
+        images.push(...auctionImages.filter((url: any) => typeof url === 'string'));
+      }
+    }
+
+    // Extract images from HTML content if present
+    if (item.html) {
+      const imgRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
+      let match;
+      while ((match = imgRegex.exec(item.html)) !== null) {
+        if (match[1] && (match[1].includes('.jpg') || match[1].includes('.jpeg') || match[1].includes('.png') || match[1].includes('.webp'))) {
+          images.push(match[1]);
+        }
+      }
+    }
+
+    // Extract images from text content and description
+    const textContent = [item.text, item.description, item.details].filter(Boolean).join(' ');
+    if (textContent) {
+      const imageRegex = /https?:\/\/[^\s\)]+\.(?:jpg|jpeg|png|webp)(?:\?[^\s\)]*)?/gi;
+      const textImages = textContent.match(imageRegex);
       if (textImages) {
         images.push(...textImages);
       }
     }
+
+    // Check for thumbnail and preview images
+    if (item.thumbnail) images.push(item.thumbnail);
+    if (item.preview) images.push(item.preview);
+    if (item.mainImage) images.push(item.mainImage);
 
     // Function to detect Japanese text and promotional content in URLs
     const hasJapaneseOrPromotionalContent = (url: string, metadata?: any): boolean => {
@@ -284,7 +316,7 @@ function processApifyItem(item: any, exchangeRates: { jpyToAud: number; usdToAud
     };
 
     // Remove duplicates and filter valid image URLs, excluding promotional content
-    const uniqueImages = Array.from(new Set(images)).filter(img => 
+    const filteredImages = Array.from(new Set(images)).filter(img => 
       img && 
       img.startsWith('http') && 
       (img.includes('.jpg') || img.includes('.jpeg') || img.includes('.png') || img.includes('.webp')) &&
@@ -296,6 +328,9 @@ function processApifyItem(item: any, exchangeRates: { jpyToAud: number; usdToAud
       !img.includes('campaign') && // Exclude campaign images
       !img.includes('advertisement') // Exclude advertisement images
     );
+
+    // Limit to 10 images per vehicle for optimal performance
+    const uniqueImages = filteredImages.slice(0, 10);
 
     // Extract price and convert to AUD from JSON-LD schema
     let price = 0;
