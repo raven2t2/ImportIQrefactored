@@ -414,7 +414,8 @@ export default function LiveMarketDataPage() {
 
   const { data: marketData, isLoading, error, refetch } = useQuery<LiveMarketData>({
     queryKey: ['/api/live-market-data'],
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 0, // Always fetch fresh data to reflect admin changes immediately
+    refetchInterval: 30 * 1000, // Auto-refresh every 30 seconds
   });
 
   if (isLoading) {
