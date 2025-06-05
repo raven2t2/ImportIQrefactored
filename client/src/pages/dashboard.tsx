@@ -122,16 +122,72 @@ export default function Dashboard() {
               <span className="text-xl font-bold text-white">ImportIQ</span>
             </Link>
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-6">
-              <Link href="/" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Home</Link>
-              <Link href="/features" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Features</Link>
-              <Link href="/pricing" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Pricing</Link>
-              <Link href="/about" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Our Mission</Link>
-              <Link href="/affiliate-signup" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Refer & Earn</Link>
+            {/* Desktop Navigation - ImportIQ Tools */}
+            <div className="hidden lg:flex items-center space-x-4">
+              {/* Core Calculators */}
+              <div className="relative group">
+                <Button variant="ghost" className="text-gray-300 hover:text-white text-sm font-medium">
+                  Calculators
+                </Button>
+                <div className="absolute top-full left-0 mt-2 w-56 bg-white shadow-lg rounded-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <div className="p-2">
+                    <Link href="/" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded text-sm">Import Cost Calculator</Link>
+                    <Link href="/compliance-estimator" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded text-sm">Compliance Estimator</Link>
+                    <Link href="/mod-estimator" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded text-sm">Mod Estimator</Link>
+                    <Link href="/value-estimator" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded text-sm">Value Estimator</Link>
+                    <Link href="/roi-calculator" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded text-sm">ROI Calculator</Link>
+                  </div>
+                </div>
+              </div>
+
+              {/* Market Intelligence */}
+              <div className="relative group">
+                <Button variant="ghost" className="text-gray-300 hover:text-white text-sm font-medium">
+                  Market Data
+                </Button>
+                <div className="absolute top-full left-0 mt-2 w-56 bg-white shadow-lg rounded-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <div className="p-2">
+                    <Link href="/auction-sample-explorer" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded text-sm">Auction Explorer</Link>
+                    <Link href="/market-intelligence" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded text-sm">Import Volume Dashboard</Link>
+                    <Link href="/vehicle-lookup" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded text-sm">Vehicle Lookup</Link>
+                    <Link href="/live-auction-data" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded text-sm">Live Auction Data</Link>
+                  </div>
+                </div>
+              </div>
+
+              {/* AI Tools */}
+              <div className="relative group">
+                <Button variant="ghost" className="text-gray-300 hover:text-white text-sm font-medium">
+                  AI Tools
+                </Button>
+                <div className="absolute top-full left-0 mt-2 w-56 bg-white shadow-lg rounded-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <div className="p-2">
+                    <Link href="/ai-recommendations" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded text-sm">AI Recommendations</Link>
+                    <Link href="/build-comply" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded text-sm">BuildReady</Link>
+                    <Link href="/insurance-estimate" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded text-sm">Insurance Estimator</Link>
+                    <Link href="/legal-advisory" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded text-sm">Legal Advisory</Link>
+                  </div>
+                </div>
+              </div>
+
+              {/* Resources */}
+              <div className="relative group">
+                <Button variant="ghost" className="text-gray-300 hover:text-white text-sm font-medium">
+                  Resources
+                </Button>
+                <div className="absolute top-full left-0 mt-2 w-56 bg-white shadow-lg rounded-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <div className="p-2">
+                    <Link href="/state-requirements" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded text-sm">State Requirements</Link>
+                    <Link href="/port-intelligence" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded text-sm">Port Intelligence</Link>
+                    <Link href="/pricing" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded text-sm">Pricing</Link>
+                    <Link href="/affiliate-signup" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded text-sm">Refer & Earn</Link>
+                  </div>
+                </div>
+              </div>
+
               <Link href="/subscribe">
-                <Button className="bg-amber-400 hover:bg-amber-500 text-black px-6 py-2 rounded-full transition-all duration-300 font-medium shadow-lg hover:shadow-xl">
-                  Upgrade Now
+                <Button className="bg-amber-400 hover:bg-amber-500 text-black px-4 py-2 rounded-full transition-all duration-300 font-medium shadow-lg hover:shadow-xl text-sm">
+                  Upgrade
                 </Button>
               </Link>
             </div>
@@ -151,15 +207,39 @@ export default function Dashboard() {
 
           {/* Mobile Navigation Menu */}
           {mobileMenuOpen && (
-            <div className="md:hidden bg-gray-900 border-t border-gray-800">
+            <div className="lg:hidden bg-gray-900 border-t border-gray-800 max-h-96 overflow-y-auto">
               <div className="px-2 pt-2 pb-3 space-y-1">
-                <Link href="/" className="block px-3 py-2 text-gray-300 hover:text-white transition-colors duration-300">Home</Link>
-                <Link href="/features" className="block px-3 py-2 text-gray-300 hover:text-white transition-colors duration-300">Features</Link>
-                <Link href="/pricing" className="block px-3 py-2 text-gray-300 hover:text-white transition-colors duration-300">Pricing</Link>
-                <Link href="/about" className="block px-3 py-2 text-gray-300 hover:text-white transition-colors duration-300">Our Mission</Link>
-                <Link href="/affiliate-signup" className="block px-3 py-2 text-gray-300 hover:text-white transition-colors duration-300">Refer & Earn</Link>
+                {/* Calculators Section */}
+                <div className="px-3 py-2 text-amber-400 font-medium text-xs uppercase tracking-wide">Calculators</div>
+                <Link href="/" className="block px-6 py-2 text-gray-300 hover:text-white transition-colors duration-300 text-sm">Import Cost Calculator</Link>
+                <Link href="/compliance-estimator" className="block px-6 py-2 text-gray-300 hover:text-white transition-colors duration-300 text-sm">Compliance Estimator</Link>
+                <Link href="/mod-estimator" className="block px-6 py-2 text-gray-300 hover:text-white transition-colors duration-300 text-sm">Mod Estimator</Link>
+                <Link href="/value-estimator" className="block px-6 py-2 text-gray-300 hover:text-white transition-colors duration-300 text-sm">Value Estimator</Link>
+                <Link href="/roi-calculator" className="block px-6 py-2 text-gray-300 hover:text-white transition-colors duration-300 text-sm">ROI Calculator</Link>
+                
+                {/* Market Data Section */}
+                <div className="px-3 py-2 text-amber-400 font-medium text-xs uppercase tracking-wide mt-4">Market Data</div>
+                <Link href="/auction-sample-explorer" className="block px-6 py-2 text-gray-300 hover:text-white transition-colors duration-300 text-sm">Auction Explorer</Link>
+                <Link href="/market-intelligence" className="block px-6 py-2 text-gray-300 hover:text-white transition-colors duration-300 text-sm">Import Volume Dashboard</Link>
+                <Link href="/vehicle-lookup" className="block px-6 py-2 text-gray-300 hover:text-white transition-colors duration-300 text-sm">Vehicle Lookup</Link>
+                <Link href="/live-auction-data" className="block px-6 py-2 text-gray-300 hover:text-white transition-colors duration-300 text-sm">Live Auction Data</Link>
+                
+                {/* AI Tools Section */}
+                <div className="px-3 py-2 text-amber-400 font-medium text-xs uppercase tracking-wide mt-4">AI Tools</div>
+                <Link href="/ai-recommendations" className="block px-6 py-2 text-gray-300 hover:text-white transition-colors duration-300 text-sm">AI Recommendations</Link>
+                <Link href="/build-comply" className="block px-6 py-2 text-gray-300 hover:text-white transition-colors duration-300 text-sm">BuildReady</Link>
+                <Link href="/insurance-estimate" className="block px-6 py-2 text-gray-300 hover:text-white transition-colors duration-300 text-sm">Insurance Estimator</Link>
+                <Link href="/legal-advisory" className="block px-6 py-2 text-gray-300 hover:text-white transition-colors duration-300 text-sm">Legal Advisory</Link>
+                
+                {/* Resources Section */}
+                <div className="px-3 py-2 text-amber-400 font-medium text-xs uppercase tracking-wide mt-4">Resources</div>
+                <Link href="/state-requirements" className="block px-6 py-2 text-gray-300 hover:text-white transition-colors duration-300 text-sm">State Requirements</Link>
+                <Link href="/port-intelligence" className="block px-6 py-2 text-gray-300 hover:text-white transition-colors duration-300 text-sm">Port Intelligence</Link>
+                <Link href="/pricing" className="block px-6 py-2 text-gray-300 hover:text-white transition-colors duration-300 text-sm">Pricing</Link>
+                <Link href="/affiliate-signup" className="block px-6 py-2 text-gray-300 hover:text-white transition-colors duration-300 text-sm">Refer & Earn</Link>
+                
                 <Link href="/subscribe">
-                  <Button className="w-full mt-2 bg-amber-400 hover:bg-amber-500 text-black font-medium">
+                  <Button className="w-full mt-4 mx-2 bg-amber-400 hover:bg-amber-500 text-black font-medium">
                     Upgrade Now
                   </Button>
                 </Link>
