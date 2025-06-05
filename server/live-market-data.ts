@@ -121,6 +121,19 @@ function processApifyItem(item: any, exchangeRates: { jpyToAud: number; usdToAud
         if (ld['@type'] === 'Product' && ld.image) {
           if (typeof ld.image === 'string') {
             images.push(ld.image);
+            
+            // Generate additional view angles for Goo-net images
+            if (ld.image.includes('picture1.goo-net.com')) {
+              const baseImage = ld.image;
+              // Try common viewing angles that Goo-net uses
+              const viewAngles = ['01', '02', '03', '04', '05', '06'];
+              for (const angle of viewAngles) {
+                const angleImage = baseImage.replace(/\/J\//, `/${angle}/`);
+                if (angleImage !== baseImage) {
+                  images.push(angleImage);
+                }
+              }
+            }
           } else if (Array.isArray(ld.image)) {
             images.push(...ld.image.filter((url: any) => typeof url === 'string'));
           }
