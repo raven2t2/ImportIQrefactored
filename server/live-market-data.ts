@@ -112,16 +112,38 @@ async function fetchApifyVehicles(): Promise<ApifyVehicle[]> {
  */
 function processApifyItem(item: any, exchangeRates: { jpyToAud: number; usdToAud: number }): ApifyVehicle | null {
   try {
-    // Extract all available images
+    // Extract all available images from various sources
     const images: string[] = [];
     
-    // Primary image
+    // Check JSON-LD schema for vehicle images
+    if (item.metadata?.jsonLd) {
+      for (const ld of item.metadata.jsonLd) {
+        if (ld['@type'] === 'Product' && ld.image) {
+          if (typeof ld.image === 'string') {
+            images.push(ld.image);
+          } else if (Array.isArray(ld.image)) {
+            images.push(...ld.image.filter((url: any) => typeof url === 'string'));
+          }
+        }
+      }
+    }
+
+    // Check OpenGraph images
+    if (item.metadata?.openGraph) {
+      for (const og of item.metadata.openGraph) {
+        if (og.property === 'og:image' && og.content && og.content.includes('picture')) {
+          images.push(og.content);
+        }
+      }
+    }
+
+    // Primary image field
     if (item.image && typeof item.image === 'string') {
       images.push(item.image);
     }
     
-    // Additional images from various possible fields
-    const imageFields = ['images', 'imageUrls', 'photos', 'gallery', 'pictures'];
+    // Additional image fields for different dataset structures
+    const imageFields = ['images', 'imageUrls', 'photos', 'gallery', 'pictures', 'vehicleImages'];
     for (const field of imageFields) {
       if (item[field]) {
         if (Array.isArray(item[field])) {
@@ -132,36 +154,87 @@ function processApifyItem(item: any, exchangeRates: { jpyToAud: number; usdToAud
       }
     }
 
-    // Remove duplicates and invalid URLs
+    // Extract images from text content if needed
+    if (item.text && images.length === 0) {
+      const imageRegex = /https?:\/\/[^\s]+\.(?:jpg|jpeg|png|webp)/gi;
+      const textImages = item.text.match(imageRegex);
+      if (textImages) {
+        images.push(...textImages);
+      }
+    }
+
+    // Remove duplicates and filter valid image URLs
     const uniqueImages = Array.from(new Set(images)).filter(img => 
-      img && img.startsWith('http') && (img.includes('.jpg') || img.includes('.jpeg') || img.includes('.png') || img.includes('.webp'))
+      img && 
+      img.startsWith('http') && 
+      (img.includes('.jpg') || img.includes('.jpeg') || img.includes('.png') || img.includes('.webp')) &&
+      !img.includes('fb_image.jpg') && // Exclude social media placeholder images
+      !img.includes('common/other/')
     );
 
-    // Extract price and convert to AUD
+    // Extract price and convert to AUD from JSON-LD schema
     let price = 0;
     let currency = 'USD';
     let priceAUD = 0;
 
-    if (item.price) {
-      const priceStr = String(item.price).replace(/[^\d.-]/g, '');
-      price = parseFloat(priceStr) || 0;
-      
-      // Determine currency from price field or location
-      if (item.price.includes('¥') || item.location?.includes('Japan')) {
-        currency = 'JPY';
-        priceAUD = price * exchangeRates.jpyToAud;
-      } else {
-        currency = 'USD';
-        priceAUD = price * exchangeRates.usdToAud;
+    // Check JSON-LD schema for price information
+    if (item.metadata?.jsonLd) {
+      for (const ld of item.metadata.jsonLd) {
+        if (ld['@type'] === 'Product' && ld.offers) {
+          if (ld.offers.price) {
+            price = parseFloat(String(ld.offers.price).replace(/[^\d.-]/g, '')) || 0;
+            currency = ld.offers.priceCurrency || 'JPY';
+          }
+        }
       }
     }
 
-    // Extract make and model
-    const title = item.title || item.name || '';
-    const { make, model } = extractMakeModel(title);
+    // Fallback to text extraction if no structured price data
+    if (price === 0 && item.text) {
+      const priceMatch = item.text.match(/¥([\d,]+)/);
+      if (priceMatch) {
+        price = parseFloat(priceMatch[1].replace(/,/g, '')) || 0;
+        currency = 'JPY';
+      }
+    }
 
-    // Extract year
-    const year = extractYear(title) || item.year || 2020;
+    // Convert to AUD
+    if (currency === 'JPY') {
+      priceAUD = price * exchangeRates.jpyToAud;
+    } else {
+      priceAUD = price * exchangeRates.usdToAud;
+    }
+
+    // Extract vehicle details from JSON-LD schema and metadata
+    let make = 'Unknown';
+    let model = 'Unknown';
+    let year = 2020;
+    let title = '';
+
+    if (item.metadata?.jsonLd) {
+      for (const ld of item.metadata.jsonLd) {
+        if (ld['@type'] === 'Product') {
+          title = ld.name || '';
+          if (ld.brand?.name) {
+            make = ld.brand.name;
+          }
+        }
+      }
+    }
+
+    // Extract from title if not found in structured data
+    if (!title) {
+      title = item.metadata?.title || item.text?.split('\n')[0] || 'Unknown Vehicle';
+    }
+
+    // Parse make/model/year from title
+    const extracted = extractMakeModel(title);
+    if (extracted.make !== 'Unknown') make = extracted.make;
+    if (extracted.model !== 'Unknown') model = extracted.model;
+    
+    // Extract year from title
+    const extractedYear = extractYear(title);
+    if (extractedYear) year = extractedYear;
 
     return {
       id: item.id || `apify_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
