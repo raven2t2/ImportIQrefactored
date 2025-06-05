@@ -3559,6 +3559,16 @@ Generate specific ad targeting recommendations with confidence levels (High/Medi
           success: true,
           samples: [],
           totalResults: 0,
+          averagePrice: {
+            jpy: 0,
+            aud: 0
+          },
+          priceRange: {
+            min: { jpy: 0, aud: 0 },
+            max: { jpy: 0, aud: 0 }
+          },
+          marketInsights: ["No auction records found matching your criteria. Try broadening your search parameters."],
+          popularAuctionHouses: [],
           message: "No auction records found matching your criteria. Try broadening your search parameters."
         });
       }
