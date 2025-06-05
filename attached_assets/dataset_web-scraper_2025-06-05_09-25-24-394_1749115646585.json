@@ -1,0 +1,20 @@
+[{
+  "url": "https://www.goo-net-exchange.com/usedcars/TOYOTA/SUPRA/700080501130250310002/",
+  "error": "Cannot read properties of undefined (reading '$$eval')",
+  "scrapedAt": "2025-06-05T09:24:49.755Z"
+},
+{
+  "url": "https://www.goo-net-exchange.com/usedcars/TOYOTA/SUPRA/700054116330250329001/",
+  "error": "Cannot read properties of undefined (reading '$$eval')",
+  "scrapedAt": "2025-06-05T09:25:08.320Z"
+},
+{
+  "url": "https://www.goo-net-exchange.com/usedcars/TOYOTA/SUPRA/700040430330250116002/",
+  "error": "Cannot read properties of undefined (reading '$$eval')",
+  "scrapedAt": "2025-06-05T09:25:24.030Z"
+},
+{
+  "url": "https://www.goo-net-exchange.com/usedcars/TOYOTA/SUPRA/700070775330250310001/",
+  "error": "Cannot read properties of undefined (reading '$$eval')",
+  "scrapedAt": "2025-06-05T09:25:24.365Z"
+}]
