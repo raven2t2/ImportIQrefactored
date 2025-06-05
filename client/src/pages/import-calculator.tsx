@@ -411,8 +411,8 @@ export default function ImportCalculator() {
                             <Input
                               {...field}
                               type="number"
-                              min="1000"
-                              step="1000"
+                              min="500"
+                              step="1"
                               placeholder="85,000"
                               className="pl-8 bg-white border-gray-300 text-gray-900"
                               onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
