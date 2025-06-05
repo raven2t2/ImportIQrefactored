@@ -3938,6 +3938,11 @@ IMPORTANT GUIDELINES:
 
       // Get current market data and update the specific vehicle's image order
       const marketData = getLiveMarketData();
+      
+      if (!marketData || !marketData.vehicles || !Array.isArray(marketData.vehicles)) {
+        return res.status(500).json({ message: "Market data not available" });
+      }
+
       const vehicleIndex = marketData.vehicles.findIndex(v => v.id === id);
       
       if (vehicleIndex === -1) {
@@ -3961,6 +3966,44 @@ IMPORTANT GUIDELINES:
     } catch (error: any) {
       console.error("Error updating vehicle image order:", error);
       res.status(500).json({ message: "Failed to update image order: " + error.message });
+    }
+  });
+
+  // Vehicle deletion endpoint for admin panel
+  app.delete("/api/admin/vehicles/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      // Get current market data
+      const marketData = getLiveMarketData();
+      
+      if (!marketData || !marketData.vehicles || !Array.isArray(marketData.vehicles)) {
+        return res.status(500).json({ message: "Market data not available" });
+      }
+
+      const vehicleIndex = marketData.vehicles.findIndex(v => v.id === id);
+      
+      if (vehicleIndex === -1) {
+        return res.status(404).json({ message: "Vehicle not found" });
+      }
+
+      // Remove the vehicle from the array
+      const deletedVehicle = marketData.vehicles.splice(vehicleIndex, 1)[0];
+      
+      // Save the updated data back to the live market data file
+      fs.writeFileSync(
+        path.join(process.cwd(), 'live-market-data.json'),
+        JSON.stringify(marketData, null, 2)
+      );
+
+      res.json({ 
+        success: true, 
+        message: "Vehicle deleted successfully",
+        deletedVehicle: deletedVehicle
+      });
+    } catch (error: any) {
+      console.error("Error deleting vehicle:", error);
+      res.status(500).json({ message: "Failed to delete vehicle: " + error.message });
     }
   });
 

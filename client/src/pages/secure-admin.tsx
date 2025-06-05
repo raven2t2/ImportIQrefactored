@@ -13,7 +13,7 @@ import {
   UserCheck, Target, Calendar, BarChart3, AlertTriangle,
   DollarSign, Globe, TrendingDown, Activity, Clock, Phone, 
   Mail, User, Car, MessageSquare, MapPin, Image, Edit,
-  Save, RefreshCw, Camera, ArrowUp, ArrowDown, Eye
+  Save, RefreshCw, Camera, ArrowUp, ArrowDown, Eye, Trash2
 } from "lucide-react";
 import { format } from "date-fns";
 
