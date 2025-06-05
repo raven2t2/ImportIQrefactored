@@ -320,7 +320,7 @@ export default function LiveMarketDataPage() {
       vehicle.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
       vehicle.model.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesMake = !selectedMake || vehicle.make.toLowerCase().includes(selectedMake.toLowerCase());
+    const matchesMake = !selectedMake || selectedMake === "all" || vehicle.make.toLowerCase().includes(selectedMake.toLowerCase());
     const matchesPrice = !maxPrice || vehicle.priceAUD <= parseInt(maxPrice);
     const matchesYear = !minYear || vehicle.year >= parseInt(minYear);
     
@@ -414,7 +414,7 @@ export default function LiveMarketDataPage() {
                 <SelectValue placeholder="Make" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Makes</SelectItem>
+                <SelectItem value="all">All Makes</SelectItem>
                 {availableMakes.map((make) => (
                   <SelectItem key={make} value={make}>{make}</SelectItem>
                 ))}
