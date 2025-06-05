@@ -8,8 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { RefreshCw, TrendingUp, Globe, Calendar, MapPin, DollarSign } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { RefreshCw, TrendingUp, Globe, Calendar, MapPin, DollarSign, Eye, Calculator, ChevronLeft, ChevronRight, Images } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
+import { Link } from "wouter";
 
 interface LiveMarketData {
   jdmVehicles: JDMVehicle[];
@@ -311,6 +313,79 @@ export default function LiveMarketData() {
   );
 }
 
+function ImageGallery({ images, title }: { images: string[]; title: string }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  if (!images || images.length === 0) return null;
+
+  const nextImage = () => {
+    setCurrentIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const prevImage = () => {
+    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm" className="w-full">
+          <Images className="w-4 h-4 mr-2" />
+          View Images ({images.length})
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-4xl">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+        </DialogHeader>
+        <div className="relative">
+          <img
+            src={images[currentIndex]}
+            alt={`${title} - Image ${currentIndex + 1}`}
+            className="w-full h-96 object-cover rounded-lg"
+          />
+          {images.length > 1 && (
+            <>
+              <Button
+                variant="outline"
+                size="icon"
+                className="absolute left-2 top-1/2 transform -translate-y-1/2"
+                onClick={prevImage}
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                onClick={nextImage}
+              >
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm">
+                {currentIndex + 1} / {images.length}
+              </div>
+            </>
+          )}
+        </div>
+        <div className="flex gap-2 mt-4 overflow-x-auto">
+          {images.map((image, index) => (
+            <img
+              key={index}
+              src={image}
+              alt={`Thumbnail ${index + 1}`}
+              className={`w-16 h-16 object-cover rounded cursor-pointer border-2 flex-shrink-0 ${
+                index === currentIndex ? 'border-primary' : 'border-transparent'
+              }`}
+              onClick={() => setCurrentIndex(index)}
+            />
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 interface VehicleCardProps {
   vehicle: JDMVehicle | USVehicle;
 }
@@ -328,11 +403,20 @@ function VehicleCard({ vehicle }: VehicleCardProps) {
     <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200">
       <div className="aspect-video relative bg-gray-100">
         {vehicle.images && vehicle.images.length > 0 ? (
-          <img
-            src={vehicle.images[0]}
-            alt={vehicle.title}
-            className="w-full h-full object-cover"
-          />
+          <div className="relative w-full h-full">
+            <img
+              src={vehicle.images[0]}
+              alt={vehicle.title}
+              className="w-full h-full object-cover"
+            />
+            {vehicle.images.length > 1 && (
+              <div className="absolute top-2 left-2">
+                <Badge variant="outline" className="text-xs bg-white/90">
+                  +{vehicle.images.length - 1} more
+                </Badge>
+              </div>
+            )}
+          </div>
         ) : (
           <div className="w-full h-full flex items-center justify-center text-muted-foreground">
             No Image Available
@@ -375,20 +459,24 @@ function VehicleCard({ vehicle }: VehicleCardProps) {
           )}
         </div>
         <Separator className="my-3" />
-        <div className="flex items-center justify-between">
+        <div className="space-y-2">
           <div className="text-xs text-muted-foreground">
             Updated: {new Date(vehicle.lastUpdated).toLocaleDateString()}
           </div>
-          {vehicle.url && (
-            <a
-              href={vehicle.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:underline text-sm"
+          <div className="flex gap-2">
+            {vehicle.images && vehicle.images.length > 0 && (
+              <ImageGallery images={vehicle.images} title={vehicle.title} />
+            )}
+            <Link
+              href={`/import-cost-calculator?price=${vehicle.priceAUD}&year=${vehicle.year}&make=${encodeURIComponent(vehicle.make)}&model=${encodeURIComponent(vehicle.model)}`}
+              className="flex-1"
             >
-              View Listing →
-            </a>
-          )}
+              <Button variant="default" size="sm" className="w-full">
+                <Calculator className="w-4 h-4 mr-2" />
+                Calculate Import Cost
+              </Button>
+            </Link>
+          </div>
         </div>
       </CardContent>
     </Card>
