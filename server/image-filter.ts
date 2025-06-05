@@ -78,37 +78,35 @@ export function filterAuthenticVehicleImages(images: string[]): string[] {
         return false;
       }
 
-      // Extract the image sequence number from W00XXX pattern for vehicle inspection photos
-      const sequenceMatch = imageUrl.match(/W00(\d+)\.jpg/);
-      if (sequenceMatch) {
-        const sequenceNum = parseInt(sequenceMatch[1]);
-        
-        // Select the best 15 authentic vehicle inspection photos
-        // Focus on key inspection angles: front, rear, interior, engine, damage areas
-        const selectedSequences = [101, 103, 105, 107, 110, 115, 120, 125, 130, 135, 140, 145, 150, 155, 160];
-        
-        if (selectedSequences.includes(sequenceNum)) {
-          console.log(`Keeping authentic vehicle inspection photo at sequence ${sequenceNum}: ${imageUrl.substring(0, 80)}...`);
-          return true;
-        } else {
-          console.log(`Skipping sequence ${sequenceNum} to limit to best inspection photos: ${imageUrl.substring(0, 80)}...`);
-          return false;
-        }
-      }
-      
-      // Keep main vehicle photos (non-sequence format)
-      if (imageUrl.match(/\/J\/\d+\.jpg$/) && !imageUrl.includes('W00')) {
-        console.log(`Keeping main vehicle photo: ${imageUrl.substring(0, 80)}...`);
-        return true;
-      }
-      
       // Filter out duplicate /P/ (preview) versions - we only need /J/ (JPEG) versions
       if (imageUrl.includes('/P/')) {
         console.log(`Filtering duplicate preview version: ${imageUrl.substring(0, 80)}...`);
         return false;
       }
+
+      // Extract the image sequence number from W00XXX pattern for vehicle inspection photos
+      const sequenceMatch = imageUrl.match(/W00(\d+)\.jpg/);
+      if (sequenceMatch) {
+        const sequenceNum = parseInt(sequenceMatch[1]);
+        
+        // Keep a good selection of inspection photos (every 5th photo for variety)
+        // This ensures we get comprehensive coverage: exterior, interior, engine, etc.
+        if (sequenceNum <= 150 && (sequenceNum % 5 === 1 || sequenceNum % 7 === 0 || sequenceNum <= 110)) {
+          console.log(`Keeping authentic vehicle inspection photo at sequence ${sequenceNum}: ${imageUrl.substring(0, 80)}...`);
+          return true;
+        } else {
+          console.log(`Skipping sequence ${sequenceNum} to optimize image selection: ${imageUrl.substring(0, 80)}...`);
+          return false;
+        }
+      }
       
-      return false;
+      // Keep main vehicle photos (non-sequence format)
+      if (imageUrl.match(/\/J\/\d+\.jpg$/)) {
+        console.log(`Keeping main vehicle photo: ${imageUrl.substring(0, 80)}...`);
+        return true;
+      }
+      
+      return true; // Default to keeping other goo-net images
     }
 
     // Additional filtering for catalog/dealer promotional images
