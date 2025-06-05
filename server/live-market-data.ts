@@ -151,7 +151,7 @@ function processComprehensiveDatasetItem(item: any, exchangeRates: { jpyToAud: n
     const authenticImages = filterAuthenticVehicleImages(item.images);
     
     // Only process vehicles with sufficient authentic images
-    if (authenticImages.length < 10) {
+    if (authenticImages.length < 5) {
       console.log(`Skipping vehicle with insufficient images: ${authenticImages.length} authentic images found`);
       return null;
     }
