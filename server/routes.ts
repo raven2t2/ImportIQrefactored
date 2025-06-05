@@ -3926,6 +3926,44 @@ IMPORTANT GUIDELINES:
     }
   });
 
+  // Vehicle image reordering endpoint for admin panel
+  app.put("/api/admin/vehicles/:id/reorder-images", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { imageOrder } = req.body;
+      
+      if (!imageOrder || !Array.isArray(imageOrder)) {
+        return res.status(400).json({ message: "Valid image order array is required" });
+      }
+
+      // Get current market data and update the specific vehicle's image order
+      const marketData = getLiveMarketData();
+      const vehicleIndex = marketData.vehicles.findIndex(v => v.id === id);
+      
+      if (vehicleIndex === -1) {
+        return res.status(404).json({ message: "Vehicle not found" });
+      }
+
+      // Update the vehicle's image order
+      marketData.vehicles[vehicleIndex].images = imageOrder;
+      
+      // Save the updated data back to the live market data file
+      fs.writeFileSync(
+        path.join(process.cwd(), 'live-market-data.json'),
+        JSON.stringify(marketData, null, 2)
+      );
+
+      res.json({ 
+        success: true, 
+        message: "Image order updated successfully",
+        vehicle: marketData.vehicles[vehicleIndex]
+      });
+    } catch (error: any) {
+      console.error("Error updating vehicle image order:", error);
+      res.status(500).json({ message: "Failed to update image order: " + error.message });
+    }
+  });
+
   // Vehicle Lookup endpoint
   app.post("/api/vehicle-lookup", async (req, res) => {
     try {

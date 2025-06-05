@@ -1132,8 +1132,209 @@ export default function SecureAdminDashboard() {
               </Card>
             </div>
           </TabsContent>
+
+          <TabsContent value="vehicles" className="space-y-6">
+            <Card className="bg-gray-900 border-amber-500/20">
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-amber-400 flex items-center">
+                    <Car className="w-5 h-5 mr-2" />
+                    Vehicle Management
+                  </CardTitle>
+                  <Button 
+                    onClick={() => refetchVehicles()}
+                    variant="outline" 
+                    className="border-amber-500/20 text-amber-400 hover:bg-amber-500/10"
+                  >
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Refresh Data
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {vehiclesLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                      {vehicles.map((vehicle: Vehicle) => (
+                        <VehicleCard key={vehicle.id} vehicle={vehicle} onUpdate={refetchVehicles} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
     </div>
+  );
+}
+
+function VehicleCard({ vehicle, onUpdate }: { vehicle: Vehicle; onUpdate: () => void }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [imageOrder, setImageOrder] = useState(vehicle.images);
+  const [isManagingImages, setIsManagingImages] = useState(false);
+
+  const handleImageReorder = (fromIndex: number, toIndex: number) => {
+    const newOrder = [...imageOrder];
+    const [movedImage] = newOrder.splice(fromIndex, 1);
+    newOrder.splice(toIndex, 0, movedImage);
+    setImageOrder(newOrder);
+  };
+
+  const saveImageOrder = async () => {
+    try {
+      await fetch(`/api/admin/vehicles/${vehicle.id}/reorder-images`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageOrder })
+      });
+      onUpdate();
+      setIsManagingImages(false);
+    } catch (error) {
+      console.error('Failed to save image order:', error);
+    }
+  };
+
+  return (
+    <Card className="bg-gray-800 border-gray-700">
+      <CardHeader className="pb-3">
+        <div className="flex justify-between items-start">
+          <div>
+            <CardTitle className="text-white text-lg">
+              {vehicle.year} {vehicle.make} {vehicle.model}
+            </CardTitle>
+            <p className="text-gray-400 text-sm">{vehicle.source}</p>
+          </div>
+          <div className="flex space-x-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setIsManagingImages(!isManagingImages)}
+              className="border-amber-500/20 text-amber-400 hover:bg-amber-500/10"
+            >
+              <Image className="w-4 h-4" />
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setIsEditing(!isEditing)}
+              className="border-amber-500/20 text-amber-400 hover:bg-amber-500/10"
+            >
+              <Edit className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </CardHeader>
+      
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-2 gap-2 text-sm">
+          <div className="text-gray-400">Price:</div>
+          <div className="text-white font-semibold">
+            ${vehicle.price.toLocaleString()} {vehicle.currency}
+          </div>
+          <div className="text-gray-400">AUD Price:</div>
+          <div className="text-amber-400 font-semibold">
+            ${vehicle.priceAUD.toLocaleString()} AUD
+          </div>
+          <div className="text-gray-400">Mileage:</div>
+          <div className="text-white">{vehicle.mileage}</div>
+          <div className="text-gray-400">Location:</div>
+          <div className="text-white">{vehicle.location}</div>
+        </div>
+
+        {isManagingImages && (
+          <div className="border-t border-gray-700 pt-4">
+            <div className="flex justify-between items-center mb-3">
+              <h4 className="text-white font-medium">Photo Management</h4>
+              <div className="flex space-x-2">
+                <Button
+                  size="sm"
+                  onClick={saveImageOrder}
+                  className="bg-amber-600 hover:bg-amber-700 text-black"
+                >
+                  <Save className="w-4 h-4 mr-1" />
+                  Save Order
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setImageOrder(vehicle.images);
+                    setIsManagingImages(false);
+                  }}
+                  className="border-gray-600 text-gray-400"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto">
+              {imageOrder.map((image, index) => (
+                <div key={index} className="relative group">
+                  <img 
+                    src={image} 
+                    alt={`Vehicle ${index + 1}`}
+                    className="w-full h-24 object-cover rounded border border-gray-600"
+                  />
+                  <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-1">
+                    {index > 0 && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleImageReorder(index, index - 1)}
+                        className="p-1 h-8 w-8 text-white hover:bg-white/20"
+                      >
+                        <ArrowUp className="w-4 h-4" />
+                      </Button>
+                    )}
+                    {index < imageOrder.length - 1 && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleImageReorder(index, index + 1)}
+                        className="p-1 h-8 w-8 text-white hover:bg-white/20"
+                      >
+                        <ArrowDown className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                  <div className="absolute top-1 left-1 bg-black bg-opacity-75 text-white text-xs px-1 rounded">
+                    {index + 1}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {vehicle.images.length > 0 && !isManagingImages && (
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-gray-400 text-sm">
+                {vehicle.images.length} Photos Available
+              </span>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="text-amber-400 hover:bg-amber-500/10 p-1"
+              >
+                <Eye className="w-4 h-4" />
+              </Button>
+            </div>
+            <img 
+              src={vehicle.images[0]} 
+              alt="Vehicle preview"
+              className="w-full h-32 object-cover rounded border border-gray-600"
+            />
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
