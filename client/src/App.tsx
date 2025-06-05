@@ -51,6 +51,7 @@ import USMarketIntelligence from "@/pages/us-market-intelligence";
 import LiveMarketScanner from "@/pages/live-market-scanner";
 import WebhookIntegration from "@/pages/webhook-integration";
 import LiveMarketData from "@/pages/live-market-data";
+import ImportVolumeDashboard from "@/pages/import-volume-dashboard";
 
 import NotFound from "@/pages/not-found";
 
@@ -96,7 +97,7 @@ function Router() {
       <Route path="/contact" component={Contact} />
       <Route path="/compliance-checker" component={ComplianceChecker} />
       <Route path="/shipping-calculator" component={ShippingCalculator} />
-      <Route path="/market-intelligence" component={LiveMarketData} />
+      <Route path="/market-intelligence" component={ImportVolumeDashboard} />
       <Route path="/auction-intelligence" component={AuctionSampleExplorer} />
       <Route path="/insurance-estimator" component={InsuranceEstimator} />
       <Route path="/legal-advisory" component={LegalAdvisory} />
