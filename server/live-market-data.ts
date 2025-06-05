@@ -39,6 +39,8 @@ interface LiveMarketData {
 // Exchange rate cache
 let exchangeRateCache: { jpyToAud: number; usdToAud: number; lastUpdated: Date } | null = null;
 
+
+
 /**
  * Fetch current exchange rates
  */
@@ -170,10 +172,17 @@ function processEnhancedItem(item: any, exchangeRates: { jpyToAud: number; usdTo
       images: item.images.filter((img: string) => 
         img && 
         img.startsWith('http') && 
+        (img.includes('.jpg') || img.includes('.jpeg') || img.includes('.png') || img.includes('.webp')) &&
         !img.includes('englishNR.jpg') && // Remove catalog/promotional images
         !img.includes('E2301R6') && // Remove dealer promotional content
-        img.includes('W00') // Keep only inspection photos with W00 pattern
-      ),
+        !img.includes('オークション') && // Remove Japanese auction text
+        !img.includes('キャンペーン') && // Remove Japanese campaign text
+        !img.includes('LINE') && // Remove LINE messaging promotional content
+        !img.includes('promo') && // Remove promotional images
+        !img.includes('campaign') && // Remove campaign images
+        !img.includes('banner') && // Remove banner advertisements
+        !img.includes('advertisement') // Remove advertisement images
+      ).slice(0, 10), // Limit to 10 images per vehicle
       transmission: item.transmission || 'Unknown',
       fuelType: item.fuelType || 'Gasoline',
       engineSize: '3.0L',
