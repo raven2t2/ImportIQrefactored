@@ -126,6 +126,14 @@ export default function UserDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-16">
           
           <ToolCard
+            title="Live Market Data"
+            description="Real-time auction listings from Japanese and US markets with authentic vehicle photos."
+            icon={<Gavel className="h-6 w-6" />}
+            color="amber"
+            onClick={() => window.location.href = '/live-market-data'}
+          />
+
+          <ToolCard
             title="Import Calculator"
             description="Calculate total import costs with authentic Australian government duty rates and fees."
             icon={<Calculator className="h-6 w-6" />}
