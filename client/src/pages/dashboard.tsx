@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { BarChart3, Users, Calculator, Brain, FileText, Download, Calendar, Clock, Phone, Mail } from "lucide-react";
+import { BarChart3, Users, Calculator, Brain, FileText, Download, Calendar, Clock, Phone, Mail, Menu, X } from "lucide-react";
 import { Plus, Eye } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Link } from "wouter";
+import logoPath from "@assets/circular imi logo (3).png";
 
 interface Submission {
   id: number;
@@ -44,6 +46,7 @@ interface DashboardStats {
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("overview");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const { data: stats } = useQuery({
     queryKey: ["/api/admin/stats"],
@@ -105,6 +108,67 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Navigation Header */}
+      <nav className="bg-black border-b border-gray-800 sticky top-0 z-50 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo */}
+            <Link href="/" className="flex items-center space-x-3">
+              <img 
+                src={logoPath} 
+                alt="ImportIQ" 
+                className="h-8 w-8 rounded-full"
+              />
+              <span className="text-xl font-bold text-white">ImportIQ</span>
+            </Link>
+
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-6">
+              <Link href="/" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Home</Link>
+              <Link href="/features" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Features</Link>
+              <Link href="/pricing" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Pricing</Link>
+              <Link href="/about" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Our Mission</Link>
+              <Link href="/affiliate-signup" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm font-medium">Refer & Earn</Link>
+              <Link href="/subscribe">
+                <Button className="bg-amber-400 hover:bg-amber-500 text-black px-6 py-2 rounded-full transition-all duration-300 font-medium shadow-lg hover:shadow-xl">
+                  Upgrade Now
+                </Button>
+              </Link>
+            </div>
+
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="text-white hover:text-amber-400"
+              >
+                {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </Button>
+            </div>
+          </div>
+
+          {/* Mobile Navigation Menu */}
+          {mobileMenuOpen && (
+            <div className="md:hidden bg-gray-900 border-t border-gray-800">
+              <div className="px-2 pt-2 pb-3 space-y-1">
+                <Link href="/" className="block px-3 py-2 text-gray-300 hover:text-white transition-colors duration-300">Home</Link>
+                <Link href="/features" className="block px-3 py-2 text-gray-300 hover:text-white transition-colors duration-300">Features</Link>
+                <Link href="/pricing" className="block px-3 py-2 text-gray-300 hover:text-white transition-colors duration-300">Pricing</Link>
+                <Link href="/about" className="block px-3 py-2 text-gray-300 hover:text-white transition-colors duration-300">Our Mission</Link>
+                <Link href="/affiliate-signup" className="block px-3 py-2 text-gray-300 hover:text-white transition-colors duration-300">Refer & Earn</Link>
+                <Link href="/subscribe">
+                  <Button className="w-full mt-2 bg-amber-400 hover:bg-amber-500 text-black font-medium">
+                    Upgrade Now
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          )}
+        </div>
+      </nav>
+
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-6">
@@ -386,6 +450,48 @@ export default function Dashboard() {
           </TabsContent>
         </Tabs>
       </main>
+
+      {/* Footer */}
+      <footer className="bg-black border-t border-gray-800 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <div className="text-2xl font-semibold text-white mb-4">
+                Import<span className="text-amber-400">IQ</span>
+              </div>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Australia's premier vehicle import intelligence platform.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-white mb-4">Product</h4>
+              <div className="space-y-2 text-sm">
+                <Link href="/features" className="text-gray-400 hover:text-amber-400 transition-colors block">Features</Link>
+                <Link href="/pricing" className="text-gray-400 hover:text-amber-400 transition-colors block">Pricing</Link>
+                <Link href="/trial-dashboard" className="text-gray-400 hover:text-amber-400 transition-colors block">Dashboard</Link>
+              </div>
+            </div>
+            <div>
+              <h4 className="font-semibold text-white mb-4">Company</h4>
+              <div className="space-y-2 text-sm">
+                <Link href="/about" className="text-gray-400 hover:text-amber-400 transition-colors block">About</Link>
+                <Link href="/affiliate-signup" className="text-gray-400 hover:text-amber-400 transition-colors block">Partners</Link>
+                <a href="https://driveimmaculate.com" className="text-gray-400 hover:text-amber-400 transition-colors block">Contact</a>
+              </div>
+            </div>
+            <div>
+              <h4 className="font-semibold text-white mb-4">Support</h4>
+              <div className="space-y-2 text-sm">
+                <a href="https://driveimmaculate.com" className="text-gray-400 hover:text-amber-400 transition-colors block">Help Center</a>
+                <a href="https://driveimmaculate.com" className="text-gray-400 hover:text-amber-400 transition-colors block">Contact Support</a>
+              </div>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
+            © 2025 ImportIQ by Immaculate Imports. All rights reserved.
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
