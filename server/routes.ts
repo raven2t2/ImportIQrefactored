@@ -18,7 +18,7 @@ import OpenAI from "openai";
 import Stripe from "stripe";
 import bcrypt from "bcrypt";
 import fs from "fs";
-import { getLiveMarketData } from "./live-market-data";
+import { getLiveMarketData, updateCachedVehicle, removeCachedVehicle } from "./live-market-data";
 import { generateMarketListings, type SearchFilters } from "./simplified-market-data";
 import { getDataFreshnessStatus, getSystemHealthStatus, triggerManualRefresh, getCachedAuctionData } from "./auction-data-manager";
 import path from "path";
@@ -3952,8 +3952,8 @@ IMPORTANT GUIDELINES:
       // Update the vehicle's image order in memory
       marketData.vehicles[vehicleIndex].images = imageOrder;
       
-      // Note: Since this is cached data, the changes will persist until next cache refresh
-      // For permanent storage, we would need to update the actual data source
+      // Update the cached vehicle data to ensure frontend reflects changes immediately
+      updateCachedVehicle(id, marketData.vehicles[vehicleIndex]);
 
       res.json({ 
         success: true, 
@@ -3987,7 +3987,8 @@ IMPORTANT GUIDELINES:
       // Remove the vehicle from the cached array
       const deletedVehicle = marketData.vehicles.splice(vehicleIndex, 1)[0];
       
-      // Note: Since this is cached data, the changes will persist until next cache refresh
+      // Remove from cached data to ensure frontend reflects changes immediately
+      removeCachedVehicle(id);
 
       res.json({ 
         success: true, 

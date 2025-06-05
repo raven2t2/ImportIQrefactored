@@ -641,6 +641,35 @@ let marketDataCache: LiveMarketData | null = null;
 let lastFetchTime = 0;
 const CACHE_DURATION = 12 * 60 * 60 * 1000; // 12 hours
 
+/**
+ * Update cached vehicle data
+ */
+export function updateCachedVehicle(vehicleId: string, updatedVehicle: ApifyVehicle): void {
+  if (marketDataCache && marketDataCache.vehicles) {
+    const vehicleIndex = marketDataCache.vehicles.findIndex(v => v.id === vehicleId);
+    if (vehicleIndex !== -1) {
+      marketDataCache.vehicles[vehicleIndex] = updatedVehicle;
+    }
+  }
+}
+
+/**
+ * Remove vehicle from cache
+ */
+export function removeCachedVehicle(vehicleId: string): void {
+  if (marketDataCache && marketDataCache.vehicles) {
+    marketDataCache.vehicles = marketDataCache.vehicles.filter(v => v.id !== vehicleId);
+  }
+}
+
+/**
+ * Force cache refresh
+ */
+export function invalidateMarketDataCache(): void {
+  marketDataCache = null;
+  lastFetchTime = 0;
+}
+
 
 
 /**
