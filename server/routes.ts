@@ -18,7 +18,7 @@ import OpenAI from "openai";
 import Stripe from "stripe";
 import bcrypt from "bcrypt";
 import fs from "fs";
-import { getLiveMarketData, getMarketAnalysis, refreshLiveMarketData } from "./live-market-data";
+import { getLiveMarketData } from "./live-market-data";
 import { generateMarketListings, type SearchFilters } from "./simplified-market-data";
 import { getDataFreshnessStatus, getSystemHealthStatus, triggerManualRefresh, getCachedAuctionData } from "./auction-data-manager";
 import path from "path";
@@ -6042,12 +6042,12 @@ IMPORTANT GUIDELINES:
     }
   });
 
-  // Live Market Data API endpoints for authentic JDM and US datasets
-  app.get("/api/live-market-data", (req, res) => {
+  // Live Market Data API endpoint for Apify dataset
+  app.get("/api/live-market-data", async (req, res) => {
     try {
-      const marketData = getLiveMarketData();
+      const marketData = await getLiveMarketData();
       
-      if (!marketData) {
+      if (!marketData || !marketData.vehicles) {
         return res.status(503).json({ 
           error: 'Market data not available', 
           message: 'Data is being refreshed, please try again in a few minutes' 
@@ -6055,44 +6055,29 @@ IMPORTANT GUIDELINES:
       }
       
       // Apply filters if provided
-      const { make, source, maxPriceAUD, minYear } = req.query;
-      let jdmVehicles = marketData.jdmVehicles;
-      let usVehicles = marketData.usVehicles;
+      const { make, maxPriceAUD, minYear } = req.query;
+      let vehicles = marketData.vehicles;
       
       if (make) {
         const makeFilter = (make as string).toLowerCase();
-        jdmVehicles = jdmVehicles.filter(v => v.make.toLowerCase().includes(makeFilter));
-        usVehicles = usVehicles.filter(v => v.make.toLowerCase().includes(makeFilter));
+        vehicles = vehicles.filter(v => v.make.toLowerCase().includes(makeFilter));
       }
       
       if (maxPriceAUD) {
         const maxPrice = parseInt(maxPriceAUD as string);
-        jdmVehicles = jdmVehicles.filter(v => v.priceAUD <= maxPrice);
-        usVehicles = usVehicles.filter(v => v.priceAUD <= maxPrice);
+        vehicles = vehicles.filter(v => v.priceAUD <= maxPrice);
       }
       
       if (minYear) {
         const yearFilter = parseInt(minYear as string);
-        jdmVehicles = jdmVehicles.filter(v => v.year >= yearFilter);
-        usVehicles = usVehicles.filter(v => v.year >= yearFilter);
-      }
-      
-      if (source === 'jdm') {
-        usVehicles = [];
-      } else if (source === 'us') {
-        jdmVehicles = [];
+        vehicles = vehicles.filter(v => v.year >= yearFilter);
       }
       
       res.json({
-        jdmVehicles: jdmVehicles.slice(0, 50), // Limit to 50 per source
-        usVehicles: usVehicles.slice(0, 50),
+        vehicles: vehicles.slice(0, 100), // Limit to 100 vehicles
         lastUpdated: marketData.lastUpdated,
-        nextUpdate: marketData.nextUpdate,
         exchangeRates: marketData.exchangeRates,
-        totalResults: {
-          jdm: jdmVehicles.length,
-          us: usVehicles.length
-        }
+        totalResults: vehicles.length
       });
     } catch (error) {
       console.error('Error serving live market data:', error);
@@ -6100,25 +6085,14 @@ IMPORTANT GUIDELINES:
     }
   });
 
-  app.get("/api/live-market-analysis", (req, res) => {
-    try {
-      const analysis = getMarketAnalysis();
-      res.json(analysis);
-    } catch (error) {
-      console.error('Error generating market analysis:', error);
-      res.status(500).json({ error: 'Failed to generate market analysis' });
-    }
-  });
-
   app.post("/api/refresh-market-data", async (req, res) => {
     try {
       console.log('Manual market data refresh requested');
-      const refreshedData = await refreshLiveMarketData();
+      const refreshedData = await getLiveMarketData();
       res.json({ 
         success: true, 
         message: 'Market data refreshed successfully',
-        jdmCount: refreshedData.jdmVehicles.length,
-        usCount: refreshedData.usVehicles.length,
+        vehicleCount: refreshedData.vehicles.length,
         lastUpdated: refreshedData.lastUpdated
       });
     } catch (error) {
