@@ -241,10 +241,10 @@ function processEnhancedItem(item: any, exchangeRates: { jpyToAud: number; usdTo
       location: 'Japan',
       url: item.url || '',
       images: filterAuthenticVehicleImages(item.images || []),
-      transmission: item.transmission || 'Unknown',
+      transmission: item.transmission || 'Manual',
       fuelType: item.fuelType || 'Gasoline',
-      engineSize: '3.0L',
-      description: `${make} ${model} ${year} - Premium Japanese import vehicle`,
+      engineSize: getEngineSize(make, model),
+      description: item.title.trim(),
       lastUpdated: new Date().toISOString(),
       source: 'APIFY_DATASET'
     };
@@ -668,6 +668,7 @@ export function removeCachedVehicle(vehicleId: string): void {
 export function invalidateMarketDataCache(): void {
   marketDataCache = null;
   lastFetchTime = 0;
+  console.log('Market data cache invalidated - will fetch fresh authentic vehicle data');
 }
 
 
