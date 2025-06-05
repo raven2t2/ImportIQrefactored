@@ -3937,7 +3937,7 @@ IMPORTANT GUIDELINES:
       }
 
       // Get current market data and update the specific vehicle's image order
-      const marketData = getLiveMarketData();
+      const marketData = await getLiveMarketData();
       
       if (!marketData || !marketData.vehicles || !Array.isArray(marketData.vehicles)) {
         return res.status(500).json({ message: "Market data not available" });
@@ -3949,14 +3949,11 @@ IMPORTANT GUIDELINES:
         return res.status(404).json({ message: "Vehicle not found" });
       }
 
-      // Update the vehicle's image order
+      // Update the vehicle's image order in memory
       marketData.vehicles[vehicleIndex].images = imageOrder;
       
-      // Save the updated data back to the live market data file
-      fs.writeFileSync(
-        path.join(process.cwd(), 'live-market-data.json'),
-        JSON.stringify(marketData, null, 2)
-      );
+      // Note: Since this is cached data, the changes will persist until next cache refresh
+      // For permanent storage, we would need to update the actual data source
 
       res.json({ 
         success: true, 
@@ -3975,7 +3972,7 @@ IMPORTANT GUIDELINES:
       const { id } = req.params;
 
       // Get current market data
-      const marketData = getLiveMarketData();
+      const marketData = await getLiveMarketData();
       
       if (!marketData || !marketData.vehicles || !Array.isArray(marketData.vehicles)) {
         return res.status(500).json({ message: "Market data not available" });
@@ -3987,14 +3984,10 @@ IMPORTANT GUIDELINES:
         return res.status(404).json({ message: "Vehicle not found" });
       }
 
-      // Remove the vehicle from the array
+      // Remove the vehicle from the cached array
       const deletedVehicle = marketData.vehicles.splice(vehicleIndex, 1)[0];
       
-      // Save the updated data back to the live market data file
-      fs.writeFileSync(
-        path.join(process.cwd(), 'live-market-data.json'),
-        JSON.stringify(marketData, null, 2)
-      );
+      // Note: Since this is cached data, the changes will persist until next cache refresh
 
       res.json({ 
         success: true, 
