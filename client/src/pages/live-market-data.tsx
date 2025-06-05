@@ -186,20 +186,46 @@ function VehicleCard({ vehicle }: { vehicle: ApifyVehicle }) {
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {vehicle.images.map((image, index) => (
-                  <div key={index} className="relative group">
-                    <img
-                      src={image}
-                      alt={`${vehicle.title} - View ${index + 1}`}
-                      className="w-full h-48 object-cover rounded-lg shadow-md hover:shadow-lg transition-shadow"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.parentElement?.remove();
-                      }}
-                    />
-                    <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                      {index + 1}/{vehicle.images.length}
-                    </div>
-                  </div>
+                  <Dialog key={index}>
+                    <DialogTrigger asChild>
+                      <div className="relative group cursor-pointer">
+                        <img
+                          src={image}
+                          alt={`${vehicle.title} - View ${index + 1}`}
+                          className="w-full h-48 object-cover rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.parentElement?.parentElement?.remove();
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 rounded-lg flex items-center justify-center">
+                          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">
+                            Click to expand
+                          </div>
+                        </div>
+                        <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                          {index + 1}/{vehicle.images.length}
+                        </div>
+                      </div>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-7xl max-h-[95vh] p-0">
+                      <div className="relative">
+                        <img
+                          src={image}
+                          alt={`${vehicle.title} - Full size view ${index + 1}`}
+                          className="w-full h-auto max-h-[90vh] object-contain"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = "/placeholder-car.jpg";
+                          }}
+                        />
+                        <div className="absolute top-4 left-4 bg-black/70 text-white px-3 py-2 rounded-lg">
+                          <div className="font-medium">{vehicle.title}</div>
+                          <div className="text-sm opacity-90">Image {index + 1} of {vehicle.images.length}</div>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 ))}
               </div>
               <div className="grid grid-cols-2 gap-4 text-sm">
