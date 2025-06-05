@@ -58,7 +58,19 @@ export function filterAuthenticVehicleImages(images: string[]): string[] {
       'special',
       'offer',
       'deal',
-      'sale'
+      'sale',
+      'english',
+      'service',
+      'info',
+      'contact',
+      'line_',
+      'line.',
+      'qr_',
+      'tel_',
+      'phone',
+      'website',
+      'homepage',
+      'link'
     ];
 
     for (const pattern of promoPatterns) {
@@ -73,7 +85,13 @@ export function filterAuthenticVehicleImages(images: string[]): string[] {
       // Filter out promotional banners with specific patterns
       if (imageUrl.includes('englishNR.jpg') || 
           imageUrl.includes('/E23/') ||
-          imageUrl.includes('/O/')) {
+          imageUrl.includes('/O/') ||
+          imageUrl.includes('/common/') ||
+          imageUrl.includes('/banner/') ||
+          imageUrl.includes('_banner') ||
+          imageUrl.includes('english') ||
+          imageUrl.includes('service') ||
+          imageUrl.includes('contact')) {
         console.log(`Filtered promotional banner: ${imageUrl.substring(0, 80)}...`);
         return false;
       }
@@ -89,25 +107,25 @@ export function filterAuthenticVehicleImages(images: string[]): string[] {
       if (sequenceMatch) {
         const sequenceNum = parseInt(sequenceMatch[1]);
         
-        // Keep authentic vehicle inspection photos from multiple ranges
-        // 101-160: Primary inspection sequence
-        // 201-260: Secondary inspection sequence for additional views
-        if ((sequenceNum >= 101 && sequenceNum <= 160) || (sequenceNum >= 201 && sequenceNum <= 260)) {
+        // Only keep core vehicle inspection sequences - tighter filtering
+        // 102-109: Primary vehicle inspection photos only (avoiding promotional sequences)
+        // 202-209: Secondary inspection sequence for additional views
+        if ((sequenceNum >= 102 && sequenceNum <= 109) || (sequenceNum >= 202 && sequenceNum <= 209)) {
           console.log(`Keeping authentic vehicle inspection photo at sequence ${sequenceNum}: ${imageUrl.substring(0, 80)}...`);
           return true;
         } else {
-          console.log(`Skipping sequence ${sequenceNum} - outside authentic inspection ranges: ${imageUrl.substring(0, 80)}...`);
+          console.log(`Skipping sequence ${sequenceNum} - outside core inspection ranges: ${imageUrl.substring(0, 80)}...`);
           return false;
         }
       }
       
-      // Keep main vehicle photos (non-sequence format)
-      if (imageUrl.match(/\/J\/\d+\.jpg$/)) {
-        console.log(`Keeping main vehicle photo: ${imageUrl.substring(0, 80)}...`);
-        return true;
+      // Filter out any images that don't match vehicle inspection patterns
+      if (!imageUrl.includes('/J/') || !imageUrl.match(/\d{7}A\d{8}W00\d{3}\.jpg/)) {
+        console.log(`Filtering non-inspection image: ${imageUrl.substring(0, 80)}...`);
+        return false;
       }
       
-      return true; // Default to keeping other goo-net images
+      return true;
     }
 
     // Additional filtering for catalog/dealer promotional images

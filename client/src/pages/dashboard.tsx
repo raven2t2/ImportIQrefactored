@@ -190,6 +190,7 @@ export default function Dashboard() {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="flex w-full overflow-x-auto">
             <TabsTrigger value="overview" className="whitespace-nowrap">Overview</TabsTrigger>
+            <TabsTrigger value="market" className="whitespace-nowrap">Market Data</TabsTrigger>
             <TabsTrigger value="calculator" className="whitespace-nowrap">Calculator Leads</TabsTrigger>
             <TabsTrigger value="ai-recs" className="whitespace-nowrap">AI Recommendations</TabsTrigger>
             <TabsTrigger value="garage" className="whitespace-nowrap">My Garage</TabsTrigger>

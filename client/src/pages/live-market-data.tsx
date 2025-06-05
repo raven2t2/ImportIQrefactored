@@ -483,42 +483,6 @@ export default function LiveMarketDataPage() {
         </p>
       </div>
 
-      {/* Market Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <Card>
-          <CardContent className="p-4 text-center">
-            <TrendingUp className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold">{vehicles.length}</div>
-            <div className="text-sm text-gray-600">Total Vehicles</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <DollarSign className="h-8 w-8 text-green-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold">
-              {formatCurrency(Math.round(vehicles.reduce((sum, v) => sum + v.priceAUD, 0) / vehicles.length))}
-            </div>
-            <div className="text-sm text-gray-600">Avg. Price</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <Camera className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold">
-              {vehicles.reduce((sum, v) => sum + v.images.length, 0)}
-            </div>
-            <div className="text-sm text-gray-600">Total Images</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <RefreshCw className="h-8 w-8 text-orange-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold">Live</div>
-            <div className="text-sm text-gray-600">Data Status</div>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Search and Filters */}
       <Card className="mb-8">
         <CardHeader>
