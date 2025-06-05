@@ -243,13 +243,58 @@ function processApifyItem(item: any, exchangeRates: { jpyToAud: number; usdToAud
       }
     }
 
-    // Remove duplicates and filter valid image URLs
+    // Function to detect Japanese text and promotional content in URLs
+    const hasJapaneseOrPromotionalContent = (url: string, metadata?: any): boolean => {
+      const decodedUrl = decodeURIComponent(url);
+      
+      // Japanese character patterns
+      const japanesePatterns = [
+        /[\u3040-\u309F]/g, // Hiragana
+        /[\u30A0-\u30FF]/g, // Katakana
+        /[\u4E00-\u9FAF]/g, // Kanji
+      ];
+      
+      // Promotional and advertising terms (Japanese and English)
+      const promotionalPatterns = [
+        // Japanese promotional terms from your examples
+        /オークション|オンライン|スーパー|キャンペーン|プレゼント|LINE|万円/i,
+        // English promotional/advertising terms
+        /super|campaign|sale|special|present|gift|promo|banner|ad|advertisement/i,
+        /discount|offer|deal|price|cost|fee|bid|auction/i,
+        // Common promotional URL segments
+        /tokufair|tokubai|sale|campaign|promo|banner|ad_/i,
+        // Specific advertising indicators
+        /\/ad\/|\/ads\/|\/banner\/|\/promo\/|\/campaign\//i
+      ];
+      
+      // Check URL for patterns
+      const hasJapanese = japanesePatterns.some(pattern => pattern.test(decodedUrl));
+      const hasPromotional = promotionalPatterns.some(pattern => pattern.test(decodedUrl));
+      
+      // Check metadata for promotional content if available
+      if (metadata) {
+        const metaText = JSON.stringify(metadata).toLowerCase();
+        const hasPromotionalMeta = promotionalPatterns.some(pattern => 
+          pattern.test(metaText)
+        );
+        return hasJapanese || hasPromotional || hasPromotionalMeta;
+      }
+      
+      return hasJapanese || hasPromotional;
+    };
+
+    // Remove duplicates and filter valid image URLs, excluding promotional content
     const uniqueImages = Array.from(new Set(images)).filter(img => 
       img && 
       img.startsWith('http') && 
       (img.includes('.jpg') || img.includes('.jpeg') || img.includes('.png') || img.includes('.webp')) &&
       !img.includes('fb_image.jpg') && // Exclude social media placeholder images
-      !img.includes('common/other/')
+      !img.includes('common/other/') &&
+      !hasJapaneseOrPromotionalContent(img, item.metadata) && // Exclude Japanese promotional content
+      !img.includes('banner') && // Exclude banner advertisements
+      !img.includes('promo') && // Exclude promotional images
+      !img.includes('campaign') && // Exclude campaign images
+      !img.includes('advertisement') // Exclude advertisement images
     );
 
     // Extract price and convert to AUD from JSON-LD schema
