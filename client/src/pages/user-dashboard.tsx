@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Link } from "wouter";
 import { 
   Calculator, 
   Car, 
@@ -17,8 +19,11 @@ import {
   Crown,
   ArrowRight,
   CheckCircle,
-  Clock
+  Clock,
+  Menu,
+  X
 } from "lucide-react";
+import logoPath from "@assets/circular imi logo (3).png";
 
 // Tool Card Component
 interface ToolCardProps {
@@ -88,6 +93,7 @@ const ToolCard = ({ title, description, icon, color, onClick }: ToolCardProps) =
 
 export default function UserDashboard() {
   const { user, isLoading } = useAuth();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -99,6 +105,83 @@ export default function UserDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+      {/* Navigation Menu */}
+      <nav className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo */}
+            <div className="flex items-center space-x-3">
+              <img src={logoPath} alt="ImportIQ" className="h-8 w-8" />
+              <span className="text-xl font-bold text-gray-900">ImportIQ</span>
+            </div>
+
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-8">
+              <Link href="/" className="text-gray-700 hover:text-amber-600 transition-colors">
+                Home
+              </Link>
+              <Link href="/features" className="text-gray-700 hover:text-amber-600 transition-colors">
+                Features
+              </Link>
+              <Link href="/pricing" className="text-gray-700 hover:text-amber-600 transition-colors">
+                Pricing
+              </Link>
+              <Link href="/about" className="text-gray-700 hover:text-amber-600 transition-colors">
+                Our Mission
+              </Link>
+              <Link href="/affiliate-signup" className="text-gray-700 hover:text-amber-600 transition-colors">
+                Refer & Earn
+              </Link>
+              <Button className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-lg">
+                Upgrade Now
+              </Button>
+            </div>
+
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <Button
+                variant="ghost"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="p-2"
+              >
+                {isMenuOpen ? (
+                  <X className="h-6 w-6" />
+                ) : (
+                  <Menu className="h-6 w-6" />
+                )}
+              </Button>
+            </div>
+          </div>
+
+          {/* Mobile Navigation */}
+          {isMenuOpen && (
+            <div className="md:hidden">
+              <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t border-gray-200">
+                <Link href="/" className="block px-3 py-2 text-gray-700 hover:text-amber-600">
+                  Home
+                </Link>
+                <Link href="/features" className="block px-3 py-2 text-gray-700 hover:text-amber-600">
+                  Features
+                </Link>
+                <Link href="/pricing" className="block px-3 py-2 text-gray-700 hover:text-amber-600">
+                  Pricing
+                </Link>
+                <Link href="/about" className="block px-3 py-2 text-gray-700 hover:text-amber-600">
+                  Our Mission
+                </Link>
+                <Link href="/affiliate-signup" className="block px-3 py-2 text-gray-700 hover:text-amber-600">
+                  Refer & Earn
+                </Link>
+                <div className="px-3 py-2">
+                  <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white">
+                    Upgrade Now
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </nav>
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-12">
