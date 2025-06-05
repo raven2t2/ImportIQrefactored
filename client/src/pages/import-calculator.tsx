@@ -662,11 +662,11 @@ export default function ImportCalculator() {
                 </div>
 
                 {/* Save to Dashboard Button */}
-                <div className="mt-6 flex gap-3">
+                <div className="mt-6 space-y-3">
                   <Button 
                     onClick={handleSaveReport}
                     disabled={saveReportMutation.isPending}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700"
+                    className="w-full bg-blue-600 hover:bg-blue-700"
                   >
                     <FileText className="w-4 h-4 mr-2" />
                     {saveReportMutation.isPending ? "Saving..." : "Save to Dashboard"}
@@ -674,7 +674,7 @@ export default function ImportCalculator() {
                   
                   <Button 
                     onClick={() => window.location.href = '/checkout'}
-                    className="flex-1 bg-[#D4AF37] hover:bg-amber-500"
+                    className="w-full bg-[#D4AF37] hover:bg-amber-500"
                   >
                     Get Started - $500 Deposit
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -704,7 +704,7 @@ export default function ImportCalculator() {
                     className="w-full bg-white text-amber-600 hover:bg-gray-100 font-bold text-lg py-4 mb-3"
                   >
                     <ArrowRight className="h-5 w-5 mr-2" />
-                    Book My FREE Strategy Call (Value: $500)
+                    Book My FREE Strategy Call
                   </Button>
                   
                   <p className="text-center text-xs opacity-90">
