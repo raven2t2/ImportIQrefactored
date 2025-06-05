@@ -75,23 +75,22 @@ export function filterAuthenticVehicleImages(images: string[]): string[] {
       if (sequenceMatch) {
         const sequenceNum = parseInt(sequenceMatch[1]);
         
-        // From your screenshot, promotional banners appear in specific positions:
+        // From your screenshot analysis, promotional banners appear in specific positions:
         // Position 2: "1万円" promotional banner
         // Position 4: "CROSSROAD" dealer promotional content  
-        // Position 6: Additional promotional banners
-        // Position 7: Campaign/sale promotional content
+        // Positions 6-9: Additional promotional banners and campaigns
         if ([2, 4, 6, 7, 8, 9].includes(sequenceNum)) {
           console.log(`Filtered promotional banner at sequence ${sequenceNum}: ${imageUrl.substring(0, 80)}...`);
           return false;
         }
+        
+        // Keep authentic vehicle photos (positions 1, 3, 5, and 10+)
+        console.log(`Keeping authentic vehicle photo at sequence ${sequenceNum}: ${imageUrl.substring(0, 80)}...`);
+        return true;
       }
-
-      // Also filter images that don't follow the standard vehicle photo pattern
-      // Authentic vehicle photos typically use sequential numbering starting from 1
-      if (!imageUrl.match(/W00[1357]\.jpg$/)) {
-        console.log(`Filtered non-standard vehicle photo pattern: ${imageUrl.substring(0, 80)}...`);
-        return false;
-      }
+      
+      // If no sequence number found, keep the image (might be a different format)
+      return true;
     }
 
     // Additional filtering for catalog/dealer promotional images
