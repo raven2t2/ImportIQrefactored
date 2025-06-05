@@ -188,14 +188,14 @@ export default function Dashboard() {
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-7">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="auctions">USA & JDM Auctions</TabsTrigger>
-            <TabsTrigger value="calculator">Calculator Leads</TabsTrigger>
-            <TabsTrigger value="ai-recs">AI Recommendations</TabsTrigger>
-            <TabsTrigger value="garage">My Garage</TabsTrigger>
-            <TabsTrigger value="watchlist">Parts Watchlist</TabsTrigger>
-            <TabsTrigger value="events">Car Events</TabsTrigger>
+          <TabsList className="flex w-full overflow-x-auto">
+            <TabsTrigger value="overview" className="whitespace-nowrap">Overview</TabsTrigger>
+            <TabsTrigger value="auctions" className="whitespace-nowrap">USA & JDM Auctions</TabsTrigger>
+            <TabsTrigger value="calculator" className="whitespace-nowrap">Calculator Leads</TabsTrigger>
+            <TabsTrigger value="ai-recs" className="whitespace-nowrap">AI Recommendations</TabsTrigger>
+            <TabsTrigger value="garage" className="whitespace-nowrap">My Garage</TabsTrigger>
+            <TabsTrigger value="watchlist" className="whitespace-nowrap">Parts Watchlist</TabsTrigger>
+            <TabsTrigger value="events" className="whitespace-nowrap">Car Events</TabsTrigger>
           </TabsList>
 
           <TabsContent value="auctions" className="space-y-6">
