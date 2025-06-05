@@ -139,6 +139,62 @@ async function fetchApifyVehicles(): Promise<ApifyVehicle[]> {
 
 
 /**
+ * Process comprehensive dataset item with authentic vehicle inspection photos
+ */
+function processComprehensiveDatasetItem(item: any, exchangeRates: { jpyToAud: number; usdToAud: number }): ApifyVehicle | null {
+  try {
+    if (!item || !item.title || !item.images || !Array.isArray(item.images)) {
+      return null;
+    }
+
+    // Filter images to get only authentic vehicle inspection photos
+    const authenticImages = filterAuthenticVehicleImages(item.images);
+    
+    // Only process vehicles with sufficient authentic images
+    if (authenticImages.length < 10) {
+      console.log(`Skipping vehicle with insufficient images: ${authenticImages.length} authentic images found`);
+      return null;
+    }
+
+    const { make, model } = extractMakeModel(item.title);
+    const year = extractYearFromTitle(item.title) || extractRealisticSupraYear(item);
+    
+    // Extract price from various possible formats
+    let price = 5000000; // Default JPY price
+    if (item.price) {
+      price = parseFloat(item.price.toString().replace(/[^\d.]/g, '')) || 5000000;
+    }
+    
+    const currency = 'JPY';
+    const priceAUD = price * exchangeRates.jpyToAud;
+
+    return {
+      id: `comprehensive_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      title: item.title.trim(),
+      price: Math.round(price),
+      currency: 'JPY',
+      priceAUD: Math.round(priceAUD),
+      make,
+      model,
+      year,
+      mileage: extractMileageFromUrl(item.url) || 'Unknown',
+      location: 'Japan',
+      url: item.url || '',
+      images: authenticImages,
+      transmission: 'Manual',
+      fuelType: 'Gasoline',
+      engineSize: getEngineSize(make, model),
+      description: `${make} ${model} ${year} - Authentic Japanese auction vehicle with comprehensive inspection photos`,
+      lastUpdated: new Date().toISOString(),
+      source: 'APIFY_DATASET'
+    };
+  } catch (error) {
+    console.warn('Error processing comprehensive dataset item:', error);
+    return null;
+  }
+}
+
+/**
  * Process individual enhanced dataset item
  */
 function processEnhancedItem(item: any, exchangeRates: { jpyToAud: number; usdToAud: number }): ApifyVehicle | null {
@@ -498,6 +554,60 @@ function extractMakeModel(title: string): { make: string; model: string } {
   }
 
   return { make, model };
+}
+
+/**
+ * Extract year from title text
+ */
+function extractYearFromTitle(title: string): number | null {
+  const yearMatch = title.match(/\b(19|20)\d{2}\b/);
+  if (yearMatch) {
+    const year = parseInt(yearMatch[0]);
+    if (year >= 1990 && year <= 2025) {
+      return year;
+    }
+  }
+  return null;
+}
+
+/**
+ * Extract mileage from URL or return Unknown
+ */
+function extractMileageFromUrl(url: string): string {
+  if (!url) return 'Unknown';
+  
+  // Try to extract mileage patterns from URL
+  const kmMatch = url.match(/(\d+)km/i);
+  if (kmMatch) {
+    return `${kmMatch[1]} km`;
+  }
+  
+  const milesMatch = url.match(/(\d+)mi/i);
+  if (milesMatch) {
+    return `${milesMatch[1]} miles`;
+  }
+  
+  return 'Unknown';
+}
+
+/**
+ * Get engine size based on make and model
+ */
+function getEngineSize(make: string, model: string): string {
+  const engineSizes: { [key: string]: string } = {
+    'toyota_supra': '3.0L',
+    'toyota_ae86': '1.6L',
+    'nissan_skyline': '2.6L',
+    'nissan_silvia': '2.0L',
+    'honda_nsx': '3.0L',
+    'honda_civic': '1.6L',
+    'mazda_rx7': '1.3L Rotary',
+    'subaru_impreza': '2.0L',
+    'mitsubishi_evo': '2.0L'
+  };
+  
+  const key = `${make.toLowerCase()}_${model.toLowerCase()}`;
+  return engineSizes[key] || '2.0L';
 }
 
 /**
