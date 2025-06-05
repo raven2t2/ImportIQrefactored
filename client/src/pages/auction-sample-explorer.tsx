@@ -283,7 +283,7 @@ export default function AuctionSampleExplorer() {
                       <div className="text-center">
                         <TrendingUp className="h-8 w-8 text-green-600 mx-auto mb-2" />
                         <p className="text-lg font-bold text-gray-900 dark:text-white">
-                          A${searchResults.averagePrice.aud.toLocaleString()}
+                          A${searchResults.averagePrice?.aud?.toLocaleString() || 'N/A'}
                         </p>
                         <p className="text-sm text-gray-600 dark:text-gray-300">
                           Average Price
@@ -297,7 +297,7 @@ export default function AuctionSampleExplorer() {
                       <div className="text-center">
                         <Calendar className="h-8 w-8 text-purple-600 mx-auto mb-2" />
                         <p className="text-lg font-bold text-gray-900 dark:text-white">
-                          A${searchResults.priceRange.min.aud.toLocaleString()}
+                          A${searchResults.priceRange?.min?.aud?.toLocaleString() || 'N/A'}
                         </p>
                         <p className="text-sm text-gray-600 dark:text-gray-300">
                           Minimum Price
@@ -311,7 +311,7 @@ export default function AuctionSampleExplorer() {
                       <div className="text-center">
                         <MapPin className="h-8 w-8 text-red-600 mx-auto mb-2" />
                         <p className="text-lg font-bold text-gray-900 dark:text-white">
-                          A${searchResults.priceRange.max.aud.toLocaleString()}
+                          A${searchResults.priceRange?.max?.aud?.toLocaleString() || 'N/A'}
                         </p>
                         <p className="text-sm text-gray-600 dark:text-gray-300">
                           Maximum Price
