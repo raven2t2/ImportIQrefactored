@@ -1178,11 +1178,18 @@ function VehicleCard({ vehicle, onUpdate }: { vehicle: Vehicle; onUpdate: () => 
   const [isEditing, setIsEditing] = useState(false);
   const [imageOrder, setImageOrder] = useState(vehicle.images);
   const [isManagingImages, setIsManagingImages] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleImageReorder = (fromIndex: number, toIndex: number) => {
     const newOrder = [...imageOrder];
     const [movedImage] = newOrder.splice(fromIndex, 1);
     newOrder.splice(toIndex, 0, movedImage);
+    setImageOrder(newOrder);
+  };
+
+  const deleteImage = (index: number) => {
+    const newOrder = [...imageOrder];
+    newOrder.splice(index, 1);
     setImageOrder(newOrder);
   };
 
@@ -1197,6 +1204,31 @@ function VehicleCard({ vehicle, onUpdate }: { vehicle: Vehicle; onUpdate: () => 
       setIsManagingImages(false);
     } catch (error) {
       console.error('Failed to save image order:', error);
+      alert('Failed to save changes. Please try again.');
+    }
+  };
+
+  const deleteVehicle = async () => {
+    if (!confirm(`Are you sure you want to delete this vehicle: ${vehicle.year} ${vehicle.make} ${vehicle.model}?`)) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/admin/vehicles/${vehicle.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete vehicle');
+      }
+
+      onUpdate();
+    } catch (error) {
+      console.error('Failed to delete vehicle:', error);
+      alert('Failed to delete vehicle. Please try again.');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -1226,6 +1258,15 @@ function VehicleCard({ vehicle, onUpdate }: { vehicle: Vehicle; onUpdate: () => 
               className="border-amber-500/20 text-amber-400 hover:bg-amber-500/10"
             >
               <Edit className="w-4 h-4" />
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={deleteVehicle}
+              disabled={isDeleting}
+              className="border-red-500/20 text-red-400 hover:bg-red-500/10"
+            >
+              <Trash2 className="w-4 h-4" />
             </Button>
           </div>
         </div>
@@ -1303,6 +1344,14 @@ function VehicleCard({ vehicle, onUpdate }: { vehicle: Vehicle; onUpdate: () => 
                         <ArrowDown className="w-4 h-4" />
                       </Button>
                     )}
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => deleteImage(index)}
+                      className="p-1 h-8 w-8 text-red-400 hover:bg-red-500/20"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
                   <div className="absolute top-1 left-1 bg-black bg-opacity-75 text-white text-xs px-1 rounded">
                     {index + 1}
