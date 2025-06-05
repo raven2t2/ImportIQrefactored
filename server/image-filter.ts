@@ -70,27 +70,45 @@ export function filterAuthenticVehicleImages(images: string[]): string[] {
 
     // For Goo-net images, use advanced pattern detection
     if (imageUrl.includes('goo-net.com') || imageUrl.includes('picture1.goo-net.com')) {
-      // Extract the image sequence number from W00XXX pattern
+      // Filter out promotional banners with specific patterns
+      if (imageUrl.includes('englishNR.jpg') || 
+          imageUrl.includes('/E23/') ||
+          imageUrl.includes('/O/')) {
+        console.log(`Filtered promotional banner: ${imageUrl.substring(0, 80)}...`);
+        return false;
+      }
+
+      // Extract the image sequence number from W00XXX pattern for vehicle inspection photos
       const sequenceMatch = imageUrl.match(/W00(\d+)\.jpg/);
       if (sequenceMatch) {
         const sequenceNum = parseInt(sequenceMatch[1]);
         
-        // From your screenshot analysis, promotional banners appear in specific positions:
-        // Position 2: "1万円" promotional banner
-        // Position 4: "CROSSROAD" dealer promotional content  
-        // Positions 6-9: Additional promotional banners and campaigns
-        if ([2, 4, 6, 7, 8, 9].includes(sequenceNum)) {
-          console.log(`Filtered promotional banner at sequence ${sequenceNum}: ${imageUrl.substring(0, 80)}...`);
+        // Select the best 15 authentic vehicle inspection photos
+        // Focus on key inspection angles: front, rear, interior, engine, damage areas
+        const selectedSequences = [101, 103, 105, 107, 110, 115, 120, 125, 130, 135, 140, 145, 150, 155, 160];
+        
+        if (selectedSequences.includes(sequenceNum)) {
+          console.log(`Keeping authentic vehicle inspection photo at sequence ${sequenceNum}: ${imageUrl.substring(0, 80)}...`);
+          return true;
+        } else {
+          console.log(`Skipping sequence ${sequenceNum} to limit to best inspection photos: ${imageUrl.substring(0, 80)}...`);
           return false;
         }
-        
-        // Keep authentic vehicle photos (positions 1, 3, 5, and 10+)
-        console.log(`Keeping authentic vehicle photo at sequence ${sequenceNum}: ${imageUrl.substring(0, 80)}...`);
+      }
+      
+      // Keep main vehicle photos (non-sequence format)
+      if (imageUrl.match(/\/J\/\d+\.jpg$/) && !imageUrl.includes('W00')) {
+        console.log(`Keeping main vehicle photo: ${imageUrl.substring(0, 80)}...`);
         return true;
       }
       
-      // If no sequence number found, keep the image (might be a different format)
-      return true;
+      // Filter out duplicate /P/ (preview) versions - we only need /J/ (JPEG) versions
+      if (imageUrl.includes('/P/')) {
+        console.log(`Filtering duplicate preview version: ${imageUrl.substring(0, 80)}...`);
+        return false;
+      }
+      
+      return false;
     }
 
     // Additional filtering for catalog/dealer promotional images
