@@ -66,6 +66,7 @@ interface LiveMarketData {
 const JDM_SKYLINE_API = `https://api.apify.com/v2/datasets/BOwRnzKkfbtVVzgfu/items?clean=true&format=json&token=${process.env.APIFY_API_TOKEN}`;
 const JDM_CLASSICS_API = `https://api.apify.com/v2/datasets/ZNQXj1F51xyzo0kiK/items?clean=true&format=json&token=${process.env.APIFY_API_TOKEN}`;
 const US_CLASSIC_API = `https://api.apify.com/v2/datasets/EFjwLXRVn4w9QKgPV/items?clean=true&format=json&token=${process.env.APIFY_API_TOKEN}`;
+const SUPRA_WITH_IMAGES_API = `https://api.apify.com/v2/datasets/xe3ghePOPcJnkq2hq/items?clean=true&format=json&token=${process.env.APIFY_API_TOKEN}`;
 
 // Exchange rate API (free tier)
 const EXCHANGE_RATE_API = 'https://api.exchangerate-api.com/v4/latest/USD';
@@ -142,15 +143,17 @@ async function fetchJDMVehicles(exchangeRates: { jpyToAud: number; usdToAud: num
   try {
     console.log('Fetching authentic JDM vehicles from English datasets...');
     
-    // Fetch from both Skyline and JDM Classics datasets
-    const [skylineResponse, classicsResponse] = await Promise.all([
+    // Fetch from multiple JDM datasets including Supra with images
+    const [skylineResponse, classicsResponse, supraResponse] = await Promise.all([
       axios.get(JDM_SKYLINE_API, { timeout: 30000 }),
-      axios.get(JDM_CLASSICS_API, { timeout: 30000 })
+      axios.get(JDM_CLASSICS_API, { timeout: 30000 }),
+      axios.get(SUPRA_WITH_IMAGES_API, { timeout: 30000 })
     ]);
     
     const skylineData = Array.isArray(skylineResponse.data) ? skylineResponse.data : [];
     const classicsData = Array.isArray(classicsResponse.data) ? classicsResponse.data : [];
-    const rawData = [...skylineData, ...classicsData];
+    const supraData = Array.isArray(supraResponse.data) ? supraResponse.data : [];
+    const rawData = [...skylineData, ...classicsData, ...supraData];
     
     if (rawData.length === 0) {
       console.error('JDM APIs returned no data');
@@ -198,6 +201,16 @@ async function fetchJDMVehicles(exchangeRates: { jpyToAud: number; usdToAud: num
         const model = extractModel(originalTitle, make);
         const year = extractYear(originalTitle) || (new Date().getFullYear() - Math.floor(Math.random() * 20));
 
+        // Extract images if available (especially from Supra dataset)
+        let images: string[] = [];
+        if (searchResult.images) {
+          if (Array.isArray(searchResult.images)) {
+            images = searchResult.images.filter((img: string) => img && img.startsWith('http'));
+          } else if (typeof searchResult.images === 'string' && searchResult.images.startsWith('http')) {
+            images = [searchResult.images];
+          }
+        }
+
         return {
           id: `jdm_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           title: originalTitle, // Will be translated later
@@ -210,7 +223,7 @@ async function fetchJDMVehicles(exchangeRates: { jpyToAud: number; usdToAud: num
           mileage: `${Math.floor(Math.random() * 200000) + 10000} km`,
           location: 'Japan',
           url: searchResult.url || '',
-          images: [],
+          images,
           transmission: Math.random() > 0.5 ? 'Manual' : 'Automatic',
           fuelType: 'Petrol',
           engineSize: `${(Math.random() * 2 + 1).toFixed(1)}L`,
