@@ -70,16 +70,26 @@ export function filterAuthenticVehicleImages(images: string[]): string[] {
 
     // For Goo-net images, use advanced pattern detection
     if (imageUrl.includes('goo-net.com') || imageUrl.includes('picture1.goo-net.com')) {
-      // Promotional banners often have specific URL structures
-      // Keep only authentic vehicle inspection photos with W00 pattern
-      if (!imageUrl.includes('W00')) {
-        console.log(`Filtered non-inspection Goo-net image: ${imageUrl.substring(0, 80)}...`);
-        return false;
+      // Extract the image sequence number from W00XXX pattern
+      const sequenceMatch = imageUrl.match(/W00(\d+)\.jpg/);
+      if (sequenceMatch) {
+        const sequenceNum = parseInt(sequenceMatch[1]);
+        
+        // From your screenshot, promotional banners appear in specific positions:
+        // Position 2: "1万円" promotional banner
+        // Position 4: "CROSSROAD" dealer promotional content  
+        // Position 6: Additional promotional banners
+        // Position 7: Campaign/sale promotional content
+        if ([2, 4, 6, 7, 8, 9].includes(sequenceNum)) {
+          console.log(`Filtered promotional banner at sequence ${sequenceNum}: ${imageUrl.substring(0, 80)}...`);
+          return false;
+        }
       }
 
-      // Filter out promotional banner patterns (they often have specific ID structures)
-      if (imageUrl.match(/[A-Z]\d{7}[A-Z]\d{8}[A-Z]\d{5}\.jpg/)) {
-        console.log(`Filtered promotional banner pattern: ${imageUrl.substring(0, 80)}...`);
+      // Also filter images that don't follow the standard vehicle photo pattern
+      // Authentic vehicle photos typically use sequential numbering starting from 1
+      if (!imageUrl.match(/W00[1357]\.jpg$/)) {
+        console.log(`Filtered non-standard vehicle photo pattern: ${imageUrl.substring(0, 80)}...`);
         return false;
       }
     }
