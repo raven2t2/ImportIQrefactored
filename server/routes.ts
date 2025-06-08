@@ -1438,6 +1438,7 @@ Keep each recommendation under 40 words, factually accurate, and realistic.`;
               years: globalDetection.data!.years,
               engine: globalDetection.data!.engine,
               modifications: globalDetection.data!.modifications,
+              eligibilityByYear: globalDetection.data!.eligibilityByYear,
               analysisType: 'Complete Technical & Modification Analysis'
             }
           },
