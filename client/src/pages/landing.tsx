@@ -138,6 +138,135 @@ export default function Landing() {
         </div>
       </div>
 
+      {/* Business Value Section */}
+      <div className="py-20 bg-gradient-to-b from-black to-gray-900">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
+              Power Your Import Business
+            </h2>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              Professional import intelligence tools designed for automotive businesses, 
+              dealers, freight forwarders, and customs brokers.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 mb-16">
+            <div className="bg-gray-900/50 rounded-xl p-8 border border-gray-800">
+              <div className="w-12 h-12 bg-amber-400/20 rounded-lg flex items-center justify-center mb-6">
+                <span className="text-2xl">🚗</span>
+              </div>
+              <h3 className="text-xl font-semibold mb-4 text-white">Import Dealers</h3>
+              <p className="text-gray-400 mb-4">
+                Provide instant quotes, check compliance, and track multiple imports simultaneously.
+              </p>
+              <ul className="space-y-2 text-sm text-gray-500">
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-amber-400" />
+                  Batch import calculations
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-amber-400" />
+                  Client portal access
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-amber-400" />
+                  Profit margin analysis
+                </li>
+              </ul>
+            </div>
+
+            <div className="bg-gray-900/50 rounded-xl p-8 border border-gray-800">
+              <div className="w-12 h-12 bg-amber-400/20 rounded-lg flex items-center justify-center mb-6">
+                <span className="text-2xl">🏢</span>
+              </div>
+              <h3 className="text-xl font-semibold mb-4 text-white">Freight Forwarders</h3>
+              <p className="text-gray-400 mb-4">
+                Integrate compliance checking and cost estimation into your existing workflows.
+              </p>
+              <ul className="space-y-2 text-sm text-gray-500">
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-amber-400" />
+                  API integration
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-amber-400" />
+                  Automated reporting
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-amber-400" />
+                  Multi-region support
+                </li>
+              </ul>
+            </div>
+
+            <div className="bg-gray-900/50 rounded-xl p-8 border border-gray-800">
+              <div className="w-12 h-12 bg-amber-400/20 rounded-lg flex items-center justify-center mb-6">
+                <span className="text-2xl">⚖️</span>
+              </div>
+              <h3 className="text-xl font-semibold mb-4 text-white">Customs Brokers</h3>
+              <p className="text-gray-400 mb-4">
+                Access comprehensive compliance data and documentation requirements.
+              </p>
+              <ul className="space-y-2 text-sm text-gray-500">
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-amber-400" />
+                  Real-time duty rates
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-amber-400" />
+                  Documentation checklists
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-amber-400" />
+                  Regulatory updates
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Key Benefits */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+            <div className="bg-gray-900/30 rounded-xl p-6 border border-gray-700">
+              <h4 className="text-lg font-semibold mb-3 text-white">Authentic Government Data</h4>
+              <p className="text-gray-400 text-sm">
+                Real-time access to official duty rates, compliance requirements, and regulatory updates from government sources.
+              </p>
+            </div>
+            <div className="bg-gray-900/30 rounded-xl p-6 border border-gray-700">
+              <h4 className="text-lg font-semibold mb-3 text-white">Multi-Region Coverage</h4>
+              <p className="text-gray-400 text-sm">
+                Comprehensive import intelligence for Australia, United States, United Kingdom, and Canada markets.
+              </p>
+            </div>
+          </div>
+
+          {/* CTA */}
+          <div className="text-center">
+            <h3 className="text-2xl font-bold mb-4 text-white">Ready to scale your import business?</h3>
+            <p className="text-gray-400 mb-8 max-w-2xl mx-auto">
+              Access professional-grade import intelligence tools with authentic government data 
+              and comprehensive compliance checking across multiple regions.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                className="bg-amber-400 hover:bg-amber-500 text-black font-medium px-8 py-3"
+                onClick={() => window.location.href = '/api/login'}
+              >
+                Start Free Trial
+              </Button>
+              <Button 
+                variant="outline"
+                className="border-gray-600 text-white hover:bg-gray-800 px-8 py-3"
+                onClick={() => window.location.href = '/contact'}
+              >
+                Schedule Demo
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Footer */}
       <footer className="border-t border-gray-800 py-8">
         <div className="max-w-6xl mx-auto px-4">
