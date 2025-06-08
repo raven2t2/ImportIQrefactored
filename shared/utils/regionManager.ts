@@ -86,7 +86,7 @@ function calculateAuImportCosts(vehicleValue: number, state = 'NSW') {
   };
 }
 
-function calculateUsImportCosts(vehicleValue, state = 'CA') {
+function calculateUsImportCosts(vehicleValue: number, state = 'CA') {
   // US CBP and DOT current rates
   const duty = vehicleValue * 0.025; // 2.5% for passenger vehicles from most countries
   const harbourMaintenanceFee = vehicleValue * 0.00125; // 0.125% HMF
@@ -104,7 +104,7 @@ function calculateUsImportCosts(vehicleValue, state = 'CA') {
   };
 }
 
-function calculateUkImportCosts(vehicleValue, region = 'England') {
+function calculateUkImportCosts(vehicleValue: number, region = 'England') {
   // HMRC current rates post-Brexit
   const duty = vehicleValue * 0.10; // 10% import duty for cars
   const vat = (vehicleValue + duty) * 0.20; // 20% VAT on value + duty
@@ -122,7 +122,7 @@ function calculateUkImportCosts(vehicleValue, region = 'England') {
   };
 }
 
-function calculateCaImportCosts(vehicleValue, province = 'ON') {
+function calculateCaImportCosts(vehicleValue: number, province = 'ON') {
   // Transport Canada and CBSA current rates
   const duty = vehicleValue * 0.061; // 6.1% for passenger vehicles
   const gst = (vehicleValue + duty) * 0.05; // 5% federal GST
@@ -142,15 +142,28 @@ function calculateCaImportCosts(vehicleValue, province = 'ON') {
   };
 }
 
-function validateAuCompliance(vehicle) {
+interface VehicleDetails {
+  year: number;
+  make?: string;
+  model?: string;
+}
+
+interface ComplianceResult {
+  eligible: boolean;
+  estimatedComplianceCost: number | null;
+  requirements: string[];
+  exemptionType: string | null;
+}
+
+function validateAuCompliance(vehicle: VehicleDetails): ComplianceResult {
   const age = new Date().getFullYear() - vehicle.year;
   // Australia: 25 year exemption for general imports, 15 years for some specialized categories
   const is25YearExempt = age >= 25;
   const isSpecialInterest = age >= 15; // Classic, sports, or luxury vehicles
   
   let eligible = is25YearExempt || isSpecialInterest;
-  let complianceCost = null;
-  let requirements = [];
+  let complianceCost: number | null = null;
+  let requirements: string[] = [];
   
   if (is25YearExempt) {
     complianceCost = 4200; // ACIS inspection + basic compliance
@@ -166,14 +179,14 @@ function validateAuCompliance(vehicle) {
   return { eligible, estimatedComplianceCost: complianceCost, requirements, exemptionType: is25YearExempt ? '25-year' : isSpecialInterest ? '15-year special interest' : null };
 }
 
-function validateUsCompliance(vehicle) {
+function validateUsCompliance(vehicle: VehicleDetails): ComplianceResult {
   const age = new Date().getFullYear() - vehicle.year;
   // USA: 25 year exemption from FMVSS and EPA requirements
   const is25YearExempt = age >= 25;
   
   let eligible = is25YearExempt;
-  let complianceCost = null;
-  let requirements = [];
+  let complianceCost: number | null = null;
+  let requirements: string[] = [];
   
   if (is25YearExempt) {
     complianceCost = 1250; // DOT RI-1 form + EPA exemption + state registration prep
@@ -188,14 +201,14 @@ function validateUsCompliance(vehicle) {
   return { eligible, estimatedComplianceCost: complianceCost, requirements, exemptionType: is25YearExempt ? '25-year FMVSS/EPA exemption' : 'Full compliance required' };
 }
 
-function validateUkCompliance(vehicle) {
+function validateUkCompliance(vehicle: VehicleDetails): ComplianceResult {
   const age = new Date().getFullYear() - vehicle.year;
   // UK: No specific age exemptions, but different requirements for different ages
   const isClassic = age >= 40;
   const requiresMot = age >= 3;
   
   let complianceCost = 3200; // IVA test + DVLA registration + modifications
-  let requirements = ['Individual Vehicle Approval (IVA)', 'DVLA registration', 'UK specification lighting'];
+  let requirements: string[] = ['Individual Vehicle Approval (IVA)', 'DVLA registration', 'UK specification lighting'];
   
   if (isClassic) {
     complianceCost = 2100; // Reduced requirements for classic vehicles
@@ -207,14 +220,14 @@ function validateUkCompliance(vehicle) {
   return { eligible: true, estimatedComplianceCost: complianceCost, requirements, exemptionType: isClassic ? 'Classic vehicle (40+ years)' : 'Standard import' };
 }
 
-function validateCaCompliance(vehicle) {
+function validateCaCompliance(vehicle: VehicleDetails): ComplianceResult {
   const age = new Date().getFullYear() - vehicle.year;
   // Canada: 15 year exemption from CMVSS requirements
   const is15YearExempt = age >= 15;
   
   let eligible = is15YearExempt;
-  let complianceCost = null;
-  let requirements = [];
+  let complianceCost: number | null = null;
+  let requirements: string[] = [];
   
   if (is15YearExempt) {
     complianceCost = 2850; // RIV registration + provincial inspection + modifications
@@ -389,15 +402,20 @@ export const TOOL_CATEGORIES = {
   }
 };
 
+type RegionCode = 'AU' | 'US' | 'UK' | 'CA';
+
 export class RegionManager {
+  private currentRegion: RegionCode;
+  private userPreferences: any;
+
   constructor() {
     this.currentRegion = this.detectUserRegion();
     this.userPreferences = this.loadUserPreferences();
   }
 
-  detectUserRegion() {
+  detectUserRegion(): RegionCode {
     // Try to detect from various sources
-    const stored = localStorage.getItem('importiq_region');
+    const stored = localStorage.getItem('importiq_region') as RegionCode;
     if (stored && SUPPORTED_REGIONS[stored]) {
       return stored;
     }
@@ -412,7 +430,7 @@ export class RegionManager {
     return 'AU'; // Default fallback
   }
 
-  setRegion(regionCode) {
+  setRegion(regionCode: RegionCode) {
     if (!SUPPORTED_REGIONS[regionCode]) {
       throw new Error(`Unsupported region: ${regionCode}`);
     }
@@ -432,7 +450,7 @@ export class RegionManager {
 
   getAvailableTools() {
     const region = this.getCurrentRegion();
-    const availableTools = {};
+    const availableTools: any = {};
 
     Object.entries(TOOL_CATEGORIES).forEach(([categoryKey, category]) => {
       availableTools[categoryKey] = {
@@ -444,17 +462,17 @@ export class RegionManager {
     return availableTools;
   }
 
-  calculateImportCosts(vehicleValue, subdivision) {
+  calculateImportCosts(vehicleValue: number, subdivision?: string) {
     const region = this.getCurrentRegion();
     return region.calculateCosts(vehicleValue, subdivision);
   }
 
-  validateCompliance(vehicle) {
+  validateCompliance(vehicle: VehicleDetails) {
     const region = this.getCurrentRegion();
     return region.validateCompliance(vehicle);
   }
 
-  formatCurrency(amount) {
+  formatCurrency(amount: number) {
     const region = this.getCurrentRegion();
     return new Intl.NumberFormat(region.locale, {
       style: 'currency',
@@ -467,7 +485,7 @@ export class RegionManager {
     return stored ? JSON.parse(stored) : {};
   }
 
-  saveUserPreferences(preferences) {
+  saveUserPreferences(preferences: any) {
     this.userPreferences = { ...this.userPreferences, ...preferences };
     localStorage.setItem('importiq_preferences', JSON.stringify(this.userPreferences));
   }
