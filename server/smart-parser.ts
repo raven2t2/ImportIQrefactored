@@ -26,9 +26,29 @@ export interface SmartParserResponse {
   data: any;
   confidenceScore: number;
   sourceAttribution: string;
+  sourceBreakdown: SourceBreakdown[];
+  whyThisResult: string;
+  nextSteps: NextStepRecommendation[];
   fallbackSuggestions?: string[];
   lastUpdated?: string;
   disclaimer?: string;
+}
+
+export interface SourceBreakdown {
+  dataPoint: string;
+  source: string;
+  confidence: number;
+  lastVerified: string;
+  url?: string;
+}
+
+export interface NextStepRecommendation {
+  title: string;
+  description: string;
+  priority: 'high' | 'medium' | 'low';
+  category: string;
+  actionUrl?: string;
+  estimatedTime?: string;
 }
 
 export interface VINDecodeResult {
@@ -94,6 +114,18 @@ class PostgreSQLSmartParser {
 
       if (exactMatch.length > 0) {
         const spec = exactMatch[0];
+        const sourceBreakdown: SourceBreakdown[] = [
+          {
+            dataPoint: 'Vehicle Identification',
+            source: spec.sourceAttribution,
+            confidence: spec.confidenceScore,
+            lastVerified: spec.lastVerified?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0],
+            url: spec.sourceUrl || undefined
+          }
+        ];
+
+        const nextSteps = this.generateVehicleNextSteps(spec.make, spec.model, spec.year, spec.countryOfOrigin);
+
         return {
           data: {
             make: spec.make,
@@ -106,6 +138,9 @@ class PostgreSQLSmartParser {
           },
           confidenceScore: spec.confidenceScore,
           sourceAttribution: spec.sourceAttribution,
+          sourceBreakdown,
+          whyThisResult: `VIN ${vin} matched against official ${spec.make} manufacturer database. ${spec.confidenceScore}% confidence based on direct manufacturer record verification.`,
+          nextSteps,
           lastUpdated: spec.lastVerified?.toISOString()
         };
       }
@@ -123,6 +158,19 @@ class PostgreSQLSmartParser {
         const bestMatch = partialMatches[0];
         const fallbacks = await this.getFallbackSuggestions(vin, 'vin');
         
+        const partialConfidence = Math.max(bestMatch.confidenceScore - 20, 60);
+        const sourceBreakdown: SourceBreakdown[] = [
+          {
+            dataPoint: 'Partial Vehicle Identification',
+            source: `${bestMatch.sourceAttribution} (Partial VIN)`,
+            confidence: partialConfidence,
+            lastVerified: new Date().toISOString().split('T')[0],
+            url: bestMatch.sourceUrl || undefined
+          }
+        ];
+
+        const nextSteps = this.generateVehicleNextSteps(bestMatch.make, bestMatch.model, bestMatch.year, bestMatch.countryOfOrigin);
+
         return {
           data: {
             make: bestMatch.make,
@@ -131,21 +179,42 @@ class PostgreSQLSmartParser {
             country: bestMatch.countryOfOrigin,
             chassisCode: bestMatch.chassisCode
           },
-          confidenceScore: Math.max(bestMatch.confidenceScore - 20, 60), // Reduce confidence for partial match
+          confidenceScore: partialConfidence,
           sourceAttribution: `${bestMatch.sourceAttribution} (Partial VIN match)`,
+          sourceBreakdown,
+          whyThisResult: `Partial VIN match found using first 11 characters. ${partialConfidence}% confidence due to incomplete VIN verification. Full VIN recommended for complete accuracy.`,
+          nextSteps,
           fallbackSuggestions: fallbacks,
           disclaimer: "Partial VIN match - verify details with full vehicle inspection"
         };
       }
 
-      // No matches found
+      // No matches found - provide guidance without fake data
       const fallbacks = await this.getFallbackSuggestions(vin, 'vin');
       return {
         data: null,
         confidenceScore: 0,
-        sourceAttribution: "No VIN match found in database",
+        sourceAttribution: "No authenticated manufacturer data available",
+        sourceBreakdown: [],
+        whyThisResult: `VIN ${vin} not found in verified manufacturer databases. This could indicate: 1) Vehicle not yet in our database, 2) Modified VIN, or 3) Special edition/limited production vehicle.`,
+        nextSteps: [
+          {
+            title: 'Try Manual Vehicle Entry',
+            description: 'Enter make, model, and year manually for import eligibility check',
+            priority: 'high',
+            category: 'alternative_lookup',
+            estimatedTime: '2 minutes'
+          },
+          {
+            title: 'Check Chassis Code',
+            description: 'Look up vehicle chassis code for Japanese imports',
+            priority: 'medium',
+            category: 'alternative_lookup',
+            estimatedTime: '5 minutes'
+          }
+        ],
         fallbackSuggestions: fallbacks,
-        disclaimer: "VIN not found - consider manual vehicle verification"
+        disclaimer: "No authentic VIN data found in manufacturer databases"
       };
 
     } catch (error) {
@@ -446,6 +515,94 @@ class PostgreSQLSmartParser {
       console.error('Fallback suggestions error:', error);
       return [];
     }
+  }
+
+  /**
+   * Generate contextual next steps based on vehicle type and origin country
+   */
+  private generateVehicleNextSteps(make: string, model: string, year: number, originCountry: string): NextStepRecommendation[] {
+    const steps: NextStepRecommendation[] = [];
+    
+    // JDM vehicles to Australia/New Zealand - specific guidance
+    if (originCountry === 'japan') {
+      steps.push({
+        title: 'Check 25-Year Import Eligibility',
+        description: 'Verify if this Japanese vehicle meets the 25-year import rule for your destination country',
+        priority: 'high',
+        category: 'compliance',
+        estimatedTime: '2 minutes'
+      });
+      
+      if (make.toLowerCase() === 'nissan' && model.toLowerCase().includes('skyline')) {
+        steps.push({
+          title: 'GT-R Specialist Compliance Check',
+          description: 'GT-R models have specific compliance requirements including RAWS certification in Australia',
+          priority: 'high',
+          category: 'specialist_compliance',
+          estimatedTime: '30 minutes'
+        });
+      }
+      
+      if (make.toLowerCase() === 'toyota' && model.toLowerCase().includes('supra')) {
+        steps.push({
+          title: 'Turbo Model Verification',
+          description: 'Confirm turbo vs naturally aspirated model for accurate compliance assessment',
+          priority: 'medium',
+          category: 'technical_verification',
+          estimatedTime: '15 minutes'
+        });
+      }
+    }
+    
+    // US Muscle cars - E85 and modification considerations
+    if (originCountry === 'united_states' && year >= 1965 && year <= 1975) {
+      steps.push({
+        title: 'Classic Muscle Car Compliance',
+        description: 'Verify emissions exemptions and modification allowances for classic American muscle cars',
+        priority: 'high',
+        category: 'classic_compliance',
+        estimatedTime: '20 minutes'
+      });
+      
+      steps.push({
+        title: 'E85 Fuel Compatibility Check',
+        description: 'Determine if engine modifications needed for local fuel standards',
+        priority: 'medium',
+        category: 'fuel_compatibility',
+        estimatedTime: '10 minutes'
+      });
+    }
+    
+    // German vehicles - EU compliance transfer
+    if (originCountry === 'germany') {
+      steps.push({
+        title: 'EU Compliance Transfer',
+        description: 'Check if existing EU certification can expedite import approval process',
+        priority: 'medium',
+        category: 'compliance_transfer',
+        estimatedTime: '15 minutes'
+      });
+    }
+    
+    // Always add shipping cost estimation
+    steps.push({
+      title: 'Get Shipping Quote',
+      description: 'Calculate accurate shipping costs from origin country to your location',
+      priority: 'medium',
+      category: 'logistics',
+      estimatedTime: '5 minutes'
+    });
+    
+    // Always add market pricing check
+    steps.push({
+      title: 'Check Current Market Value',
+      description: 'Compare recent auction results and market prices for this specific model',
+      priority: 'low',
+      category: 'market_research',
+      estimatedTime: '10 minutes'
+    });
+    
+    return steps;
   }
 
   /**
