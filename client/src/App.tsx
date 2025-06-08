@@ -64,6 +64,7 @@ import ImportVolumeDashboard from "@/pages/import-volume-dashboard";
 import ImportFlow from "@/pages/import-flow";
 import EligibilityCheck from "@/pages/EligibilityCheck";
 import ImportJourney from "@/pages/ImportJourney";
+import GlobalCompliance from "@/pages/GlobalCompliance";
 
 
 import NotFound from "@/pages/not-found";
