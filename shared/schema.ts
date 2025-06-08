@@ -504,6 +504,128 @@ export type InsertAuctionListingRequest = z.infer<typeof insertAuctionListingSch
 export type ShopSuggestion = typeof shopSuggestions.$inferSelect;
 export type InsertShopSuggestion = typeof shopSuggestions.$inferInsert;
 
+// Global Vehicle Import Data Tables
+export const vinPatterns = pgTable("vin_patterns", {
+  id: serial("id").primaryKey(),
+  wmiCode: varchar("wmi_code", { length: 3 }).notNull().unique(),
+  manufacturer: varchar("manufacturer").notNull(),
+  country: varchar("country").notNull(),
+  countryCode: varchar("country_code", { length: 2 }).notNull(),
+  vehicleType: varchar("vehicle_type").notNull(),
+  confidence: integer("confidence").notNull(),
+  source: text("source").notNull(),
+  sourceUrl: text("source_url"),
+  lastVerified: timestamp("last_verified").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const shippingRoutes = pgTable("shipping_routes", {
+  id: serial("id").primaryKey(),
+  originPort: varchar("origin_port").notNull(),
+  destinationPort: varchar("destination_port").notNull(),
+  originCountry: varchar("origin_country").notNull(),
+  destinationCountry: varchar("destination_country").notNull(),
+  estimatedCostUsd: integer("estimated_cost_usd").notNull(), // in cents
+  transitDays: integer("transit_days").notNull(),
+  serviceType: varchar("service_type").notNull(), // Container, RoRo, Air
+  confidence: integer("confidence").notNull(),
+  source: text("source").notNull(),
+  sourceUrl: text("source_url"),
+  lastUpdated: timestamp("last_updated").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const complianceRules = pgTable("compliance_rules", {
+  id: serial("id").primaryKey(),
+  country: varchar("country").notNull(),
+  countryCode: varchar("country_code", { length: 2 }).notNull(),
+  minimumAge: integer("minimum_age"),
+  maximumAge: integer("maximum_age"),
+  leftHandDriveAllowed: boolean("left_hand_drive_allowed").default(true),
+  requirements: text("requirements").array(), // Array of requirement strings
+  estimatedCosts: jsonb("estimated_costs"), // JSON object with cost breakdown
+  specialNotes: text("special_notes").array(), // Array of special requirement notes
+  confidence: integer("confidence").notNull(),
+  source: text("source").notNull(),
+  sourceUrl: text("source_url"),
+  lastUpdated: timestamp("last_updated").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const vehicleLookupRequests = pgTable("vehicle_lookup_requests", {
+  id: serial("id").primaryKey(),
+  identifier: text("identifier").notNull(), // VIN, URL, or keyword
+  identifierType: varchar("identifier_type").notNull(), // vin, url, keyword
+  resultData: jsonb("result_data"), // Complete lookup result
+  userIp: varchar("user_ip"),
+  userAgent: text("user_agent"),
+  confidence: integer("confidence"),
+  dataSource: varchar("data_source"),
+  processingTimeMs: integer("processing_time_ms"),
+  errors: text("errors").array(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const dataQualityReports = pgTable("data_quality_reports", {
+  id: serial("id").primaryKey(),
+  dataType: varchar("data_type").notNull(), // vin_patterns, shipping_routes, compliance_rules
+  totalRecords: integer("total_records").notNull(),
+  verifiedRecords: integer("verified_records").notNull(),
+  confidenceAverage: integer("confidence_average").notNull(),
+  missingDataAreas: text("missing_data_areas").array(),
+  lastAuditDate: timestamp("last_audit_date").defaultNow(),
+  nextAuditDue: timestamp("next_audit_due"),
+  auditedBy: varchar("audited_by"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const adminDataOverrides = pgTable("admin_data_overrides", {
+  id: serial("id").primaryKey(),
+  dataType: varchar("data_type").notNull(), // vin_patterns, shipping_routes, compliance_rules
+  recordId: integer("record_id").notNull(),
+  fieldName: varchar("field_name").notNull(),
+  originalValue: text("original_value"),
+  overrideValue: text("override_value").notNull(),
+  reason: text("reason").notNull(),
+  adminUserId: integer("admin_user_id").notNull(),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const geographicCoverage = pgTable("geographic_coverage", {
+  id: serial("id").primaryKey(),
+  countryCode: varchar("country_code", { length: 2 }).notNull().unique(),
+  countryName: varchar("country_name").notNull(),
+  hasShippingData: boolean("has_shipping_data").default(false),
+  hasComplianceData: boolean("has_compliance_data").default(false),
+  hasVinSupport: boolean("has_vin_support").default(false),
+  coverageScore: integer("coverage_score").default(0), // 0-100
+  demandPriority: varchar("demand_priority").default("medium"), // low, medium, high, critical
+  lastDataUpdate: timestamp("last_data_update"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Type exports for new tables
+export type VinPattern = typeof vinPatterns.$inferSelect;
+export type InsertVinPattern = typeof vinPatterns.$inferInsert;
+export type ShippingRoute = typeof shippingRoutes.$inferSelect;
+export type InsertShippingRoute = typeof shippingRoutes.$inferInsert;
+export type ComplianceRule = typeof complianceRules.$inferSelect;
+export type InsertComplianceRule = typeof complianceRules.$inferInsert;
+export type VehicleLookupRequest = typeof vehicleLookupRequests.$inferSelect;
+export type InsertVehicleLookupRequest = typeof vehicleLookupRequests.$inferInsert;
+export type DataQualityReport = typeof dataQualityReports.$inferSelect;
+export type InsertDataQualityReport = typeof dataQualityReports.$inferInsert;
+export type AdminDataOverride = typeof adminDataOverrides.$inferSelect;
+export type InsertAdminDataOverride = typeof adminDataOverrides.$inferInsert;
+export type GeographicCoverage = typeof geographicCoverage.$inferSelect;
+export type InsertGeographicCoverage = typeof geographicCoverage.$inferInsert;
+
 export type Deposit = typeof deposits.$inferSelect;
 export type InsertDeposit = typeof deposits.$inferInsert;
 export const insertDepositSchema = createInsertSchema(deposits);
