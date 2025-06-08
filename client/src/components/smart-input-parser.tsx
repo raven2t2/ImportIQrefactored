@@ -213,12 +213,18 @@ export function SmartInputParser({ onInputParsed, placeholder = "Paste VIN, auct
 
   const extractChassisInfo = (chassis: string) => {
     const chassisMap: Record<string, any> = {
+      'JZA80': { make: 'Toyota', model: 'Supra', origin: 'Japan' },
       'JZX100': { make: 'Toyota', model: 'Chaser', origin: 'Japan' },
       'BNR32': { make: 'Nissan', model: 'Skyline GT-R', origin: 'Japan' },
+      'BNR34': { make: 'Nissan', model: 'Skyline GT-R', origin: 'Japan' },
       'FD3S': { make: 'Mazda', model: 'RX-7', origin: 'Japan' },
       'EK9': { make: 'Honda', model: 'Civic Type R', origin: 'Japan' },
       'GC8': { make: 'Subaru', model: 'Impreza WRX', origin: 'Japan' },
-      'AE86': { make: 'Toyota', model: 'Corolla', origin: 'Japan' }
+      'AE86': { make: 'Toyota', model: 'Corolla', origin: 'Japan' },
+      'S13': { make: 'Nissan', model: '180SX/240SX', origin: 'Japan' },
+      'S14': { make: 'Nissan', model: '200SX/240SX', origin: 'Japan' },
+      'S15': { make: 'Nissan', model: 'Silvia', origin: 'Japan' },
+      'SW20': { make: 'Toyota', model: 'MR2', origin: 'Japan' }
     };
 
     return chassisMap[chassis] || { origin: 'Japan' };
@@ -250,7 +256,7 @@ export function SmartInputParser({ onInputParsed, placeholder = "Paste VIN, auct
   };
 
   const isKnownChassisPattern = (code: string): boolean => {
-    const patterns = ['JZX', 'BNR', 'FD3', 'EK9', 'GC8', 'AE8', 'DC2', 'EG6', 'SW20', 'ZN6'];
+    const patterns = ['JZA', 'JZX', 'BNR', 'FD3', 'EK9', 'GC8', 'AE8', 'DC2', 'EG6', 'SW20', 'ZN6', 'S13', 'S14', 'S15'];
     return patterns.some(pattern => code.startsWith(pattern));
   };
 

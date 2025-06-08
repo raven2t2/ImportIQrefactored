@@ -89,15 +89,15 @@ export function SmartLookupPage() {
     
     // Automatically check eligibility for detected countries
     const vehicleData = {
-      make: parsed.make || parsed.detectedInfo?.make || 'Unknown',
-      model: parsed.model || parsed.detectedInfo?.model || 'Unknown',
-      year: parsed.year || parsed.detectedInfo?.year,
+      make: parsed.detectedMake || parsed.detectedInfo?.make || parsed.make || 'Unknown',
+      model: parsed.detectedModel || parsed.detectedInfo?.model || parsed.model || 'Unknown',
+      year: parsed.detectedYear || parsed.detectedInfo?.year || parsed.year,
       origin: parsed.origin || parsed.detectedInfo?.origin,
-      estimatedAge: (parsed.year || parsed.detectedInfo?.year) ? new Date().getFullYear() - (parsed.year || parsed.detectedInfo?.year) : 25,
+      estimatedAge: (parsed.detectedYear || parsed.detectedInfo?.year || parsed.year) ? new Date().getFullYear() - (parsed.detectedYear || parsed.detectedInfo?.year || parsed.year) : 25,
       estimatedValue: 50000, // Default for calculation
       inputType: parsed.type,
       confidence: parsed.confidence,
-      technicalSpecs: parsed.technicalSpecs || parsed.detectedInfo?.technicalSpecs
+      technicalSpecs: parsed.technicalSpecs
     };
     console.log('Vehicle data for eligibility check:', vehicleData);
 
