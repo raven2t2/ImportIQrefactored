@@ -113,6 +113,18 @@ export default function VehicleEligibilityChecker() {
   const [inputValue, setInputValue] = useState('');
   const [results, setResults] = useState<EligibilityResults | null>(null);
 
+  // Handle URL parameters from landing page
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const inputParam = urlParams.get('input');
+    
+    if (inputParam) {
+      setInputValue(inputParam);
+      // Auto-trigger the smart detection
+      setTimeout(() => handleNext(inputParam), 100);
+    }
+  }, []);
+
   const eligibilityMutation = useMutation({
     mutationFn: async (data: any): Promise<EligibilityResults> => {
       const response = await apiRequest('POST', '/api/check-vehicle-eligibility', {
