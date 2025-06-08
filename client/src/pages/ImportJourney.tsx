@@ -118,16 +118,14 @@ export default function ImportJourney() {
     queryFn: async () => {
       try {
         console.log('Making import intelligence request with:', { vehicleData, destination, sessionToken });
-        const response = await apiRequest('/api/import-intelligence', {
-          method: 'POST',
-          body: { 
-            vehicleData: vehicleData, 
-            destination,
-            sessionToken 
-          }
+        const response = await apiRequest('POST', '/api/import-intelligence', { 
+          vehicleData: vehicleData, 
+          destination,
+          sessionToken 
         });
-        console.log('Import intelligence response:', response);
-        return response;
+        const data = await response.json();
+        console.log('Import intelligence response:', data);
+        return data;
       } catch (error) {
         console.error('Import intelligence API error:', error);
         throw error;
