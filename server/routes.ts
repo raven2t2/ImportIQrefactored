@@ -1509,6 +1509,7 @@ Keep each recommendation under 40 words, factually accurate, and realistic.`;
       const { detectGlobalVehicle } = await import('./global-vehicle-database');
       const { comprehensiveFallback } = await import('./comprehensive-fallback-system');
       const { inferVehicleYear } = await import('./intelligent-year-handler');
+      const { internalDataEngine } = await import('./internal-data-engine');
       
       const globalDetection = detectGlobalVehicle(identifier);
       
