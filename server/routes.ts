@@ -391,6 +391,8 @@ function calculateImportCosts(vehiclePrice: number, shippingOrigin: string, zipC
   
   // Authentic shipping costs using real freight data
   const shippingCost = calculateShippingCost(shippingOrigin, state, vehiclePrice);
+  const baseShipping = shippingCost * 0.85; // Base shipping without regional adjustments
+  const freightAdjustment = shippingCost - baseShipping; // Regional freight adjustment
   
   // Australian Government 2024-25 import duty rates
   const customsDuty = calculateImportDuty(vehiclePrice); // 5% for passenger vehicles
@@ -438,10 +440,10 @@ function calculateImportCosts(vehiclePrice: number, shippingOrigin: string, zipC
   
   return {
     vehiclePrice,
-    shipping,
+    shipping: shippingCost,
     customsDuty,
     gst,
-    lct,
+    lct: luxuryCarTax,
     inspection,
     serviceFee,
     totalCost,
