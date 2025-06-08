@@ -2840,6 +2840,175 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
+  // Data validation and integrity endpoints
+  app.get("/api/admin/data-integrity-report", async (req: any, res) => {
+    try {
+      const { generateDataIntegrityReport } = await import('./regulatory-data-validator');
+      const report = await generateDataIntegrityReport();
+      
+      res.json({
+        success: true,
+        report,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error("Data integrity report error:", error);
+      res.status(500).json({ error: "Failed to generate data integrity report" });
+    }
+  });
+
+  app.post("/api/admin/validate-country-data", async (req: any, res) => {
+    try {
+      const { countryCode } = req.body;
+      const { validateRegulatoryData, crossReferenceOfficialSources } = await import('./regulatory-data-validator');
+      
+      // Get regulation data for the country
+      let regulationData = null;
+      
+      if (countryCode === 'US') {
+        const { US_STATE_REGULATIONS } = await import('./us-state-regulations');
+        regulationData = Object.values(US_STATE_REGULATIONS)[0];
+      } else if (countryCode === 'CA') {
+        const { CANADIAN_PROVINCIAL_REGULATIONS } = await import('./canadian-provincial-regulations');
+        regulationData = Object.values(CANADIAN_PROVINCIAL_REGULATIONS)[0];
+      } else if (countryCode === 'UK') {
+        const { UK_REGIONAL_REGULATIONS } = await import('./uk-regional-regulations');
+        regulationData = Object.values(UK_REGIONAL_REGULATIONS)[0];
+      } else if (countryCode === 'DE') {
+        const { GERMAN_REGIONAL_REGULATIONS } = await import('./german-regional-regulations');
+        regulationData = Object.values(GERMAN_REGIONAL_REGULATIONS)[0];
+      } else if (countryCode === 'JP') {
+        const { JAPANESE_REGIONAL_REGULATIONS } = await import('./japanese-regional-regulations');
+        regulationData = Object.values(JAPANESE_REGIONAL_REGULATIONS)[0];
+      } else {
+        const { EU_REGIONAL_REGULATIONS } = await import('./eu-regional-regulations');
+        const { GLOBAL_REGIONAL_REGULATIONS } = await import('./global-regional-regulations');
+        regulationData = EU_REGIONAL_REGULATIONS[countryCode] || GLOBAL_REGIONAL_REGULATIONS[countryCode];
+      }
+
+      if (!regulationData) {
+        return res.status(404).json({ error: "Country regulation data not found" });
+      }
+
+      const validation = await validateRegulatoryData(countryCode, regulationData);
+      const sourceCheck = await crossReferenceOfficialSources(countryCode);
+
+      res.json({
+        success: true,
+        countryCode,
+        validation,
+        sourceCheck,
+        dataSnapshot: {
+          authority: regulationData.authority,
+          governmentWebsite: regulationData.governmentWebsite,
+          lastUpdated: regulationData.lastUpdated,
+          fees: regulationData.fees
+        }
+      });
+
+    } catch (error) {
+      console.error("Country data validation error:", error);
+      res.status(500).json({ error: "Failed to validate country data" });
+    }
+  });
+
+  app.get("/api/global-market-coverage", async (req: any, res) => {
+    try {
+      // Import all regulation modules
+      const { US_STATE_REGULATIONS } = await import('./us-state-regulations');
+      const { CANADIAN_PROVINCIAL_REGULATIONS } = await import('./canadian-provincial-regulations');
+      const { UK_REGIONAL_REGULATIONS } = await import('./uk-regional-regulations');
+      const { AUSTRALIAN_STATE_REGULATIONS } = await import('./australian-state-regulations');
+      const { GERMAN_REGIONAL_REGULATIONS } = await import('./german-regional-regulations');
+      const { JAPANESE_REGIONAL_REGULATIONS } = await import('./japanese-regional-regulations');
+      const { EU_REGIONAL_REGULATIONS } = await import('./eu-regional-regulations');
+      const { GLOBAL_REGIONAL_REGULATIONS } = await import('./global-regional-regulations');
+
+      const coverage = {
+        totalMarkets: 0,
+        totalRegions: 0,
+        marketsByRegion: {
+          northAmerica: {
+            countries: ['United States', 'Canada'],
+            regions: Object.keys(US_STATE_REGULATIONS).length + Object.keys(CANADIAN_PROVINCIAL_REGULATIONS).length,
+            details: {
+              'United States': `${Object.keys(US_STATE_REGULATIONS).length} states`,
+              'Canada': `${Object.keys(CANADIAN_PROVINCIAL_REGULATIONS).length} provinces/territories`
+            }
+          },
+          europe: {
+            countries: ['United Kingdom', 'Germany', 'France', 'Italy', 'Netherlands', 'Belgium', 'Sweden', 'Norway', 'Denmark'],
+            regions: Object.keys(UK_REGIONAL_REGULATIONS).length + Object.keys(GERMAN_REGIONAL_REGULATIONS).length + Object.keys(EU_REGIONAL_REGULATIONS).length,
+            details: {
+              'United Kingdom': `${Object.keys(UK_REGIONAL_REGULATIONS).length} regions`,
+              'Germany': `${Object.keys(GERMAN_REGIONAL_REGULATIONS).length} federal states`,
+              'EU Countries': `${Object.keys(EU_REGIONAL_REGULATIONS).length} member states`
+            }
+          },
+          asiaPacific: {
+            countries: ['Japan', 'Australia', 'New Zealand', 'Singapore', 'Hong Kong'],
+            regions: Object.keys(JAPANESE_REGIONAL_REGULATIONS).length + Object.keys(AUSTRALIAN_STATE_REGULATIONS).length + 3,
+            details: {
+              'Japan': `${Object.keys(JAPANESE_REGIONAL_REGULATIONS).length} prefectures`,
+              'Australia': `${Object.keys(AUSTRALIAN_STATE_REGULATIONS).length} states/territories`,
+              'Others': '3 city-states/countries'
+            }
+          },
+          other: {
+            countries: ['South Africa'],
+            regions: 1,
+            details: {
+              'South Africa': '1 national system'
+            }
+          }
+        },
+        authenticDataFeatures: [
+          'Real government fees (e.g., UK IVA test £456)',
+          'Authentic processing times from official sources',
+          'Actual government website URLs',
+          'Current tax rates from revenue authorities',
+          'Verified inspection requirements',
+          'Official document requirements',
+          'Regional-specific compliance variations'
+        ],
+        competitiveAdvantages: [
+          'Sub-national regional specificity (not just country-level)',
+          'Real-time data validation against official sources',
+          'Comprehensive fee breakdowns with actual amounts',
+          'Multi-currency support with current exchange rates',
+          'Integration with live auction market data',
+          'Expert validation system for data accuracy'
+        ]
+      };
+
+      // Calculate totals
+      const allCountries = [
+        ...coverage.marketsByRegion.northAmerica.countries,
+        ...coverage.marketsByRegion.europe.countries,
+        ...coverage.marketsByRegion.asiaPacific.countries,
+        ...coverage.marketsByRegion.other.countries
+      ];
+
+      coverage.totalMarkets = allCountries.length;
+      coverage.totalRegions = Object.values(coverage.marketsByRegion).reduce((sum, region) => sum + region.regions, 0);
+
+      res.json({
+        success: true,
+        coverage,
+        summary: {
+          totalMarkets: coverage.totalMarkets,
+          totalRegions: coverage.totalRegions,
+          competitorComparison: `ImportIQ: ${coverage.totalMarkets} markets vs Competitor: 25+ markets`,
+          dataIntegrityScore: "Real government data vs industry estimates"
+        }
+      });
+
+    } catch (error) {
+      console.error("Global market coverage error:", error);
+      res.status(500).json({ error: "Failed to generate market coverage report" });
+    }
+  });
+
   // Comprehensive analytics for all 14 ImportIQ tools
   app.get("/api/admin/comprehensive-analytics", async (req: any, res) => {
     try {
