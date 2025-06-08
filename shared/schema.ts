@@ -343,6 +343,82 @@ export const lookupAnalytics = pgTable("lookup_analytics", {
   dateAnalyzed: timestamp("date_analyzed").defaultNow(),
 });
 
+// Vehicle Journey Sessions - Full persistence for intelligent lookup journeys
+export const vehicleJourneySessions = pgTable("vehicle_journey_sessions", {
+  id: serial("id").primaryKey(),
+  sessionToken: varchar("session_token", { length: 255 }).notNull().unique(),
+  originalQuery: text("original_query").notNull(),
+  parsedData: jsonb("parsed_data").notNull(), // Complete parsed vehicle data
+  confidenceScore: integer("confidence_score"),
+  currentDestination: varchar("current_destination"), // australia, usa, uk, canada
+  currentStep: varchar("current_step").default("lookup"), // lookup, destination, journey, complete
+  journeyState: jsonb("journey_state"), // All computed costs, timelines, eligibility
+  userAgent: text("user_agent"),
+  ipAddress: varchar("ip_address", { length: 45 }),
+  isActive: boolean("is_active").default(true),
+  lastAccessed: timestamp("last_accessed").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  sessionTokenIdx: index("vehicle_journey_sessions_token_idx").on(table.sessionToken),
+  activeSessionIdx: index("vehicle_journey_sessions_active_idx").on(table.isActive, table.lastAccessed),
+}));
+
+// Vehicle Lookup Cache - Persistent vehicle data resolution
+export const vehicleLookupCache = pgTable("vehicle_lookup_cache", {
+  id: serial("id").primaryKey(),
+  queryHash: varchar("query_hash", { length: 64 }).notNull().unique(), // SHA-256 of normalized query
+  originalQuery: text("original_query").notNull(),
+  resolvedVehicle: jsonb("resolved_vehicle").notNull(), // Canonical vehicle data
+  lookupType: varchar("lookup_type").notNull(), // intelligent, vin, chassis, url
+  confidenceScore: integer("confidence_score").notNull(),
+  sourceAttribution: text("source_attribution"),
+  validUntil: timestamp("valid_until"), // Cache expiry
+  accessCount: integer("access_count").default(1),
+  lastAccessed: timestamp("last_accessed").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  queryHashIdx: index("vehicle_lookup_cache_hash_idx").on(table.queryHash),
+  validUntilIdx: index("vehicle_lookup_cache_valid_idx").on(table.validUntil),
+}));
+
+// Import Intelligence Cache - Destination-specific calculations
+export const importIntelligenceCache = pgTable("import_intelligence_cache", {
+  id: serial("id").primaryKey(),
+  vehicleHash: varchar("vehicle_hash", { length: 64 }).notNull(), // Hash of vehicle data
+  destination: varchar("destination", { length: 50 }).notNull(),
+  eligibilityData: jsonb("eligibility_data").notNull(),
+  costData: jsonb("cost_data").notNull(),
+  timelineData: jsonb("timeline_data").notNull(),
+  nextStepsData: jsonb("next_steps_data").notNull(),
+  alternativesData: jsonb("alternatives_data"),
+  calculatedAt: timestamp("calculated_at").defaultNow(),
+  validUntil: timestamp("valid_until"), // Cache expiry
+}, (table) => ({
+  vehicleDestinationIdx: index("import_intelligence_vehicle_dest_idx").on(table.vehicleHash, table.destination),
+  validUntilIdx: index("import_intelligence_valid_idx").on(table.validUntil),
+}));
+
+// Anonymous User Sessions - Track sessions for continuity
+export const anonymousSessions = pgTable("anonymous_sessions", {
+  id: serial("id").primaryKey(),
+  sessionId: varchar("session_id", { length: 255 }).notNull().unique(),
+  userFingerprint: varchar("user_fingerprint", { length: 255 }), // Browser fingerprint
+  currentJourneySessionId: integer("current_journey_session_id").references(() => vehicleJourneySessions.id),
+  recentQueries: jsonb("recent_queries"), // Array of recent queries
+  preferences: jsonb("preferences"), // User preferences and settings
+  ipAddress: varchar("ip_address", { length: 45 }),
+  userAgent: text("user_agent"),
+  firstSeen: timestamp("first_seen").defaultNow(),
+  lastSeen: timestamp("last_seen").defaultNow(),
+  pageViews: integer("page_views").default(1),
+  isActive: boolean("is_active").default(true),
+}, (table) => ({
+  sessionIdIdx: index("anonymous_sessions_id_idx").on(table.sessionId),
+  fingerprintIdx: index("anonymous_sessions_fingerprint_idx").on(table.userFingerprint),
+  activeSessionIdx: index("anonymous_sessions_active_idx").on(table.isActive, table.lastSeen),
+}));
+
 // User Watchlist - Time-based import tracking
 export const userWatchlist = pgTable("user_watchlist", {
   id: serial("id").primaryKey(),
