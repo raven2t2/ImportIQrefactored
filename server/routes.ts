@@ -1427,6 +1427,42 @@ Keep each recommendation under 40 words, factually accurate, and realistic.`;
     }
   });
 
+  // Complete Database Ecosystem endpoint
+  app.get("/api/database-ecosystem", async (req, res) => {
+    try {
+      const { 
+        IMPORTIQ_DATABASE_ECOSYSTEM, 
+        getDatabaseEcosystemStats, 
+        getDatabasesByCategory,
+        validateEcosystemHealth 
+      } = await import('./comprehensive-database-inventory');
+
+      const stats = getDatabaseEcosystemStats();
+      const categories = getDatabasesByCategory();
+      const health = validateEcosystemHealth();
+
+      res.json({
+        success: true,
+        ecosystem: {
+          databases: IMPORTIQ_DATABASE_ECOSYSTEM,
+          statistics: stats,
+          categories,
+          health
+        },
+        timestamp: new Date().toISOString(),
+        message: `${stats.totalDatabases} databases with ${stats.totalRecords.toLocaleString()} total records`
+      });
+
+    } catch (error: any) {
+      console.error("Database ecosystem error:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to retrieve database ecosystem",
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
   // Data Integrity Validation endpoint
   app.get("/api/data-integrity", async (req, res) => {
     try {
