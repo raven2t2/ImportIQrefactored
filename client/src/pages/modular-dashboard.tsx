@@ -65,9 +65,21 @@ const TOOL_CATEGORIES: ToolCategory[] = [
 export default function ModularDashboard() {
   const [, setLocation] = useLocation();
   const [selectedRegion, setSelectedRegion] = useState<string>(() => {
+    // Check URL params first, then localStorage, then default to AU
+    const urlParams = new URLSearchParams(window.location.search);
+    const regionFromUrl = urlParams.get('region');
+    if (regionFromUrl && ['AU', 'US', 'UK', 'CA'].includes(regionFromUrl)) {
+      return regionFromUrl;
+    }
     return localStorage.getItem('importiq_region') || 'AU';
   });
   const [showOnboarding, setShowOnboarding] = useState(() => {
+    // Don't show onboarding if region is provided in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const regionFromUrl = urlParams.get('region');
+    if (regionFromUrl && ['AU', 'US', 'UK', 'CA'].includes(regionFromUrl)) {
+      return false;
+    }
     return !localStorage.getItem('importiq_region');
   });
 

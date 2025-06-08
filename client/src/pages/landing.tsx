@@ -113,6 +113,48 @@ return (
               <span className="text-brand-gold font-semibold"> What if there was a smarter way?</span>
             </div>
 
+            {/* Region Selection */}
+            <div className="mb-12">
+              <div className="text-white mb-6">
+                <h3 className="text-xl font-semibold mb-2">Where are you importing to?</h3>
+                <p className="text-gray-300 text-sm">Select your region for personalized tools and compliance information</p>
+              </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
+                <Link href="/dashboard?region=AU" className="group">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 hover:bg-white/20 hover:border-white/30 transition-all duration-300 hover:scale-105">
+                    <div className="text-3xl mb-2">🇦🇺</div>
+                    <div className="text-white font-medium text-sm">Australia</div>
+                    <div className="text-gray-300 text-xs">AUD • Metric</div>
+                  </div>
+                </Link>
+                
+                <Link href="/dashboard?region=US" className="group">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 hover:bg-white/20 hover:border-white/30 transition-all duration-300 hover:scale-105">
+                    <div className="text-3xl mb-2">🇺🇸</div>
+                    <div className="text-white font-medium text-sm">United States</div>
+                    <div className="text-gray-300 text-xs">USD • Imperial</div>
+                  </div>
+                </Link>
+                
+                <Link href="/dashboard?region=UK" className="group">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 hover:bg-white/20 hover:border-white/30 transition-all duration-300 hover:scale-105">
+                    <div className="text-3xl mb-2">🇬🇧</div>
+                    <div className="text-white font-medium text-sm">United Kingdom</div>
+                    <div className="text-gray-300 text-xs">GBP • Mixed</div>
+                  </div>
+                </Link>
+                
+                <Link href="/dashboard?region=CA" className="group">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 hover:bg-white/20 hover:border-white/30 transition-all duration-300 hover:scale-105">
+                    <div className="text-3xl mb-2">🇨🇦</div>
+                    <div className="text-white font-medium text-sm">Canada</div>
+                    <div className="text-gray-300 text-xs">CAD • Metric</div>
+                  </div>
+                </Link>
+              </div>
+            </div>
+
             {/* Value Proposition */}
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 mb-12 max-w-5xl mx-auto border border-white/20">
               <h2 className="text-2xl md:text-3xl font-bold mb-6 text-white">
