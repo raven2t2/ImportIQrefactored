@@ -2937,6 +2937,61 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
+  // Smart input parsing endpoint
+  app.post("/api/smart-parse", async (req: any, res) => {
+    try {
+      const { input, type } = req.body;
+      
+      let enhancedData: any = {};
+      
+      if (type === 'vin') {
+        enhancedData = await enhanceVinData(input);
+      } else if (type === 'url') {
+        enhancedData = await enhanceUrlData(input);
+      } else if (type === 'chassis') {
+        enhancedData = await enhanceChassisData(input);
+      } else if (type === 'model') {
+        enhancedData = await enhanceModelData(input);
+      }
+
+      res.json({
+        success: true,
+        data: enhancedData,
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error) {
+      console.error("Smart parsing error:", error);
+      res.status(500).json({ error: "Failed to enhance input data" });
+    }
+  });
+
+  // Global eligibility check endpoint
+  app.post("/api/check-eligibility", async (req: any, res) => {
+    try {
+      const { vehicleData, targetCountries } = req.body;
+      
+      const eligibilityResults = await Promise.all(
+        targetCountries.map(async (country: string) => {
+          return await checkCountryEligibility(vehicleData, country);
+        })
+      );
+
+      const recommendations = generateRecommendations(eligibilityResults);
+
+      res.json({
+        success: true,
+        results: eligibilityResults,
+        recommendations,
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error) {
+      console.error("Eligibility check error:", error);
+      res.status(500).json({ error: "Failed to check eligibility" });
+    }
+  });
+
   // Comprehensive analytics for all 14 ImportIQ tools
   app.get("/api/admin/comprehensive-analytics", async (req: any, res) => {
     try {

@@ -30,6 +30,7 @@ import Subscribe from "@/pages/subscribe";
 import Pricing from "@/pages/pricing";
 import ValueEstimator from "@/pages/value-estimator";
 import VehicleLookup from "@/pages/vehicle-lookup";
+import { SmartLookupPage } from "@/pages/smart-lookup";
 import CustomPlates from "@/pages/custom-plates";
 import RegistrationStats from "@/pages/registration-stats";
 import PortIntelligence from "@/pages/port-intelligence";
