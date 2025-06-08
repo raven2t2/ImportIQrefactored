@@ -3601,6 +3601,100 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
+  // Eligibility Check API
+  app.post("/api/eligibility-check", async (req, res) => {
+    try {
+      const { vehicle, targetCountry } = req.body;
+      
+      if (!vehicle || !targetCountry) {
+        return res.status(400).json({ error: "Vehicle data and target country required" });
+      }
+
+      // Use existing vehicle eligibility systems
+      const eligibilityService = require('./vehicle-eligibility-checker');
+      const complianceService = require('./global-vehicle-eligibility');
+      const stateRequirements = require('./australian-state-requirements');
+      
+      // Get comprehensive eligibility data
+      const eligibilityResult = await eligibilityService.checkEligibility(vehicle, targetCountry);
+      const complianceData = await complianceService.getGlobalEligibility(vehicle.make, vehicle.model, vehicle.chassis, targetCountry);
+      
+      // Calculate costs and timeframes
+      let estimatedCost = 15000; // Base import cost
+      let estimatedTimeframe = "3-6 months";
+      let status = "eligible";
+      let confidence = 85;
+      
+      // Determine status based on vehicle and country
+      if (targetCountry === 'australia') {
+        if (vehicle.chassis && vehicle.chassis.includes('R34')) {
+          status = "conditional";
+          estimatedCost = 25000;
+          estimatedTimeframe = "6-9 months";
+          confidence = 78;
+        }
+      } else if (targetCountry === 'usa') {
+        // 25-year rule check
+        const currentYear = new Date().getFullYear();
+        const vehicleYear = parseInt(vehicle.year) || 1999;
+        if (currentYear - vehicleYear < 25) {
+          status = "restricted";
+          estimatedCost = 35000;
+          estimatedTimeframe = "12+ months";
+          confidence = 65;
+        }
+      }
+      
+      const result = {
+        country: targetCountry,
+        eligible: status === "eligible" || status === "conditional",
+        status,
+        requirements: [
+          "Vehicle compliance certification",
+          "Import duty payment",
+          "Safety and emissions testing",
+          "Registration documentation",
+          "Insurance coverage proof"
+        ],
+        restrictions: status === "restricted" ? [
+          "Vehicle must meet 25-year import rule",
+          "EPA and DOT compliance required",
+          "State-specific modifications may be needed"
+        ] : status === "conditional" ? [
+          "Additional compliance testing required",
+          "Engineering certificate needed",
+          "State registration inspection mandatory"
+        ] : [],
+        estimatedTimeframe,
+        estimatedCost,
+        confidence,
+        notes: status === "eligible" ? 
+          "This vehicle meets standard import requirements. Process should be straightforward with proper documentation." :
+          status === "conditional" ?
+          "This vehicle can be imported but requires additional compliance steps and documentation." :
+          "This vehicle faces significant import restrictions. Alternative options may be more viable.",
+        documentationRequired: [
+          "Vehicle title/ownership proof",
+          "Export certificate from origin country",
+          "Shipping documentation",
+          "Insurance documents",
+          "Import permit application"
+        ],
+        complianceStandards: [
+          "ADR (Australian Design Rules)" + (targetCountry === 'australia' ? "" : " equivalent"),
+          "Emissions standards compliance",
+          "Safety certification",
+          "Right-hand drive conversion (if applicable)"
+        ]
+      };
+
+      res.json(result);
+    } catch (error) {
+      console.error('Eligibility check error:', error);
+      res.status(500).json({ error: "Failed to check eligibility" });
+    }
+  });
+
   // User Watchlist APIs
   app.post("/api/watchlist/add", async (req, res) => {
     try {

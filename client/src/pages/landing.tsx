@@ -3,7 +3,7 @@ import { Link, useLocation } from 'wouter';
 import { useQuery } from "@tanstack/react-query";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Check, Zap, Menu, X, ArrowRight, Loader2, Shield, Target } from 'lucide-react';
+import { Check, Zap, Menu, X, ArrowRight, Loader2, Shield, Target, Car, DollarSign, FileText } from 'lucide-react';
 
 import { apiRequest } from "@/lib/queryClient";
 
@@ -187,64 +187,90 @@ export default function Landing() {
                 </div>
 
                 {result.data && (
-                  <div className="grid md:grid-cols-2 gap-8">
-                    <div>
-                      <h3 className="text-lg font-semibold text-white mb-4">Vehicle Details</h3>
-                      <div className="space-y-3">
-                        {result.data.make && (
-                          <div className="flex justify-between">
-                            <span className="text-gray-400">Make:</span>
-                            <span className="text-white font-medium">{result.data.make}</span>
-                          </div>
-                        )}
-                        {result.data.model && (
-                          <div className="flex justify-between">
-                            <span className="text-gray-400">Model:</span>
-                            <span className="text-white font-medium">{result.data.model}</span>
-                          </div>
-                        )}
-                        {result.data.chassisCode && (
-                          <div className="flex justify-between">
-                            <span className="text-gray-400">Chassis Code:</span>
-                            <span className="text-white font-medium">{result.data.chassisCode}</span>
-                          </div>
-                        )}
-                        {result.data.productionYears && (
-                          <div className="flex justify-between">
-                            <span className="text-gray-400">Production Years:</span>
-                            <span className="text-white font-medium">{result.data.productionYears}</span>
-                          </div>
-                        )}
+                  <div className="space-y-8">
+                    {/* Hero Vehicle Info */}
+                    <div className="text-center bg-gradient-to-r from-amber-900/20 to-orange-900/20 rounded-xl p-6 border border-amber-700/30">
+                      <h3 className="text-3xl font-bold text-white mb-2">
+                        {result.data.make} {result.data.model}
+                      </h3>
+                      <div className="flex items-center justify-center gap-4 text-amber-400 mb-4">
+                        <span className="px-3 py-1 bg-amber-900/30 rounded-full text-sm font-medium">
+                          {result.data.chassisCode}
+                        </span>
+                        <span className="px-3 py-1 bg-amber-900/30 rounded-full text-sm font-medium">
+                          {result.data.productionYears || 'Classic JDM'}
+                        </span>
                       </div>
-                    </div>
-
-                    <div>
-                      <h3 className="text-lg font-semibold text-white mb-4">Import Status</h3>
+                      
+                      {/* Import Status Banner */}
                       {result.importRiskIndex && (
-                        <div className="mb-4">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-gray-400">Risk Level:</span>
-                            <span className={`font-medium px-3 py-1 rounded-full text-xs ${
-                              result.importRiskIndex.riskLevel === 'low' ? 'bg-green-900/50 text-green-400' :
-                              result.importRiskIndex.riskLevel === 'medium' ? 'bg-yellow-900/50 text-yellow-400' :
-                              'bg-red-900/50 text-red-400'
-                            }`}>
-                              {result.importRiskIndex.riskLevel.toUpperCase()}
-                            </span>
-                          </div>
-                          <div className="w-full bg-gray-700 rounded-full h-2 mb-2">
-                            <div 
-                              className={`h-2 rounded-full ${
-                                result.importRiskIndex.riskLevel === 'low' ? 'bg-green-400' :
-                                result.importRiskIndex.riskLevel === 'medium' ? 'bg-yellow-400' :
-                                'bg-red-400'
-                              }`}
-                              style={{ width: `${result.importRiskIndex.score}%` }}
-                            ></div>
-                          </div>
-                          <p className="text-sm text-gray-400">{result.importRiskIndex.explanation}</p>
+                        <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${
+                          result.importRiskIndex.riskLevel === 'low' ? 'bg-green-900/50 text-green-300 border border-green-700' :
+                          result.importRiskIndex.riskLevel === 'medium' ? 'bg-yellow-900/50 text-yellow-300 border border-yellow-700' :
+                          'bg-red-900/50 text-red-300 border border-red-700'
+                        }`}>
+                          <div className={`w-2 h-2 rounded-full ${
+                            result.importRiskIndex.riskLevel === 'low' ? 'bg-green-400' :
+                            result.importRiskIndex.riskLevel === 'medium' ? 'bg-yellow-400' :
+                            'bg-red-400'
+                          }`}></div>
+                          Import Status: {result.importRiskIndex.riskLevel.toUpperCase()} RISK
                         </div>
                       )}
+                    </div>
+
+                    {/* Magic Moment - Action Journey Cards */}
+                    <div className="grid md:grid-cols-3 gap-4">
+                      <Link 
+                        href={`/eligibility-check?make=${encodeURIComponent(result.data.make || '')}&model=${encodeURIComponent(result.data.model || '')}&chassis=${encodeURIComponent(result.data.chassisCode || '')}`}
+                        className="bg-gradient-to-br from-red-900/20 to-red-800/20 border border-red-700/30 rounded-xl p-6 cursor-pointer hover:border-red-600/50 transition-all group block"
+                      >
+                        <div className="w-12 h-12 bg-red-500/20 rounded-lg flex items-center justify-center mb-4 group-hover:bg-red-500/30 transition-all">
+                          <svg className="h-6 w-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                        <h4 className="text-lg font-semibold text-white mb-2">Can I import this car?</h4>
+                        <p className="text-gray-400 text-sm mb-4">Check eligibility across 17 countries with authentic government regulations</p>
+                        <div className="flex items-center text-red-400 text-sm font-medium">
+                          <span>Check eligibility →</span>
+                          <div className="ml-2 group-hover:translate-x-1 transition-transform">🚗</div>
+                        </div>
+                      </Link>
+
+                      <Link 
+                        href={`/cost-calculator?make=${encodeURIComponent(result.data.make || '')}&model=${encodeURIComponent(result.data.model || '')}&chassis=${encodeURIComponent(result.data.chassisCode || '')}`}
+                        className="bg-gradient-to-br from-amber-900/20 to-yellow-800/20 border border-amber-700/30 rounded-xl p-6 cursor-pointer hover:border-amber-600/50 transition-all group block"
+                      >
+                        <div className="w-12 h-12 bg-amber-500/20 rounded-lg flex items-center justify-center mb-4 group-hover:bg-amber-500/30 transition-all">
+                          <svg className="h-6 w-6 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                          </svg>
+                        </div>
+                        <h4 className="text-lg font-semibold text-white mb-2">How much will it cost?</h4>
+                        <p className="text-gray-400 text-sm mb-4">Get real costs including duties, compliance, and regional fees</p>
+                        <div className="flex items-center text-amber-400 text-sm font-medium">
+                          <span>Calculate costs →</span>
+                          <div className="ml-2 group-hover:translate-x-1 transition-transform">💰</div>
+                        </div>
+                      </Link>
+
+                      <Link 
+                        href={`/import-roadmap?make=${encodeURIComponent(result.data.make || '')}&model=${encodeURIComponent(result.data.model || '')}&chassis=${encodeURIComponent(result.data.chassisCode || '')}`}
+                        className="bg-gradient-to-br from-blue-900/20 to-blue-800/20 border border-blue-700/30 rounded-xl p-6 cursor-pointer hover:border-blue-600/50 transition-all group block"
+                      >
+                        <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mb-4 group-hover:bg-blue-500/30 transition-all">
+                          <svg className="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                          </svg>
+                        </div>
+                        <h4 className="text-lg font-semibold text-white mb-2">What do I need to do?</h4>
+                        <p className="text-gray-400 text-sm mb-4">Step-by-step guidance with timelines and next actions</p>
+                        <div className="flex items-center text-blue-400 text-sm font-medium">
+                          <span>Get roadmap →</span>
+                          <div className="ml-2 group-hover:translate-x-1 transition-transform">📋</div>
+                        </div>
+                      </Link>
                     </div>
                   </div>
                 )}
