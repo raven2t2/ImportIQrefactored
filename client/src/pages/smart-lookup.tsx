@@ -96,7 +96,7 @@ export function SmartLookupPage() {
       estimatedValue: 50000, // Default for calculation
       inputType: parsed.type,
       confidence: parsed.confidence,
-      technicalSpecs: parsed.technicalSpecs
+      technicalSpecs: parsed.technicalSpecs || parsed.data?.technicalSpecs
     };
 
     // Determine target countries based on intent and origin

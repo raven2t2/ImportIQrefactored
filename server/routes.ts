@@ -1462,6 +1462,23 @@ Keep each recommendation under 40 words, factually accurate, and realistic.`;
             // Get auction samples
             const auctionSamples = getAuctionSamples(make, model, parseInt(year) || new Date().getFullYear());
 
+            // Import technical vehicle database for enhanced specifications
+            const { VIN_TECHNICAL_DATABASE } = await import('./authentic-vehicle-data');
+            
+            // Get enhanced technical specifications if available
+            let technicalSpecs = null;
+            const wmi = identifier.substring(0, 3);
+            if (VIN_TECHNICAL_DATABASE[wmi]) {
+              const models = VIN_TECHNICAL_DATABASE[wmi].models;
+              for (const [modelCode, modelData] of Object.entries(models)) {
+                if (modelData.name.toLowerCase().includes(model.toLowerCase()) || 
+                    modelData.years.includes(year)) {
+                  technicalSpecs = modelData;
+                  break;
+                }
+              }
+            }
+
             res.json({
               success: true,
               type: "vin",
@@ -1471,7 +1488,8 @@ Keep each recommendation under 40 words, factually accurate, and realistic.`;
                 year,
                 trim: trim || undefined,
                 engine: engine || undefined,
-                fuelType: fuelType || undefined
+                fuelType: fuelType || undefined,
+                technicalSpecs
               },
               auctionSamples
             });
@@ -1504,6 +1522,28 @@ Keep each recommendation under 40 words, factually accurate, and realistic.`;
             decodeResult.data.year
           );
           
+          // Import technical vehicle database for enhanced specifications
+          const { VIN_TECHNICAL_DATABASE } = await import('./authentic-vehicle-data');
+          
+          // Get enhanced technical specifications if available
+          let technicalSpecs = null;
+          const make = decodeResult.data.manufacturer;
+          const model = decodeResult.data.model;
+          
+          // Check for technical specifications in database
+          for (const [wmi, wmiData] of Object.entries(VIN_TECHNICAL_DATABASE)) {
+            if (wmiData.models) {
+              for (const [modelCode, modelData] of Object.entries(wmiData.models)) {
+                if (modelData.name.toLowerCase().includes(model.toLowerCase()) || 
+                    modelData.name.toLowerCase().includes(make.toLowerCase())) {
+                  technicalSpecs = modelData;
+                  break;
+                }
+              }
+            }
+            if (technicalSpecs) break;
+          }
+
           res.json({
             success: true,
             type: "vintage_vin",
@@ -1514,7 +1554,8 @@ Keep each recommendation under 40 words, factually accurate, and realistic.`;
               bodyStyle: decodeResult.data.bodyStyle,
               engine: decodeResult.data.engine,
               plant: decodeResult.data.plant,
-              fuelType: "Gasoline"
+              fuelType: "Gasoline",
+              technicalSpecs
             },
             auctionSamples,
             dataSource: decodeResult.data.source,
@@ -1548,10 +1589,29 @@ Keep each recommendation under 40 words, factually accurate, and realistic.`;
           // Get auction samples
           const auctionSamples = getAuctionSamples(jdmData.make, jdmData.model, year);
 
+          // Import technical vehicle database for enhanced specifications
+          const { VIN_TECHNICAL_DATABASE } = await import('./authentic-vehicle-data');
+          
+          // Get enhanced technical specifications if available
+          let technicalSpecs = null;
+          const wmi = chassisCode.substring(0, 3);
+          if (VIN_TECHNICAL_DATABASE[wmi]) {
+            const models = VIN_TECHNICAL_DATABASE[wmi].models;
+            for (const [modelCode, modelData] of Object.entries(models)) {
+              if (chassisCode.includes(modelCode) || modelData.name.toLowerCase().includes(jdmData.model.toLowerCase())) {
+                technicalSpecs = modelData;
+                break;
+              }
+            }
+          }
+
           res.json({
             success: true,
             type: "jdm",
-            data: jdmData,
+            data: {
+              ...jdmData,
+              technicalSpecs
+            },
             auctionSamples
           });
         } else {
