@@ -68,13 +68,14 @@ app.use((req, res, next) => {
     port,
     host: "0.0.0.0",
     reusePort: true,
-  }, () => {
+  }, async () => {
     log(`serving on port ${port}`);
     // Initialize automated auction data refresh after server starts
     initializeDataRefreshScheduler();
     // Initialize live market data monitoring
     initializeLiveMarketDataMonitoring();
-    // Seed comprehensive vehicle intelligence database with authentic data
-    ComprehensiveVehicleDatabase.seedCompleteVehicleIntelligence();
+    // Seed essential vehicle database with authentic data
+    const { QuickVehicleSeeder } = await import('./quick-vehicle-seeder');
+    QuickVehicleSeeder.seedEssentialVehicles();
   });
 })();
