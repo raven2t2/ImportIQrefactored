@@ -11,7 +11,7 @@ import { calculateShippingCost as calculateShippingQuote, getAllPorts as getShip
 import { calculateInsuranceQuote, calculateROI, AUSTRALIAN_MARKET_DATA, DOCUMENTATION_REQUIREMENTS, STATE_REGISTRATION_DATA, ADR_COMPLIANCE_DATABASE } from "./authentic-vehicle-data";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { checkPlateRequirements } from "./plate-availability";
-import { getStateRequirements, getStatesByDifficulty, calculateStateCosts, compareStatesCosts } from "./australian-state-requirements";
+import { getStateRequirements, getStatesByDifficulty, compareStatesCosts } from "./australian-state-requirements";
 import { getAllPorts, getPortByCode, findBestPortsForLocation, calculatePortCosts, getSeasonalRecommendations } from "./australian-port-intelligence";
 import { z } from "zod";
 import OpenAI from "openai";
@@ -2251,29 +2251,520 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
-  // Push notifications for location-based alerts
-  app.post("/api/admin/push-location-alert", async (req: any, res) => {
+  // Regional Regulations API - State/Province specific requirements
+  app.get("/api/regulations/:country/:region", async (req, res) => {
     try {
-      const { postcode, message, eventType, title } = req.body;
+      const { country, region } = req.params;
       
-      // This would push notifications to users in specific postcodes
-      const alert = {
-        postcode,
-        title,
-        message,
-        eventType, // "car_meet", "track_day", "mod_workshop", "discount"
-        createdAt: new Date()
-      };
+      let regionData = null;
       
-      console.log("Location-based alert created:", alert);
+      if (country.toUpperCase() === 'US') {
+        regionData = getStateRegulation(region.toUpperCase());
+      } else if (country.toUpperCase() === 'CA') {
+        regionData = getProvincialRegulation(region.toUpperCase());
+      } else if (country.toUpperCase() === 'UK') {
+        regionData = getUkRegionalRegulation(region.toUpperCase());
+      }
+      
+      if (!regionData) {
+        return res.status(404).json({
+          success: false,
+          error: `Regulations not found for ${region} in ${country}`
+        });
+      }
       
       res.json({
         success: true,
-        message: "Alert pushed to users in postcode " + postcode
+        regulations: regionData
       });
     } catch (error) {
-      console.error("Error pushing location alert:", error);
-      res.status(500).json({ error: "Failed to push location alert" });
+      console.error("Error fetching regional regulations:", error);
+      res.status(500).json({ error: "Failed to fetch regional regulations" });
+    }
+  });
+
+  // Calculate region-specific costs with vehicle value
+  app.post("/api/calculate-regional-costs", async (req, res) => {
+    try {
+      const { country, region, vehicleValue, co2Emissions } = req.body;
+      
+      if (!country || !region || !vehicleValue) {
+        return res.status(400).json({
+          error: "Missing required fields: country, region, vehicleValue"
+        });
+      }
+      
+      let costCalculation = null;
+      
+      if (country.toUpperCase() === 'US') {
+        costCalculation = calculateStateCosts(region.toUpperCase(), vehicleValue);
+      } else if (country.toUpperCase() === 'CA') {
+        costCalculation = calculateProvincialCosts(region.toUpperCase(), vehicleValue);
+      } else if (country.toUpperCase() === 'UK') {
+        costCalculation = calculateUkRegionalCosts(region.toUpperCase(), vehicleValue, co2Emissions || 120);
+      }
+      
+      if (!costCalculation) {
+        return res.status(404).json({
+          success: false,
+          error: `Cost calculation not available for ${region} in ${country}`
+        });
+      }
+      
+      res.json({
+        success: true,
+        calculation: costCalculation
+      });
+    } catch (error) {
+      console.error("Error calculating regional costs:", error);
+      res.status(500).json({ error: "Failed to calculate regional costs" });
+    }
+  });
+
+  // Find optimal regions for import based on criteria
+  app.post("/api/find-optimal-regions", async (req, res) => {
+    try {
+      const { country, criteria } = req.body;
+      
+      if (!country || !criteria) {
+        return res.status(400).json({
+          error: "Missing required fields: country, criteria"
+        });
+      }
+      
+      let optimalRegions = [];
+      
+      if (country.toUpperCase() === 'US') {
+        optimalRegions = findBestStatesForImport(criteria);
+      } else if (country.toUpperCase() === 'CA') {
+        optimalRegions = findBestProvincesForImport(criteria);
+      } else if (country.toUpperCase() === 'UK') {
+        optimalRegions = findBestUkRegionsForImport(criteria);
+      }
+      
+      res.json({
+        success: true,
+        optimalRegions,
+        criteria,
+        count: optimalRegions.length
+      });
+    } catch (error) {
+      console.error("Error finding optimal regions:", error);
+      res.status(500).json({ error: "Failed to find optimal regions" });
+    }
+  });
+
+  // Comprehensive calculator backends with regional intelligence
+  app.post("/api/calculate-us", async (req, res) => {
+    try {
+      const data = req.body;
+      const stateRegulation = getStateRegulation(data.usState);
+      
+      if (!stateRegulation) {
+        return res.status(400).json({ error: "Invalid US state" });
+      }
+
+      // Base federal calculations
+      const vehiclePrice = data.vehiclePrice;
+      const cifValue = vehiclePrice + (vehiclePrice * 0.15); // Estimate shipping
+      const customsDuty = cifValue * 0.025; // 2.5% for most passenger vehicles
+      const harbourMaintenanceFee = cifValue * 0.00125;
+      const merchandiseProcessingFee = Math.min(485, Math.max(25, cifValue * 0.003464));
+      
+      // State-specific calculations using authentic regulations
+      const stateCosts = calculateStateCosts(data.usState, vehiclePrice);
+      const salesTax = vehiclePrice * (stateRegulation.fees.salesTax / 100);
+      
+      const totalLandedCost = vehiclePrice + customsDuty + salesTax + 
+                             harbourMaintenanceFee + merchandiseProcessingFee +
+                             (stateCosts?.totalFees || 0);
+
+      res.json({
+        vehiclePrice,
+        shipping: vehiclePrice * 0.15,
+        customsDuty,
+        salesTax,
+        harbourMaintenanceFee,
+        merchandiseProcessingFee,
+        stateFees: stateCosts?.totalFees || 0,
+        totalLandedCost,
+        stateRegulation,
+        breakdown: {
+          cifValue,
+          totalTaxes: customsDuty + salesTax,
+          totalFees: (stateCosts?.totalFees || 0) + harbourMaintenanceFee + merchandiseProcessingFee
+        },
+        region: data.usState,
+        complianceEligible: true
+      });
+    } catch (error) {
+      console.error("US calculation error:", error);
+      res.status(500).json({ error: "Failed to calculate US import costs" });
+    }
+  });
+
+  app.post("/api/calculate-ca", async (req, res) => {
+    try {
+      const data = req.body;
+      const provincialRegulation = getProvincialRegulation(data.canadianProvince);
+      
+      if (!provincialRegulation) {
+        return res.status(400).json({ error: "Invalid Canadian province" });
+      }
+
+      const vehiclePrice = data.vehiclePrice;
+      const cifValue = vehiclePrice + (vehiclePrice * 0.12); // Canada shipping estimate
+      const customsDuty = cifValue * 0.061; // 6.1% for passenger vehicles
+      const gst = 0.05; // Federal GST
+      
+      // Provincial calculations using authentic regulations
+      const provincialCosts = calculateProvincialCosts(data.canadianProvince, vehiclePrice);
+      const totalTaxRate = provincialRegulation.fees.hst > 0 ? 
+                          provincialRegulation.fees.hst : 
+                          (provincialRegulation.fees.pst + provincialRegulation.fees.gst);
+      const totalTax = vehiclePrice * (totalTaxRate / 100);
+      
+      const totalLandedCost = vehiclePrice + customsDuty + totalTax + 
+                             (provincialCosts?.totalFees || 0) + 292.5; // RIV fee
+
+      res.json({
+        vehiclePrice,
+        shipping: vehiclePrice * 0.12,
+        customsDuty,
+        gst: vehiclePrice * (gst / 100),
+        provincialTax: vehiclePrice * ((totalTaxRate - 5) / 100),
+        inspectionFee: provincialRegulation.fees.inspectionFee,
+        registrationFee: provincialRegulation.registration.registrationFee,
+        provincialFees: {
+          registration: provincialRegulation.registration.registrationFee,
+          safety: provincialRegulation.fees.inspectionFee,
+          emissions: provincialRegulation.registration.emissionsTestRequired ? 75 : 0
+        },
+        totalLandedCost,
+        provincialRegulation,
+        breakdown: {
+          cifValue,
+          totalTaxes: totalTax,
+          totalFees: (provincialCosts?.totalFees || 0) + 292.5
+        },
+        region: data.canadianProvince,
+        complianceEligible: true
+      });
+    } catch (error) {
+      console.error("CA calculation error:", error);
+      res.status(500).json({ error: "Failed to calculate Canadian import costs" });
+    }
+  });
+
+  app.post("/api/calculate-uk", async (req, res) => {
+    try {
+      const data = req.body;
+      const ukRegulation = getUkRegionalRegulation(data.ukRegion);
+      
+      if (!ukRegulation) {
+        return res.status(400).json({ error: "Invalid UK region" });
+      }
+
+      const vehiclePrice = data.vehiclePrice;
+      const cifValue = vehiclePrice + (vehiclePrice * 0.10); // UK shipping estimate
+      const customsDuty = cifValue * 0.10; // 10% for passenger vehicles
+      const vat = (cifValue + customsDuty) * 0.20; // 20% VAT on CIF + duty
+      
+      // UK regional calculations using authentic regulations
+      const ukCosts = calculateUkRegionalCosts(data.ukRegion, vehiclePrice);
+      
+      const totalLandedCost = vehiclePrice + customsDuty + vat + 
+                             (ukCosts?.totalFees || 0);
+
+      res.json({
+        vehiclePrice,
+        shipping: vehiclePrice * 0.10,
+        customsDuty,
+        vat,
+        dvlaFee: ukRegulation.registration.registrationFee,
+        motTest: ukRegulation.registration.motRequired ? 54.85 : 0,
+        registrationFee: ukRegulation.registration.firstRegistrationFee,
+        firstRegistrationTax: ukRegulation.fees.vehicleExciseDuty,
+        totalLandedCost,
+        ukRegulation,
+        breakdown: {
+          cifValue,
+          totalTaxes: customsDuty + vat,
+          totalFees: ukCosts?.totalFees || 0
+        },
+        region: data.ukRegion,
+        complianceEligible: true
+      });
+    } catch (error) {
+      console.error("UK calculation error:", error);
+      res.status(500).json({ error: "Failed to calculate UK import costs" });
+    }
+  });
+
+  // Streamlined Vehicle Intelligence API - combines lookup + market data + compliance
+  app.post("/api/vehicle-intelligence", async (req, res) => {
+    try {
+      const { identifier, targetCountry, targetRegion } = req.body;
+      
+      if (!identifier || !targetCountry) {
+        return res.status(400).json({
+          error: "Missing required fields: identifier, targetCountry"
+        });
+      }
+
+      // Enhanced vehicle lookup with market context
+      let vehicleData = null;
+      let marketData = null;
+      let complianceInfo = null;
+
+      // Determine lookup type and get vehicle data
+      if (identifier.length === 17 && /^[A-HJ-NPR-Z0-9]{17}$/.test(identifier)) {
+        // VIN lookup
+        const vinDecodeResponse = await fetch(`/api/vin-decode/${identifier}`);
+        if (vinDecodeResponse.ok) {
+          const vinData = await vinDecodeResponse.json();
+          if (vinData.success) {
+            vehicleData = vinData.data;
+          }
+        }
+      } else {
+        // Chassis code or URL lookup
+        const lookupResponse = await fetch('/api/vehicle-lookup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ identifier })
+        });
+        if (lookupResponse.ok) {
+          const lookupData = await lookupResponse.json();
+          if (lookupData.success) {
+            vehicleData = lookupData.data;
+          }
+        }
+      }
+
+      // Get market intelligence if vehicle found
+      if (vehicleData) {
+        const marketResponse = await fetch('/api/market-intelligence');
+        if (marketResponse.ok) {
+          marketData = await marketResponse.json();
+        }
+
+        // Get compliance information for target region
+        if (targetRegion) {
+          const complianceResponse = await fetch(`/api/regulations/${targetCountry}/${targetRegion}`);
+          if (complianceResponse.ok) {
+            complianceInfo = await complianceResponse.json();
+          }
+        }
+      }
+
+      // Generate intelligent recommendations
+      const recommendations = vehicleData ? generateIntelligentRecommendations(
+        vehicleData,
+        targetCountry,
+        targetRegion || ''
+      ) : null;
+
+      res.json({
+        success: !!vehicleData,
+        vehicle: vehicleData,
+        market: marketData,
+        compliance: complianceInfo,
+        recommendations,
+        targetLocation: {
+          country: targetCountry,
+          region: targetRegion
+        }
+      });
+
+    } catch (error) {
+      console.error("Vehicle intelligence error:", error);
+      res.status(500).json({ error: "Failed to generate vehicle intelligence" });
+    }
+  });
+
+  // Location-Specific Market Insights API
+  app.post("/api/market-insights", async (req, res) => {
+    try {
+      const { make, model, year, targetCountry, targetRegion, priceRange } = req.body;
+      
+      if (!make || !targetCountry) {
+        return res.status(400).json({
+          error: "Missing required fields: make, targetCountry"
+        });
+      }
+
+      // Get authentic market data
+      const marketData = await getMarketIntelligence();
+      
+      // Filter for relevant vehicles
+      const relevantListings = marketData.vehicles?.filter((vehicle: any) => 
+        vehicle.make.toLowerCase() === make.toLowerCase() &&
+        (!model || vehicle.model.toLowerCase().includes(model.toLowerCase())) &&
+        (!year || Math.abs(vehicle.year - year) <= 3)
+      ) || [];
+
+      // Get regional pricing trends
+      let regionalData = null;
+      if (targetRegion) {
+        if (targetCountry.toUpperCase() === 'US') {
+          regionalData = getStateRegulation(targetRegion.toUpperCase());
+        } else if (targetCountry.toUpperCase() === 'CA') {
+          regionalData = getProvincialRegulation(targetRegion.toUpperCase());
+        } else if (targetCountry.toUpperCase() === 'UK') {
+          regionalData = getUkRegionalRegulation(targetRegion.toUpperCase());
+        }
+      }
+
+      // Calculate market statistics
+      const prices = relevantListings.map((v: any) => v.price).filter((p: any) => p > 0);
+      const marketStats = prices.length > 0 ? {
+        averagePrice: prices.reduce((a: number, b: number) => a + b, 0) / prices.length,
+        medianPrice: prices.sort((a: number, b: number) => a - b)[Math.floor(prices.length / 2)],
+        priceRange: {
+          min: Math.min(...prices),
+          max: Math.max(...prices)
+        },
+        listingCount: prices.length
+      } : null;
+
+      res.json({
+        success: true,
+        insights: {
+          vehicle: { make, model, year },
+          targetLocation: { country: targetCountry, region: targetRegion },
+          marketStats,
+          regionalData,
+          listings: relevantListings.slice(0, 10), // Top 10 most relevant
+          trends: {
+            demandLevel: prices.length > 20 ? "High" : prices.length > 10 ? "Medium" : "Low",
+            priceStability: "Stable", // Could calculate from historical data
+            seasonalFactors: ["Spring import season", "End of financial year considerations"]
+          }
+        }
+      });
+
+    } catch (error) {
+      console.error("Market insights error:", error);
+      res.status(500).json({ error: "Failed to generate market insights" });
+    }
+  });
+
+  // Compliance Roadmap Generator API
+  app.post("/api/compliance-roadmap", async (req, res) => {
+    try {
+      const { vehicleData, targetCountry, targetRegion, timeframe } = req.body;
+      
+      if (!vehicleData || !targetCountry || !targetRegion) {
+        return res.status(400).json({
+          error: "Missing required fields: vehicleData, targetCountry, targetRegion"
+        });
+      }
+
+      // Get regional regulations
+      let regulations = null;
+      let costCalculation = null;
+
+      if (targetCountry.toUpperCase() === 'US') {
+        regulations = getStateRegulation(targetRegion.toUpperCase());
+        costCalculation = calculateStateCosts(targetRegion.toUpperCase(), vehicleData.estimatedValue || 50000);
+      } else if (targetCountry.toUpperCase() === 'CA') {
+        regulations = getProvincialRegulation(targetRegion.toUpperCase());
+        costCalculation = calculateProvincialCosts(targetRegion.toUpperCase(), vehicleData.estimatedValue || 50000);
+      } else if (targetCountry.toUpperCase() === 'UK') {
+        regulations = getUkRegionalRegulation(targetRegion.toUpperCase());
+        costCalculation = calculateUkRegionalCosts(targetRegion.toUpperCase(), vehicleData.estimatedValue || 50000);
+      }
+
+      if (!regulations) {
+        return res.status(404).json({
+          error: `Regulations not found for ${targetRegion} in ${targetCountry}`
+        });
+      }
+
+      // Generate step-by-step roadmap
+      const roadmap = {
+        vehicle: vehicleData,
+        destination: { country: targetCountry, region: targetRegion },
+        timeline: timeframe || "3-6 months",
+        
+        phases: [
+          {
+            phase: "Pre-Purchase Verification",
+            duration: "1-2 weeks",
+            steps: [
+              "Verify vehicle eligibility for import",
+              "Confirm vehicle history and authenticity", 
+              "Get pre-purchase inspection if possible",
+              "Secure financing and insurance approval"
+            ],
+            costs: { min: 500, max: 1500 },
+            criticalFactors: regulations.importRequirements.restrictedVehicles.length > 0 ? 
+              ["Check restricted vehicle list"] : []
+          },
+          {
+            phase: "Purchase & Documentation", 
+            duration: "1-2 weeks",
+            steps: [
+              "Complete vehicle purchase",
+              "Obtain title and registration documents",
+              "Get export certificate from origin country",
+              "Arrange international shipping"
+            ],
+            costs: { min: 2000, max: 5000 },
+            criticalFactors: regulations.importRequirements.requiredDocuments
+          },
+          {
+            phase: "Import & Customs Clearance",
+            duration: "2-4 weeks", 
+            steps: [
+              "Submit import declaration",
+              "Pay customs duties and taxes",
+              "Complete customs inspection",
+              "Release vehicle from port"
+            ],
+            costs: costCalculation ? {
+              min: costCalculation.totalFees * 0.8,
+              max: costCalculation.totalFees * 1.2
+            } : { min: 3000, max: 8000 },
+            criticalFactors: ["Have all required documentation ready"]
+          },
+          {
+            phase: "Regional Compliance",
+            duration: regulations.registration.processingTime,
+            steps: [
+              ...regulations.importRequirements.additionalInspections.map((inspection: string) => 
+                `Complete ${inspection}`),
+              `Register with ${regulations.authority}`,
+              "Obtain license plates",
+              "Get mandatory insurance"
+            ],
+            costs: {
+              min: regulations.registration.registrationFee + regulations.fees.inspectionFee,
+              max: (regulations.registration.registrationFee + regulations.fees.inspectionFee) * 1.5
+            },
+            criticalFactors: regulations.compliance.commonIssues
+          }
+        ],
+        
+        totalEstimatedCost: costCalculation?.totalCost || 15000,
+        totalTimeframe: regulations.process?.estimatedDays ? 
+          `${regulations.process.estimatedDays} days` : "8-16 weeks",
+        difficultyLevel: regulations.compliance.strictnessLevel,
+        
+        regionalAdvantages: regulations.compliance.advantages || [],
+        potentialChallenges: regulations.compliance.commonIssues || [],
+        bestPractices: regulations.compliance.bestPractices || []
+      };
+
+      res.json({
+        success: true,
+        roadmap
+      });
+
+    } catch (error) {
+      console.error("Compliance roadmap error:", error);
+      res.status(500).json({ error: "Failed to generate compliance roadmap" });
     }
   });
 
