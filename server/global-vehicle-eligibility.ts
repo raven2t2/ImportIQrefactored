@@ -58,17 +58,44 @@ export function checkGlobalEligibility(
   vehicle: VehicleDetails, 
   targetCountry: 'AU' | 'US' | 'UK' | 'CA'
 ): GlobalEligibilityResult {
-  switch (targetCountry) {
+  const normalizedCountry = targetCountry.toUpperCase();
+  
+  switch (normalizedCountry) {
     case 'AU':
+    case 'AUS':
+    case 'AUSTRALIA':
       return checkAustralianEligibility(vehicle);
     case 'US':
+    case 'USA':
+    case 'UNITED STATES':
       return checkUSEligibility(vehicle);
     case 'UK':
+    case 'GB':
+    case 'UNITED KINGDOM':
       return checkUKEligibility(vehicle);
     case 'CA':
+    case 'CAN':
+    case 'CANADA':
       return checkCanadianEligibility(vehicle);
     default:
-      throw new Error('Unsupported target country');
+      console.log(`Unsupported target country: ${targetCountry}`);
+      // Return a default eligibility result instead of throwing an error
+      return {
+        targetCountry: targetCountry,
+        eligible: false,
+        eligibilityType: 'not_supported',
+        estimatedCosts: {
+          complianceCost: 0,
+          modificationCost: 0,
+          inspectionFees: 0,
+          dutyAndTaxes: 0
+        },
+        timeline: {
+          totalWeeks: 0
+        },
+        restrictions: [`Import eligibility checking not yet supported for ${targetCountry}`],
+        warnings: ['Please contact a local import specialist for guidance']
+      };
   }
 }
 

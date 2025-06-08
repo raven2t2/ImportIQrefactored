@@ -6284,8 +6284,24 @@ IMPORTANT GUIDELINES:
 
       // Check eligibility for each target country
       const results = [];
+      
+      // Map country names to codes
+      const countryMap: { [key: string]: string } = {
+        'australia': 'AU',
+        'au': 'AU',
+        'usa': 'US',
+        'us': 'US',
+        'united states': 'US',
+        'uk': 'UK',
+        'united kingdom': 'UK',
+        'gb': 'UK',
+        'canada': 'CA',
+        'ca': 'CA'
+      };
+      
       for (const country of data.targetCountries) {
-        const eligibilityResult = checkGlobalEligibility(vehicleDetails, country);
+        const countryCode = countryMap[country.toLowerCase()] || country.toUpperCase();
+        const eligibilityResult = checkGlobalEligibility(vehicleDetails, countryCode as any);
         results.push(eligibilityResult);
       }
 
