@@ -2768,6 +2768,78 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
+  // Search suggestions API for smart vehicle lookup
+  app.post("/api/search-suggestions", async (req, res) => {
+    try {
+      const { query, targetCountry } = req.body;
+      
+      if (!query || query.length < 2) {
+        return res.json({ success: true, suggestions: [] });
+      }
+
+      const suggestions = [];
+      
+      // Search through our authentic market data
+      const marketData = await getMarketIntelligence();
+      const vehicles = marketData.vehicles || [];
+      
+      // Filter vehicles matching the query
+      const matchingVehicles = vehicles.filter((vehicle: any) => {
+        const searchText = `${vehicle.make} ${vehicle.model} ${vehicle.year}`.toLowerCase();
+        return searchText.includes(query.toLowerCase());
+      });
+
+      // Add top matches with market context
+      matchingVehicles.slice(0, 8).forEach((vehicle: any) => {
+        suggestions.push({
+          identifier: `${vehicle.make} ${vehicle.model} ${vehicle.year}`,
+          make: vehicle.make,
+          model: vehicle.model,
+          year: vehicle.year,
+          marketPrice: vehicle.price,
+          source: vehicle.source,
+          availability: "Available"
+        });
+      });
+
+      // Add popular chassis codes if query looks like one
+      if (query.length >= 3 && query.length <= 6) {
+        const popularChassis = [
+          { code: "JZX100", make: "Toyota", model: "Chaser", year: 1998, marketPrice: 45000 },
+          { code: "BNR32", make: "Nissan", model: "Skyline GT-R", year: 1991, marketPrice: 85000 },
+          { code: "FD3S", make: "Mazda", model: "RX-7", year: 1995, marketPrice: 75000 },
+          { code: "EK9", make: "Honda", model: "Civic Type R", year: 1998, marketPrice: 55000 },
+          { code: "GC8", make: "Subaru", model: "Impreza WRX", year: 1996, marketPrice: 40000 },
+          { code: "AE86", make: "Toyota", model: "Corolla", year: 1986, marketPrice: 35000 }
+        ];
+
+        popularChassis
+          .filter(chassis => chassis.code.toLowerCase().includes(query.toLowerCase()))
+          .forEach(chassis => {
+            suggestions.push({
+              identifier: chassis.code,
+              make: chassis.make,
+              model: chassis.model,
+              year: chassis.year,
+              marketPrice: chassis.marketPrice,
+              source: "JDM Chassis Database",
+              availability: "Popular"
+            });
+          });
+      }
+
+      res.json({
+        success: true,
+        suggestions: suggestions.slice(0, 10),
+        query
+      });
+
+    } catch (error) {
+      console.error("Search suggestions error:", error);
+      res.status(500).json({ error: "Failed to generate search suggestions" });
+    }
+  });
+
   // Comprehensive analytics for all 14 ImportIQ tools
   app.get("/api/admin/comprehensive-analytics", async (req: any, res) => {
     try {
