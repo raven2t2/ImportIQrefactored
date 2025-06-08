@@ -1,46 +1,13 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Shield, Globe, AlertTriangle, CheckCircle, Clock, DollarSign, FileText, ExternalLink } from "lucide-react";
-import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
+import { Separator } from "@/components/ui/separator";
+import { AlertCircle, CheckCircle, Clock, DollarSign, FileText, Globe, Link, Car, ArrowRight, MessageCircle, Sparkles } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { apiRequest } from "@/lib/queryClient";
-import { z } from "zod";
-
-// Global eligibility check schema
-const eligibilitySchema = z.object({
-  // Input method: URL or manual entry
-  inputMethod: z.enum(["url", "manual"]),
-  
-  // For URL-based lookup
-  auctionUrl: z.string().optional(),
-  
-  // For manual entry
-  make: z.string().min(1, "Make is required"),
-  model: z.string().min(1, "Model is required"),
-  year: z.number().min(1950).max(new Date().getFullYear() + 1),
-  vin: z.string().optional(),
-  engineSize: z.number().optional(),
-  fuelType: z.enum(["petrol", "diesel", "hybrid", "electric", "other"]).optional(),
-  bodyType: z.enum(["sedan", "hatchback", "wagon", "suv", "coupe", "convertible", "motorcycle", "truck", "van"]).optional(),
-  driveType: z.enum(["LHD", "RHD"]),
-  transmission: z.enum(["manual", "automatic", "cvt"]).optional(),
-  origin: z.enum(["japan", "usa", "uk", "europe", "other"]),
-  estimatedValue: z.number().min(1000, "Estimated value must be at least $1,000"),
-  
-  // Target countries for import
-  targetCountries: z.array(z.enum(["AU", "US", "UK", "CA"])).min(1, "Select at least one target country"),
-});
-
-type EligibilityData = z.infer<typeof eligibilitySchema>;
 
 interface CountryEligibilityResult {
   targetCountry: 'AU' | 'US' | 'UK' | 'CA';
@@ -91,668 +58,570 @@ interface EligibilityResults {
   };
 }
 
+type ConversationStep = 
+  | 'welcome'
+  | 'input-method'
+  | 'url-input'
+  | 'make-selection'
+  | 'model-input'
+  | 'year-input'
+  | 'value-input'
+  | 'loading'
+  | 'results';
+
+interface ConversationState {
+  step: ConversationStep;
+  data: {
+    inputMethod?: 'url' | 'manual';
+    auctionUrl?: string;
+    make?: string;
+    model?: string;
+    year?: number;
+    estimatedValue?: number;
+  };
+  suggestions: string[];
+}
+
+const popularMakes = [
+  'Toyota', 'Nissan', 'Honda', 'Mazda', 'Subaru', 'Mitsubishi', 
+  'BMW', 'Mercedes-Benz', 'Audi', 'Porsche', 'Ferrari', 'Lamborghini'
+];
+
+const countryFlags = {
+  AU: '🇦🇺',
+  US: '🇺🇸', 
+  UK: '🇬🇧',
+  CA: '🇨🇦'
+};
+
+const countryNames = {
+  AU: 'Australia',
+  US: 'United States',
+  UK: 'United Kingdom', 
+  CA: 'Canada'
+};
+
 export default function VehicleEligibilityChecker() {
-  const [results, setResults] = useState<EligibilityResults | null>(null);
-  const [activeTab, setActiveTab] = useState("input");
-  const { toast } = useToast();
-
-  const form = useForm<EligibilityData>({
-    resolver: zodResolver(eligibilitySchema),
-    defaultValues: {
-      inputMethod: "manual",
-      make: "",
-      model: "",
-      year: 2020,
-      driveType: "RHD",
-      origin: "japan",
-      estimatedValue: 50000,
-      targetCountries: ["AU"],
-    },
+  const [conversation, setConversation] = useState<ConversationState>({
+    step: 'welcome',
+    data: {},
+    suggestions: []
   });
+  
+  const [inputValue, setInputValue] = useState('');
+  const [results, setResults] = useState<EligibilityResults | null>(null);
 
-  const inputMethod = form.watch("inputMethod");
-
-  const checkEligibilityMutation = useMutation({
-    mutationFn: async (data: EligibilityData): Promise<EligibilityResults> => {
-      const response = await apiRequest("POST", "/api/check-vehicle-eligibility", data);
-      return response.json();
+  const eligibilityMutation = useMutation({
+    mutationFn: async (data: any): Promise<EligibilityResults> => {
+      const response = await apiRequest('/api/check-vehicle-eligibility', {
+        method: 'POST',
+        body: JSON.stringify({
+          ...data,
+          targetCountries: ['AU', 'US', 'UK', 'CA']
+        })
+      });
+      return response;
     },
     onSuccess: (data) => {
       setResults(data);
-      setActiveTab("results");
-      toast({
-        title: "Eligibility Check Complete",
-        description: `Checked eligibility for ${data.results.length} countries`,
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Eligibility Check Failed",
-        description: error.message || "An error occurred while checking eligibility",
-        variant: "destructive",
-      });
-    },
+      setConversation(prev => ({ ...prev, step: 'results' }));
+    }
   });
 
-  const onSubmit = (data: EligibilityData) => {
-    checkEligibilityMutation.mutate(data);
+  const handleNext = (value?: string) => {
+    const currentValue = value || inputValue;
+    
+    switch (conversation.step) {
+      case 'welcome':
+        setConversation({
+          step: 'input-method',
+          data: {},
+          suggestions: ['Paste auction URL', 'Enter vehicle details']
+        });
+        break;
+        
+      case 'input-method':
+        if (currentValue.toLowerCase().includes('url') || currentValue.toLowerCase().includes('auction')) {
+          setConversation({
+            step: 'url-input',
+            data: { inputMethod: 'url' },
+            suggestions: ['yahoo.co.jp auction link', 'copart.com listing', 'cars.jp listing']
+          });
+        } else {
+          setConversation({
+            step: 'make-selection',
+            data: { inputMethod: 'manual' },
+            suggestions: popularMakes
+          });
+        }
+        setInputValue('');
+        break;
+        
+      case 'url-input':
+        setConversation(prev => ({ 
+          ...prev, 
+          step: 'loading',
+          data: { ...prev.data, auctionUrl: currentValue }
+        }));
+        eligibilityMutation.mutate({
+          inputMethod: 'url',
+          auctionUrl: currentValue
+        });
+        setInputValue('');
+        break;
+        
+      case 'make-selection':
+        const suggestedModels = getMakeModels(currentValue);
+        setConversation(prev => ({ 
+          ...prev, 
+          step: 'model-input',
+          data: { ...prev.data, make: currentValue },
+          suggestions: suggestedModels
+        }));
+        setInputValue('');
+        break;
+        
+      case 'model-input':
+        setConversation(prev => ({ 
+          ...prev, 
+          step: 'year-input',
+          data: { ...prev.data, model: currentValue },
+          suggestions: getYearSuggestions()
+        }));
+        setInputValue('');
+        break;
+        
+      case 'year-input':
+        const year = parseInt(currentValue);
+        setConversation(prev => ({ 
+          ...prev, 
+          step: 'value-input',
+          data: { ...prev.data, year },
+          suggestions: getValueSuggestions(year)
+        }));
+        setInputValue('');
+        break;
+        
+      case 'value-input':
+        const value = parseInt(currentValue.replace(/[^0-9]/g, ''));
+        setConversation(prev => ({ 
+          ...prev, 
+          step: 'loading',
+          data: { ...prev.data, estimatedValue: value }
+        }));
+        
+        eligibilityMutation.mutate({
+          inputMethod: 'manual',
+          make: conversation.data.make,
+          model: conversation.data.model,
+          year: conversation.data.year,
+          origin: 'japan',
+          estimatedValue: value
+        });
+        setInputValue('');
+        break;
+    }
   };
 
-  const formatCurrency = (amount: number, country: string) => {
-    const currencies = { AU: 'AUD', US: 'USD', UK: 'GBP', CA: 'CAD' };
-    const currency = currencies[country as keyof typeof currencies] || 'USD';
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency,
-    }).format(amount);
+  const getMakeModels = (make: string): string[] => {
+    const models: Record<string, string[]> = {
+      'Toyota': ['Supra', 'GT86', 'Celica', 'MR2', 'AE86', 'Chaser'],
+      'Nissan': ['Skyline GT-R', '240SX', 'Silvia', 'GT-R', 'Z32', 'R34'],
+      'Honda': ['NSX', 'Civic Type R', 'S2000', 'Integra', 'CRX', 'Prelude'],
+      'Mazda': ['RX-7', 'RX-8', 'Miata', 'MX-5', 'Cosmo', 'Savanna'],
+      'Subaru': ['WRX STI', 'Impreza', 'Legacy', 'Forester', 'BRZ', 'SVX']
+    };
+    return models[make] || ['Custom Model'];
   };
 
-  const getCountryName = (code: string) => {
-    const names = { AU: 'Australia', US: 'United States', UK: 'United Kingdom', CA: 'Canada' };
-    return names[code as keyof typeof names] || code;
+  const getYearSuggestions = (): string[] => {
+    const currentYear = new Date().getFullYear();
+    return [
+      `${currentYear - 5}`,
+      `${currentYear - 10}`, 
+      `${currentYear - 15}`,
+      `${currentYear - 25}`,
+      `${currentYear - 30}`
+    ];
   };
 
-  const getEligibilityColor = (eligible: boolean) => {
-    return eligible ? "bg-green-100 text-green-800 border-green-200" : "bg-red-100 text-red-800 border-red-200";
+  const getValueSuggestions = (year: number): string[] => {
+    const baseValue = year > 2010 ? 35000 : year > 2000 ? 25000 : 15000;
+    return [
+      `$${baseValue.toLocaleString()}`,
+      `$${(baseValue * 1.5).toLocaleString()}`,
+      `$${(baseValue * 2).toLocaleString()}`,
+      `$${(baseValue * 0.7).toLocaleString()}`
+    ];
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-lg">
-                <Shield className="h-5 w-5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Global Vehicle Eligibility Checker</h1>
-                <p className="text-sm text-gray-600">Check import eligibility across Australia, US, UK, and Canada</p>
-              </div>
+  const restart = () => {
+    setConversation({
+      step: 'welcome',
+      data: {},
+      suggestions: []
+    });
+    setInputValue('');
+    setResults(null);
+  };
+
+  const renderConversationStep = () => {
+    switch (conversation.step) {
+      case 'welcome':
+        return (
+          <div className="space-y-6 text-center">
+            <div className="space-y-2">
+              <Sparkles className="h-12 w-12 text-yellow-500 mx-auto" />
+              <h2 className="text-2xl font-bold">Vehicle Import Eligibility</h2>
+              <p className="text-muted-foreground">
+                Get instant eligibility analysis for importing to Australia, US, UK, and Canada
+              </p>
             </div>
-            <div className="flex space-x-2">
-              <Link href="/">
-                <Button variant="outline" size="sm">← Back to Home</Button>
-              </Link>
+            <Button 
+              onClick={() => handleNext()}
+              className="bg-yellow-500 hover:bg-yellow-600 text-black font-medium px-8"
+            >
+              Start Analysis <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+        );
+
+      case 'input-method':
+        return (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <MessageCircle className="h-5 w-5 text-yellow-500" />
+              <span className="font-medium">How would you like to check eligibility?</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {conversation.suggestions.map((suggestion, index) => (
+                <Button
+                  key={index}
+                  variant="outline"
+                  onClick={() => handleNext(suggestion)}
+                  className="justify-start h-auto p-4 text-left"
+                >
+                  {suggestion.includes('URL') ? (
+                    <Link className="h-4 w-4 mr-2 flex-shrink-0" />
+                  ) : (
+                    <Car className="h-4 w-4 mr-2 flex-shrink-0" />
+                  )}
+                  <span>{suggestion}</span>
+                </Button>
+              ))}
             </div>
           </div>
-        </div>
-      </header>
+        );
 
-      <main className="max-w-6xl mx-auto px-4 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="input">Vehicle Details</TabsTrigger>
-            <TabsTrigger value="results" disabled={!results}>Eligibility Results</TabsTrigger>
-          </TabsList>
+      case 'url-input':
+        return (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <MessageCircle className="h-5 w-5 text-yellow-500" />
+              <span className="font-medium">Paste your auction or listing URL</span>
+            </div>
+            <div className="space-y-3">
+              <Input
+                placeholder="https://page.auctions.yahoo.co.jp/..."
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && inputValue && handleNext()}
+                className="text-lg"
+              />
+              <div className="flex flex-wrap gap-2">
+                {conversation.suggestions.map((suggestion, index) => (
+                  <Button
+                    key={index}
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setInputValue(`https://${suggestion}/example-listing`)}
+                    className="text-xs"
+                  >
+                    {suggestion}
+                  </Button>
+                ))}
+              </div>
+              {inputValue && (
+                <Button 
+                  onClick={() => handleNext()}
+                  className="w-full bg-yellow-500 hover:bg-yellow-600 text-black"
+                >
+                  Analyze URL <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          </div>
+        );
 
-          <TabsContent value="input" className="space-y-6">
-            <Card className="bg-white border-gray-200 shadow-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Globe className="h-5 w-5 text-blue-600" />
-                  <span>Vehicle Information</span>
-                </CardTitle>
-                <p className="text-sm text-gray-600">
-                  Enter vehicle details or paste an auction URL for automatic detection
-                </p>
-                
-                {/* What We Check */}
-                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <div className="text-sm">
-                    <p className="font-semibold text-gray-900 mb-2">Comprehensive eligibility check includes:</p>
-                    <div className="grid grid-cols-2 gap-2 text-xs text-gray-700">
-                      <div className="flex items-center space-x-2">
-                        <CheckCircle className="w-3 h-3 text-blue-500" />
-                        <span>Age-based import rules (25-year, 15-year)</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <CheckCircle className="w-3 h-3 text-blue-500" />
-                        <span>Safety and emissions compliance</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <CheckCircle className="w-3 h-3 text-blue-500" />
-                        <span>Special scheme eligibility (SEVS, EPA, etc.)</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <CheckCircle className="w-3 h-3 text-blue-500" />
-                        <span>Modification requirements & costs</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <CheckCircle className="w-3 h-3 text-blue-500" />
-                        <span>Import duties, taxes & timeline</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <CheckCircle className="w-3 h-3 text-blue-500" />
-                        <span>Country-specific restrictions</span>
-                      </div>
+      case 'make-selection':
+        return (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <MessageCircle className="h-5 w-5 text-yellow-500" />
+              <span className="font-medium">What make is your vehicle?</span>
+            </div>
+            <div className="space-y-3">
+              <Input
+                placeholder="Type make name..."
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && inputValue && handleNext()}
+                className="text-lg"
+              />
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                {conversation.suggestions.map((suggestion, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    onClick={() => handleNext(suggestion)}
+                    className="justify-start"
+                  >
+                    {suggestion}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'model-input':
+        return (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <MessageCircle className="h-5 w-5 text-yellow-500" />
+              <span className="font-medium">What model {conversation.data.make}?</span>
+            </div>
+            <div className="space-y-3">
+              <Input
+                placeholder="Model name..."
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && inputValue && handleNext()}
+                className="text-lg"
+              />
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                {conversation.suggestions.map((suggestion, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    onClick={() => handleNext(suggestion)}
+                    className="justify-start text-sm"
+                  >
+                    {suggestion}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'year-input':
+        return (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <MessageCircle className="h-5 w-5 text-yellow-500" />
+              <span className="font-medium">What year {conversation.data.make} {conversation.data.model}?</span>
+            </div>
+            <div className="space-y-3">
+              <Input
+                placeholder="Year..."
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && inputValue && handleNext()}
+                className="text-lg"
+                type="number"
+              />
+              <div className="flex flex-wrap gap-2">
+                {conversation.suggestions.map((suggestion, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    onClick={() => handleNext(suggestion)}
+                    className="text-sm"
+                  >
+                    {suggestion}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'value-input':
+        return (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <MessageCircle className="h-5 w-5 text-yellow-500" />
+              <span className="font-medium">Estimated purchase price?</span>
+            </div>
+            <div className="space-y-3">
+              <Input
+                placeholder="$25,000"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && inputValue && handleNext()}
+                className="text-lg"
+              />
+              <div className="grid grid-cols-2 gap-2">
+                {conversation.suggestions.map((suggestion, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    onClick={() => handleNext(suggestion)}
+                    className="text-sm"
+                  >
+                    {suggestion}
+                  </Button>
+                ))}
+              </div>
+              {inputValue && (
+                <Button 
+                  onClick={() => handleNext()}
+                  className="w-full bg-yellow-500 hover:bg-yellow-600 text-black"
+                >
+                  Check Eligibility <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          </div>
+        );
+
+      case 'loading':
+        return (
+          <div className="text-center space-y-4">
+            <div className="animate-spin h-8 w-8 border-4 border-yellow-500 border-t-transparent rounded-full mx-auto"></div>
+            <p className="text-muted-foreground">Analyzing eligibility across 4 countries...</p>
+          </div>
+        );
+
+      case 'results':
+        return null; // Results rendered separately
+    }
+  };
+
+  if (conversation.step === 'results' && results) {
+    return (
+      <div className="min-h-screen bg-black text-white p-4">
+        <div className="max-w-6xl mx-auto space-y-6">
+          <div className="text-center space-y-4">
+            <h1 className="text-3xl font-bold">
+              {results.vehicle.year} {results.vehicle.make} {results.vehicle.model}
+            </h1>
+            <div className="flex items-center justify-center gap-6 text-sm text-gray-400">
+              <span>Origin: {results.vehicle.origin}</span>
+              <span>Value: ${results.vehicle.estimatedValue.toLocaleString()}</span>
+              <span>Eligible Countries: {results.overallSummary.eligibleCountries}/4</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {results.results.map((result) => (
+              <Card key={result.targetCountry} className="bg-gray-900 border-gray-800 text-white">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">
+                      {countryFlags[result.targetCountry]} {countryNames[result.targetCountry]}
+                    </CardTitle>
+                    {result.eligible ? (
+                      <CheckCircle className="h-5 w-5 text-green-400" />
+                    ) : (
+                      <AlertCircle className="h-5 w-5 text-red-400" />
+                    )}
+                  </div>
+                  <Badge 
+                    variant={result.eligible ? "default" : "destructive"}
+                    className={result.eligible ? "bg-green-600" : ""}
+                  >
+                    {result.eligibilityType}
+                  </Badge>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-400">Total Cost</span>
+                    <span className="font-semibold">
+                      ${Object.values(result.estimatedCosts).reduce((a, b) => a + b, 0).toLocaleString()}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-400">Timeline</span>
+                    <span>{result.timeline.totalWeeks} weeks</span>
+                  </div>
+
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium text-gray-300">Next Steps</h4>
+                    <ul className="text-xs space-y-1 text-gray-400">
+                      {result.nextSteps.slice(0, 2).map((step, index) => (
+                        <li key={index}>• {step}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <Separator className="bg-gray-700" />
+                  
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                      <span className="text-gray-400">Compliance</span>
+                      <div className="font-medium">${result.estimatedCosts.complianceCost.toLocaleString()}</div>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Duties & Taxes</span>
+                      <div className="font-medium">${result.estimatedCosts.dutyAndTaxes.toLocaleString()}</div>
                     </div>
                   </div>
-                </div>
-              </CardHeader>
-              
-              <CardContent>
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    {/* Input Method Selection */}
-                    <FormField
-                      control={form.control}
-                      name="inputMethod"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>How would you like to enter vehicle details?</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger className="bg-white border-gray-300">
-                                <SelectValue />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="manual">Enter details manually</SelectItem>
-                              <SelectItem value="url">Paste auction URL (Auto-detect)</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
 
-                    {/* URL Input */}
-                    {inputMethod === "url" && (
-                      <FormField
-                        control={form.control}
-                        name="auctionUrl"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Auction URL</FormLabel>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                placeholder="https://auctions.yahoo.co.jp/... or https://copart.com/..."
-                                className="bg-white border-gray-300"
-                              />
-                            </FormControl>
-                            <p className="text-xs text-gray-600">
-                              Supports Yahoo Auctions Japan, Copart, Manheim, BCA, and other major auction sites
-                            </p>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    )}
+          <Card className="bg-gray-900 border-gray-800 text-white">
+            <CardHeader>
+              <CardTitle>Recommendations</CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="text-center">
+                <DollarSign className="h-6 w-6 text-green-400 mx-auto mb-2" />
+                <div className="font-medium">Cheapest Option</div>
+                <div className="text-sm text-gray-400">{results.overallSummary.cheapestCountry}</div>
+              </div>
+              <div className="text-center">
+                <Clock className="h-6 w-6 text-blue-400 mx-auto mb-2" />
+                <div className="font-medium">Fastest Import</div>
+                <div className="text-sm text-gray-400">{results.overallSummary.fastestCountry}</div>
+              </div>
+              <div className="text-center">
+                <CheckCircle className="h-6 w-6 text-yellow-400 mx-auto mb-2" />
+                <div className="font-medium">Easiest Process</div>
+                <div className="text-sm text-gray-400">{results.overallSummary.easiestCountry}</div>
+              </div>
+            </CardContent>
+          </Card>
 
-                    {/* Manual Entry Fields */}
-                    {inputMethod === "manual" && (
-                      <>
-                        <div className="grid grid-cols-3 gap-4">
-                          <FormField
-                            control={form.control}
-                            name="make"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Make *</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    {...field}
-                                    placeholder="Toyota"
-                                    className="bg-white border-gray-300"
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+          <div className="text-center">
+            <Button 
+              onClick={restart}
+              variant="outline"
+              className="border-gray-600 text-gray-300 hover:bg-gray-800"
+            >
+              Check Another Vehicle
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-                          <FormField
-                            control={form.control}
-                            name="model"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Model *</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    {...field}
-                                    placeholder="Supra"
-                                    className="bg-white border-gray-300"
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
-                            name="year"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Year *</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    {...field}
-                                    type="number"
-                                    min="1950"
-                                    max={new Date().getFullYear() + 1}
-                                    placeholder="1995"
-                                    className="bg-white border-gray-300"
-                                    onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                          <FormField
-                            control={form.control}
-                            name="origin"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Country of Origin *</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                  <FormControl>
-                                    <SelectTrigger className="bg-white border-gray-300">
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    <SelectItem value="japan">Japan</SelectItem>
-                                    <SelectItem value="usa">United States</SelectItem>
-                                    <SelectItem value="uk">United Kingdom</SelectItem>
-                                    <SelectItem value="europe">Europe (Other)</SelectItem>
-                                    <SelectItem value="other">Other Country</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
-                            name="driveType"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Drive Type *</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                  <FormControl>
-                                    <SelectTrigger className="bg-white border-gray-300">
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    <SelectItem value="RHD">Right-Hand Drive (RHD)</SelectItem>
-                                    <SelectItem value="LHD">Left-Hand Drive (LHD)</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-
-                        <FormField
-                          control={form.control}
-                          name="estimatedValue"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Estimated Value (USD) *</FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...field}
-                                  type="number"
-                                  min="1000"
-                                  placeholder="50000"
-                                  className="bg-white border-gray-300"
-                                  onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                                />
-                              </FormControl>
-                              <p className="text-xs text-gray-600">
-                                Used for duty and tax calculations
-                              </p>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        {/* Optional Details */}
-                        <div className="grid grid-cols-3 gap-4">
-                          <FormField
-                            control={form.control}
-                            name="bodyType"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Body Type</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                  <FormControl>
-                                    <SelectTrigger className="bg-white border-gray-300">
-                                      <SelectValue placeholder="Select body type" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    <SelectItem value="sedan">Sedan</SelectItem>
-                                    <SelectItem value="hatchback">Hatchback</SelectItem>
-                                    <SelectItem value="wagon">Wagon</SelectItem>
-                                    <SelectItem value="suv">SUV</SelectItem>
-                                    <SelectItem value="coupe">Coupe</SelectItem>
-                                    <SelectItem value="convertible">Convertible</SelectItem>
-                                    <SelectItem value="motorcycle">Motorcycle</SelectItem>
-                                    <SelectItem value="truck">Truck</SelectItem>
-                                    <SelectItem value="van">Van</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
-                            name="fuelType"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Fuel Type</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                  <FormControl>
-                                    <SelectTrigger className="bg-white border-gray-300">
-                                      <SelectValue placeholder="Select fuel type" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    <SelectItem value="petrol">Petrol/Gasoline</SelectItem>
-                                    <SelectItem value="diesel">Diesel</SelectItem>
-                                    <SelectItem value="hybrid">Hybrid</SelectItem>
-                                    <SelectItem value="electric">Electric</SelectItem>
-                                    <SelectItem value="other">Other</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
-                            name="vin"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>VIN (Optional)</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    {...field}
-                                    placeholder="17-character VIN"
-                                    maxLength={17}
-                                    className="bg-white border-gray-300"
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                      </>
-                    )}
-
-                    {/* Target Countries */}
-                    <FormField
-                      control={form.control}
-                      name="targetCountries"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Check eligibility for:</FormLabel>
-                          <div className="grid grid-cols-4 gap-4">
-                            {[
-                              { code: 'AU', name: 'Australia', flag: '🇦🇺' },
-                              { code: 'US', name: 'United States', flag: '🇺🇸' },
-                              { code: 'UK', name: 'United Kingdom', flag: '🇬🇧' },
-                              { code: 'CA', name: 'Canada', flag: '🇨🇦' }
-                            ].map((country) => (
-                              <div key={country.code} className="flex items-center space-x-2">
-                                <input
-                                  type="checkbox"
-                                  id={country.code}
-                                  checked={field.value.includes(country.code as any)}
-                                  onChange={(e) => {
-                                    if (e.target.checked) {
-                                      field.onChange([...field.value, country.code]);
-                                    } else {
-                                      field.onChange(field.value.filter(c => c !== country.code));
-                                    }
-                                  }}
-                                  className="h-4 w-4"
-                                />
-                                <label htmlFor={country.code} className="text-sm font-medium">
-                                  {country.flag} {country.name}
-                                </label>
-                              </div>
-                            ))}
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <Button 
-                      type="submit" 
-                      className="w-full bg-blue-600 hover:bg-blue-700"
-                      disabled={checkEligibilityMutation.isPending}
-                    >
-                      {checkEligibilityMutation.isPending ? "Checking Eligibility..." : "Check Vehicle Eligibility"}
-                    </Button>
-                  </form>
-                </Form>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="results" className="space-y-6">
-            {results && (
-              <>
-                {/* Vehicle Summary */}
-                <Card className="bg-white border-gray-200 shadow-sm">
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <FileText className="h-5 w-5 text-blue-600" />
-                      <span>Vehicle Summary</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <div>
-                        <p className="text-sm text-gray-600">Vehicle</p>
-                        <p className="font-semibold">{results.vehicle.year} {results.vehicle.make} {results.vehicle.model}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Origin</p>
-                        <p className="font-semibold">{results.vehicle.origin.toUpperCase()}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Value</p>
-                        <p className="font-semibold">${results.vehicle.estimatedValue.toLocaleString()}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Age</p>
-                        <p className="font-semibold">{new Date().getFullYear() - results.vehicle.year} years</p>
-                      </div>
-                    </div>
-
-                    {/* Overall Summary */}
-                    <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-                      <h4 className="font-semibold text-gray-900 mb-3">Import Summary</h4>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                        <div>
-                          <span className="text-gray-600">Eligible Countries:</span>
-                          <span className="ml-2 font-semibold">{results.overallSummary.eligibleCountries} of {results.results.length}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">Easiest:</span>
-                          <span className="ml-2 font-semibold">{results.overallSummary.easiestCountry}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">Cheapest:</span>
-                          <span className="ml-2 font-semibold">{results.overallSummary.cheapestCountry}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">Fastest:</span>
-                          <span className="ml-2 font-semibold">{results.overallSummary.fastestCountry}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Country Results */}
-                <div className="grid gap-6">
-                  {results.results.map((result) => (
-                    <Card key={result.targetCountry} className={`border-2 ${result.eligible ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
-                      <CardHeader>
-                        <CardTitle className="flex items-center justify-between">
-                          <span className="flex items-center space-x-2">
-                            <Globe className="h-5 w-5" />
-                            <span>{getCountryName(result.targetCountry)}</span>
-                          </span>
-                          <Badge className={getEligibilityColor(result.eligible)}>
-                            {result.eligible ? 'Eligible' : 'Not Eligible'}
-                          </Badge>
-                        </CardTitle>
-                        <p className="text-sm text-gray-600">{result.eligibilityType}</p>
-                      </CardHeader>
-                      
-                      <CardContent className="space-y-6">
-                        {/* Age Requirement */}
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <h4 className="font-semibold text-gray-900 mb-2">Age Requirement</h4>
-                            <div className="flex items-center space-x-2">
-                              {result.ageRequirement.meetsRequirement ? (
-                                <CheckCircle className="h-4 w-4 text-green-500" />
-                              ) : (
-                                <AlertTriangle className="h-4 w-4 text-red-500" />
-                              )}
-                              <span className="text-sm">
-                                {result.ageRequirement.currentAge} years (min: {result.ageRequirement.minimumAge})
-                              </span>
-                            </div>
-                            <p className="text-xs text-gray-600 mt-1">{result.ageRequirement.ruleDescription}</p>
-                          </div>
-
-                          <div>
-                            <h4 className="font-semibold text-gray-900 mb-2">Timeline</h4>
-                            <div className="flex items-center space-x-2">
-                              <Clock className="h-4 w-4 text-blue-500" />
-                              <span className="text-sm">{result.timeline.totalWeeks} weeks total</span>
-                            </div>
-                            <div className="mt-1 space-y-1">
-                              {result.timeline.phases.slice(0, 2).map((phase, index) => (
-                                <div key={index} className="text-xs text-gray-600">
-                                  • {phase.phase}: {phase.weeks} weeks
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Costs Breakdown */}
-                        <div>
-                          <h4 className="font-semibold text-gray-900 mb-3">Estimated Costs</h4>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div className="text-center p-3 bg-white rounded-lg border">
-                              <DollarSign className="h-4 w-4 mx-auto text-blue-500 mb-1" />
-                              <p className="text-xs text-gray-600">Compliance</p>
-                              <p className="font-semibold">{formatCurrency(result.estimatedCosts.complianceCost, result.targetCountry)}</p>
-                            </div>
-                            <div className="text-center p-3 bg-white rounded-lg border">
-                              <DollarSign className="h-4 w-4 mx-auto text-orange-500 mb-1" />
-                              <p className="text-xs text-gray-600">Modifications</p>
-                              <p className="font-semibold">{formatCurrency(result.estimatedCosts.modificationCost, result.targetCountry)}</p>
-                            </div>
-                            <div className="text-center p-3 bg-white rounded-lg border">
-                              <DollarSign className="h-4 w-4 mx-auto text-green-500 mb-1" />
-                              <p className="text-xs text-gray-600">Inspections</p>
-                              <p className="font-semibold">{formatCurrency(result.estimatedCosts.inspectionFees, result.targetCountry)}</p>
-                            </div>
-                            <div className="text-center p-3 bg-white rounded-lg border">
-                              <DollarSign className="h-4 w-4 mx-auto text-red-500 mb-1" />
-                              <p className="text-xs text-gray-600">Duty & Tax</p>
-                              <p className="font-semibold">{formatCurrency(result.estimatedCosts.dutyAndTaxes, result.targetCountry)}</p>
-                            </div>
-                          </div>
-                          <div className="mt-3 p-3 bg-gray-100 rounded-lg text-center">
-                            <p className="text-sm text-gray-600">Total Import Cost</p>
-                            <p className="text-xl font-bold text-gray-900">
-                              {formatCurrency(
-                                result.estimatedCosts.complianceCost + 
-                                result.estimatedCosts.modificationCost + 
-                                result.estimatedCosts.inspectionFees + 
-                                result.estimatedCosts.dutyAndTaxes,
-                                result.targetCountry
-                              )}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Warnings & Restrictions */}
-                        {(result.warnings.length > 0 || result.restrictions.length > 0) && (
-                          <div className="space-y-3">
-                            {result.warnings.length > 0 && (
-                              <div>
-                                <h4 className="font-semibold text-orange-600 mb-2">⚠️ Warnings</h4>
-                                <ul className="text-sm text-orange-700 space-y-1">
-                                  {result.warnings.map((warning, index) => (
-                                    <li key={index}>• {warning}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-                            
-                            {result.restrictions.length > 0 && (
-                              <div>
-                                <h4 className="font-semibold text-red-600 mb-2">🚫 Restrictions</h4>
-                                <ul className="text-sm text-red-700 space-y-1">
-                                  {result.restrictions.map((restriction, index) => (
-                                    <li key={index}>• {restriction}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-                          </div>
-                        )}
-
-                        {/* Next Steps */}
-                        {result.nextSteps.length > 0 && (
-                          <div>
-                            <h4 className="font-semibold text-green-600 mb-2">✅ Next Steps</h4>
-                            <ul className="text-sm text-green-700 space-y-1">
-                              {result.nextSteps.map((step, index) => (
-                                <li key={index}>• {step}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex justify-center space-x-4">
-                  <Button onClick={() => setActiveTab("input")} variant="outline">
-                    Check Another Vehicle
-                  </Button>
-                  <Link href="/import-calculator-au">
-                    <Button className="bg-green-600 hover:bg-green-700">
-                      Get Detailed Australian Quote
-                    </Button>
-                  </Link>
-                </div>
-              </>
-            )}
-          </TabsContent>
-        </Tabs>
-      </main>
+  return (
+    <div className="min-h-screen bg-black text-white p-4">
+      <div className="max-w-2xl mx-auto">
+        <div className="mt-20">
+          <Card className="bg-gray-900 border-gray-800 text-white">
+            <CardContent className="p-8">
+              {renderConversationStep()}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }
