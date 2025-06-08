@@ -6313,7 +6313,8 @@ IMPORTANT GUIDELINES:
   // Live Market Data API endpoint for Apify dataset
   app.get("/api/live-market-data", async (req, res) => {
     try {
-      const marketData = await getLiveMarketData();
+      const { getMarketData } = await import('./market-data-integration');
+      const marketData = await getMarketData();
       
       if (!marketData || !marketData.vehicles) {
         return res.status(503).json({ 
@@ -6356,7 +6357,8 @@ IMPORTANT GUIDELINES:
   app.post("/api/refresh-market-data", async (req, res) => {
     try {
       console.log('Manual market data refresh requested');
-      const refreshedData = await getLiveMarketData();
+      const { refreshMarketData } = await import('./market-data-integration');
+      const refreshedData = await refreshMarketData();
       res.json({ 
         success: true, 
         message: 'Market data refreshed successfully',
