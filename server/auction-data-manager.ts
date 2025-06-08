@@ -26,10 +26,9 @@ interface CachedAuctionData {
 // In-memory cache for auction data
 let auctionDataCache: CachedAuctionData | null = null;
 
-// Popular makes to refresh data for
+// Popular makes to refresh data for (optimized for performance)
 const POPULAR_MAKES = [
-  'Toyota', 'Nissan', 'Honda', 'Mazda', 'Subaru', 'Mitsubishi',
-  'Ford', 'Chevrolet', 'BMW', 'Mercedes-Benz', 'Audi', 'Lexus'
+  'Toyota', 'Nissan', 'Honda' // Focus on top 3 Japanese makes for core functionality
 ];
 
 /**
