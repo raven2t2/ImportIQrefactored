@@ -97,14 +97,14 @@ export default function Landing() {
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && inputValue.trim()) {
-                        setLocation(`/vehicle-eligibility-checker?input=${encodeURIComponent(inputValue.trim())}`);
+                        setLocation(`/import-flow?input=${encodeURIComponent(inputValue.trim())}`);
                       }
                     }}
                     className="text-lg h-14 bg-gray-800 border-gray-600 text-white placeholder-gray-400 pr-12"
                   />
                   {inputValue.trim() && (
                     <Button
-                      onClick={() => setLocation(`/vehicle-eligibility-checker?input=${encodeURIComponent(inputValue.trim())}`)}
+                      onClick={() => setLocation(`/import-flow?input=${encodeURIComponent(inputValue.trim())}`)}
                       className="absolute right-2 top-2 h-10 w-10 p-0 bg-amber-400 hover:bg-amber-500 text-black"
                     >
                       <ArrowRight className="h-4 w-4" />
