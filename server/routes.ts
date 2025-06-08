@@ -376,7 +376,7 @@ function calculateImportCosts(vehiclePrice: number, shippingOrigin: string, zipC
   const gst = calculateGST(cifValue); // 10% GST
   
   // Luxury Car Tax - 2024-25 thresholds: $71,849 fuel efficient, $84,916 other vehicles
-  const luxuryCarTax = calculateLuxuryCarTax(vehicleValue); // 33% on amount above threshold
+  const luxuryCarTax = vehiclePrice > 84916 ? (vehiclePrice - 84916) * 0.33 : 0;
   
   // Additional compliance and inspection fees using authentic government rates
   const inspectionFee = 350; // ACIS inspection fee
@@ -6097,6 +6097,94 @@ IMPORTANT GUIDELINES:
       console.error('Error refreshing market data:', error);
       res.status(500).json({ 
         error: 'Failed to refresh market data',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Global vehicle eligibility checker endpoint
+  app.post("/api/check-vehicle-eligibility", async (req, res) => {
+    try {
+      const { checkGlobalEligibility } = require('./global-vehicle-eligibility');
+      const data = req.body;
+
+      let vehicleDetails;
+
+      // Handle URL-based input (auto-detect vehicle details)
+      if (data.inputMethod === 'url' && data.auctionUrl) {
+        // Extract vehicle details from auction URL
+        vehicleDetails = extractVehicleFromUrl(data.auctionUrl);
+        if (!vehicleDetails) {
+          return res.status(400).json({
+            error: 'Unable to extract vehicle details from URL',
+            message: 'Please check the URL or enter details manually'
+          });
+        }
+      } else {
+        // Use manually entered details
+        vehicleDetails = {
+          make: data.make,
+          model: data.model,
+          year: data.year,
+          vin: data.vin,
+          engineSize: data.engineSize,
+          fuelType: data.fuelType,
+          bodyType: data.bodyType,
+          driveType: data.driveType,
+          transmission: data.transmission,
+          origin: data.origin,
+          estimatedValue: data.estimatedValue
+        };
+      }
+
+      // Check eligibility for each target country
+      const results = [];
+      for (const country of data.targetCountries) {
+        const eligibilityResult = checkGlobalEligibility(vehicleDetails, country);
+        results.push(eligibilityResult);
+      }
+
+      // Calculate overall summary
+      const eligibleCountries = results.filter(r => r.eligible).length;
+      const eligibleResults = results.filter(r => r.eligible);
+      
+      const overallSummary = {
+        eligibleCountries,
+        easiestCountry: eligibleResults.length > 0 
+          ? eligibleResults.reduce((a, b) => 
+              a.estimatedCosts.complianceCost < b.estimatedCosts.complianceCost ? a : b
+            ).targetCountry 
+          : 'None',
+        cheapestCountry: eligibleResults.length > 0
+          ? eligibleResults.reduce((a, b) => {
+              const totalA = Object.values(a.estimatedCosts).reduce((sum, cost) => sum + cost, 0);
+              const totalB = Object.values(b.estimatedCosts).reduce((sum, cost) => sum + cost, 0);
+              return totalA < totalB ? a : b;
+            }).targetCountry
+          : 'None',
+        fastestCountry: eligibleResults.length > 0
+          ? eligibleResults.reduce((a, b) => 
+              a.timeline.totalWeeks < b.timeline.totalWeeks ? a : b
+            ).targetCountry
+          : 'None'
+      };
+
+      res.json({
+        vehicle: {
+          make: vehicleDetails.make,
+          model: vehicleDetails.model,
+          year: vehicleDetails.year,
+          origin: vehicleDetails.origin,
+          estimatedValue: vehicleDetails.estimatedValue
+        },
+        results,
+        overallSummary
+      });
+
+    } catch (error) {
+      console.error('Error checking vehicle eligibility:', error);
+      res.status(500).json({
+        error: 'Failed to check vehicle eligibility',
         message: error instanceof Error ? error.message : 'Unknown error'
       });
     }
