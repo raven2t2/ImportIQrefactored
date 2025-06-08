@@ -3062,6 +3062,47 @@ Respond with a JSON object containing your recommendations.`;
         enhancedData = await enhanceUrlData(input);
       } else if (detectedType === 'chassis') {
         enhancedData = await enhanceChassisData(input);
+        
+        // Get comprehensive technical specifications for chassis codes
+        const { VIN_TECHNICAL_DATABASE } = await import('./authentic-vehicle-data');
+        const { jdmDatabase } = await import('./routes');
+        
+        const chassisCode = input.toUpperCase();
+        let technicalSpecs = null;
+        
+        // Enhanced chassis code mapping for JDM vehicles
+        const chassisMapping: Record<string, {wmi: string, model: string}> = {
+          'JZA80': { wmi: 'JT2', model: 'A80' },
+          'BNR32': { wmi: 'JN1', model: 'R32' },
+          'BNR34': { wmi: 'JN1', model: 'R34' },
+          'S13': { wmi: 'JN1', model: 'S13' },
+          'S14': { wmi: 'JN1', model: 'S14' },
+          'S15': { wmi: 'JN1', model: 'S15' },
+          'FD3S': { wmi: 'JM1', model: 'FD3S' },
+          'SW20': { wmi: 'JT2', model: 'SW20' }
+        };
+        
+        // Direct chassis code lookup
+        if (chassisMapping[chassisCode]) {
+          const mapping = chassisMapping[chassisCode];
+          if (VIN_TECHNICAL_DATABASE[mapping.wmi]?.models[mapping.model]) {
+            technicalSpecs = VIN_TECHNICAL_DATABASE[mapping.wmi].models[mapping.model];
+          }
+        }
+        
+        // Get basic vehicle info from JDM database
+        const jdmData = jdmDatabase[chassisCode as keyof typeof jdmDatabase];
+        if (jdmData) {
+          enhancedData.make = jdmData.make;
+          enhancedData.model = jdmData.model;
+          enhancedData.years = jdmData.years;
+          enhancedData.engine = jdmData.engine;
+        }
+        
+        if (technicalSpecs) {
+          enhancedData.technicalSpecs = technicalSpecs;
+        }
+        
       } else if (detectedType === 'model') {
         enhancedData = await enhanceModelData(input);
       }
