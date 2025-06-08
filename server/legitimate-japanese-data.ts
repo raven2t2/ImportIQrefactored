@@ -102,8 +102,8 @@ const AUTHENTIC_JDM_DATABASE = {
         model: "Supra RZ (A80)",
         years: [1993, 1994, 1995, 1996, 1997, 1998],
         engine: "2JZ-GTE 3.0L Twin Turbo",
-        priceRange: { min: 12000000, max: 35000000 },
-        rarity: "Very High",
+        priceRange: { min: 3200000, max: 8500000 },
+        rarity: "High",
         exportStatus: "Eligible",
       }
     ],
@@ -112,8 +112,8 @@ const AUTHENTIC_JDM_DATABASE = {
         model: "Corolla AE86",
         years: [1983, 1984, 1985, 1986, 1987],
         engine: "4A-GE 1.6L",
-        priceRange: { min: 3500000, max: 12000000 },
-        rarity: "High",
+        priceRange: { min: 1800000, max: 4500000 },
+        rarity: "Medium",
         exportStatus: "Eligible",
       }
     ]
@@ -165,10 +165,9 @@ export async function getAuthenticJapaneseListings(make: string, model?: string)
           
           for (let i = 0; i < numListings; i++) {
             const randomYear = variant.years[Math.floor(Math.random() * variant.years.length)];
-            const priceVariation = 0.8 + (Math.random() * 0.4); // ±20% price variation
             const basePrice = variant.priceRange.min + 
               (Math.random() * (variant.priceRange.max - variant.priceRange.min));
-            const finalPrice = Math.floor(basePrice * priceVariation);
+            const finalPrice = Math.floor(basePrice);
             
             // Generate realistic mileage based on age
             const currentYear = new Date().getFullYear();
