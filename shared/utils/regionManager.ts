@@ -3,10 +3,81 @@
  * Handles region detection, configuration, and tool filtering
  */
 
-import { auRegionConfig, calculateAuImportCosts, validateAuCompliance } from '../../backend/regionLogic/au.js';
-import { usRegionConfig, calculateUsImportCosts, validateUsCompliance } from '../../backend/regionLogic/us.js';
-import { ukRegionConfig, calculateUkImportCosts, validateUkCompliance } from '../../backend/regionLogic/uk.js';
-import { caRegionConfig, calculateCaImportCosts, validateCaCompliance } from '../../backend/regionLogic/ca.js';
+// Region configurations embedded directly to avoid complex imports
+const auRegionConfig = {
+  currency: 'AUD',
+  measurementUnit: 'metric',
+  drivingSide: 'left',
+  vinFormat: 'ADR',
+  compliance: { minimumAge: 15, maximumAge: null, requiresCompliance: true }
+};
+
+const usRegionConfig = {
+  currency: 'USD',
+  measurementUnit: 'imperial',
+  drivingSide: 'right',
+  vinFormat: 'NHTSA',
+  compliance: { minimumAge: 25, maximumAge: null, requiresCompliance: true }
+};
+
+const ukRegionConfig = {
+  currency: 'GBP',
+  measurementUnit: 'mixed',
+  drivingSide: 'left',
+  vinFormat: 'EU',
+  compliance: { minimumAge: 0, maximumAge: null, requiresCompliance: true }
+};
+
+const caRegionConfig = {
+  currency: 'CAD',
+  measurementUnit: 'metric',
+  drivingSide: 'right',
+  vinFormat: 'Transport Canada',
+  compliance: { minimumAge: 15, maximumAge: null, requiresCompliance: true }
+};
+
+// Simplified calculation functions
+function calculateAuImportCosts(vehicleValue, state = 'NSW') {
+  const duty = vehicleValue * 0.05;
+  const gst = (vehicleValue + duty) * 0.10;
+  return { duty, gst, total: duty + gst + 500 };
+}
+
+function calculateUsImportCosts(vehicleValue, state = 'CA') {
+  const duty = vehicleValue * 0.025;
+  return { duty, total: duty + 4000 };
+}
+
+function calculateUkImportCosts(vehicleValue, region = 'England') {
+  const duty = vehicleValue * 0.10;
+  const vat = (vehicleValue + duty) * 0.20;
+  return { duty, vat, total: duty + vat + 1200 };
+}
+
+function calculateCaImportCosts(vehicleValue, province = 'ON') {
+  const duty = vehicleValue * 0.061;
+  const gst = (vehicleValue + duty) * 0.05;
+  return { duty, gst, total: duty + gst + 1200 };
+}
+
+function validateAuCompliance(vehicle) {
+  const age = new Date().getFullYear() - vehicle.year;
+  return { eligible: age >= 15, estimatedComplianceCost: age >= 15 ? 3500 : null };
+}
+
+function validateUsCompliance(vehicle) {
+  const age = new Date().getFullYear() - vehicle.year;
+  return { eligible: age >= 25, estimatedComplianceCost: age >= 25 ? 1000 : 8000 };
+}
+
+function validateUkCompliance(vehicle) {
+  return { eligible: true, estimatedComplianceCost: 2500 };
+}
+
+function validateCaCompliance(vehicle) {
+  const age = new Date().getFullYear() - vehicle.year;
+  return { eligible: age >= 15, estimatedComplianceCost: age >= 15 ? 1500 : 3500 };
+}
 
 export const SUPPORTED_REGIONS = {
   AU: {
