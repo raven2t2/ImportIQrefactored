@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CheckCircle, XCircle, Clock, DollarSign, FileText, ArrowRight, MapPin, AlertTriangle } from "lucide-react";
+import { CheckCircle, XCircle, Clock, DollarSign, FileText, ArrowRight, MapPin, AlertTriangle, Zap, Settings, Wrench } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -158,6 +158,116 @@ export function DynamicResultsRenderer({ results, recommendations, vehicleInfo }
               <div>
                 <span className="text-gray-600">Origin:</span>
                 <span className="ml-2 font-medium">{vehicleInfo.origin || 'Multiple'}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Engine & Technical Specifications */}
+      {vehicleInfo?.technicalSpecs && (
+        <Card className="border-2 border-purple-200 bg-purple-50">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-purple-900">
+              <Zap className="h-5 w-5" />
+              Engine & Modification Analysis
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Engine Specifications */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <Settings className="h-4 w-4 text-purple-600" />
+                  <span className="font-semibold text-purple-900">Engine Specifications</span>
+                </div>
+                {vehicleInfo.technicalSpecs.engine && (
+                  <div className="bg-white p-3 rounded-lg border border-purple-200 space-y-2">
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div>
+                        <span className="text-gray-600">Engine Code:</span>
+                        <span className="ml-2 font-medium">{vehicleInfo.technicalSpecs.engine.code}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Type:</span>
+                        <span className="ml-2 font-medium">{vehicleInfo.technicalSpecs.engine.type}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Displacement:</span>
+                        <span className="ml-2 font-medium">{vehicleInfo.technicalSpecs.engine.displacement}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Power:</span>
+                        <span className="ml-2 font-medium">{vehicleInfo.technicalSpecs.engine.power}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Torque:</span>
+                        <span className="ml-2 font-medium">{vehicleInfo.technicalSpecs.engine.torque}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Compression:</span>
+                        <span className="ml-2 font-medium">{vehicleInfo.technicalSpecs.engine.compression}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <span className="text-gray-600">Drivetrain:</span>
+                    <span className="ml-2 font-medium">{vehicleInfo.technicalSpecs.drivetrain}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Transmission:</span>
+                    <span className="ml-2 font-medium">{vehicleInfo.technicalSpecs.transmission}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Modification Potential */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <Wrench className="h-4 w-4 text-purple-600" />
+                  <span className="font-semibold text-purple-900">Modification Potential</span>
+                </div>
+                {vehicleInfo.technicalSpecs.modifications && (
+                  <div className="bg-white p-3 rounded-lg border border-purple-200 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-600">Potential:</span>
+                      <Badge className={`${
+                        vehicleInfo.technicalSpecs.modifications.potential === 'Extreme' ? 'bg-red-100 text-red-800' :
+                        vehicleInfo.technicalSpecs.modifications.potential === 'High' ? 'bg-orange-100 text-orange-800' :
+                        'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {vehicleInfo.technicalSpecs.modifications.potential}
+                      </Badge>
+                    </div>
+                    <div>
+                      <span className="text-gray-600 block mb-1">Power Potential:</span>
+                      <span className="font-medium text-green-700">{vehicleInfo.technicalSpecs.modifications.powerPotential}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600 block mb-1">Difficulty:</span>
+                      <span className="font-medium">{vehicleInfo.technicalSpecs.modifications.difficulty}</span>
+                    </div>
+                    {vehicleInfo.technicalSpecs.modifications.popular && (
+                      <div>
+                        <span className="text-gray-600 block mb-1">Popular Modifications:</span>
+                        <div className="flex flex-wrap gap-1">
+                          {vehicleInfo.technicalSpecs.modifications.popular.map((mod, index) => (
+                            <Badge key={index} variant="outline" className="text-xs">
+                              {mod}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {vehicleInfo.technicalSpecs.modifications.notes && (
+                      <div className="mt-2 p-2 bg-blue-50 rounded border border-blue-200">
+                        <span className="text-xs text-blue-700">{vehicleInfo.technicalSpecs.modifications.notes}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </CardContent>
