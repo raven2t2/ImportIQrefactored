@@ -18,7 +18,13 @@ import {
   regionalComplianceDetails,
   auctionHouses,
   customsDuties,
-  vehicleSafetyRecalls
+  vehicleSafetyRecalls,
+  vehicleModelPatterns,
+  smartParserHistory,
+  adminQueryReviews,
+  patternStaging,
+  lookupAnalytics,
+  userWatchlist
 } from '@shared/schema';
 import { eq, and, or, like, ilike, desc, asc } from 'drizzle-orm';
 
@@ -811,7 +817,7 @@ class PostgreSQLSmartParser {
   /**
    * Intelligent vehicle lookup using pattern recognition for natural language queries
    */
-  async intelligentVehicleLookup(query: string): Promise<SmartParserResponse> {
+  async intelligentVehicleLookup(query: string, userAgent?: string, ipAddress?: string): Promise<SmartParserResponse> {
     const normalizedQuery = query.toLowerCase().trim();
     
     try {
@@ -829,6 +835,9 @@ class PostgreSQLSmartParser {
 
       if (patterns.length > 0) {
         const bestMatch = patterns[0];
+        
+        // Persist lookup to history
+        await this.persistLookupHistory(normalizedQuery, 'intelligent', bestMatch, userAgent, ipAddress);
         
         const sourceBreakdown: SourceBreakdown[] = [
           {
