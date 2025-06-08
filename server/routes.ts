@@ -120,11 +120,11 @@ async function performReliableLookup(query: string) {
   const normalizedQuery = query.toLowerCase().trim();
   
   try {
-    // Import the comprehensive vehicle database
-    const { ComprehensiveVehicleDatabase } = await import('./comprehensive-vehicle-database');
+    // Import the final vehicle seeder for PostgreSQL database search
+    const { FinalVehicleSeeder } = await import('./final-vehicle-seeder');
     
     // Search the PostgreSQL database for vehicle matches
-    const vehicles = await ComprehensiveVehicleDatabase.findVehicle(normalizedQuery);
+    const vehicles = await FinalVehicleSeeder.findVehicle(normalizedQuery);
     
     if (vehicles.length > 0) {
       // Return the first matching vehicle with enhanced data
@@ -138,91 +138,26 @@ async function performReliableLookup(query: string) {
         displacement: vehicle.displacement,
         power: vehicle.power,
         torque: vehicle.torque,
-        drivetrain: vehicle.drivetrain,
+        driveType: vehicle.drive_type,
         transmission: vehicle.transmission,
-        category: vehicle.category,
-        marketValue: vehicle.marketValue,
-        estimatedPrice: vehicle.estimatedPrice,
-        rarityScore: vehicle.rarityScore,
-        modificationPotential: vehicle.modificationPotential,
-        importEligibility: vehicle.importEligibility,
-        notes: vehicle.notes,
+        fuelType: vehicle.fuel_type,
+        bodyStyle: vehicle.body_style,
+        doors: vehicle.doors,
+        specialNotes: vehicle.special_notes,
+        isVerified: vehicle.is_verified,
         dataSource: 'postgresql_database',
         confidence: 95
       };
     }
     
-    // If no exact matches, try partial search
-    const partialVehicles = await db.select()
-      .from(vehicleSpecifications)
-      .where(sql`LOWER(make) LIKE ${`%${normalizedQuery}%`} OR LOWER(model) LIKE ${`%${normalizedQuery}%`}`)
-      .limit(1);
-    
-    if (partialVehicles.length > 0) {
-      const vehicle = partialVehicles[0];
-      return {
-        make: vehicle.make,
-        model: vehicle.model,
-        year: vehicle.year,
-        chassis: vehicle.chassis,
-        engine: vehicle.engine,
-        displacement: vehicle.displacement,
-        power: vehicle.power,
-        torque: vehicle.torque,
-        drivetrain: vehicle.drivetrain,
-        transmission: vehicle.transmission,
-        category: vehicle.category,
-        marketValue: vehicle.marketValue,
-        estimatedPrice: vehicle.estimatedPrice,
-        rarityScore: vehicle.rarityScore,
-        modificationPotential: vehicle.modificationPotential,
-        importEligibility: vehicle.importEligibility,
-        notes: vehicle.notes,
-        dataSource: 'postgresql_database',
-        confidence: 75
-      };
-    }
-    
-    // Return basic structure if no database matches found
+    // Return fallback response if no database matches found
     return generateEmergencyVehicleResponse(query);
     
   } catch (error) {
     console.error('Database lookup failed:', error);
     return generateEmergencyVehicleResponse(query);
   }
-  
-  try {
-    // Direct pattern match from PostgreSQL
-    const dbModule = await import('./db.js');
-    const drizzleModule = await import('drizzle-orm');
-    const { db } = dbModule;
-    const { sql } = drizzleModule;
-    
-    const directMatch = await db.execute(sql`
-      SELECT * FROM vehicle_patterns 
-      WHERE search_pattern = ${normalizedQuery}
-      ORDER BY confidence_score DESC 
-      LIMIT 1
-    `);
-    
-    if (directMatch.rows.length > 0) {
-      const vehicle = directMatch.rows[0];
-      return await generateVehicleResponseFromDB(vehicle);
-    }
-    
-    // Partial pattern matching
-    const partialMatch = await db.execute(sql`
-      SELECT * FROM vehicle_patterns 
-      WHERE ${normalizedQuery} ILIKE '%' || search_pattern || '%' 
-         OR search_pattern ILIKE '%' || ${normalizedQuery} || '%'
-      ORDER BY confidence_score DESC, LENGTH(search_pattern) DESC
-      LIMIT 1
-    `);
-    
-    if (partialMatch.rows.length > 0) {
-      const vehicle = partialMatch.rows[0];
-      return await generateVehicleResponseFromDB(vehicle);
-    }
+}
     
     // Make extraction fallback
     const extractedVehicle = await extractVehicleFromQueryDB(normalizedQuery);
