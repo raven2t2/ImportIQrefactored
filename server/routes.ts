@@ -3127,12 +3127,9 @@ Respond with a JSON object containing your recommendations.`;
         
         // Find matching vehicle data
         let vehicleData = null;
-        console.log('Searching for vehicle data with input:', inputLower);
         for (const [searchTerm, data] of Object.entries(modelMapping)) {
-          console.log('Checking search term:', searchTerm);
           if (inputLower.includes(searchTerm)) {
             vehicleData = data;
-            console.log('Found matching vehicle data:', data);
             break;
           }
         }
@@ -3145,9 +3142,6 @@ Respond with a JSON object containing your recommendations.`;
           // Get technical specifications from the authentic database
           if (VIN_TECHNICAL_DATABASE[vehicleData.wmi]?.models[vehicleData.model]) {
             enhancedData.technicalSpecs = VIN_TECHNICAL_DATABASE[vehicleData.wmi].models[vehicleData.model];
-            console.log('Added technical specs for model search:', vehicleData.modelName, enhancedData.technicalSpecs);
-          } else {
-            console.log('No technical specs found for:', vehicleData.wmi, vehicleData.model);
           }
         }
       }
