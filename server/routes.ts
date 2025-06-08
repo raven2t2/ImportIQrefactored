@@ -2941,29 +2941,60 @@ Respond with a JSON object containing your recommendations.`;
   app.post("/api/smart-parse", async (req: any, res) => {
     try {
       const { input, type } = req.body;
+      
+      if (!input || typeof input !== 'string') {
+        return res.status(400).json({
+          success: false,
+          error: "Input is required",
+          timestamp: new Date().toISOString()
+        });
+      }
+
       const { enhanceVinData, enhanceUrlData, enhanceChassisData, enhanceModelData } = await import('./smart-validation-engine');
       
       let enhancedData: any = {};
+      let detectedType = type;
       
-      if (type === 'vin') {
+      // Auto-detect input type if not provided
+      if (!detectedType) {
+        if (input.match(/^[A-HJ-NPR-Z0-9]{17}$/i)) {
+          detectedType = 'vin';
+        } else if (input.startsWith('http')) {
+          detectedType = 'url';
+        } else if (input.match(/^[A-Z0-9]{4,8}$/i)) {
+          detectedType = 'chassis';
+        } else {
+          detectedType = 'model';
+        }
+      }
+      
+      if (detectedType === 'vin') {
         enhancedData = await enhanceVinData(input);
-      } else if (type === 'url') {
+      } else if (detectedType === 'url') {
         enhancedData = await enhanceUrlData(input);
-      } else if (type === 'chassis') {
+      } else if (detectedType === 'chassis') {
         enhancedData = await enhanceChassisData(input);
-      } else if (type === 'model') {
+      } else if (detectedType === 'model') {
         enhancedData = await enhanceModelData(input);
       }
 
       res.json({
         success: true,
-        data: enhancedData,
+        data: {
+          ...enhancedData,
+          detectedType,
+          originalInput: input
+        },
         timestamp: new Date().toISOString()
       });
 
     } catch (error) {
       console.error("Smart parsing error:", error);
-      res.status(500).json({ error: "Failed to enhance input data" });
+      res.status(500).json({
+        success: false,
+        error: "Failed to parse input",
+        timestamp: new Date().toISOString()
+      });
     }
   });
 
