@@ -48,6 +48,7 @@ import ShippingCalculator from "@/pages/shipping-calculator";
 import InsuranceEstimator from "@/pages/insurance-estimator";
 import DocumentationAssistant from "@/pages/documentation-assistant";
 import ROICalculator from "@/pages/roi-calculator";
+import VehicleEligibilityChecker from "@/pages/vehicle-eligibility-checker";
 import StateRequirements from "@/pages/state-requirements";
 import USMarketIntelligence from "@/pages/us-market-intelligence";
 import LiveMarketScanner from "@/pages/live-market-scanner";
@@ -109,6 +110,7 @@ function Router() {
       <Route path="/custom-plates" component={CustomPlates} />
       <Route path="/documentation-assistant" component={DocumentationAssistant} />
       <Route path="/roi-calculator" component={ROICalculator} />
+      <Route path="/vehicle-eligibility-checker" component={VehicleEligibilityChecker} />
       <Route path="/state-requirements" component={StateRequirements} />
       <Route path="/port-intelligence" component={PortIntelligence} />
       <Route path="/live-market-scanner" component={LiveMarketScanner} />
