@@ -145,12 +145,13 @@ export default function ImportJourney() {
     }
   }, [vehicleData, destination, isInitialized]);
 
-  const { data: importIntelligence, isLoading } = useQuery({
+  const { data: importIntelligence, isLoading, error } = useQuery({
     queryKey: ['/api/import-intelligence', vehicleData, destination, sessionToken],
+    enabled: isInitialized && (vehicleData.make || vehicleData.model),
     queryFn: () => apiRequest('/api/import-intelligence', {
       method: 'POST',
       body: { 
-        vehicle: vehicleData, 
+        vehicleData: vehicleData, 
         destination,
         sessionToken 
       }
