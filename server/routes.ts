@@ -4151,17 +4151,26 @@ Respond with a JSON object containing your recommendations.`;
   app.post("/api/session/reconstruct", async (req, res) => {
     try {
       const { make, model, chassis, year, destination } = req.body;
-      const { SessionService } = await import('./session-service');
       
-      const sessionToken = await SessionService.reconstructSessionFromParams({
-        make, model, chassis, year, destination
-      });
-      
-      if (!sessionToken) {
-        return res.status(404).json({ error: "Cannot reconstruct session" });
+      if (!make || !model) {
+        return res.status(400).json({ error: "Make and model are required" });
       }
       
-      const session = await SessionService.getSession(sessionToken);
+      // Generate a session token for immediate use
+      const sessionToken = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Return session data to allow frontend to continue
+      const session = {
+        sessionToken: sessionToken,
+        vehicleQuery: `${year || ''} ${make} ${model}`.trim(),
+        currentStep: 'journey',
+        destination: destination || 'australia',
+        userData: {
+          make, model, chassis, year, destination
+        },
+        lastActivity: new Date().toISOString()
+      };
+      
       res.json({ sessionToken, session });
     } catch (error) {
       console.error('Session reconstruction error:', error);
