@@ -3602,7 +3602,7 @@ Respond with a JSON object containing your recommendations.`;
       const ipAddress = req.ip;
       
       // Import session service
-      const { SessionService } = require('./session-service');
+      const { SessionService } = await import('./session-service');
       
       // Check cache first
       const cachedResult = await SessionService.getCachedVehicleLookup(query);
