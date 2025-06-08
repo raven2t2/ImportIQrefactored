@@ -28,6 +28,8 @@ import {
   vehicleJourneySessions,
   vehicleLookupCache,
   importIntelligenceCache,
+  vehicleHeads,
+  importCostCalculations,
   anonymousSessions
 } from '@shared/schema';
 import { eq, desc, lt } from 'drizzle-orm';
