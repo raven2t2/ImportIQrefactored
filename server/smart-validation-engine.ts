@@ -7,26 +7,226 @@
 // Enhanced data parsing functions using existing authentic datasets
 export async function enhanceVinData(vin: string) {
   const wmi = vin.substring(0, 3);
+  const vds = vin.substring(3, 8); // Vehicle Descriptor Section
   const year = getVinYear(vin.charAt(9));
   
   // Use our authentic vehicle data
-  const { AUSTRALIAN_VIN_PATTERNS, ADR_COMPLIANCE_DATABASE } = await import('./authentic-vehicle-data');
+  const { WMI_DATABASE, ADR_COMPLIANCE_DATABASE } = await import('./authentic-vehicle-data');
   
-  const vinInfo = AUSTRALIAN_VIN_PATTERNS[wmi] || {
+  const vinInfo = WMI_DATABASE[wmi] || {
     make: 'Unknown',
     origin: wmi.startsWith('J') ? 'Japan' : wmi.startsWith('1') || wmi.startsWith('2') ? 'USA' : 'Europe'
   };
+
+  // Enhanced model detection for popular makes
+  let model = 'Unknown';
+  if (vinInfo.make === 'Toyota') {
+    model = detectToyotaModel(vds, year);
+  } else if (vinInfo.make === 'Nissan') {
+    model = detectNissanModel(vds, year);
+  } else if (vinInfo.make === 'Honda') {
+    model = detectHondaModel(vds, year);
+  } else if (vinInfo.make === 'Mazda') {
+    model = detectMazdaModel(vds, year);
+  } else if (vinInfo.make === 'Subaru') {
+    model = detectSubaruModel(vds, year);
+  } else if (vinInfo.make === 'BMW') {
+    model = detectBMWModel(vds, year);
+  } else if (vinInfo.make === 'Mercedes-Benz') {
+    model = detectMercedesModel(vds, year);
+  }
 
   // Check compliance eligibility
   const complianceInfo = ADR_COMPLIANCE_DATABASE[vinInfo.make] || {};
   
   return {
     ...vinInfo,
+    model,
     year,
     complianceEligible: complianceInfo.eligible || false,
     estimatedAge: new Date().getFullYear() - year,
     eligibilityCountries: year <= new Date().getFullYear() - 15 ? ['AU', 'NZ'] : ['US', 'CA', 'UK', 'DE']
   };
+}
+
+// Toyota model detection based on VDS patterns
+function detectToyotaModel(vds: string, year: number): string {
+  const patterns = {
+    'SW22': 'MR2',
+    'SW20': 'MR2',
+    'AE86': 'Corolla',
+    'AE85': 'Corolla',
+    'AE92': 'Corolla',
+    'AE101': 'Corolla',
+    'AE111': 'Corolla',
+    'JZA80': 'Supra',
+    'JZX90': 'Mark II/Chaser/Cresta',
+    'JZX100': 'Mark II/Chaser/Cresta',
+    'JZX110': 'Mark II/Verossa',
+    'UZZ30': 'Soarer',
+    'UZZ31': 'Soarer',
+    'UZZ40': 'Soarer',
+    'UZS143': 'Crown',
+    'UZS151': 'Crown',
+    'UZS171': 'Crown',
+    'ST162': 'Celica',
+    'ST182': 'Celica',
+    'ST185': 'Celica All-Trac',
+    'ST202': 'Celica',
+    'ST205': 'Celica GT-Four',
+    'ST246': 'Celica'
+  };
+  
+  for (const [pattern, model] of Object.entries(patterns)) {
+    if (vds.includes(pattern)) return model;
+  }
+  
+  return 'Unknown';
+}
+
+// Nissan model detection
+function detectNissanModel(vds: string, year: number): string {
+  const patterns = {
+    'R32': 'Skyline GT-R',
+    'R33': 'Skyline GT-R',
+    'R34': 'Skyline GT-R',
+    'S13': '180SX/240SX',
+    'S14': '200SX/240SX',
+    'S15': 'Silvia',
+    'Z32': '300ZX',
+    'Z33': '350Z',
+    'Z34': '370Z',
+    'A31': 'Cefiro',
+    'A32': 'Cefiro/Maxima',
+    'A33': 'Cefiro/Maxima',
+    'C33': 'Laurel',
+    'C34': 'Laurel',
+    'C35': 'Laurel'
+  };
+  
+  for (const [pattern, model] of Object.entries(patterns)) {
+    if (vds.includes(pattern)) return model;
+  }
+  
+  return 'Unknown';
+}
+
+// Honda model detection
+function detectHondaModel(vds: string, year: number): string {
+  const patterns = {
+    'EK9': 'Civic Type R',
+    'EK4': 'Civic',
+    'DC2': 'Integra Type R',
+    'DC5': 'Integra Type R',
+    'EG6': 'Civic',
+    'EF8': 'Civic',
+    'AP1': 'S2000',
+    'AP2': 'S2000',
+    'NA1': 'NSX',
+    'NA2': 'NSX',
+    'BB6': 'Prelude',
+    'BB8': 'Prelude'
+  };
+  
+  for (const [pattern, model] of Object.entries(patterns)) {
+    if (vds.includes(pattern)) return model;
+  }
+  
+  return 'Unknown';
+}
+
+// Mazda model detection
+function detectMazdaModel(vds: string, year: number): string {
+  const patterns = {
+    'FD3S': 'RX-7',
+    'FC3S': 'RX-7',
+    'SA22C': 'RX-7',
+    'NA6': 'MX-5/Miata',
+    'NA8': 'MX-5/Miata',
+    'NB6': 'MX-5/Miata',
+    'NB8': 'MX-5/Miata',
+    'NC': 'MX-5/Miata',
+    'ND': 'MX-5/Miata'
+  };
+  
+  for (const [pattern, model] of Object.entries(patterns)) {
+    if (vds.includes(pattern)) return model;
+  }
+  
+  return 'Unknown';
+}
+
+// Subaru model detection
+function detectSubaruModel(vds: string, year: number): string {
+  const patterns = {
+    'GC8': 'Impreza WRX STI',
+    'GD': 'Impreza WRX STI',
+    'GE': 'Impreza',
+    'GH': 'Impreza',
+    'GJ': 'Impreza',
+    'GP': 'Impreza',
+    'BH5': 'Legacy',
+    'BL5': 'Legacy',
+    'BP5': 'Legacy',
+    'BM9': 'Legacy',
+    'BR9': 'Legacy'
+  };
+  
+  for (const [pattern, model] of Object.entries(patterns)) {
+    if (vds.includes(pattern)) return model;
+  }
+  
+  return 'Unknown';
+}
+
+// BMW model detection
+function detectBMWModel(vds: string, year: number): string {
+  const patterns = {
+    'E30': '3 Series',
+    'E36': '3 Series',
+    'E46': '3 Series',
+    'E90': '3 Series',
+    'F30': '3 Series',
+    'E34': '5 Series',
+    'E39': '5 Series',
+    'E60': '5 Series',
+    'F10': '5 Series',
+    'E38': '7 Series',
+    'E65': '7 Series',
+    'F01': '7 Series',
+    'E85': 'Z4',
+    'E89': 'Z4'
+  };
+  
+  for (const [pattern, model] of Object.entries(patterns)) {
+    if (vds.includes(pattern)) return model;
+  }
+  
+  return 'Unknown';
+}
+
+// Mercedes-Benz model detection
+function detectMercedesModel(vds: string, year: number): string {
+  const patterns = {
+    'W124': 'E-Class',
+    'W202': 'C-Class',
+    'W203': 'C-Class',
+    'W204': 'C-Class',
+    'W210': 'E-Class',
+    'W211': 'E-Class',
+    'W212': 'E-Class',
+    'W140': 'S-Class',
+    'W220': 'S-Class',
+    'W221': 'S-Class',
+    'R129': 'SL-Class',
+    'R230': 'SL-Class'
+  };
+  
+  for (const [pattern, model] of Object.entries(patterns)) {
+    if (vds.includes(pattern)) return model;
+  }
+  
+  return 'Unknown';
 }
 
 export async function enhanceUrlData(url: string) {
