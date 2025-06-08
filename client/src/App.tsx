@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { AiChatButton } from "@/components/ai-chat-button";
 import Landing from "@/pages/landing";
 import ImportIQ from "@/pages/importiq";
+import ModularDashboard from "@/pages/modular-dashboard";
 import Features from "@/pages/features";
 import About from "@/pages/about";
 import ImportCalculator from "@/pages/import-calculator";
@@ -79,7 +80,8 @@ function Router() {
       <Route path="/registration-stats" component={RegistrationStats} />
       <Route path="/import-volume-dashboard" component={PortIntelligence} />
       <Route path="/auction-sample-explorer" component={AuctionSampleExplorer} />
-      <Route path="/dashboard" component={UserDashboard} />
+      <Route path="/dashboard" component={ModularDashboard} />
+      <Route path="/modular-dashboard" component={ModularDashboard} />
       <Route path="/user-dashboard" component={UserDashboard} />
       <Route path="/garage" component={UserDashboard} />
       <Route path="/admin" component={AdminDashboard} />
