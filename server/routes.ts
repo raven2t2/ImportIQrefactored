@@ -3652,6 +3652,58 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
+  // Session Management APIs
+  app.get("/api/session/:sessionToken", async (req, res) => {
+    try {
+      const { sessionToken } = req.params;
+      const { SessionService } = require('./session-service');
+      
+      const session = await SessionService.getSession(sessionToken);
+      if (!session) {
+        return res.status(404).json({ error: "Session not found" });
+      }
+      
+      res.json(session);
+    } catch (error) {
+      console.error('Session retrieval error:', error);
+      res.status(500).json({ error: "Failed to retrieve session" });
+    }
+  });
+
+  app.post("/api/session/reconstruct", async (req, res) => {
+    try {
+      const { make, model, chassis, year, destination } = req.body;
+      const { SessionService } = require('./session-service');
+      
+      const sessionToken = await SessionService.reconstructSessionFromParams({
+        make, model, chassis, year, destination
+      });
+      
+      if (!sessionToken) {
+        return res.status(404).json({ error: "Cannot reconstruct session" });
+      }
+      
+      const session = await SessionService.getSession(sessionToken);
+      res.json({ sessionToken, session });
+    } catch (error) {
+      console.error('Session reconstruction error:', error);
+      res.status(500).json({ error: "Failed to reconstruct session" });
+    }
+  });
+
+  app.get("/api/session/:sessionToken/recent-queries", async (req, res) => {
+    try {
+      const { sessionToken } = req.params;
+      const { SessionService } = require('./session-service');
+      
+      const queries = await SessionService.getRecentQueries(sessionToken, 10);
+      res.json(queries);
+    } catch (error) {
+      console.error('Recent queries error:', error);
+      res.status(500).json({ error: "Failed to get recent queries" });
+    }
+  });
+
   // Eligibility Check API
   app.post("/api/eligibility-check", async (req, res) => {
     try {
@@ -3746,13 +3798,40 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
-  // Import Intelligence API
+  // Import Intelligence API with Session Persistence
   app.post("/api/import-intelligence", async (req, res) => {
     try {
-      const { vehicle, destination } = req.body;
+      const { vehicle, destination, sessionToken } = req.body;
       
       if (!vehicle || !destination) {
         return res.status(400).json({ error: "Vehicle data and destination required" });
+      }
+
+      const { SessionService } = require('./session-service');
+      
+      // Check cache first
+      const cachedIntelligence = await SessionService.getCachedImportIntelligence(vehicle, destination);
+      if (cachedIntelligence) {
+        // Update session with cached data
+        if (sessionToken) {
+          await SessionService.updateSessionDestination(sessionToken, destination, cachedIntelligence);
+        }
+        
+        return res.json({
+          ...cachedIntelligence,
+          vehicle: {
+            make: vehicle.make || 'Unknown',
+            model: vehicle.model || 'Unknown',
+            chassis: vehicle.chassis || '',
+            year: vehicle.year || ''
+          },
+          destination: {
+            country: destination,
+            flag: getDestinationFlag(destination),
+            name: getDestinationName(destination)
+          },
+          fromCache: true
+        });
       }
 
       // Calculate comprehensive import intelligence
@@ -3774,6 +3853,26 @@ Respond with a JSON object containing your recommendations.`;
         nextSteps: generateNextSteps(vehicle, destination),
         alternatives: generateAlternatives(vehicle, destination)
       };
+
+      // Cache the intelligence
+      await SessionService.cacheImportIntelligence(vehicle, destination, {
+        eligibility: intelligence.eligibility,
+        costs: intelligence.costs,
+        timeline: intelligence.timeline,
+        nextSteps: intelligence.nextSteps,
+        alternatives: intelligence.alternatives
+      });
+
+      // Update session
+      if (sessionToken) {
+        await SessionService.updateSessionDestination(sessionToken, destination, {
+          eligibility: intelligence.eligibility,
+          costs: intelligence.costs,
+          timeline: intelligence.timeline,
+          nextSteps: intelligence.nextSteps,
+          alternatives: intelligence.alternatives
+        });
+      }
 
       res.json(intelligence);
     } catch (error) {
