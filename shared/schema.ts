@@ -488,6 +488,76 @@ export const importCostCalculations = pgTable('import_cost_calculations', {
   createdAt: timestamp('created_at').defaultNow()
 });
 
+// Market Intelligence Analytics - Real-time auction and pricing data
+export const marketIntelligenceAnalytics = pgTable('market_intelligence_analytics', {
+  id: serial('id').primaryKey(),
+  make: text('make').notNull(),
+  model: text('model').notNull(),
+  year: integer('year'),
+  averagePrice: decimal('average_price', { precision: 12, scale: 2 }),
+  priceVariance: decimal('price_variance', { precision: 8, scale: 2 }),
+  activeListings: integer('active_listings'),
+  marketTrend: varchar('market_trend'), // rising, falling, stable
+  importVolume: varchar('import_volume'), // high, moderate, low
+  bestImportWindow: text('best_import_window'),
+  timingInsight: text('timing_insight'),
+  lastUpdated: timestamp('last_updated').defaultNow(),
+  createdAt: timestamp('created_at').defaultNow()
+});
+
+// Vehicle Sourcing Intelligence - Best procurement strategies
+export const vehicleSourcingIntelligence = pgTable('vehicle_sourcing_intelligence', {
+  id: serial('id').primaryKey(),
+  make: text('make').notNull(),
+  model: text('model').notNull(),
+  year: integer('year'),
+  bestSourceCountry: text('best_source_country'),
+  availabilityPercentage: integer('availability_percentage'),
+  recommendedAuctionHouses: text('recommended_auction_houses').array(),
+  seasonalRecommendations: jsonb('seasonal_recommendations'),
+  sourcingStrategy: text('sourcing_strategy'),
+  qualityRating: varchar('quality_rating'), // high, medium, low
+  valueRating: varchar('value_rating'), // excellent, good, fair
+  proTips: text('pro_tips').array(),
+  lastAnalyzed: timestamp('last_analyzed').defaultNow(),
+  createdAt: timestamp('created_at').defaultNow()
+});
+
+// Import Risk Assessment - Comprehensive risk analysis
+export const importRiskAssessment = pgTable('import_risk_assessment', {
+  id: serial('id').primaryKey(),
+  make: text('make').notNull(),
+  model: text('model').notNull(),
+  year: integer('year'),
+  destination: text('destination').notNull(),
+  regulatoryRisk: jsonb('regulatory_risk'), // compliance, documentation, age eligibility
+  marketRisk: jsonb('market_risk'), // price volatility, availability, competition
+  financialRisk: jsonb('financial_risk'), // currency, hidden costs, cost overruns
+  overallRiskScore: integer('overall_risk_score'), // 1-100
+  riskCategory: varchar('risk_category'), // low, medium, high
+  mitigationStrategies: text('mitigation_strategies').array(),
+  contingencyBudget: decimal('contingency_budget', { precision: 8, scale: 2 }),
+  recommendedActions: text('recommended_actions').array(),
+  lastAssessed: timestamp('last_assessed').defaultNow(),
+  createdAt: timestamp('created_at').defaultNow()
+});
+
+// Vehicle Monitoring Alerts - User tracking and notifications
+export const vehicleMonitoringAlerts = pgTable('vehicle_monitoring_alerts', {
+  id: serial('id').primaryKey(),
+  userEmail: text('user_email').notNull(),
+  make: text('make').notNull(),
+  model: text('model').notNull(),
+  year: integer('year'),
+  alertTypes: text('alert_types').array(), // price_alerts, new_listings, market_changes
+  priceThreshold: decimal('price_threshold', { precision: 12, scale: 2 }),
+  isActive: boolean('is_active').default(true),
+  lastNotified: timestamp('last_notified'),
+  notificationCount: integer('notification_count').default(0),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
 // Vehicle Journey Sessions - Full persistence for intelligent lookup journeys
 export const vehicleJourneySessions = pgTable("vehicle_journey_sessions", {
   id: serial("id").primaryKey(),
