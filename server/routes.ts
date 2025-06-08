@@ -6252,6 +6252,11 @@ IMPORTANT GUIDELINES:
           estimatedValue: data.estimatedValue || 25000
         };
 
+        // Use target country from extracted data if available
+        const targetCountries = (extractedData as any).targetCountry ? 
+          [(extractedData as any).targetCountry] : 
+          (data.targetCountries || ['AU', 'US', 'UK', 'CA']);
+
         console.log(`Vehicle extraction successful: ${extractedData.year} ${extractedData.make} ${extractedData.model} (confidence: ${extractedData.confidence}%)`);
 
       } catch (extractionError) {
@@ -6298,7 +6303,7 @@ IMPORTANT GUIDELINES:
         'ca': 'CA'
       };
       
-      for (const country of data.targetCountries) {
+      for (const country of targetCountries) {
         const countryCode = countryMap[country.toLowerCase()] || country.toUpperCase();
         const eligibilityResult = checkGlobalEligibility(vehicleDetails, countryCode as any);
         results.push(eligibilityResult);

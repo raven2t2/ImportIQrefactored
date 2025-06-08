@@ -544,12 +544,76 @@ async function parseGooNetURL(url: string): Promise<ExtractedVehicleData> {
     
     console.log(`Goo-net URL extraction: ${make} -> ${mappedMake}, ${model} -> ${mappedModel}`);
     
+    // Try to fetch actual page data for accurate year and details
+    try {
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'Accept-Language': 'ja-JP,ja;q=0.9,en;q=0.8'
+        }
+      });
+      
+      if (response.ok) {
+        const html = await response.text();
+        const $ = cheerio.load(html);
+        
+        // Extract year from page content
+        let year = 2015; // fallback
+        
+        // Look for year in various patterns
+        const yearText = $('.year').text() || $('[class*="year"]').text() || $('.date').text();
+        const yearMatch = yearText.match(/(\d{4})/);
+        if (yearMatch) {
+          const extractedYear = parseInt(yearMatch[1]);
+          if (extractedYear >= 1980 && extractedYear <= new Date().getFullYear()) {
+            year = extractedYear;
+          }
+        }
+        
+        // Also check for month/year pattern like "04.1995"
+        const monthYearMatch = html.match(/(\d{2})\.(\d{4})/);
+        if (monthYearMatch) {
+          const extractedYear = parseInt(monthYearMatch[2]);
+          if (extractedYear >= 1980 && extractedYear <= new Date().getFullYear()) {
+            year = extractedYear;
+          }
+        }
+        
+        // Extract target country from page
+        let targetCountry = 'global';
+        const countryText = $('[class*="country"]').text() || $('[class*="destination"]').text() || '';
+        if (countryText.toLowerCase().includes('australia')) {
+          targetCountry = 'AU';
+        } else if (countryText.toLowerCase().includes('united states') || countryText.toLowerCase().includes('usa')) {
+          targetCountry = 'US';
+        } else if (countryText.toLowerCase().includes('united kingdom') || countryText.toLowerCase().includes('uk')) {
+          targetCountry = 'UK';
+        } else if (countryText.toLowerCase().includes('canada')) {
+          targetCountry = 'CA';
+        }
+        
+        console.log(`URL extraction successful: ${year} ${mappedMake} ${mappedModel} (confidence: 95%)`);
+        
+        return {
+          make: normalizeCarMake(mappedMake),
+          model: normalizeCarModel(mappedModel),
+          year: year,
+          targetCountry: targetCountry,
+          source: 'goo-net.com',
+          confidence: 95,
+          extractionMethod: 'url_parsing'
+        };
+      }
+    } catch (error) {
+      console.error('Failed to fetch page for year extraction:', error);
+    }
+    
     return {
       make: normalizeCarMake(mappedMake),
       model: normalizeCarModel(mappedModel),
-      year: 2015, // Default year for used cars
+      year: 2015, // fallback only if page fetch fails
       source: 'goo-net.com',
-      confidence: 85,
+      confidence: 70,
       extractionMethod: 'url_parsing'
     };
   }
