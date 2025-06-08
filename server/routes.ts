@@ -13,6 +13,7 @@ import { setupAuth, isAuthenticated } from "./replitAuth";
 import { checkPlateRequirements } from "./plate-availability";
 import { getStateRequirements, getStatesByDifficulty, compareStatesCosts } from "./australian-state-requirements";
 import { getAllPorts, getPortByCode, findBestPortsForLocation, calculatePortCosts, getSeasonalRecommendations } from "./australian-port-intelligence";
+import { PostgreSQLComplianceService } from "./postgresql-compliance-service";
 import { z } from "zod";
 import OpenAI from "openai";
 import Stripe from "stripe";
@@ -167,23 +168,9 @@ async function generateVehicleResponseFromDB(vehicle: any) {
     const { db } = dbModule;
     const { sql } = drizzleModule;
     
-    // Get eligibility rules from PostgreSQL
-    const eligibilityRules = await db.execute(sql`
-      SELECT * FROM vehicle_eligibility_rules
-      ORDER BY destination_country
-    `);
-    
-    const eligibility = {};
-    eligibilityRules.rows.forEach((rule: any) => {
-      const currentYear = new Date().getFullYear();
-      const vehicleAge = currentYear - (vehicle.typical_year || 1995);
-      
-      (eligibility as any)[rule.destination_country] = {
-        eligible: vehicleAge >= (rule.minimum_age_years || 25),
-        minimumAge: rule.minimum_age_years || 25,
-        specialRequirements: rule.special_requirements || []
-      };
-    });
+    // Get global eligibility from PostgreSQL compliance service
+    const globalEligibility = await PostgreSQLComplianceService.getGlobalEligibility(vehicle.typical_year || 1995);
+    const eligibility = globalEligibility.eligibility;
     
     // Get market pricing from live data
     const marketPricing = await getMarketPricingFromDB(vehicle.make, vehicle.model);
@@ -9767,6 +9754,81 @@ async function getMarketPricingData(filters: {
     } catch (error) {
       console.error('Shipping estimates history error:', error);
       res.status(500).json({ error: "Failed to retrieve shipping estimates history" });
+    }
+  });
+
+  // Global Compliance API - PostgreSQL powered compliance data
+  app.get("/api/compliance/global/:vehicleYear", async (req, res) => {
+    try {
+      const vehicleYear = parseInt(req.params.vehicleYear);
+      if (isNaN(vehicleYear) || vehicleYear < 1900 || vehicleYear > new Date().getFullYear() + 1) {
+        return res.status(400).json({ error: "Invalid vehicle year" });
+      }
+      
+      const globalEligibility = await PostgreSQLComplianceService.getGlobalEligibility(vehicleYear);
+      res.json(globalEligibility);
+    } catch (error) {
+      console.error("Global compliance lookup error:", error);
+      res.status(500).json({ error: "Failed to get compliance data" });
+    }
+  });
+
+  app.get("/api/compliance/country/:country", async (req, res) => {
+    try {
+      const { country } = req.params;
+      const { vehicleYear } = req.query;
+      
+      const year = vehicleYear ? parseInt(vehicleYear as string) : undefined;
+      const compliance = await PostgreSQLComplianceService.getCountryCompliance(country, year);
+      res.json(compliance);
+    } catch (error) {
+      console.error("Country compliance lookup error:", error);
+      res.status(500).json({ error: "Failed to get country compliance" });
+    }
+  });
+
+  app.get("/api/compliance/regional/:country/:region", async (req, res) => {
+    try {
+      const { country, region } = req.params;
+      const regional = await PostgreSQLComplianceService.getRegionalCompliance(country, region);
+      res.json(regional);
+    } catch (error) {
+      console.error("Regional compliance lookup error:", error);
+      res.status(500).json({ error: "Failed to get regional compliance" });
+    }
+  });
+
+  app.get("/api/compliance/costs/:country", async (req, res) => {
+    try {
+      const { country } = req.params;
+      const { region } = req.query;
+      
+      const costs = await PostgreSQLComplianceService.calculateComplianceCosts(country, region as string);
+      res.json(costs);
+    } catch (error) {
+      console.error("Compliance costs lookup error:", error);
+      res.status(500).json({ error: "Failed to calculate compliance costs" });
+    }
+  });
+
+  app.get("/api/compliance/search/:keywords", async (req, res) => {
+    try {
+      const { keywords } = req.params;
+      const results = await PostgreSQLComplianceService.searchComplianceRules(keywords);
+      res.json(results);
+    } catch (error) {
+      console.error("Compliance search error:", error);
+      res.status(500).json({ error: "Failed to search compliance rules" });
+    }
+  });
+
+  app.get("/api/compliance/stats", async (req, res) => {
+    try {
+      const stats = await PostgreSQLComplianceService.getComplianceStatistics();
+      res.json(stats);
+    } catch (error) {
+      console.error("Compliance stats error:", error);
+      res.status(500).json({ error: "Failed to get compliance statistics" });
     }
   });
 
