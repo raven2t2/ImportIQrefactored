@@ -258,15 +258,135 @@ export async function enhanceUrlData(url: string) {
 
 export async function enhanceChassisData(chassis: string) {
   const chassisDatabase = {
-    'JZX100': { make: 'Toyota', model: 'Chaser', year: 1996, origin: 'Japan' },
-    'BNR32': { make: 'Nissan', model: 'Skyline GT-R', year: 1989, origin: 'Japan' },
-    'FD3S': { make: 'Mazda', model: 'RX-7', year: 1992, origin: 'Japan' },
-    'EK9': { make: 'Honda', model: 'Civic Type R', year: 1997, origin: 'Japan' },
-    'GC8': { make: 'Subaru', model: 'Impreza WRX', year: 1992, origin: 'Japan' },
-    'AE86': { make: 'Toyota', model: 'Corolla', year: 1983, origin: 'Japan' }
-  };
+    'JZX100': { 
+      make: 'Toyota', 
+      model: 'Chaser', 
+      year: 1996, 
+      origin: 'Japan',
+      engine: {
+        code: '1JZ-GTE',
+        type: 'Inline-6 Twin Turbo',
+        displacement: '2.5L',
+        power: '280hp',
+        torque: '363Nm'
+      },
+      drivetrain: 'RWD',
+      transmission: 'Manual/Auto',
+      modifications: {
+        potential: 'High',
+        popular: ['Turbo upgrade', 'Intercooler', 'ECU tune', 'Exhaust', 'Suspension'],
+        powerPotential: '500-800hp with modifications',
+        difficulty: 'Moderate'
+      }
+    },
+    'BNR32': { 
+      make: 'Nissan', 
+      model: 'Skyline GT-R', 
+      year: 1989, 
+      origin: 'Japan',
+      engine: {
+        code: 'RB26DETT',
+        type: 'Inline-6 Twin Turbo',
+        displacement: '2.6L',
+        power: '280hp',
+        torque: '353Nm'
+      },
+      drivetrain: 'AWD',
+      transmission: 'Manual',
+      modifications: {
+        potential: 'Extreme',
+        popular: ['Larger turbos', 'Forged internals', 'ECU tune', 'Suspension', 'Brakes'],
+        powerPotential: '600-1000hp+ with modifications',
+        difficulty: 'Advanced'
+      }
+    },
+    'FD3S': { 
+      make: 'Mazda', 
+      model: 'RX-7', 
+      year: 1992, 
+      origin: 'Japan',
+      engine: {
+        code: '13B-REW',
+        type: 'Twin Rotor Turbo',
+        displacement: '1.3L',
+        power: '280hp',
+        torque: '314Nm'
+      },
+      drivetrain: 'RWD',
+      transmission: 'Manual',
+      modifications: {
+        potential: 'High',
+        popular: ['Single turbo conversion', 'Porting', 'ECU tune', 'Cooling upgrades'],
+        powerPotential: '400-600hp with modifications',
+        difficulty: 'Expert (Rotary maintenance required)'
+      }
+    },
+    'EK9': { 
+      make: 'Honda', 
+      model: 'Civic Type R', 
+      year: 1997, 
+      origin: 'Japan',
+      engine: {
+        code: 'B16B',
+        type: 'Inline-4 VTEC',
+        displacement: '1.6L',
+        power: '185hp',
+        torque: '160Nm'
+      },
+      drivetrain: 'FWD',
+      transmission: 'Manual',
+      modifications: {
+        potential: 'Moderate',
+        popular: ['Turbo kit', 'Engine swap (K-series)', 'Suspension', 'Brakes'],
+        powerPotential: '300-500hp with engine swap',
+        difficulty: 'Moderate'
+      }
+    },
+    'GC8': { 
+      make: 'Subaru', 
+      model: 'Impreza WRX', 
+      year: 1992, 
+      origin: 'Japan',
+      engine: {
+        code: 'EJ20',
+        type: 'Flat-4 Turbo',
+        displacement: '2.0L',
+        power: '250hp',
+        torque: '343Nm'
+      },
+      drivetrain: 'AWD',
+      transmission: 'Manual',
+      modifications: {
+        potential: 'High',
+        popular: ['Turbo upgrade', 'Forged internals', 'ECU tune', 'Suspension'],
+        powerPotential: '400-600hp with modifications',
+        difficulty: 'Moderate'
+      }
+    },
+    'AE86': { 
+      make: 'Toyota', 
+      model: 'Corolla', 
+      year: 1983, 
+      origin: 'Japan',
+      engine: {
+        code: '4A-GE',
+        type: 'Inline-4 DOHC',
+        displacement: '1.6L',
+        power: '130hp',
+        torque: '149Nm'
+      },
+      drivetrain: 'RWD',
+      transmission: 'Manual',
+      modifications: {
+        potential: 'High',
+        popular: ['Engine swap (2JZ, LS, etc)', 'Turbo kit', 'Suspension', 'Weight reduction'],
+        powerPotential: '200-1000hp depending on swap',
+        difficulty: 'Moderate to Expert'
+      }
+    }
+  } as const;
 
-  const chassisInfo = chassisDatabase[chassis] || { origin: 'Japan' };
+  const chassisInfo = chassisDatabase[chassis as keyof typeof chassisDatabase] || { origin: 'Japan' };
   const estimatedAge = chassisInfo.year ? new Date().getFullYear() - chassisInfo.year : 25;
 
   return {
