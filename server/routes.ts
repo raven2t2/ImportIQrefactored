@@ -1594,14 +1594,54 @@ Keep each recommendation under 40 words, factually accurate, and realistic.`;
           
           // Get enhanced technical specifications if available
           let technicalSpecs = null;
-          const wmi = chassisCode.substring(0, 3);
-          if (VIN_TECHNICAL_DATABASE[wmi]) {
-            const models = VIN_TECHNICAL_DATABASE[wmi].models;
-            for (const [modelCode, modelData] of Object.entries(models)) {
-              if (chassisCode.includes(modelCode) || modelData.name.toLowerCase().includes(jdmData.model.toLowerCase())) {
-                technicalSpecs = modelData;
-                break;
+          
+          // Enhanced chassis code mapping for JDM vehicles
+          const chassisMapping: Record<string, {wmi: string, model: string}> = {
+            'JZA80': { wmi: 'JT2', model: 'A80' },
+            'BNR32': { wmi: 'JN1', model: 'R32' },
+            'BNR34': { wmi: 'JN1', model: 'R34' },
+            'S13': { wmi: 'JN1', model: 'S13' },
+            'S14': { wmi: 'JN1', model: 'S14' },
+            'S15': { wmi: 'JN1', model: 'S15' },
+            'FD3S': { wmi: 'JM1', model: 'FD3S' },
+            'SW20': { wmi: 'JT2', model: 'SW20' }
+          };
+          
+          console.log('Debug: Looking up chassis code:', chassisCode);
+          console.log('Debug: Chassis mapping:', chassisMapping[chassisCode]);
+          console.log('Debug: VIN_TECHNICAL_DATABASE keys:', Object.keys(VIN_TECHNICAL_DATABASE));
+          
+          // Direct chassis code lookup
+          if (chassisMapping[chassisCode]) {
+            const mapping = chassisMapping[chassisCode];
+            console.log('Debug: Mapping found:', mapping);
+            console.log('Debug: WMI data available:', !!VIN_TECHNICAL_DATABASE[mapping.wmi]);
+            if (VIN_TECHNICAL_DATABASE[mapping.wmi]) {
+              console.log('Debug: Models in WMI:', Object.keys(VIN_TECHNICAL_DATABASE[mapping.wmi].models || {}));
+              if (VIN_TECHNICAL_DATABASE[mapping.wmi].models[mapping.model]) {
+                technicalSpecs = VIN_TECHNICAL_DATABASE[mapping.wmi].models[mapping.model];
+                console.log('Debug: Found technical specs:', technicalSpecs);
               }
+            }
+          }
+          
+          // Fallback: search through all WMI codes for matching chassis or model
+          if (!technicalSpecs) {
+            console.log('Debug: Searching fallback...');
+            for (const [wmi, wmiData] of Object.entries(VIN_TECHNICAL_DATABASE)) {
+              if (wmiData.models) {
+                for (const [modelCode, modelData] of Object.entries(wmiData.models)) {
+                  // Match chassis code directly or check if model name matches
+                  if (chassisCode.includes(modelCode) || 
+                      modelCode === chassisCode ||
+                      modelData.name.toLowerCase().includes(jdmData.model.toLowerCase())) {
+                    technicalSpecs = modelData;
+                    console.log('Debug: Found fallback specs:', technicalSpecs);
+                    break;
+                  }
+                }
+              }
+              if (technicalSpecs) break;
             }
           }
 
