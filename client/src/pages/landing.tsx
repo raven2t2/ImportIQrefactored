@@ -22,7 +22,6 @@ export default function Landing() {
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
               <Link href="/features" className="text-gray-300 hover:text-white transition-colors">Features</Link>
-              <Link href="/pricing" className="text-gray-300 hover:text-white transition-colors">Pricing</Link>
               <Link href="/about" className="text-gray-300 hover:text-white transition-colors">About</Link>
               <Button 
                 className="bg-amber-400 hover:bg-amber-500 text-black font-medium"
@@ -46,7 +45,6 @@ export default function Landing() {
             <div className="md:hidden py-4 border-t border-gray-800">
               <div className="flex flex-col space-y-4">
                 <Link href="/features" className="text-gray-300 hover:text-white transition-colors">Features</Link>
-                <Link href="/pricing" className="text-gray-300 hover:text-white transition-colors">Pricing</Link>
                 <Link href="/about" className="text-gray-300 hover:text-white transition-colors">About</Link>
                 <Button 
                   className="bg-amber-400 hover:bg-amber-500 text-black font-medium w-fit"
