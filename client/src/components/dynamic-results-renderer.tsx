@@ -50,6 +50,27 @@ interface DynamicResultsRendererProps {
     model?: string;
     year?: number;
     origin?: string;
+    technicalSpecs?: {
+      name?: string;
+      years?: string;
+      engine?: {
+        code?: string;
+        type?: string;
+        displacement?: string;
+        power?: string;
+        torque?: string;
+        compression?: string;
+      };
+      drivetrain?: string;
+      transmission?: string;
+      modifications?: {
+        potential?: string;
+        popular?: string[];
+        powerPotential?: string;
+        difficulty?: string;
+        notes?: string;
+      };
+    };
   };
 }
 

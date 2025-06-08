@@ -11,12 +11,15 @@ export async function enhanceVinData(vin: string) {
   const year = getVinYear(vin.charAt(9));
   
   // Use our authentic vehicle data
-  const { WMI_DATABASE, ADR_COMPLIANCE_DATABASE } = await import('./authentic-vehicle-data');
+  const { WMI_DATABASE, ADR_COMPLIANCE_DATABASE, getVehicleTechnicalSpecs } = await import('./authentic-vehicle-data');
   
   const vinInfo = WMI_DATABASE[wmi] || {
     make: 'Unknown',
     origin: wmi.startsWith('J') ? 'Japan' : wmi.startsWith('1') || wmi.startsWith('2') ? 'USA' : 'Europe'
   };
+
+  // Get detailed technical specifications for engine and modifications
+  const technicalSpecs = getVehicleTechnicalSpecs(vin);
 
   // Enhanced model detection for popular makes
   let model = 'Unknown';
@@ -45,7 +48,11 @@ export async function enhanceVinData(vin: string) {
     year,
     complianceEligible: complianceInfo.eligible || false,
     estimatedAge: new Date().getFullYear() - year,
-    eligibilityCountries: year <= new Date().getFullYear() - 15 ? ['AU', 'NZ'] : ['US', 'CA', 'UK', 'DE']
+    eligibilityCountries: year <= new Date().getFullYear() - 15 ? ['AU', 'NZ'] : ['US', 'CA', 'UK', 'DE'],
+    technicalSpecs: technicalSpecs ? {
+      ...technicalSpecs,
+      analysisType: 'Engine & Modification Analysis'
+    } : null
   };
 }
 

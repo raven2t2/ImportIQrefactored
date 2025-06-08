@@ -558,3 +558,213 @@ export function calculateROI(
     ]
   };
 }
+
+// Enhanced VIN Technical Database for Engine and Modification Analysis
+export const VIN_TECHNICAL_DATABASE = {
+  // Popular JDM Performance Cars by WMI
+  'JT2': {
+    models: {
+      'SW20': {
+        name: 'Toyota MR2 Turbo',
+        years: '1991-1995',
+        engine: { 
+          code: '3S-GTE', 
+          type: 'Inline-4 Turbo', 
+          displacement: '2.0L', 
+          power: '245hp', 
+          torque: '304Nm',
+          compression: '8.5:1'
+        },
+        drivetrain: 'MR (Mid-Engine RWD)',
+        transmission: 'Manual/Auto',
+        modifications: { 
+          potential: 'High', 
+          popular: ['Turbo upgrade', 'Intercooler', 'ECU tune', 'Exhaust manifold', 'Fuel injectors'], 
+          powerPotential: '350-500hp with bolt-ons',
+          difficulty: 'Moderate',
+          notes: 'Excellent tuning platform, heat management important'
+        }
+      },
+      'A80': {
+        name: 'Toyota Supra',
+        years: '1993-1998',
+        engine: { 
+          code: '2JZ-GTE', 
+          type: 'Inline-6 Twin Turbo', 
+          displacement: '3.0L', 
+          power: '280hp', 
+          torque: '432Nm',
+          compression: '8.5:1'
+        },
+        drivetrain: 'RWD',
+        transmission: 'Manual/Auto',
+        modifications: { 
+          potential: 'Extreme', 
+          popular: ['Single turbo conversion', 'Forged internals', 'Fuel system', 'ECU tune'], 
+          powerPotential: '600-1500hp+ capable',
+          difficulty: 'Advanced',
+          notes: 'Legendary 2JZ engine, extremely modification-friendly'
+        }
+      }
+    }
+  },
+  'JN1': {
+    models: {
+      'R32': {
+        name: 'Nissan Skyline GT-R',
+        years: '1989-1994',
+        engine: { 
+          code: 'RB26DETT', 
+          type: 'Inline-6 Twin Turbo', 
+          displacement: '2.6L', 
+          power: '280hp', 
+          torque: '353Nm',
+          compression: '8.5:1'
+        },
+        drivetrain: 'AWD (ATTESA)',
+        transmission: 'Manual',
+        modifications: { 
+          potential: 'Extreme', 
+          popular: ['Larger turbos', 'Forged internals', 'ECU tune', 'FMIC', 'Fuel system'], 
+          powerPotential: '600-1200hp+ capable',
+          difficulty: 'Advanced',
+          notes: 'Iconic RB26, requires premium fuel and maintenance'
+        }
+      },
+      'S13': {
+        name: 'Nissan Silvia/240SX',
+        years: '1989-1994',
+        engine: { 
+          code: 'SR20DET', 
+          type: 'Inline-4 Turbo', 
+          displacement: '2.0L', 
+          power: '220hp', 
+          torque: '274Nm',
+          compression: '8.5:1'
+        },
+        drivetrain: 'RWD',
+        transmission: 'Manual',
+        modifications: { 
+          potential: 'High', 
+          popular: ['Turbo upgrade', 'ECU tune', 'Engine swap (2JZ/LS)', 'Suspension'], 
+          powerPotential: '300-600hp (more with swap)',
+          difficulty: 'Moderate',
+          notes: 'Excellent drift platform, engine swap popular'
+        }
+      }
+    }
+  },
+  
+  // US Muscle Cars by WMI
+  '1G1': {
+    models: {
+      'F-Body': {
+        name: 'Chevrolet Camaro Z28/SS',
+        years: '1993-2002',
+        engine: { 
+          code: 'LS1/LS6', 
+          type: 'V8 OHV', 
+          displacement: '5.7L-6.0L', 
+          power: '305-405hp', 
+          torque: '442-515Nm',
+          compression: '10.1:1'
+        },
+        drivetrain: 'RWD',
+        transmission: 'Manual/Auto',
+        modifications: { 
+          potential: 'Extreme', 
+          popular: ['Supercharger', 'Turbo kit', 'Cam/heads package', 'Nitrous'], 
+          powerPotential: '500-1000hp+ capable',
+          difficulty: 'Moderate to Advanced',
+          notes: 'LS platform legendary for modifications and reliability'
+        }
+      }
+    }
+  },
+  '1FA': {
+    models: {
+      'SN95': {
+        name: 'Ford Mustang GT',
+        years: '1994-2004',
+        engine: { 
+          code: '4.6L Modular', 
+          type: 'V8 SOHC', 
+          displacement: '4.6L', 
+          power: '215-260hp', 
+          torque: '407-441Nm',
+          compression: '9.0:1'
+        },
+        drivetrain: 'RWD',
+        transmission: 'Manual/Auto',
+        modifications: { 
+          potential: 'High', 
+          popular: ['Supercharger', 'Cams', 'Cold air intake', 'Exhaust'], 
+          powerPotential: '400-700hp with boost',
+          difficulty: 'Moderate',
+          notes: 'Responds well to forced induction, limited NA potential'
+        }
+      },
+      'S197': {
+        name: 'Ford Mustang GT',
+        years: '2005-2014',
+        engine: { 
+          code: '4.6L/5.0L Coyote', 
+          type: 'V8 DOHC', 
+          displacement: '4.6L-5.0L', 
+          power: '300-435hp', 
+          torque: '407-529Nm',
+          compression: '10.5:1'
+        },
+        drivetrain: 'RWD',
+        transmission: 'Manual/Auto',
+        modifications: { 
+          potential: 'Extreme', 
+          popular: ['Supercharger', 'Turbo kit', 'Cams', 'Headers'], 
+          powerPotential: '500-1200hp+ capable',
+          difficulty: 'Moderate to Advanced',
+          notes: 'Coyote engine excellent for high-revving builds'
+        }
+      }
+    }
+  },
+  '2B3': {
+    models: {
+      'LX': {
+        name: 'Dodge Challenger/Charger SRT',
+        years: '2008-2023',
+        engine: { 
+          code: '6.1L/6.4L HEMI', 
+          type: 'V8 OHV', 
+          displacement: '6.1L-6.4L', 
+          power: '425-485hp', 
+          torque: '569-644Nm',
+          compression: '10.3:1'
+        },
+        drivetrain: 'RWD/AWD',
+        transmission: 'Manual/Auto',
+        modifications: { 
+          potential: 'Extreme', 
+          popular: ['Supercharger', 'Headers', 'Cam', 'Cold air intake'], 
+          powerPotential: '600-1000hp+ capable',
+          difficulty: 'Moderate to Advanced',
+          notes: 'Modern HEMI platform, excellent supercharger response'
+        }
+      }
+    }
+  }
+} as const;
+
+// Function to get technical specifications from VIN
+export function getVehicleTechnicalSpecs(vin: string) {
+  const wmi = vin.substring(0, 3);
+  const vinData = VIN_TECHNICAL_DATABASE[wmi as keyof typeof VIN_TECHNICAL_DATABASE];
+  
+  if (!vinData) {
+    return null;
+  }
+  
+  // For now, return the first model in the database
+  // In a real implementation, we'd decode more VIN characters to determine exact model
+  const firstModel = Object.values(vinData.models)[0];
+  return firstModel;
+}
