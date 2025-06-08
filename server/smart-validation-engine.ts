@@ -242,7 +242,43 @@ export async function enhanceUrlData(url: string) {
   let origin = 'Unknown';
   let extractedData: any = {};
 
-  if (url.includes('yahoo') && url.includes('auctions')) {
+  // Enhanced URL parsing for Japanese marketplaces
+  if (url.includes('goo-net-exchange')) {
+    platform = 'Goo-net Exchange';
+    origin = 'Japan';
+    extractedData.auctionType = 'Japanese Used Car Sales';
+    
+    // Extract vehicle details from Goo-net URL
+    if (url.includes('HONDA') || url.includes('honda')) {
+      extractedData.make = 'Honda';
+      extractedData.origin = 'Japan';
+      
+      if (url.includes('CIVIC') || url.includes('civic')) {
+        extractedData.model = 'Civic';
+        extractedData.technicalSpecs = {
+          name: 'Honda Civic',
+          years: '1972-Present',
+          engine: {
+            code: 'B16A/K20A',
+            type: 'Inline-4 VTEC',
+            displacement: '1.6L-2.0L',
+            power: '160-220hp',
+            torque: '150-215Nm',
+            compression: '10.4:1'
+          },
+          drivetrain: 'FWD',
+          transmission: 'Manual/CVT',
+          modifications: {
+            potential: 'High',
+            popular: ['Turbo kit', 'K-series swap', 'Suspension', 'ECU tune', 'Exhaust'],
+            powerPotential: '300-500hp with modifications',
+            difficulty: 'Moderate',
+            notes: 'Excellent tuning platform with strong aftermarket support'
+          }
+        };
+      }
+    }
+  } else if (url.includes('yahoo') && url.includes('auctions')) {
     platform = 'Yahoo Auctions Japan';
     origin = 'Japan';
     extractedData.auctionType = 'Japanese Domestic';
