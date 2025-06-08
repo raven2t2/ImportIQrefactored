@@ -4017,20 +4017,40 @@ Respond with a JSON object containing your recommendations.`;
   // Real-world auction data endpoints
   app.post('/api/auction-data/ingest', async (req, res) => {
     try {
-      const { ApifyAuctionIngestion } = await import('./apify-auction-ingestion.js');
+      const { ingestLiveApifyData } = await import('./live-apify-ingestion');
       
-      console.log('🔄 Starting manual auction data ingestion...');
-      const result = await ApifyAuctionIngestion.ingestAllAuctionData();
+      console.log('🔄 Starting live Apify auction data ingestion...');
+      const result = await ingestLiveApifyData();
+      
+      res.json({
+        success: result.success,
+        message: 'Live auction data ingestion completed',
+        totalIngested: result.totalIngested,
+        byCategory: result.byCategory,
+        errors: result.errors
+      });
+    } catch (error) {
+      console.error('Live auction data ingestion failed:', error);
+      res.status(500).json({ 
+        error: 'Failed to ingest live auction data',
+        details: error.message 
+      });
+    }
+  });
+
+  app.get('/api/auction-data/status', async (req, res) => {
+    try {
+      const { getIngestionStatus } = await import('./live-apify-ingestion');
+      const status = await getIngestionStatus();
       
       res.json({
         success: true,
-        message: 'Auction data ingestion completed',
-        ...result
+        data: status
       });
     } catch (error) {
-      console.error('Auction data ingestion failed:', error);
+      console.error('Error getting ingestion status:', error);
       res.status(500).json({ 
-        error: 'Failed to ingest auction data',
+        error: 'Failed to get ingestion status',
         details: error.message 
       });
     }
