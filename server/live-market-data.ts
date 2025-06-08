@@ -169,7 +169,7 @@ async function fetchApifyVehicles(): Promise<ApifyVehicle[]> {
 function processJapaneseAuctionItem(listing: any, exchangeRates: { jpyToAud: number; usdToAud: number }): ApifyVehicle | null {
   try {
     return {
-      id: listing.id || `jp_${Math.random().toString(36).substr(2, 9)}`,
+      id: `jp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       title: `${listing.year || ''} ${listing.make || ''} ${listing.model || ''}`.trim(),
       price: listing.price || 0,
       currency: 'JPY',
@@ -200,7 +200,7 @@ function processJapaneseAuctionItem(listing: any, exchangeRates: { jpyToAud: num
 function processUSAuctionItem(listing: any, exchangeRates: { jpyToAud: number; usdToAud: number }): ApifyVehicle | null {
   try {
     return {
-      id: listing.id || `us_${Math.random().toString(36).substr(2, 9)}`,
+      id: `us_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       title: `${listing.year || ''} ${listing.make || ''} ${listing.model || ''}`.trim(),
       price: listing.price || 0,
       currency: 'USD',

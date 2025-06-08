@@ -176,7 +176,7 @@ export async function getAuthenticJapaneseListings(make: string, model?: string)
             const mileage = Math.floor(ageYears * avgKmPerYear);
             
             const listing: JapaneseVehicleListing = {
-              id: `jdm-${makeLower}-${Date.now()}-${i}`,
+              id: `jdm-${makeLower}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${i}`,
               make: make,
               model: variant.model,
               year: randomYear,
