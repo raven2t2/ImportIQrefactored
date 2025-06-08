@@ -1846,8 +1846,23 @@ Keep each recommendation under 40 words, factually accurate, and realistic.`;
       const globalDetection = detectGlobalVehicle(identifier);
       
       if (globalDetection.success) {
-        // Get auction samples and eligibility check
-        const auctionSamples = getAuctionSamples(globalDetection.data!.make, globalDetection.data!.model, parseInt(globalDetection.data!.years.split('-')[0]) || 2000);
+        // Get real auction intelligence from live data
+        const { getAuctionIntelligence } = await import('./live-auction-intelligence');
+        const auctionIntelligence = await getAuctionIntelligence(
+          globalDetection.data!.make, 
+          globalDetection.data!.model,
+          parseInt(globalDetection.data!.years.split('-')[0]) || undefined
+        );
+        
+        // Fallback to legacy auction samples if no live data
+        const auctionSamples = auctionIntelligence ? {
+          marketPrice: auctionIntelligence.priceRange,
+          trend: auctionIntelligence.marketTrend,
+          timing: auctionIntelligence.timingRecommendation,
+          sampleSize: auctionIntelligence.sampleSize,
+          confidence: auctionIntelligence.confidenceLevel,
+          source: "Live auction data"
+        } : getAuctionSamples(globalDetection.data!.make, globalDetection.data!.model, parseInt(globalDetection.data!.years.split('-')[0]) || 2000);
         
         // Get comprehensive year-based eligibility data
         const yearInference = inferVehicleYear(
