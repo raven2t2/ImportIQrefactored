@@ -84,6 +84,7 @@ export function SmartLookupPage() {
   });
 
   const handleInputParsed = (parsed: ParsedInput) => {
+    console.log('Parsed input received:', parsed);
     setParsedInput(parsed);
     
     // Automatically check eligibility for detected countries
@@ -96,8 +97,9 @@ export function SmartLookupPage() {
       estimatedValue: 50000, // Default for calculation
       inputType: parsed.type,
       confidence: parsed.confidence,
-      technicalSpecs: parsed.technicalSpecs || parsed.data?.technicalSpecs
+      technicalSpecs: parsed.technicalSpecs || parsed.detectedInfo?.technicalSpecs
     };
+    console.log('Vehicle data for eligibility check:', vehicleData);
 
     // Determine target countries based on intent and origin
     let targetCountries = ['AU', 'US', 'CA', 'UK', 'DE'];
