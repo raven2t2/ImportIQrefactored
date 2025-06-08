@@ -147,7 +147,7 @@ export default function ImportJourney() {
 
   const { data: importIntelligence, isLoading, error } = useQuery({
     queryKey: ['/api/import-intelligence', vehicleData, destination, sessionToken],
-    enabled: isInitialized && (vehicleData.make || vehicleData.model),
+    enabled: !!(vehicleData.make && destination && isInitialized),
     queryFn: () => apiRequest('/api/import-intelligence', {
       method: 'POST',
       body: { 
@@ -156,7 +156,6 @@ export default function ImportJourney() {
         sessionToken 
       }
     }),
-    enabled: !!(vehicleData.make && destination && isInitialized),
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
     gcTime: 30 * 60 * 1000, // Keep in memory for 30 minutes
   });

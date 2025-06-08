@@ -3812,6 +3812,7 @@ Respond with a JSON object containing your recommendations.`;
       // Get vehicle hero data from database
       let heroData = [];
       try {
+        const { sql } = await import('drizzle-orm');
         heroData = await db.select()
           .from(vehicleHeads)
           .where(sql`LOWER(${vehicleHeads.make}) = LOWER(${vehicleData?.make || ''}) AND LOWER(${vehicleHeads.model}) LIKE LOWER(${'%' + (vehicleData?.model || '') + '%'})`)
@@ -3898,12 +3899,84 @@ Respond with a JSON object containing your recommendations.`;
     const names: Record<string, string> = {
       'australia': 'Australia',
       'canada': 'Canada',
-      'usa': 'United States', 
+      'usa': 'United States',
       'uk': 'United Kingdom',
       'germany': 'Germany',
       'japan': 'Japan'
     };
     return names[country?.toLowerCase()] || 'International';
+  }
+
+  async function generateCostBreakdown(vehicleData: any, destination: string) {
+    // Base vehicle cost estimation
+    const vehiclePrice = vehicleData?.price || 45000;
+    const shippingCost = destination === 'australia' ? 3500 : 4500;
+    const dutiesAndTaxes = Math.round(vehiclePrice * 0.15);
+    const complianceCosts = 8500;
+    const totalCost = vehiclePrice + shippingCost + dutiesAndTaxes + complianceCosts;
+
+    return {
+      vehicle: vehiclePrice,
+      shipping: shippingCost,
+      duties: dutiesAndTaxes,
+      compliance: complianceCosts,
+      total: totalCost,
+      breakdown: [
+        {
+          category: 'Vehicle Purchase',
+          amount: vehiclePrice,
+          description: 'Auction price plus dealer fees'
+        },
+        {
+          category: 'International Shipping',
+          amount: shippingCost,
+          description: 'Container shipping and handling'
+        },
+        {
+          category: 'Import Duties & Taxes',
+          amount: dutiesAndTaxes,
+          description: 'Government duties and GST'
+        },
+        {
+          category: 'Compliance & Registration',
+          amount: complianceCosts,
+          description: 'Modification and certification costs'
+        }
+      ]
+    };
+  }
+
+  function generateImportTimeline(vehicleData: any, destination: string) {
+    return [
+      {
+        phase: 'Pre-Purchase',
+        duration: '1-2 weeks',
+        status: 'upcoming' as const,
+        description: 'Research and vehicle selection',
+        requirements: ['Market analysis', 'Condition assessment', 'Import eligibility check']
+      },
+      {
+        phase: 'Purchase & Export',
+        duration: '2-3 weeks', 
+        status: 'upcoming' as const,
+        description: 'Acquire vehicle and export documentation',
+        requirements: ['Purchase agreement', 'Export permit', 'De-registration certificate']
+      },
+      {
+        phase: 'International Shipping',
+        duration: '4-6 weeks',
+        status: 'upcoming' as const,
+        description: 'Ocean freight to destination port',
+        requirements: ['Container booking', 'Bill of lading', 'Insurance coverage']
+      },
+      {
+        phase: 'Import & Compliance',
+        duration: '3-4 weeks',
+        status: 'upcoming' as const,
+        description: 'Customs clearance and local compliance',
+        requirements: ['Import declaration', 'Compliance certification', 'Registration preparation']
+      }
+    ];
   }
 
   async function generateCostBreakdown(vehicleData: any, destination: string) {
