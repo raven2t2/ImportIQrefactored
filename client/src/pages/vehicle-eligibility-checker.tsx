@@ -73,8 +73,9 @@ type ConversationStep =
 interface ConversationState {
   step: ConversationStep;
   data: {
-    inputMethod?: 'url' | 'manual';
+    inputMethod?: 'url' | 'vin' | 'manual';
     auctionUrl?: string;
+    vin?: string;
     make?: string;
     model?: string;
     year?: number;
@@ -163,7 +164,20 @@ export default function VehicleEligibilityChecker() {
         }));
         eligibilityMutation.mutate({
           inputMethod: 'url',
-          auctionUrl: currentValue
+          url: currentValue
+        });
+        setInputValue('');
+        break;
+        
+      case 'vin-input':
+        setConversation(prev => ({ 
+          ...prev, 
+          step: 'loading',
+          data: { ...prev.data, vin: currentValue }
+        }));
+        eligibilityMutation.mutate({
+          inputMethod: 'vin',
+          vin: currentValue
         });
         setInputValue('');
         break;
@@ -291,22 +305,63 @@ export default function VehicleEligibilityChecker() {
               <MessageCircle className="h-5 w-5 text-yellow-500" />
               <span className="font-medium">How would you like to check eligibility?</span>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {conversation.suggestions.map((suggestion, index) => (
-                <Button
-                  key={index}
-                  variant="outline"
-                  onClick={() => handleNext(suggestion)}
-                  className="justify-start h-auto p-4 text-left"
-                >
-                  {suggestion.includes('URL') ? (
-                    <Link className="h-4 w-4 mr-2 flex-shrink-0" />
-                  ) : (
-                    <Car className="h-4 w-4 mr-2 flex-shrink-0" />
-                  )}
-                  <span>{suggestion}</span>
-                </Button>
-              ))}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setConversation(prev => ({
+                    ...prev,
+                    step: 'url-input',
+                    data: { ...prev.data, inputMethod: 'url' },
+                    suggestions: ['yahoo.co.jp', 'copart.com', 'iaai.com']
+                  }));
+                }}
+                className="h-auto p-4 text-left"
+              >
+                <div>
+                  <Link className="h-5 w-5 mb-2 text-yellow-500" />
+                  <div className="font-medium">Auction URL</div>
+                  <div className="text-sm text-muted-foreground">Auto-extract from listing</div>
+                </div>
+              </Button>
+              
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setConversation(prev => ({
+                    ...prev,
+                    step: 'vin-input',
+                    data: { ...prev.data, inputMethod: 'vin' },
+                    suggestions: ['17-character VIN', 'JH4DC53', 'WBANU5C']
+                  }));
+                }}
+                className="h-auto p-4 text-left"
+              >
+                <div>
+                  <Search className="h-5 w-5 mb-2 text-yellow-500" />
+                  <div className="font-medium">VIN Number</div>
+                  <div className="text-sm text-muted-foreground">Decode complete details</div>
+                </div>
+              </Button>
+              
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setConversation(prev => ({
+                    ...prev,
+                    step: 'make-selection',
+                    data: { ...prev.data, inputMethod: 'manual' },
+                    suggestions: popularMakes.slice(0, 6)
+                  }));
+                }}
+                className="h-auto p-4 text-left"
+              >
+                <div>
+                  <Car className="h-5 w-5 mb-2 text-yellow-500" />
+                  <div className="font-medium">Enter Manually</div>
+                  <div className="text-sm text-muted-foreground">Select make/model/year</div>
+                </div>
+              </Button>
             </div>
           </div>
         );
@@ -347,6 +402,42 @@ export default function VehicleEligibilityChecker() {
                   Analyze URL <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               )}
+            </div>
+          </div>
+        );
+
+      case 'vin-input':
+        return (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <MessageCircle className="h-5 w-5 text-yellow-500" />
+              <span className="font-medium">Enter your vehicle's VIN number</span>
+            </div>
+            <div className="space-y-3">
+              <Input
+                placeholder="JH4DC53849S123456 (17 characters)"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value.toUpperCase())}
+                onKeyDown={(e) => e.key === 'Enter' && inputValue.length === 17 && handleNext()}
+                className="text-lg text-white bg-gray-800 border-gray-600 placeholder-gray-400 font-mono"
+                maxLength={17}
+              />
+              <div className="flex flex-wrap gap-2">
+                {conversation.suggestions.map((suggestion, index) => (
+                  <Button
+                    key={index}
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setInputValue(suggestion)}
+                    className="text-xs"
+                  >
+                    {suggestion}
+                  </Button>
+                ))}
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Enter the 17-character Vehicle Identification Number to automatically extract complete vehicle details
+              </p>
             </div>
           </div>
         );
