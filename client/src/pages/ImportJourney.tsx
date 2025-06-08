@@ -9,6 +9,7 @@ import { CheckCircle, Clock, DollarSign, FileText, AlertCircle, ArrowRight, Cale
 
 import { apiRequest } from "@/lib/queryClient";
 import SessionManager from "@/lib/session-manager";
+import { AuctionIntelligenceDisplay } from "@/components/auction-intelligence-display";
 
 interface ImportIntelligence {
   vehicle: {
@@ -228,6 +229,15 @@ export default function ImportJourney() {
                 {importIntelligence.eligibility?.confidence}% confidence
               </div>
             </div>
+          </div>
+
+          {/* Live Market Intelligence */}
+          <div className="mb-6">
+            <AuctionIntelligenceDisplay 
+              make={vehicleData.make} 
+              model={vehicleData.model}
+              year={vehicleData.year ? parseInt(vehicleData.year) : undefined}
+            />
           </div>
 
           {/* Quick Stats */}
