@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Zap, Shield, Globe, ArrowRight } from "lucide-react";
 import { SmartInputParser } from "@/components/smart-input-parser";
 import { DynamicResultsRenderer } from "@/components/dynamic-results-renderer";
@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { useLocation } from "wouter";
 
 interface ParsedInput {
   type: 'vin' | 'url' | 'model' | 'chassis';
@@ -22,9 +23,20 @@ interface ParsedInput {
 }
 
 export function SmartLookupPage() {
+  const [location] = useLocation();
   const [parsedInput, setParsedInput] = useState<ParsedInput | null>(null);
   const [eligibilityResults, setEligibilityResults] = useState<any>(null);
   const [showResults, setShowResults] = useState(false);
+  const [initialInput, setInitialInput] = useState<string>("");
+
+  // Process URL parameters on component mount
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const inputParam = urlParams.get('input');
+    if (inputParam) {
+      setInitialInput(inputParam);
+    }
+  }, [location]);
 
   // Check eligibility mutation
   const eligibilityMutation = useMutation({
@@ -120,6 +132,7 @@ export function SmartLookupPage() {
           <SmartInputParser 
             onInputParsed={handleInputParsed}
             placeholder="Paste VIN, auction URL, chassis code, or type any car model..."
+            initialValue={initialInput}
           />
         </div>
 
