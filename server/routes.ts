@@ -18,6 +18,8 @@ import OpenAI from "openai";
 import Stripe from "stripe";
 import bcrypt from "bcrypt";
 import fs from "fs";
+import { smartParser } from './smart-parser';
+import { dataSeeder } from './data-seeder';
 import { getLiveMarketData, updateCachedVehicle, removeCachedVehicle } from "./live-market-data";
 import { saveVehicleCustomization } from "./vehicle-customizations";
 import { generateMarketListings, type SearchFilters } from "./simplified-market-data";
