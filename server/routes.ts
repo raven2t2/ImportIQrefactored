@@ -1383,6 +1383,72 @@ Keep each recommendation under 40 words, factually accurate, and realistic.`;
     }
   });
 
+  // Proprietary Vehicle Intelligence endpoint - our competitive moat
+  app.post("/api/proprietary-intelligence", async (req, res) => {
+    try {
+      const { identifier, targetCountries } = req.body;
+      
+      if (!identifier) {
+        return res.status(400).json({
+          success: false,
+          error: "Vehicle identifier required"
+        });
+      }
+
+      const { getProprietaryVehicleIntelligence } = await import('./proprietary-database-hub');
+      const { validateApiResponse } = await import('./data-integrity-validation');
+      
+      const intelligence = await getProprietaryVehicleIntelligence(identifier, targetCountries);
+      
+      // Validate data integrity before responding
+      const isValid = validateApiResponse(intelligence.vehicleData, 'vehicle') &&
+                     validateApiResponse(intelligence.eligibilityIntelligence, 'eligibility') &&
+                     validateApiResponse(intelligence.costIntelligence, 'cost');
+
+      if (!isValid) {
+        throw new Error('Data integrity validation failed');
+      }
+
+      res.json({
+        success: true,
+        intelligence,
+        timestamp: new Date().toISOString(),
+        dataSource: "ImportIQ Proprietary Database Hub",
+        integrity: "verified"
+      });
+
+    } catch (error: any) {
+      console.error("Proprietary intelligence error:", error);
+      res.status(500).json({
+        success: false,
+        error: error.message || "Failed to retrieve vehicle intelligence",
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
+  // Data Integrity Validation endpoint
+  app.get("/api/data-integrity", async (req, res) => {
+    try {
+      const { validateDataIntegrity } = await import('./data-integrity-validation');
+      const integrityReport = validateDataIntegrity();
+
+      res.json({
+        success: true,
+        report: integrityReport,
+        message: `Data integrity: ${integrityReport.overallStatus}`
+      });
+
+    } catch (error: any) {
+      console.error("Data integrity validation error:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to validate data integrity",
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
   // Vehicle Lookup endpoint
   app.post("/api/vehicle-lookup", async (req, res) => {
     try {
@@ -1402,7 +1468,8 @@ Keep each recommendation under 40 words, factually accurate, and realistic.`;
       // Force vintage detection for known American muscle patterns
       const forceVintage = hasVintageAmericanPattern;
       
-      // Use comprehensive global vehicle detection system with comprehensive fallback
+      // Use proprietary database hub for comprehensive intelligence
+      const { getProprietaryVehicleIntelligence, getQuickVehicleIntelligence } = await import('./proprietary-database-hub');
       const { detectGlobalVehicle } = await import('./global-vehicle-database');
       const { comprehensiveFallback } = await import('./comprehensive-fallback-system');
       const { inferVehicleYear } = await import('./intelligent-year-handler');
