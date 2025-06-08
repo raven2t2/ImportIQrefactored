@@ -3586,14 +3586,65 @@ Respond with a JSON object containing your recommendations.`;
 
   app.post("/api/smart-parser/intelligent-lookup", async (req, res) => {
     try {
-      const { query } = req.body;
+      const { query, sessionToken } = req.body;
       if (!query || typeof query !== 'string') {
         return res.status(400).json({ error: "Query string required" });
       }
 
       const userAgent = req.get('User-Agent');
       const ipAddress = req.ip;
+      
+      // Import session service
+      const { SessionService } = require('./session-service');
+      
+      // Check cache first
+      const cachedResult = await SessionService.getCachedVehicleLookup(query);
+      if (cachedResult) {
+        // Create or update session with cached data
+        const newSessionToken = await SessionService.createOrUpdateSession(
+          query,
+          cachedResult.vehicleData,
+          cachedResult.confidenceScore,
+          userAgent,
+          ipAddress,
+          sessionToken
+        );
+        
+        return res.json({
+          data: cachedResult.vehicleData,
+          confidenceScore: cachedResult.confidenceScore,
+          sourceAttribution: cachedResult.sourceAttribution,
+          sessionToken: newSessionToken,
+          fromCache: true
+        });
+      }
+
+      // Perform lookup
       const result = await smartParser.intelligentVehicleLookup(query, userAgent, ipAddress);
+      
+      if (result.data) {
+        // Cache the result
+        await SessionService.cacheVehicleLookup(
+          query,
+          result.data,
+          'intelligent',
+          result.confidenceScore,
+          result.sourceAttribution
+        );
+        
+        // Create or update session
+        const newSessionToken = await SessionService.createOrUpdateSession(
+          query,
+          result.data,
+          result.confidenceScore,
+          userAgent,
+          ipAddress,
+          sessionToken
+        );
+        
+        result.sessionToken = newSessionToken;
+      }
+      
       res.json(result);
     } catch (error) {
       console.error('Intelligent lookup error:', error);
