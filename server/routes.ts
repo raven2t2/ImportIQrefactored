@@ -3559,6 +3559,80 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
+  // Smart Parser APIs with full persistence
+  app.post("/api/smart-parser/vin-decode", async (req, res) => {
+    try {
+      const { vin } = req.body;
+      if (!vin || typeof vin !== 'string' || vin.length !== 17) {
+        return res.status(400).json({ error: "Valid 17-character VIN required" });
+      }
+
+      const userAgent = req.get('User-Agent');
+      const ipAddress = req.ip;
+      const result = await smartParser.decodeVIN(vin);
+      res.json(result);
+    } catch (error) {
+      console.error('VIN decode error:', error);
+      res.status(500).json({ error: "Failed to decode VIN" });
+    }
+  });
+
+  app.post("/api/smart-parser/intelligent-lookup", async (req, res) => {
+    try {
+      const { query } = req.body;
+      if (!query || typeof query !== 'string') {
+        return res.status(400).json({ error: "Query string required" });
+      }
+
+      const userAgent = req.get('User-Agent');
+      const ipAddress = req.ip;
+      const result = await smartParser.intelligentVehicleLookup(query, userAgent, ipAddress);
+      res.json(result);
+    } catch (error) {
+      console.error('Intelligent lookup error:', error);
+      res.status(500).json({ error: "Failed to perform intelligent lookup" });
+    }
+  });
+
+  // User Watchlist APIs
+  app.post("/api/watchlist/add", async (req, res) => {
+    try {
+      const { email, make, model, year, chassisCode, userIntent } = req.body;
+      if (!email || !make || !model) {
+        return res.status(400).json({ error: "Email, make, and model are required" });
+      }
+
+      const success = await smartParser.addToWatchlist(email, make, model, year, chassisCode, userIntent);
+      if (success) {
+        res.json({ success: true, message: "Vehicle added to watchlist" });
+      } else {
+        res.status(500).json({ error: "Failed to add vehicle to watchlist" });
+      }
+    } catch (error) {
+      console.error('Watchlist add error:', error);
+      res.status(500).json({ error: "Failed to add to watchlist" });
+    }
+  });
+
+  app.post("/api/patterns/suggest", async (req, res) => {
+    try {
+      const { pattern, make, model, chassisCode, confidence } = req.body;
+      if (!pattern || !make || !model) {
+        return res.status(400).json({ error: "Pattern, make, and model are required" });
+      }
+
+      const success = await smartParser.suggestPattern(pattern, make, model, chassisCode, confidence);
+      if (success) {
+        res.json({ success: true, message: "Pattern suggested for admin review" });
+      } else {
+        res.status(500).json({ error: "Failed to suggest pattern" });
+      }
+    } catch (error) {
+      console.error('Pattern suggestion error:', error);
+      res.status(500).json({ error: "Failed to suggest pattern" });
+    }
+  });
+
   // Global eligibility check endpoint
   app.post("/api/check-eligibility", async (req: any, res) => {
     try {

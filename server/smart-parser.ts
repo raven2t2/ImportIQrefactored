@@ -839,6 +839,11 @@ class PostgreSQLSmartParser {
         // Persist lookup to history
         await this.persistLookupHistory(normalizedQuery, 'intelligent', bestMatch, userAgent, ipAddress);
         
+        // Flag for admin review if confidence is low
+        if (bestMatch.confidenceScore < 75) {
+          await this.flagForAdminReview(normalizedQuery, 'intelligent', bestMatch.confidenceScore);
+        }
+        
         const sourceBreakdown: SourceBreakdown[] = [
           {
             dataPoint: 'Vehicle Pattern Recognition',
@@ -937,6 +942,10 @@ class PostgreSQLSmartParser {
 
     } catch (error) {
       console.error('Intelligent lookup error:', error);
+      
+      // Flag failed query for admin review
+      await this.flagForAdminReview(normalizedQuery, 'intelligent', 0, 'failed');
+      
       return {
         data: null,
         confidenceScore: 0,
@@ -954,6 +963,100 @@ class PostgreSQLSmartParser {
         ],
         disclaimer: "System error during pattern recognition"
       };
+    }
+  }
+
+  /**
+   * Persist lookup history to PostgreSQL for analytics and admin review
+   */
+  private async persistLookupHistory(query: string, lookupType: string, resultData: any, userAgent?: string, ipAddress?: string) {
+    try {
+      await db.insert(smartParserHistory).values({
+        queryText: query,
+        lookupType,
+        resultData: JSON.stringify(resultData),
+        confidenceScore: resultData.confidenceScore || 0,
+        importRiskIndex: resultData.importRiskIndex || 0,
+        userIntent: resultData.userIntent || null,
+        sourceAttribution: resultData.sourceAttribution || 'Unknown',
+        nextSteps: JSON.stringify(resultData.nextSteps || []),
+        ipAddress: ipAddress || null,
+        userAgent: userAgent || null
+      });
+    } catch (error) {
+      console.error('Failed to persist lookup history:', error);
+    }
+  }
+
+  /**
+   * Flag low-confidence queries for admin review
+   */
+  private async flagForAdminReview(query: string, lookupType: string, confidence: number, quality: string = 'poor') {
+    try {
+      await db.insert(adminQueryReviews).values({
+        originalQuery: query,
+        lookupType,
+        confidenceScore: confidence,
+        resultQuality: quality,
+        flaggedForReview: true,
+        enhancementSuggestions: confidence < 50 
+          ? 'Consider adding this pattern to the database'
+          : 'Review pattern matching accuracy'
+      });
+    } catch (error) {
+      console.error('Failed to flag query for admin review:', error);
+    }
+  }
+
+  /**
+   * Add vehicle to user watchlist with eligibility tracking
+   */
+  async addToWatchlist(email: string, make: string, model: string, year?: number, chassisCode?: string, userIntent?: string): Promise<boolean> {
+    try {
+      // Calculate eligibility date (25-year rule)
+      const eligibilityDate = year ? new Date(year + 25, 0, 1) : null;
+      
+      await db.insert(userWatchlist).values({
+        userEmail: email,
+        vehicleMake: make,
+        vehicleModel: model,
+        vehicleYear: year || null,
+        chassisCode: chassisCode || null,
+        eligibilityDate,
+        userIntent: userIntent || 'daily',
+        notificationPrefs: JSON.stringify({
+          email: true,
+          sms: false,
+          eligibilityReminder: true,
+          priceAlerts: true
+        })
+      });
+      
+      return true;
+    } catch (error) {
+      console.error('Failed to add to watchlist:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Suggest pattern for admin approval
+   */
+  async suggestPattern(pattern: string, make: string, model: string, chassisCode?: string, confidence: number = 85): Promise<boolean> {
+    try {
+      await db.insert(patternStaging).values({
+        suggestedPattern: pattern,
+        canonicalMake: make,
+        canonicalModel: model,
+        chassisCode: chassisCode || null,
+        confidenceEstimate: confidence,
+        sourceContext: 'User-suggested pattern from intelligent lookup'
+      });
+      
+      return true;
+    } catch (error) {
+      console.error('Failed to suggest pattern:', error);
+      return false;
     }
   }
 

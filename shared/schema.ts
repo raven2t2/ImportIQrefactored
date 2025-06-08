@@ -359,6 +359,23 @@ export const userWatchlist = pgTable("user_watchlist", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Vehicle Model Patterns - Pattern recognition database
+export const vehicleModelPatterns = pgTable("vehicle_model_patterns", {
+  id: serial("id").primaryKey(),
+  searchPattern: text("search_pattern").notNull(),
+  canonicalMake: varchar("canonical_make").notNull(),
+  canonicalModel: varchar("canonical_model").notNull(),
+  chassisCode: varchar("chassis_code"),
+  yearRangeStart: integer("year_range_start"),
+  yearRangeEnd: integer("year_range_end"),
+  enginePattern: varchar("engine_pattern"),
+  bodyType: varchar("body_type"),
+  confidenceScore: integer("confidence_score").default(85),
+  sourceAttribution: text("source_attribution"),
+  specialNotes: text("special_notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // My Build Garage - Vehicle builds
 export const vehicleBuilds = pgTable("vehicle_builds", {
   id: serial("id").primaryKey(),
