@@ -18,7 +18,8 @@ import {
   adminQueryReviews,
   patternStaging,
   lookupAnalytics,
-  userWatchlist
+  userWatchlist,
+  vehicleAuctions
 } from '@shared/schema';
 import { eq, and, or, like, ilike, desc, asc, sql } from 'drizzle-orm';
 
@@ -951,6 +952,53 @@ class PostgreSQLSmartParser {
   }
 
   /**
+   * Search auction database for vehicle matches
+   */
+  private async searchAuctionDatabase(query: string): Promise<any> {
+    try {
+      const normalizedQuery = query.toLowerCase().trim();
+      
+      // Search auction database with flexible matching
+      const auctionMatches = await db
+        .select()
+        .from(vehicleAuctions)
+        .where(
+          or(
+            ilike(vehicleAuctions.make, `%${normalizedQuery}%`),
+            ilike(vehicleAuctions.model, `%${normalizedQuery}%`),
+            ilike(vehicleAuctions.description, `%${normalizedQuery}%`)
+          )
+        )
+        .orderBy(desc(vehicleAuctions.fetchedAt))
+        .limit(5);
+
+      if (auctionMatches.length > 0) {
+        const bestMatch = auctionMatches[0];
+        
+        return {
+          make: bestMatch.make || 'Unknown',
+          model: bestMatch.model || 'Unknown',
+          year: bestMatch.year,
+          chassisCode: bestMatch.chassisCode,
+          sourceAttribution: `Live Auction Database (${bestMatch.source})`,
+          confidenceScore: 85,
+          auctionData: auctionMatches.map(match => ({
+            price: match.price,
+            location: match.location,
+            source: match.source,
+            fetchedAt: match.fetchedAt
+          }))
+        };
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Auction database search error:', error);
+      return null;
+    }
+  }
+
+  /**
    * Intelligent vehicle lookup using pattern recognition for natural language queries
    */
   async intelligentVehicleLookup(query: string, userAgent?: string, ipAddress?: string): Promise<SmartParserResponse> {
@@ -968,6 +1016,13 @@ class PostgreSQLSmartParser {
     if (chassisResult) {
       console.log(`✓ Chassis code recognized: ${chassisResult.chassisCode}`);
       return this.buildResponse(chassisResult, 98, 'Chassis Code Database');
+    }
+
+    // Step 3: Try auction database search for vehicle matching
+    const auctionResult = await this.searchAuctionDatabase(query);
+    if (auctionResult) {
+      console.log(`✓ Auction database match: ${auctionResult.make} ${auctionResult.model}`);
+      return this.buildResponse(auctionResult, 90, 'Live Auction Database');
     }
     const normalizedQuery = query.toLowerCase().trim();
     
