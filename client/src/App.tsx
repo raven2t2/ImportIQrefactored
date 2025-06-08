@@ -89,6 +89,7 @@ function Router() {
       <Route path="/mod-cost-estimator" component={ModCostEstimator} />
       <Route path="/value-estimator" component={ValueEstimator} />
       <Route path="/vehicle-lookup" component={VehicleLookup} />
+      <Route path="/smart-lookup" component={SmartLookupPage} />
       <Route path="/registration-stats" component={RegistrationStats} />
       <Route path="/import-volume-dashboard" component={PortIntelligence} />
       <Route path="/auction-sample-explorer" component={AuctionSampleExplorer} />
