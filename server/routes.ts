@@ -112,41 +112,84 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 // Auction data will be loaded dynamically from CSV file
 
-// JDM Chassis Code Database - Essential Import Vehicles
-const jdmDatabase = {
-  "JZX100": { "make": "Toyota", "model": "Chaser", "years": "1996–2001", "engine": "1JZ-GTE", "compliance_notes": "Turbo model may require emissions testing in VIC" },
-  "JZX110": { "make": "Toyota", "model": "Mark II", "years": "2000–2004", "engine": "1JZ-GTE", "compliance_notes": "Popular drift platform" },
-  "BNR32": { "make": "Nissan", "model": "Skyline GT-R", "years": "1989–1994", "engine": "RB26DETT", "compliance_notes": "25+ year rule eligible" },
-  "BNR33": { "make": "Nissan", "model": "Skyline GT-R", "years": "1995–1998", "engine": "RB26DETT", "compliance_notes": "SEVS eligible or 25+ year rule" },
-  "BNR34": { "make": "Nissan", "model": "Skyline GT-R", "years": "1999–2002", "engine": "RB26DETT", "compliance_notes": "SEVS eligible" },
-  "FD3S": { "make": "Mazda", "model": "RX-7", "years": "1992–2002", "engine": "13B-REW", "compliance_notes": "Rotary engine compliance required" },
-  "FC3S": { "make": "Mazda", "model": "RX-7", "years": "1986–1991", "engine": "13B-T", "compliance_notes": "25+ year rule eligible" },
-  "EK9": { "make": "Honda", "model": "Civic Type R", "years": "1997–2000", "engine": "B16B", "compliance_notes": "SEVS eligible" },
-  "DC2": { "make": "Honda", "model": "Integra Type R", "years": "1995–2001", "engine": "B18C", "compliance_notes": "SEVS eligible" },
-  "GC8": { "make": "Subaru", "model": "Impreza WRX STI", "years": "1992–2000", "engine": "EJ20", "compliance_notes": "SEVS eligible or 25+ year rule" },
-  "GDB": { "make": "Subaru", "model": "Impreza WRX STI", "years": "2000–2007", "engine": "EJ207", "compliance_notes": "SEVS eligible" },
-  "AE86": { "make": "Toyota", "model": "Corolla", "years": "1983–1987", "engine": "4A-GE", "compliance_notes": "25+ year rule eligible" },
-  "SW20": { "make": "Toyota", "model": "MR2", "years": "1989–1999", "engine": "3S-GTE", "compliance_notes": "Turbo model popular" },
-  "NA1": { "make": "Honda", "model": "NSX", "years": "1990–1997", "engine": "C30A", "compliance_notes": "25+ year rule or SEVS" },
-  "NA2": { "make": "Honda", "model": "NSX", "years": "1997–2005", "engine": "C32B", "compliance_notes": "SEVS eligible" },
-  "CP9A": { "make": "Mitsubishi", "model": "Lancer Evolution IV", "years": "1996–1998", "engine": "4G63T", "compliance_notes": "SEVS eligible" },
-  "CT9A": { "make": "Mitsubishi", "model": "Lancer Evolution VIII", "years": "2003–2005", "engine": "4G63T", "compliance_notes": "SEVS eligible" },
-  "JZA80": { "make": "Toyota", "model": "Supra", "years": "1993–2002", "engine": "2JZ-GTE", "compliance_notes": "SEVS eligible" },
-  "S13": { "make": "Nissan", "model": "Silvia", "years": "1988–1993", "engine": "CA18DET/SR20DET", "compliance_notes": "25+ year rule eligible" },
-  "S14": { "make": "Nissan", "model": "Silvia", "years": "1993–1999", "engine": "SR20DET", "compliance_notes": "SEVS eligible" },
-  "S15": { "make": "Nissan", "model": "Silvia", "years": "1999–2002", "engine": "SR20DET", "compliance_notes": "SEVS eligible" },
-  "Z32": { "make": "Nissan", "model": "300ZX", "years": "1989–2000", "engine": "VG30DETT", "compliance_notes": "Twin turbo requires specialist compliance" },
-  "RPS13": { "make": "Nissan", "model": "180SX", "years": "1989–1998", "engine": "CA18DET/SR20DET", "compliance_notes": "SEVS eligible" },
-  "HCR32": { "make": "Nissan", "model": "Skyline GTS-T", "years": "1989–1993", "engine": "RB20DET", "compliance_notes": "25+ year rule eligible" },
-  "EP3": { "make": "Honda", "model": "Civic Type R", "years": "2001–2005", "engine": "K20A", "compliance_notes": "SEVS eligible" },
-  "AP1": { "make": "Honda", "model": "S2000", "years": "1999–2003", "engine": "F20C", "compliance_notes": "SEVS eligible" },
-  "CZ4A": { "make": "Mitsubishi", "model": "Lancer Evolution X", "years": "2007–2016", "engine": "4B11T", "compliance_notes": "SEVS eligible" }
-};
+// PostgreSQL-driven vehicle database - replaces hardcoded data
 
 // Function to get auction samples for a vehicle
 // PostgreSQL-powered bulletproof lookup function - NEVER fails
 async function performReliableLookup(query: string) {
   const normalizedQuery = query.toLowerCase().trim();
+  
+  try {
+    // Import the comprehensive vehicle database
+    const { ComprehensiveVehicleDatabase } = await import('./comprehensive-vehicle-database');
+    
+    // Search the PostgreSQL database for vehicle matches
+    const vehicles = await ComprehensiveVehicleDatabase.findVehicle(normalizedQuery);
+    
+    if (vehicles.length > 0) {
+      // Return the first matching vehicle with enhanced data
+      const vehicle = vehicles[0];
+      return {
+        make: vehicle.make,
+        model: vehicle.model,
+        year: vehicle.year,
+        chassis: vehicle.chassis,
+        engine: vehicle.engine,
+        displacement: vehicle.displacement,
+        power: vehicle.power,
+        torque: vehicle.torque,
+        drivetrain: vehicle.drivetrain,
+        transmission: vehicle.transmission,
+        category: vehicle.category,
+        marketValue: vehicle.marketValue,
+        estimatedPrice: vehicle.estimatedPrice,
+        rarityScore: vehicle.rarityScore,
+        modificationPotential: vehicle.modificationPotential,
+        importEligibility: vehicle.importEligibility,
+        notes: vehicle.notes,
+        dataSource: 'postgresql_database',
+        confidence: 95
+      };
+    }
+    
+    // If no exact matches, try partial search
+    const partialVehicles = await db.select()
+      .from(vehicleSpecifications)
+      .where(sql`LOWER(make) LIKE ${`%${normalizedQuery}%`} OR LOWER(model) LIKE ${`%${normalizedQuery}%`}`)
+      .limit(1);
+    
+    if (partialVehicles.length > 0) {
+      const vehicle = partialVehicles[0];
+      return {
+        make: vehicle.make,
+        model: vehicle.model,
+        year: vehicle.year,
+        chassis: vehicle.chassis,
+        engine: vehicle.engine,
+        displacement: vehicle.displacement,
+        power: vehicle.power,
+        torque: vehicle.torque,
+        drivetrain: vehicle.drivetrain,
+        transmission: vehicle.transmission,
+        category: vehicle.category,
+        marketValue: vehicle.marketValue,
+        estimatedPrice: vehicle.estimatedPrice,
+        rarityScore: vehicle.rarityScore,
+        modificationPotential: vehicle.modificationPotential,
+        importEligibility: vehicle.importEligibility,
+        notes: vehicle.notes,
+        dataSource: 'postgresql_database',
+        confidence: 75
+      };
+    }
+    
+    // Return basic structure if no database matches found
+    return generateEmergencyVehicleResponse(query);
+    
+  } catch (error) {
+    console.error('Database lookup failed:', error);
+    return generateEmergencyVehicleResponse(query);
+  }
   
   try {
     // Direct pattern match from PostgreSQL
@@ -4019,81 +4062,59 @@ Respond with a JSON object containing your recommendations.`;
 
   async function generateCostBreakdown(vehicleData: any, destination: string) {
     try {
-      // Use direct SQL query for authentic PostgreSQL data
-      const query = `
-        SELECT 
-          ics.duty_rate, ics.gst_rate, ics.base_shipping_cost, ics.compliance_fee,
-          vs.make, vs.model, vs.year, vs.chassis,
-          gcr.compliance_cost, gcr.processing_time_weeks
-        FROM import_cost_structure ics
-        CROSS JOIN global_compliance_rules gcr
-        LEFT JOIN vehicle_specifications vs ON vs.make = $3 AND vs.model = $4
-        WHERE ics.origin_country = 'japan' 
-          AND ics.destination_country = $1 
-          AND ics.is_active = true
-          AND gcr.country = $2
-          AND gcr.rule_type = 'age_restriction'
-        LIMIT 1
-      `;
-
-      const result = await db.execute(sql.raw(query, [destination, destination]));
+      // Import the comprehensive vehicle database for cost calculations
+      const { ComprehensiveVehicleDatabase } = await import('./comprehensive-vehicle-database');
       
-      if (result.rows.length === 0) {
-        throw new Error('No cost structure data found for this route');
-      }
-
-      const data = result.rows[0] as any;
+      // Use the database-driven cost calculation
+      const costResult = await ComprehensiveVehicleDatabase.calculateImportCosts(vehicleData, destination);
       
-      // Calculate costs using authentic database rates
-      const basePrice = vehicleData?.price || 45000;
-      const shipping = parseFloat(data.base_shipping_cost);
-      const dutyRate = parseFloat(data.duty_rate);
-      const gstRate = parseFloat(data.gst_rate);
-      const compliance = parseFloat(data.compliance_fee);
-      
-      const duties = Math.round(basePrice * dutyRate);
-      const gst = Math.round((basePrice + shipping + duties) * gstRate);
-      const total = basePrice + shipping + duties + gst + compliance;
-
-      return {
-        vehicle: basePrice,
-        shipping: shipping,
-        duties: duties + gst,
-        compliance: compliance,
-        total: total,
-        breakdown: [
-          { 
-            category: 'Vehicle Purchase', 
-            amount: basePrice, 
-            description: 'Database-verified vehicle cost'
-          },
-          { 
-            category: 'Shipping', 
-            amount: shipping, 
-            description: 'Japan to Australia authenticated rates'
-          },
-          { 
-            category: 'Import Duties', 
-            amount: duties, 
-            description: `${(dutyRate * 100).toFixed(1)}% import duty (official rate)`
-          },
-          { 
-            category: 'GST', 
-            amount: gst, 
-            description: `${(gstRate * 100).toFixed(1)}% goods and services tax`
-          },
-          { 
-            category: 'Compliance', 
-            amount: compliance, 
-            description: 'Official compliance certification costs'
-          }
-        ],
-        dataSource: 'authentic_database',
-        processingWeeks: data.processing_time_weeks || 12
-      };
+      return costResult;
     } catch (error) {
       console.error('Cost breakdown database error:', error);
-      throw new Error('Unable to retrieve authentic cost data from database');
+      
+      // Fallback to basic cost structure query if comprehensive method fails
+      try {
+        const costStructures = await db.select()
+          .from(importCostStructure)
+          .where(eq(importCostStructure.destinationCountry, destination))
+          .where(eq(importCostStructure.isActive, true))
+          .limit(1);
+
+        if (costStructures.length === 0) {
+          throw new Error('No cost structure found');
+        }
+
+        const costs = costStructures[0];
+        const basePrice = vehicleData?.marketValue || vehicleData?.price || 45000;
+        
+        const shipping = Number(costs.baseShippingCost);
+        const dutyRate = Number(costs.dutyRate);
+        const gstRate = Number(costs.gstRate);
+        const compliance = Number(costs.complianceFee);
+        
+        const duties = Math.round(basePrice * dutyRate);
+        const gst = Math.round((basePrice + shipping + duties) * gstRate);
+        const total = basePrice + shipping + duties + gst + compliance;
+
+        return {
+          vehicle: basePrice,
+          shipping: shipping,
+          duties: duties + gst,
+          compliance: compliance,
+          total: total,
+          breakdown: [
+            { category: 'Vehicle Purchase', amount: basePrice, description: 'Database-verified vehicle cost' },
+            { category: 'Shipping', amount: shipping, description: 'Japan to Australia authenticated rates' },
+            { category: 'Import Duties', amount: duties, description: `${(dutyRate * 100).toFixed(1)}% import duty` },
+            { category: 'GST', amount: gst, description: `${(gstRate * 100).toFixed(1)}% goods and services tax` },
+            { category: 'Compliance', amount: compliance, description: 'Official compliance certification' }
+          ],
+          dataSource: 'authentic_database'
+        };
+      } catch (fallbackError) {
+        console.error('Fallback cost calculation failed:', fallbackError);
+        throw new Error('Unable to retrieve authentic cost data from database');
+      }
     }
   }
 
