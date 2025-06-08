@@ -10,6 +10,7 @@ import { CheckCircle, Clock, DollarSign, FileText, AlertCircle, ArrowRight, Cale
 import { apiRequest } from "@/lib/queryClient";
 import SessionManager from "@/lib/session-manager";
 import { AuctionIntelligenceDisplay } from "@/components/auction-intelligence-display";
+import { MarketAnalyticsDisplay } from "@/components/market-analytics-display";
 
 interface ImportIntelligence {
   vehicle: {
@@ -240,61 +241,11 @@ export default function ImportJourney() {
             />
             
             {/* Advanced Market Analytics */}
-            <Card className="bg-gray-900/50 border-gray-700">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <DollarSign className="h-5 w-5" />
-                  Market Analytics
-                </CardTitle>
-                <CardDescription>
-                  Real-time insights from global auction networks
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-3 bg-white/5 rounded-lg">
-                      <div className="text-2xl font-bold text-green-400">12%</div>
-                      <div className="text-xs text-gray-400">Price Variance</div>
-                    </div>
-                    <div className="text-center p-3 bg-white/5 rounded-lg">
-                      <div className="text-2xl font-bold text-blue-400">94</div>
-                      <div className="text-xs text-gray-400">Active Listings</div>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-300">Market Trend</span>
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                        <span className="text-sm text-green-400">Stable</span>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-300">Import Volume</span>
-                      <span className="text-sm text-yellow-400">Moderate</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-300">Best Import Window</span>
-                      <span className="text-sm text-blue-400">Q1-Q2 2025</span>
-                    </div>
-                  </div>
-                  
-                  <div className="p-3 bg-blue-900/20 rounded-lg border border-blue-700/30">
-                    <div className="flex items-start gap-2">
-                      <Clock className="h-4 w-4 text-blue-400 mt-0.5" />
-                      <div>
-                        <p className="text-xs text-blue-300 font-medium mb-1">Timing Insight</p>
-                        <p className="text-xs text-blue-200">
-                          Current market conditions favor imports with stable pricing and moderate competition. Consider starting your search now for Q2 delivery.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <MarketAnalyticsDisplay 
+              make={vehicleData.make} 
+              model={vehicleData.model}
+              year={vehicleData.year ? parseInt(vehicleData.year) : undefined}
+            />
           </div>
 
           {/* Quick Stats */}
@@ -528,61 +479,11 @@ export default function ImportJourney() {
             )}
 
             {/* Vehicle Sourcing Intelligence */}
-            <Card className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 border-purple-700/30">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5" />
-                  Sourcing Intelligence
-                </CardTitle>
-                <CardDescription>
-                  Best procurement strategies for this vehicle
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="p-3 bg-white/5 rounded-lg text-center">
-                      <div className="text-lg font-bold text-green-400">Japan</div>
-                      <div className="text-xs text-gray-400">Best Source</div>
-                    </div>
-                    <div className="p-3 bg-white/5 rounded-lg text-center">
-                      <div className="text-lg font-bold text-blue-400">85%</div>
-                      <div className="text-xs text-gray-400">Availability</div>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-white">Recommended Auction Houses</h4>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center p-2 bg-white/5 rounded">
-                        <span className="text-sm text-gray-300">USS Auctions</span>
-                        <Badge className="bg-green-900/50 text-green-300 border-green-700 text-xs">
-                          High Quality
-                        </Badge>
-                      </div>
-                      <div className="flex justify-between items-center p-2 bg-white/5 rounded">
-                        <span className="text-sm text-gray-300">Yahoo Auctions</span>
-                        <Badge className="bg-blue-900/50 text-blue-300 border-blue-700 text-xs">
-                          Best Value
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="p-3 bg-yellow-900/20 rounded-lg border border-yellow-700/30">
-                    <div className="flex items-start gap-2">
-                      <Shield className="h-4 w-4 text-yellow-400 mt-0.5" />
-                      <div>
-                        <p className="text-xs text-yellow-300 font-medium mb-1">Pro Tip</p>
-                        <p className="text-xs text-yellow-200">
-                          Spring auctions (March-May) typically offer the best selection and competitive pricing for this model.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <SourcingIntelligenceDisplay 
+              make={vehicleData.make} 
+              model={vehicleData.model}
+              year={vehicleData.year ? parseInt(vehicleData.year) : undefined}
+            />
 
             {/* Save & Track */}
             <Card className="bg-gray-900/50 border-gray-700">
