@@ -6157,6 +6157,68 @@ IMPORTANT GUIDELINES:
     }
   }
 
+  // Vehicle data extraction endpoint
+  app.post("/api/extract-vehicle-data", async (req, res) => {
+    try {
+      const { extractVehicleData } = await import('./vehicle-data-extractor');
+      const { input } = req.body;
+
+      if (!input) {
+        return res.status(400).json({
+          error: 'Missing input',
+          message: 'Please provide vehicle information (URL, VIN, or make/model/year)'
+        });
+      }
+
+      // Parse input to determine type
+      let extractionParams = {};
+      
+      if (input.startsWith('http')) {
+        // URL input
+        extractionParams = { url: input };
+      } else if (input.match(/^[A-HJ-NPR-Z0-9]{17}$/i)) {
+        // VIN input
+        extractionParams = { vin: input };
+      } else {
+        // Try to parse as make/model/year
+        const parts = input.split(/\s+/);
+        if (parts.length >= 3) {
+          const year = parseInt(parts.find(p => /^\d{4}$/.test(p)) || '');
+          const make = parts[0];
+          const model = parts.slice(1, -1).join(' ');
+          
+          if (year && make && model) {
+            extractionParams = { make, model, year };
+          } else {
+            return res.status(400).json({
+              error: 'Invalid input format',
+              message: 'Please provide a valid URL, VIN, or format as "Make Model Year"'
+            });
+          }
+        } else {
+          return res.status(400).json({
+            error: 'Invalid input format', 
+            message: 'Please provide a valid URL, VIN, or format as "Make Model Year"'
+          });
+        }
+      }
+
+      const extractedData = await extractVehicleData(extractionParams);
+      
+      res.json({
+        success: true,
+        data: extractedData
+      });
+
+    } catch (error) {
+      console.error('Vehicle extraction error:', error);
+      res.status(400).json({
+        error: 'Unable to extract vehicle data',
+        message: error instanceof Error ? error.message : 'Please check your input and try again.'
+      });
+    }
+  });
+
   // Global vehicle eligibility checker endpoint
   app.post("/api/check-vehicle-eligibility", async (req, res) => {
     try {

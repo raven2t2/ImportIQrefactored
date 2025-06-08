@@ -473,6 +473,26 @@ async function parseGooNetURL(url: string): Promise<ExtractedVehicleData> {
  */
 function extractFromURLPattern(url: string): ExtractedVehicleData {
   const urlPatterns = [
+    // Goo-net Exchange: /usedcars/NISSAN/SKYLINE/700020718930250607C
+    {
+      pattern: /\/usedcars\/([A-Z]+)\/([A-Z0-9\-]+)\/([A-Z0-9]+)/,
+      extract: (match: RegExpMatchArray) => {
+        const [, make, model] = match;
+        const makeMapping: { [key: string]: string } = {
+          'NISSAN': 'Nissan', 'TOYOTA': 'Toyota', 'HONDA': 'Honda',
+          'MAZDA': 'Mazda', 'SUBARU': 'Subaru', 'MITSUBISHI': 'Mitsubishi'
+        };
+        const modelMapping: { [key: string]: string } = {
+          'SKYLINE': 'Skyline', 'SILVIA': 'Silvia', 'SUPRA': 'Supra',
+          'RX7': 'RX-7', 'IMPREZA': 'Impreza', 'LANCER': 'Lancer'
+        };
+        return {
+          year: 2010, // Default for used car listings
+          make: makeMapping[make] || make,
+          model: modelMapping[model] || model.replace(/\-/g, ' ')
+        };
+      }
+    },
     // Copart: /lot/12345/1992-nissan-skyline-gt-ca-long-beach
     {
       pattern: /\/lot\/\d+\/(\d{4})-([a-zA-Z-]+)-([a-zA-Z0-9-]+)/,
