@@ -70,7 +70,7 @@ type FlowStep = 'entry' | 'country-select' | 'processing' | 'summary' | 'costs' 
 export default function ImportFlow() {
   const [currentStep, setCurrentStep] = useState<FlowStep>('entry');
   const [vehicleInput, setVehicleInput] = useState('');
-  const [targetCountry, setTargetCountry] = useState('AU');
+  const [targetCountry, setTargetCountry] = useState('');
   const [selectedState, setSelectedState] = useState('');
   const [vehicleData, setVehicleData] = useState<VehicleData | null>(null);
   const [eligibilityResults, setEligibilityResults] = useState<EligibilityResult[]>([]);
