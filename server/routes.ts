@@ -4036,7 +4036,7 @@ Respond with a JSON object containing your recommendations.`;
         LIMIT 1
       `;
 
-      const result = await db.execute(sql.raw(query, [destination, destination, vehicleData?.make || 'Toyota', vehicleData?.model || 'Supra']));
+      const result = await db.execute(sql.raw(query, [destination, destination]));
       
       if (result.rows.length === 0) {
         throw new Error('No cost structure data found for this route');
