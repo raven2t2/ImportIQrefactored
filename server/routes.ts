@@ -9055,6 +9055,8 @@ async function getMarketPricingData(filters: {
   }
 
   return allData;
+
+  return server;
 }
 
 // Helper function to extract vehicle details from title
@@ -9089,103 +9091,4 @@ function extractVehicleDetails(title: string): { make?: string; model?: string; 
   }
 
   return { make, model, year };
-}
-
-  // Session Management API - PostgreSQL Persistence
-  app.get("/api/session/:sessionToken", async (req, res) => {
-    try {
-      const { sessionToken } = req.params;
-      const { SessionService } = require('./session-service');
-      
-      const session = await SessionService.getSession(sessionToken);
-      if (!session) {
-        return res.status(404).json({ error: "Session not found" });
-      }
-      
-      res.json(session);
-    } catch (error) {
-      console.error('Session fetch error:', error);
-      res.status(500).json({ error: "Failed to fetch session" });
-    }
-  });
-
-  app.post("/api/session/reconstruct", async (req, res) => {
-    try {
-      const params = req.body;
-      const { SessionService } = require('./session-service');
-      
-      const result = await SessionService.reconstructSessionFromParams(params);
-      if (!result) {
-        return res.status(404).json({ error: "Unable to reconstruct session" });
-      }
-      
-      res.json(result);
-    } catch (error) {
-      console.error('Session reconstruction error:', error);
-      res.status(500).json({ error: "Failed to reconstruct session" });
-    }
-  });
-
-  app.get("/api/session/:sessionToken/recent-queries", async (req, res) => {
-    try {
-      const { sessionToken } = req.params;
-      const { SessionService } = require('./session-service');
-      
-      const queries = await SessionService.getRecentQueries(sessionToken, 5);
-      res.json(queries);
-    } catch (error) {
-      console.error('Recent queries error:', error);
-      res.status(500).json({ error: "Failed to fetch recent queries" });
-    }
-  });
-
-  // Enhanced Vehicle Lookup API with PostgreSQL Persistence
-  app.post("/api/vehicle-lookup-enhanced", async (req, res) => {
-    try {
-      const { query, sessionToken } = req.body;
-      
-      if (!query) {
-        return res.status(400).json({ error: "Query is required" });
-      }
-
-      const { SessionService } = require('./session-service');
-      
-      // Check cache first
-      const cachedResult = await SessionService.getCachedVehicleLookup(query);
-      if (cachedResult) {
-        return res.json({
-          ...cachedResult,
-          fromCache: true
-        });
-      }
-
-      // Parse with smart parser
-      const parseResult = await smartParser(query);
-      
-      if (!parseResult.success) {
-        return res.status(400).json({ error: parseResult.error });
-      }
-
-      const vehicleData = parseResult.data;
-      
-      // Cache the result
-      await SessionService.cacheVehicleLookup(query, vehicleData, parseResult);
-      
-      // Create or update session if token provided
-      if (sessionToken) {
-        await SessionService.createOrUpdateSession(sessionToken, vehicleData, '', {});
-      }
-
-      res.json({
-        ...parseResult,
-        vehicle: vehicleData,
-        fromCache: false
-      });
-    } catch (error) {
-      console.error('Vehicle lookup error:', error);
-      res.status(500).json({ error: "Failed to process vehicle lookup" });
-    }
-  });
-
-  return server;
 }
