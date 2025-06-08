@@ -97,14 +97,21 @@ export class SimplifiedImportIntelligence {
   private static async getVehicleFromDB(vehicleData: any) {
     try {
       const vehicles = await db.execute(sql`
-        SELECT * FROM vehicles 
+        SELECT * FROM auction_listings 
         WHERE LOWER(make) = LOWER(${vehicleData.make}) 
         AND LOWER(model) LIKE LOWER(${'%' + (vehicleData.model || '') + '%'})
         LIMIT 1
       `);
       
       if (vehicles.rows.length > 0) {
-        return vehicles.rows[0];
+        const vehicle = vehicles.rows[0];
+        return {
+          make: vehicle.make,
+          model: vehicle.model,
+          year: vehicle.year || 1995,
+          chassis_code: vehicleData.chassis,
+          origin_country: vehicle.source?.includes('japan') ? 'Japan' : 'USA'
+        };
       }
       
       // Fallback to provided data
@@ -149,13 +156,45 @@ export class SimplifiedImportIntelligence {
   }
   
   private static generateTimeline(processingWeeks: number) {
-    return {
-      searchAndPurchase: "2-4 weeks",
-      shipping: "4-6 weeks", 
-      compliance: `${processingWeeks || 8}-${(processingWeeks || 8) + 4} weeks`,
-      registration: "1-2 weeks",
-      total: `${10 + (processingWeeks || 8)}-${16 + (processingWeeks || 8)} weeks`
-    };
+    const phases = [
+      {
+        phase: 'Vehicle Purchase',
+        duration: '2-4 weeks',
+        status: 'upcoming' as const,
+        description: 'Locate and secure purchase agreement with seller',
+        requirements: ['Purchase agreement', 'Payment terms', 'Vehicle inspection']
+      },
+      {
+        phase: 'Export Documentation',
+        duration: '1-2 weeks',
+        status: 'upcoming' as const,
+        description: 'Obtain export permits and certificates from origin country',
+        requirements: ['Export certificate', 'De-registration', 'Clean title']
+      },
+      {
+        phase: 'International Shipping',
+        duration: '4-6 weeks',
+        status: 'upcoming' as const,
+        description: 'Ocean freight transport to destination port',
+        requirements: ['Container booking', 'Marine insurance', 'Bill of lading']
+      },
+      {
+        phase: 'Customs Clearance',
+        duration: '1-2 weeks',
+        status: 'upcoming' as const,
+        description: 'Import duties payment and customs processing',
+        requirements: ['Import declaration', 'Duty payment', 'Quarantine inspection']
+      },
+      {
+        phase: 'Compliance & Registration',
+        duration: `${processingWeeks || 8}-${(processingWeeks || 8) + 4} weeks`,
+        status: 'upcoming' as const,
+        description: 'Vehicle compliance modifications and local registration',
+        requirements: ['RAW approval', 'Compliance plate', 'Registration documents']
+      }
+    ];
+
+    return phases;
   }
   
   private static generateNextSteps(eligible: boolean, destination: string) {
