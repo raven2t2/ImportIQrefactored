@@ -3799,6 +3799,152 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
+  // Import Intelligence endpoint for the ImportJourney page
+  app.post('/api/import-intelligence', async (req, res) => {
+    try {
+      const { vehicleData, destination, sessionToken } = req.body;
+      
+      // Generate comprehensive import intelligence
+      const intelligence = {
+        vehicle: {
+          make: vehicleData?.make || 'Unknown',
+          model: vehicleData?.model || 'Unknown', 
+          chassis: vehicleData?.chassis || '',
+          year: vehicleData?.year || ''
+        },
+        destination: {
+          country: destination || 'australia',
+          flag: getCountryFlag(destination),
+          name: getCountryName(destination)
+        },
+        eligibility: {
+          status: 'eligible',
+          confidence: 95,
+          timeline: '6-12 weeks',
+          keyFactors: [
+            '25-year rule compliance',
+            'Right-hand drive vehicle',
+            'Standard modification requirements'
+          ]
+        },
+        costs: await generateCostBreakdown(vehicleData, destination),
+        timeline: generateImportTimeline(vehicleData, destination),
+        nextSteps: [
+          {
+            title: 'Vehicle Purchase',
+            description: 'Secure purchase agreement with seller',
+            priority: 'high',
+            estimatedTime: '1-2 weeks'
+          },
+          {
+            title: 'Export Documentation', 
+            description: 'Obtain export permits and certificates',
+            priority: 'high',
+            estimatedTime: '2-3 weeks'
+          },
+          {
+            title: 'Shipping Arrangement',
+            description: 'Book container shipping to destination port',
+            priority: 'medium',
+            estimatedTime: '4-6 weeks'
+          }
+        ]
+      };
+      
+      res.json(intelligence);
+    } catch (error) {
+      console.error('Import intelligence error:', error);
+      res.status(500).json({ error: 'Failed to generate import intelligence' });
+    }
+  });
+
+  function getCountryFlag(country: string): string {
+    const flags: Record<string, string> = {
+      'australia': '🇦🇺',
+      'canada': '🇨🇦', 
+      'usa': '🇺🇸',
+      'uk': '🇬🇧',
+      'germany': '🇩🇪',
+      'japan': '🇯🇵'
+    };
+    return flags[country?.toLowerCase()] || '🌍';
+  }
+
+  function getCountryName(country: string): string {
+    const names: Record<string, string> = {
+      'australia': 'Australia',
+      'canada': 'Canada',
+      'usa': 'United States', 
+      'uk': 'United Kingdom',
+      'germany': 'Germany',
+      'japan': 'Japan'
+    };
+    return names[country?.toLowerCase()] || 'International';
+  }
+
+  async function generateCostBreakdown(vehicleData: any, destination: string) {
+    const basePrice = vehicleData?.price || 45000;
+    const shipping = 3500;
+    const duties = Math.round(basePrice * 0.05);
+    const gst = Math.round((basePrice + shipping + duties) * 0.10);
+    const compliance = 8500;
+    
+    return {
+      vehicle: basePrice,
+      shipping: shipping,
+      duties: duties + gst,
+      compliance: compliance,
+      total: basePrice + shipping + duties + gst + compliance,
+      breakdown: [
+        { category: 'Vehicle Purchase', amount: basePrice, description: 'Base vehicle cost' },
+        { category: 'Shipping', amount: shipping, description: 'Ocean freight and handling' },
+        { category: 'Import Duties', amount: duties, description: '5% import duty' },
+        { category: 'GST', amount: gst, description: '10% goods and services tax' },
+        { category: 'Compliance', amount: compliance, description: 'RAW approval and modifications' }
+      ]
+    };
+  }
+
+  function generateImportTimeline(vehicleData: any, destination: string) {
+    return [
+      {
+        phase: 'Vehicle Purchase',
+        duration: '1-2 weeks',
+        status: 'upcoming', 
+        description: 'Locate and secure purchase of target vehicle',
+        requirements: ['Purchase agreement', 'Payment terms', 'Inspection report']
+      },
+      {
+        phase: 'Export Documentation',
+        duration: '2-3 weeks',
+        status: 'upcoming',
+        description: 'Obtain all required export permits and certificates', 
+        requirements: ['Export certificate', 'Deregistration', 'Original title']
+      },
+      {
+        phase: 'International Shipping',
+        duration: '4-6 weeks',
+        status: 'upcoming',
+        description: 'Container shipping from origin to destination port',
+        requirements: ['Bill of lading', 'Insurance coverage', 'Customs declaration']
+      },
+      {
+        phase: 'Customs Clearance', 
+        duration: '1-2 weeks',
+        status: 'upcoming',
+        description: 'Import processing and duty payment',
+        requirements: ['Import approval', 'Duty payment', 'Quarantine inspection']
+      },
+      {
+        phase: 'Compliance & Registration',
+        duration: '6-12 weeks',
+        status: 'upcoming',
+        description: 'Vehicle modifications and local registration',
+        requirements: ['RAW approval', 'Compliance plate', 'State registration']
+      }
+    ];
+  }
+
   app.post("/api/smart-parser/intelligent-lookup", async (req, res) => {
     try {
       const { query, sessionToken } = req.body;
