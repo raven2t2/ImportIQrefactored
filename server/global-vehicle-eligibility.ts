@@ -193,6 +193,11 @@ function checkUSEligibility(vehicle: VehicleDetails): GlobalEligibilityResult {
   const currentYear = new Date().getFullYear();
   const vehicleAge = currentYear - vehicle.year;
   
+  // Reject impossible years
+  if (vehicle.year > currentYear) {
+    return createInvalidYearResult('US');
+  }
+  
   let eligible = false;
   let eligibilityType = 'Not Eligible';
   let complianceCost = 0;
@@ -204,7 +209,7 @@ function checkUSEligibility(vehicle: VehicleDetails): GlobalEligibilityResult {
   if (vehicleAge >= 25) {
     eligible = true;
     eligibilityType = '25-Year Rule (Historic Vehicle)';
-    complianceCost = 500; // Minimal compliance needed
+    complianceCost = 500;
     nextSteps.push('File DOT Form HS-7 and EPA Form 3520-1');
     nextSteps.push('Arrange port inspection');
   } else if (vehicle.origin === 'usa') {
@@ -218,15 +223,11 @@ function checkUSEligibility(vehicle: VehicleDetails): GlobalEligibilityResult {
     complianceCost = 2000;
     nextSteps.push('Obtain compliance certification');
   } else {
-    eligibilityType = 'Non-Compliant Vehicle';
-    restrictions.push('Must meet FMVSS and EPA standards');
-    restrictions.push('Extensive modifications required');
-    if (vehicleAge >= 21) {
-      eligible = true;
-      modificationCost = 15000;
-      warnings.push('Show or Display exemption may apply');
-      warnings.push('Limited to 2,500 miles per year');
-    }
+    eligible = false;
+    eligibilityType = 'Not Eligible - Too New';
+    restrictions.push('Vehicle must be 25+ years old for import');
+    restrictions.push('OR originally manufactured for US market');
+    warnings.push('US has strict 25-year import rule');
   }
 
   return {
@@ -266,6 +267,11 @@ function checkUSEligibility(vehicle: VehicleDetails): GlobalEligibilityResult {
 function checkUKEligibility(vehicle: VehicleDetails): GlobalEligibilityResult {
   const currentYear = new Date().getFullYear();
   const vehicleAge = currentYear - vehicle.year;
+  
+  // Reject impossible years
+  if (vehicle.year > currentYear) {
+    return createInvalidYearResult('UK');
+  }
   
   let eligible = true; // UK is generally more permissive
   let eligibilityType = 'Standard Import';
@@ -336,6 +342,11 @@ function checkCanadianEligibility(vehicle: VehicleDetails): GlobalEligibilityRes
   const currentYear = new Date().getFullYear();
   const vehicleAge = currentYear - vehicle.year;
   
+  // Reject impossible years
+  if (vehicle.year > currentYear) {
+    return createInvalidYearResult('CA');
+  }
+  
   let eligible = false;
   let eligibilityType = 'Not Eligible';
   let complianceCost = 0;
@@ -397,6 +408,42 @@ function checkCanadianEligibility(vehicle: VehicleDetails): GlobalEligibilityRes
     nextSteps,
     warnings,
     timeline: getCanadianTimeline(eligibilityType),
+    lastUpdated: new Date().toISOString()
+  };
+}
+
+// Helper function for invalid year results
+function createInvalidYearResult(country: 'AU' | 'US' | 'UK' | 'CA'): GlobalEligibilityResult {
+  return {
+    targetCountry: country,
+    eligible: false,
+    eligibilityType: 'Invalid Vehicle Year',
+    ageRequirement: {
+      minimumAge: 25,
+      currentAge: -1,
+      meetsRequirement: false,
+      ruleDescription: 'Vehicle year cannot be in the future'
+    },
+    complianceRequirements: {
+      standardsCompliance: false,
+      safetyModifications: [],
+      emissionsModifications: [],
+      inspectionRequired: false,
+      testingRequired: false
+    },
+    estimatedCosts: {
+      complianceCost: 0,
+      modificationCost: 0,
+      inspectionFees: 0,
+      dutyAndTaxes: 0
+    },
+    restrictions: ['Invalid vehicle year'],
+    nextSteps: ['Please verify vehicle information'],
+    warnings: ['Vehicle year appears to be incorrect'],
+    timeline: {
+      totalWeeks: 0,
+      phases: []
+    },
     lastUpdated: new Date().toISOString()
   };
 }
