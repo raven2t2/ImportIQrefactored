@@ -62,6 +62,7 @@ type ConversationStep =
   | 'welcome'
   | 'input-method'
   | 'url-input'
+  | 'vin-input'
   | 'make-selection'
   | 'model-input'
   | 'year-input'
