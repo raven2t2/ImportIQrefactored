@@ -507,10 +507,10 @@ export type InsertShopSuggestion = typeof shopSuggestions.$inferInsert;
 // Global Vehicle Import Data Tables
 export const vinPatterns = pgTable("vin_patterns", {
   id: serial("id").primaryKey(),
-  wmiCode: varchar("wmi_code", { length: 3 }).notNull().unique(),
+  wmiCode: varchar("wmi_code", { length: 10 }).notNull().unique(),
   manufacturer: varchar("manufacturer").notNull(),
   country: varchar("country").notNull(),
-  countryCode: varchar("country_code", { length: 2 }).notNull(),
+  countryCode: varchar("country_code", { length: 3 }).notNull(),
   vehicleType: varchar("vehicle_type").notNull(),
   confidence: integer("confidence").notNull(),
   source: text("source").notNull(),
