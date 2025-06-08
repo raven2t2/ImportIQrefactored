@@ -175,6 +175,17 @@ async function generateVehicleResponseFromDB(vehicle: any) {
     // Get market pricing from live data
     const marketPricing = await getMarketPricingFromDB(vehicle.make, vehicle.model);
     
+    // Get cost estimates from PostgreSQL compliance data
+    const costEstimates = {};
+    for (const [country, complianceData] of Object.entries(eligibility)) {
+      const costs = await PostgreSQLComplianceService.calculateComplianceCosts(country);
+      costEstimates[country] = {
+        compliance: costs.totalCost,
+        processing: complianceData.processingTimeWeeks,
+        breakdown: costs.breakdown
+      };
+    }
+    
     return {
       make: vehicle.make,
       model: vehicle.model,
@@ -183,12 +194,7 @@ async function generateVehicleResponseFromDB(vehicle: any) {
       engine: vehicle.engine_code,
       origin: vehicle.origin_country || 'Japan',
       eligibility,
-      importCosts: {
-        shipping: { min: 2500, max: 4500, currency: 'AUD' },
-        compliance: { min: 3000, max: 8000, currency: 'AUD' },
-        duty: { percentage: 5.0 },
-        gst: { percentage: 10.0 }
-      },
+      costEstimates,
       marketPricing,
       nextSteps: [
         { title: 'Check Compliance', description: 'Verify import eligibility for your destination', priority: 'high' },

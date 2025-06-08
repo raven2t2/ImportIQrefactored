@@ -108,29 +108,38 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* Three Key Questions */}
+          {/* Core Promise */}
           <div className="mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold mb-8 text-white leading-tight">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white leading-tight">
               Find out if you can import any car in <span className="text-amber-400">30 seconds</span>
             </h1>
+            <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
+              Get instant answers to the three questions that matter most
+            </p>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-8">
-              <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-700">
-                <div className="text-2xl mb-3">🚗</div>
-                <h3 className="text-lg font-semibold text-white mb-2">Can I import this car?</h3>
-                <p className="text-gray-400 text-sm">Check eligibility across 17 countries with authentic government regulations</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-8">
+              <div className="bg-gradient-to-br from-amber-900/20 to-orange-900/20 rounded-xl p-6 border border-amber-700/30">
+                <div className="w-12 h-12 bg-amber-400/20 rounded-lg flex items-center justify-center mb-4 mx-auto">
+                  <Car className="h-6 w-6 text-amber-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-white mb-2 text-center">Can I import this car?</h3>
+                <p className="text-gray-300 text-sm text-center">Real government regulations from our PostgreSQL database</p>
               </div>
               
-              <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-700">
-                <div className="text-2xl mb-3">💰</div>
-                <h3 className="text-lg font-semibold text-white mb-2">How much will it cost?</h3>
-                <p className="text-gray-400 text-sm">Get real costs including duties, compliance, and regional fees</p>
+              <div className="bg-gradient-to-br from-green-900/20 to-emerald-900/20 rounded-xl p-6 border border-green-700/30">
+                <div className="w-12 h-12 bg-green-400/20 rounded-lg flex items-center justify-center mb-4 mx-auto">
+                  <DollarSign className="h-6 w-6 text-green-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-white mb-2 text-center">How much will it cost?</h3>
+                <p className="text-gray-300 text-sm text-center">Complete breakdown including all fees and duties</p>
               </div>
               
-              <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-700">
-                <div className="text-2xl mb-3">📋</div>
-                <h3 className="text-lg font-semibold text-white mb-2">What do I need to do?</h3>
-                <p className="text-gray-400 text-sm">Step-by-step guidance with timelines and next actions</p>
+              <div className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 rounded-xl p-6 border border-blue-700/30">
+                <div className="w-12 h-12 bg-blue-400/20 rounded-lg flex items-center justify-center mb-4 mx-auto">
+                  <FileText className="h-6 w-6 text-blue-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-white mb-2 text-center">What do I need to do?</h3>
+                <p className="text-gray-300 text-sm text-center">Step-by-step roadmap with exact timelines</p>
               </div>
             </div>
           </div>
