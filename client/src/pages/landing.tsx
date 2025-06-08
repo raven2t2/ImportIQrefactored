@@ -71,61 +71,70 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* Headline */}
-          <h1 className="text-5xl md:text-6xl font-bold mb-6">
-            <span className="bg-gradient-to-r from-amber-400 to-yellow-500 bg-clip-text text-transparent">
-              ImportIQ
-            </span>
-          </h1>
-
-          <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-2xl mx-auto">
-            Get instant import costs, compliance checks, and vehicle eligibility analysis.
-          </p>
+          {/* Three Key Questions */}
+          <div className="mb-12">
+            <h1 className="text-4xl md:text-5xl font-bold mb-8 text-white leading-tight">
+              Find out if you can import any car in <span className="text-amber-400">30 seconds</span>
+            </h1>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-8">
+              <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-700">
+                <div className="text-2xl mb-3">🚗</div>
+                <h3 className="text-lg font-semibold text-white mb-2">Can I import this car?</h3>
+                <p className="text-gray-400 text-sm">Check eligibility across 17 countries with authentic government regulations</p>
+              </div>
+              
+              <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-700">
+                <div className="text-2xl mb-3">💰</div>
+                <h3 className="text-lg font-semibold text-white mb-2">How much will it cost?</h3>
+                <p className="text-gray-400 text-sm">Get real costs including duties, compliance, and regional fees</p>
+              </div>
+              
+              <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-700">
+                <div className="text-2xl mb-3">📋</div>
+                <h3 className="text-lg font-semibold text-white mb-2">What do I need to do?</h3>
+                <p className="text-gray-400 text-sm">Step-by-step guidance with timelines and next actions</p>
+              </div>
+            </div>
+          </div>
 
           {/* Instant Input Field */}
           <div className="max-w-lg mx-auto mb-12">
             <div className="bg-gray-900/50 rounded-xl p-8 border border-gray-700">
-              <h3 className="text-lg font-medium mb-6 text-white text-center">
-                Check any vehicle instantly
+              <h3 className="text-xl font-medium mb-2 text-white text-center">
+                Paste anything, get smart answers
               </h3>
+              <p className="text-gray-400 text-center mb-6 text-sm">
+                VIN, auction link, chassis code, or just type the car model
+              </p>
               
               <div className="space-y-4">
                 <div className="relative">
                   <Input
-                    placeholder="Paste auction URL, VIN, or enter make/model..."
+                    placeholder="JTD1234567890123456, yahoo.auctions.co.jp/..., BNR32, or Toyota Supra..."
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && inputValue.trim()) {
-                        setLocation(`/import-flow?input=${encodeURIComponent(inputValue.trim())}`);
+                        setLocation(`/smart-lookup?input=${encodeURIComponent(inputValue.trim())}`);
                       }
                     }}
-                    className="text-lg h-14 bg-gray-800 border-gray-600 text-white placeholder-gray-400 pr-12"
+                    className="text-lg h-14 bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                   />
-                  {inputValue.trim() && (
-                    <Button
-                      onClick={() => setLocation(`/import-flow?input=${encodeURIComponent(inputValue.trim())}`)}
-                      className="absolute right-2 top-2 h-10 w-10 p-0 bg-amber-400 hover:bg-amber-500 text-black"
-                    >
-                      <ArrowRight className="h-4 w-4" />
-                    </Button>
-                  )}
                 </div>
-                
-                <div className="grid grid-cols-1 gap-2 text-xs text-gray-500">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
-                    <span>URLs: copart.com, yahoo.co.jp auctions</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
-                    <span>VINs: 17-character vehicle identification</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
-                    <span>Manual: Toyota Supra, Honda NSX, etc.</span>
-                  </div>
-                </div>
+                <Button 
+                  onClick={() => {
+                    if (inputValue.trim()) {
+                      setLocation(`/smart-lookup?input=${encodeURIComponent(inputValue.trim())}`);
+                    } else {
+                      setLocation('/smart-lookup');
+                    }
+                  }}
+                  className="w-full bg-amber-400 hover:bg-amber-500 text-black font-bold py-4 text-xl"
+                >
+                  Check This Car Now
+                  <ArrowRight className="ml-2 h-6 w-6" />
+                </Button>
               </div>
             </div>
           </div>
@@ -154,88 +163,88 @@ export default function Landing() {
         </div>
       </div>
 
-      {/* Business Value Section */}
+      {/* Data Authenticity Section */}
       <div className="py-20 bg-gradient-to-b from-black to-gray-900">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
-              Power Your Import Business
+              Real data from government sources
             </h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Professional import intelligence tools designed for automotive businesses, 
-              dealers, freight forwarders, and customs brokers.
+              We use authentic regulatory data from 17 countries with 88 regional variations - 
+              no estimates, no guesswork.
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 mb-16">
             <div className="bg-gray-900/50 rounded-xl p-8 border border-gray-800">
               <div className="w-12 h-12 bg-amber-400/20 rounded-lg flex items-center justify-center mb-6">
-                <span className="text-2xl">🚗</span>
+                <span className="text-2xl">🇦🇺</span>
               </div>
-              <h3 className="text-xl font-semibold mb-4 text-white">Import Dealers</h3>
+              <h3 className="text-xl font-semibold mb-4 text-white">Australia</h3>
               <p className="text-gray-400 mb-4">
-                Provide instant quotes, check compliance, and track multiple imports simultaneously.
+                Direct from RAWS and state transport authorities
               </p>
               <ul className="space-y-2 text-sm text-gray-500">
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-amber-400" />
-                  Batch import calculations
+                  ADR compliance requirements
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-amber-400" />
-                  Client portal access
+                  State registration fees
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-amber-400" />
-                  Profit margin analysis
+                  Port processing costs
                 </li>
               </ul>
             </div>
 
             <div className="bg-gray-900/50 rounded-xl p-8 border border-gray-800">
               <div className="w-12 h-12 bg-amber-400/20 rounded-lg flex items-center justify-center mb-6">
-                <span className="text-2xl">🏢</span>
+                <span className="text-2xl">🇬🇧</span>
               </div>
-              <h3 className="text-xl font-semibold mb-4 text-white">Freight Forwarders</h3>
+              <h3 className="text-xl font-semibold mb-4 text-white">United Kingdom</h3>
               <p className="text-gray-400 mb-4">
-                Integrate compliance checking and cost estimation into your existing workflows.
+                DVLA and HMRC official data
               </p>
               <ul className="space-y-2 text-sm text-gray-500">
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-amber-400" />
-                  API integration
+                  IVA test costs: £456
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-amber-400" />
-                  Automated reporting
+                  VAT rates: 20%
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-amber-400" />
-                  Multi-region support
+                  Regional variations
                 </li>
               </ul>
             </div>
 
             <div className="bg-gray-900/50 rounded-xl p-8 border border-gray-800">
               <div className="w-12 h-12 bg-amber-400/20 rounded-lg flex items-center justify-center mb-6">
-                <span className="text-2xl">⚖️</span>
+                <span className="text-2xl">🇩🇪</span>
               </div>
-              <h3 className="text-xl font-semibold mb-4 text-white">Customs Brokers</h3>
+              <h3 className="text-xl font-semibold mb-4 text-white">Germany</h3>
               <p className="text-gray-400 mb-4">
-                Access comprehensive compliance data and documentation requirements.
+                TÜV and government authorities
               </p>
               <ul className="space-y-2 text-sm text-gray-500">
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-amber-400" />
-                  Real-time duty rates
+                  TÜV inspection: €145.40
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-amber-400" />
-                  Documentation checklists
+                  Registration fees by state
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-amber-400" />
-                  Regulatory updates
+                  Emissions standards
                 </li>
               </ul>
             </div>
