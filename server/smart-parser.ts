@@ -870,6 +870,11 @@ class PostgreSQLSmartParser {
           }
         }
 
+        // Get strategic intelligence for matched vehicle
+        const userIntent = await this.classifyUserIntent(query);
+        const importRiskIndex = await this.calculateImportRiskIndex(bestMatch.canonical_make, bestMatch.canonical_model, bestMatch.year_range_start);
+        const strategicRecommendations = await this.getStrategicRecommendations(bestMatch.canonical_make, bestMatch.canonical_model, 'australia');
+
         return {
           data: {
             make: bestMatch.canonical_make,
@@ -884,7 +889,12 @@ class PostgreSQLSmartParser {
           sourceAttribution: bestMatch.source_attribution,
           sourceBreakdown,
           whyThisResult: `Pattern "${normalizedQuery}" matched ${bestMatch.canonical_make} ${bestMatch.canonical_model} with ${bestMatch.confidence_score}% confidence. This vehicle is recognized in our enthusiast database with chassis code ${bestMatch.chassis_code}.`,
-          nextSteps
+          nextSteps,
+          userIntent,
+          importRiskIndex,
+          strategicRecommendations,
+          lastUpdated: new Date().toISOString(),
+          disclaimer: "Strategic recommendations based on current market analysis and regulatory intelligence. Import requirements may change - verify current regulations before proceeding."
         };
       }
 
