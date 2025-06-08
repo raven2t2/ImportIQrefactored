@@ -708,8 +708,14 @@ class PostgreSQLSmartParser {
   private generateVehicleNextSteps(make: string, model: string, year: number, originCountry: string): NextStepRecommendation[] {
     const steps: NextStepRecommendation[] = [];
     
+    // Validate inputs to prevent errors
+    const safeMake = make || '';
+    const safeModel = model || '';
+    const safeYear = year || new Date().getFullYear();
+    const safeOrigin = originCountry || 'unknown';
+    
     // JDM vehicles to Australia/New Zealand - specific guidance
-    if (originCountry === 'japan') {
+    if (safeOrigin === 'japan') {
       steps.push({
         title: 'Check 25-Year Import Eligibility',
         description: 'Verify if this Japanese vehicle meets the 25-year import rule for your destination country',
@@ -718,7 +724,7 @@ class PostgreSQLSmartParser {
         estimatedTime: '2 minutes'
       });
       
-      if (make.toLowerCase() === 'nissan' && model.toLowerCase().includes('skyline')) {
+      if (safeMake.toLowerCase() === 'nissan' && safeModel.toLowerCase().includes('skyline')) {
         steps.push({
           title: 'GT-R Specialist Compliance Check',
           description: 'GT-R models have specific compliance requirements including RAWS certification in Australia',
