@@ -58,6 +58,8 @@ export const WMI_DATABASE = {
   '1GM': { make: 'Pontiac', origin: 'USA' },
   '1GC': { make: 'Chevrolet', origin: 'USA' },
   '1GT': { make: 'GMC', origin: 'USA' },
+  '1HG': { make: 'Honda', origin: 'USA' },
+  '1HF': { make: 'Honda', origin: 'USA' },
   '1FA': { make: 'Ford', origin: 'USA' },
   '1FB': { make: 'Ford', origin: 'USA' },
   '1FC': { make: 'Ford', origin: 'USA' },
