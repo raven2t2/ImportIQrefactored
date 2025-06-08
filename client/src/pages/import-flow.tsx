@@ -228,10 +228,12 @@ export default function ImportFlow() {
   });
 
   // Auction listings query (triggered when needed)
-  const { data: auctionListings = [] } = useQuery({
-    queryKey: ['/api/market-data', vehicleData?.make, vehicleData?.model],
+  const { data: marketData } = useQuery({
+    queryKey: ['/api/live-market-data', vehicleData?.make],
     enabled: currentStep === 'auctions' && vehicleData !== null,
   });
+
+  const auctionListings = marketData?.vehicles || [];
 
   const handleVehicleSubmit = () => {
     if (vehicleInput.trim()) {
