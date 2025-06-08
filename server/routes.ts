@@ -22,6 +22,13 @@ import { getLiveMarketData, updateCachedVehicle, removeCachedVehicle } from "./l
 import { saveVehicleCustomization } from "./vehicle-customizations";
 import { generateMarketListings, type SearchFilters } from "./simplified-market-data";
 import { getDataFreshnessStatus, getSystemHealthStatus, triggerManualRefresh, getCachedAuctionData } from "./auction-data-manager";
+import { 
+  generateIntelligentRecommendations, 
+  getBestPortForRegion, 
+  getOptimalShippingRoute, 
+  getComplianceRoadmap,
+  GLOBAL_PORT_INTELLIGENCE 
+} from "../shared/global-intelligence-modules";
 import path from "path";
 
 // Additional schemas for new tools
@@ -1056,13 +1063,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ];
       }
       
+      // Seamlessly integrate global intelligence for enhanced recommendations
+      let intelligenceEnhancements = {};
+      
+      if (validatedData.targetCountry && validatedData.targetState) {
+        try {
+          // Generate behind-the-scenes optimizations
+          const mockVehicleData = { 
+            make: "Toyota", 
+            model: "Sample", 
+            year: validatedData.year || 2010,
+            price: 35000 
+          };
+          
+          const recommendations = generateIntelligentRecommendations(
+            mockVehicleData,
+            validatedData.targetCountry,
+            validatedData.targetState
+          );
+          
+          const recommendedPort = getBestPortForRegion(validatedData.targetCountry, validatedData.targetState);
+          const complianceRoadmap = getComplianceRoadmap(validatedData.targetCountry, validatedData.targetState);
+          
+          // Enhance timeline and factors with intelligent insights
+          if (recommendedPort) {
+            factors.push(`Recommended port: ${recommendedPort.name} (${recommendedPort.costs.averageProcessingDays} day average processing)`);
+          }
+          
+          if (complianceRoadmap.riskFactors.length > 0) {
+            factors.push(`Key considerations: ${complianceRoadmap.riskFactors[0]}`);
+          }
+          
+          intelligenceEnhancements = {
+            portRecommendation: recommendedPort?.name,
+            estimatedPortCost: recommendedPort?.costs.averageTotalCost,
+            complianceAlerts: complianceRoadmap.riskFactors.slice(0, 2),
+            timelineOptimization: recommendations.timelineOptimization
+          };
+          
+        } catch (error) {
+          // Silently fail - don't expose intelligence system errors to user
+          console.log("Intelligence enhancement unavailable:", error.message);
+        }
+      }
+
       res.json({
         success: true,
         estimatedWeeks,
         category: validatedData.category,
         explanation,
         factors,
-        isEligible
+        isEligible,
+        ...intelligenceEnhancements
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -1821,6 +1873,124 @@ Respond with a JSON object containing your recommendations.`;
     } catch (error) {
       console.error("Error fetching market intelligence:", error);
       res.status(500).json({ error: "Failed to fetch market data" });
+    }
+  });
+
+  // Global Intelligence API - seamless integration for import flow
+  app.post("/api/global-intelligence", async (req, res) => {
+    try {
+      const { vehicleData, targetCountry, targetRegion } = req.body;
+      
+      if (!vehicleData || !targetCountry || !targetRegion) {
+        return res.status(400).json({ 
+          error: "Missing required fields: vehicleData, targetCountry, targetRegion" 
+        });
+      }
+
+      // Generate intelligent recommendations using refactored modules
+      const recommendations = generateIntelligentRecommendations(
+        vehicleData, 
+        targetCountry, 
+        targetRegion
+      );
+
+      // Get optimal port for the region
+      const recommendedPort = getBestPortForRegion(targetCountry, targetRegion);
+      
+      // Get shipping strategy
+      const shippingStrategy = getOptimalShippingRoute("JP", targetCountry, vehicleData.price || 25000);
+      
+      // Get compliance roadmap
+      const complianceRoadmap = getComplianceRoadmap(targetCountry, targetRegion);
+
+      res.json({
+        success: true,
+        intelligence: {
+          recommendations,
+          port: recommendedPort,
+          shipping: shippingStrategy,
+          compliance: complianceRoadmap,
+          summary: {
+            estimatedTotalCost: (recommendedPort?.costs.averageTotalCost || 0) + 
+                              (shippingStrategy?.estimatedCost || 0) + 
+                              complianceRoadmap.totalEstimatedCost,
+            estimatedTimelineWeeks: Math.max(
+              shippingStrategy?.route.transitDays ? Math.ceil(shippingStrategy.route.transitDays / 7) : 0,
+              complianceRoadmap.totalTimelineWeeks
+            ),
+            complexityLevel: complianceRoadmap.criticalRequirements.length > 2 ? "High" : 
+                           complianceRoadmap.criticalRequirements.length > 0 ? "Medium" : "Low"
+          }
+        }
+      });
+    } catch (error) {
+      console.error("Error generating global intelligence:", error);
+      res.status(500).json({ error: "Failed to generate intelligence report" });
+    }
+  });
+
+  // Port Intelligence API
+  app.get("/api/ports/:country", async (req, res) => {
+    try {
+      const { country } = req.params;
+      const { region } = req.query;
+      
+      const countryPorts = GLOBAL_PORT_INTELLIGENCE[country.toUpperCase()];
+      
+      if (!countryPorts) {
+        return res.json({ success: false, error: "Country not supported" });
+      }
+
+      const filteredPorts = region 
+        ? countryPorts.filter(port => port.region === region)
+        : countryPorts;
+
+      res.json({
+        success: true,
+        ports: filteredPorts,
+        count: filteredPorts.length
+      });
+    } catch (error) {
+      console.error("Error fetching port data:", error);
+      res.status(500).json({ error: "Failed to fetch port information" });
+    }
+  });
+
+  // Shipping Intelligence API
+  app.post("/api/shipping-optimization", async (req, res) => {
+    try {
+      const { fromCountry, toCountry, vehicleValue, urgency } = req.body;
+      
+      const shippingOptions = getOptimalShippingRoute(fromCountry, toCountry, vehicleValue);
+      
+      if (!shippingOptions) {
+        return res.json({ 
+          success: false, 
+          error: "No shipping routes available for specified countries" 
+        });
+      }
+
+      res.json({
+        success: true,
+        optimization: shippingOptions,
+        alternatives: [
+          {
+            option: "Standard Container",
+            cost: shippingOptions.estimatedCost * 0.85,
+            transitDays: shippingOptions.route.transitDays + 3,
+            reliability: shippingOptions.route.reliability - 5
+          },
+          {
+            option: "Express Service", 
+            cost: shippingOptions.estimatedCost * 1.4,
+            transitDays: shippingOptions.route.transitDays - 2,
+            reliability: shippingOptions.route.reliability + 8
+          }
+        ]
+      });
+    } catch (error) {
+      console.error("Error optimizing shipping:", error);
+      res.status(500).json({ error: "Failed to optimize shipping options" });
     }
   });
 
