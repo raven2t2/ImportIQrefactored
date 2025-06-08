@@ -3096,6 +3096,60 @@ Respond with a JSON object containing your recommendations.`;
         
       } else if (detectedType === 'model') {
         enhancedData = await enhanceModelData(input);
+        
+        // Get comprehensive technical specifications for model searches
+        const { VIN_TECHNICAL_DATABASE } = await import('./authentic-vehicle-data');
+        
+        const inputLower = input.toLowerCase();
+        
+        // Enhanced model mapping to technical specifications
+        const modelMapping: Record<string, {wmi: string, model: string, make: string, modelName: string}> = {
+          'toyota supra': { wmi: 'JT2', model: 'A80', make: 'Toyota', modelName: 'Supra' },
+          'supra': { wmi: 'JT2', model: 'A80', make: 'Toyota', modelName: 'Supra' },
+          'nissan skyline': { wmi: 'JN1', model: 'R32', make: 'Nissan', modelName: 'Skyline GT-R' },
+          'skyline': { wmi: 'JN1', model: 'R32', make: 'Nissan', modelName: 'Skyline GT-R' },
+          'gt-r': { wmi: 'JN1', model: 'R32', make: 'Nissan', modelName: 'Skyline GT-R' },
+          'gtr': { wmi: 'JN1', model: 'R32', make: 'Nissan', modelName: 'Skyline GT-R' },
+          'mazda rx7': { wmi: 'JM1', model: 'FD3S', make: 'Mazda', modelName: 'RX-7' },
+          'rx7': { wmi: 'JM1', model: 'FD3S', make: 'Mazda', modelName: 'RX-7' },
+          'rx-7': { wmi: 'JM1', model: 'FD3S', make: 'Mazda', modelName: 'RX-7' },
+          'nissan silvia': { wmi: 'JN1', model: 'S13', make: 'Nissan', modelName: 'Silvia' },
+          'silvia': { wmi: 'JN1', model: 'S13', make: 'Nissan', modelName: 'Silvia' },
+          '240sx': { wmi: 'JN1', model: 'S13', make: 'Nissan', modelName: '240SX' },
+          'toyota mr2': { wmi: 'JT2', model: 'SW20', make: 'Toyota', modelName: 'MR2' },
+          'mr2': { wmi: 'JT2', model: 'SW20', make: 'Toyota', modelName: 'MR2' },
+          'honda civic': { wmi: 'JHM', model: 'EK9', make: 'Honda', modelName: 'Civic Type R' },
+          'civic type r': { wmi: 'JHM', model: 'EK9', make: 'Honda', modelName: 'Civic Type R' },
+          'subaru impreza': { wmi: 'JF1', model: 'GC8', make: 'Subaru', modelName: 'Impreza WRX' },
+          'wrx': { wmi: 'JF1', model: 'GC8', make: 'Subaru', modelName: 'Impreza WRX' },
+          'impreza': { wmi: 'JF1', model: 'GC8', make: 'Subaru', modelName: 'Impreza WRX' }
+        };
+        
+        // Find matching vehicle data
+        let vehicleData = null;
+        console.log('Searching for vehicle data with input:', inputLower);
+        for (const [searchTerm, data] of Object.entries(modelMapping)) {
+          console.log('Checking search term:', searchTerm);
+          if (inputLower.includes(searchTerm)) {
+            vehicleData = data;
+            console.log('Found matching vehicle data:', data);
+            break;
+          }
+        }
+        
+        if (vehicleData) {
+          // Set basic vehicle information
+          enhancedData.make = vehicleData.make;
+          enhancedData.model = vehicleData.modelName;
+          
+          // Get technical specifications from the authentic database
+          if (VIN_TECHNICAL_DATABASE[vehicleData.wmi]?.models[vehicleData.model]) {
+            enhancedData.technicalSpecs = VIN_TECHNICAL_DATABASE[vehicleData.wmi].models[vehicleData.model];
+            console.log('Added technical specs for model search:', vehicleData.modelName, enhancedData.technicalSpecs);
+          } else {
+            console.log('No technical specs found for:', vehicleData.wmi, vehicleData.model);
+          }
+        }
       }
 
       res.json({
