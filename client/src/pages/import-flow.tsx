@@ -111,7 +111,9 @@ export default function ImportFlow() {
     onSuccess: (data: any) => {
       setEligibilityResults(data.results);
       setSelectedResult(data.results[0]);
-      setCurrentStep('summary');
+      setProgress(100);
+      setCurrentTask('Analysis complete!');
+      setTimeout(() => setCurrentStep('summary'), 1000);
     }
   });
 
