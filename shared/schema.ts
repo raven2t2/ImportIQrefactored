@@ -284,6 +284,81 @@ export const payoutRequests = pgTable("payout_requests", {
   processedAt: timestamp("processed_at"),
 });
 
+// Smart Parser Result History - Persistent lookup records
+export const smartParserHistory = pgTable("smart_parser_history", {
+  id: serial("id").primaryKey(),
+  queryText: text("query_text").notNull(),
+  lookupType: varchar("lookup_type").notNull(), // vin, chassis, intelligent
+  resultData: jsonb("result_data"),
+  confidenceScore: integer("confidence_score"),
+  importRiskIndex: integer("import_risk_index"),
+  userIntent: varchar("user_intent"),
+  sourceAttribution: text("source_attribution"),
+  nextSteps: text("next_steps"),
+  ipAddress: varchar("ip_address"),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Admin Query Review - Low confidence flagging system
+export const adminQueryReviews = pgTable("admin_query_reviews", {
+  id: serial("id").primaryKey(),
+  originalQuery: text("original_query").notNull(),
+  lookupType: varchar("lookup_type").notNull(),
+  confidenceScore: integer("confidence_score"),
+  resultQuality: varchar("result_quality"), // excellent, good, poor, failed
+  adminNotes: text("admin_notes"),
+  enhancementSuggestions: text("enhancement_suggestions"),
+  flaggedForReview: boolean("flagged_for_review").default(false),
+  reviewedBy: varchar("reviewed_by"),
+  reviewedAt: timestamp("reviewed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Pattern Staging - Admin pattern management
+export const patternStaging = pgTable("pattern_staging", {
+  id: serial("id").primaryKey(),
+  suggestedPattern: text("suggested_pattern").notNull(),
+  canonicalMake: varchar("canonical_make"),
+  canonicalModel: varchar("canonical_model"),
+  chassisCode: varchar("chassis_code"),
+  confidenceEstimate: integer("confidence_estimate"),
+  sourceContext: text("source_context"),
+  adminStatus: varchar("admin_status").default("pending"), // pending, approved, rejected
+  adminNotes: text("admin_notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  approvedAt: timestamp("approved_at"),
+  approvedBy: varchar("approved_by"),
+});
+
+// Lookup Analytics - System performance tracking
+export const lookupAnalytics = pgTable("lookup_analytics", {
+  id: serial("id").primaryKey(),
+  queryText: text("query_text").notNull(),
+  lookupMethod: varchar("lookup_method").notNull(),
+  successRate: decimal("success_rate", { precision: 5, scale: 2 }),
+  averageConfidence: decimal("average_confidence", { precision: 5, scale: 2 }),
+  commonFailureReasons: text("common_failure_reasons").array(),
+  suggestedImprovements: text("suggested_improvements").array(),
+  dateAnalyzed: timestamp("date_analyzed").defaultNow(),
+});
+
+// User Watchlist - Time-based import tracking
+export const userWatchlist = pgTable("user_watchlist", {
+  id: serial("id").primaryKey(),
+  userEmail: varchar("user_email"),
+  vehicleMake: varchar("vehicle_make").notNull(),
+  vehicleModel: varchar("vehicle_model").notNull(),
+  vehicleYear: integer("vehicle_year"),
+  chassisCode: varchar("chassis_code"),
+  eligibilityDate: timestamp("eligibility_date"),
+  userIntent: varchar("user_intent"), // daily, drift, collector, investment
+  notificationPrefs: jsonb("notification_prefs"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // My Build Garage - Vehicle builds
 export const vehicleBuilds = pgTable("vehicle_builds", {
   id: serial("id").primaryKey(),
