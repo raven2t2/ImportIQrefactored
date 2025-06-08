@@ -353,8 +353,6 @@ export function DynamicResultsRenderer({ results, recommendations, vehicleInfo }
 
                   {selectedCountry === result.country && (
                     <div className="mt-4 pt-4 border-t space-y-4">
-                      {/* Debug modification compliance */}
-                      {console.log('Modification compliance for', result.country, ':', (result as any).modificationCompliance)}
                       {/* Cost Breakdown */}
                       <div>
                         <h4 className="font-medium mb-2">Cost Breakdown</h4>
