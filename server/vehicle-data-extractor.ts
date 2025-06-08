@@ -48,22 +48,34 @@ export async function extractVehicleData(input: {
     try {
       const urlData = await extractFromURL(input.url);
       
-      // If extraction confidence is low, enhance with AI
-      if (urlData.confidence < 80) {
-        const enhancedData = await enhanceExtractionWithAI(input.url, urlData);
-        if (enhancedData && enhancedData.confidence > urlData.confidence) {
-          return enhancedData;
+      // Validate extraction results before proceeding
+      if (urlData && urlData.make && urlData.model && urlData.year > 1980) {
+        console.log(`URL extraction successful: ${urlData.year} ${urlData.make} ${urlData.model} (confidence: ${urlData.confidence}%)`);
+        
+        // If extraction confidence is low, enhance with AI
+        if (urlData.confidence < 80) {
+          const enhancedData = await enhanceExtractionWithAI(input.url, urlData);
+          if (enhancedData && enhancedData.confidence > urlData.confidence) {
+            return enhancedData;
+          }
+        }
+        
+        return urlData;
+      } else {
+        console.log('URL extraction incomplete, attempting AI enhancement');
+        // Fallback to AI analysis for complex URLs
+        const aiData = await enhanceExtractionWithAI(input.url);
+        if (aiData && aiData.confidence > 60) {
+          return aiData;
         }
       }
-      
-      return urlData;
     } catch (error) {
+      console.error('URL extraction error:', error);
       // Fallback to AI analysis for complex URLs
       const aiData = await enhanceExtractionWithAI(input.url);
       if (aiData && aiData.confidence > 60) {
         return aiData;
       }
-      throw error;
     }
   }
   
