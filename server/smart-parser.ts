@@ -1341,7 +1341,24 @@ class PostgreSQLSmartParser {
     const suggestions: string[] = [];
     const queryLower = query.toLowerCase();
     
-    // Common vehicle suggestions based on partial matches
+    // Get popular patterns from database
+    try {
+      const popularPatterns = await db.select({
+        make: vehicleModelPatterns.make,
+        model: vehicleModelPatterns.model
+      })
+      .from(vehicleModelPatterns)
+      .where(sql`${vehicleModelPatterns.make} ILIKE '%${queryLower}%' OR ${vehicleModelPatterns.model} ILIKE '%${queryLower}%'`)
+      .limit(3);
+      
+      if (popularPatterns.length > 0) {
+        return popularPatterns.map(p => `${p.make} ${p.model}`);
+      }
+    } catch (error) {
+      console.error('Database suggestion query failed:', error);
+    }
+    
+    // Fallback to common vehicle suggestions based on partial matches
     if (queryLower.includes('supra')) suggestions.push('Toyota Supra');
     if (queryLower.includes('skyline') || queryLower.includes('gtr') || queryLower.includes('r34')) suggestions.push('Nissan Skyline GT-R');
     if (queryLower.includes('rx7') || queryLower.includes('rx-7')) suggestions.push('Mazda RX-7');
