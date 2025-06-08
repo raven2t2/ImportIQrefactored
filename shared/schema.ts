@@ -504,10 +504,110 @@ export type InsertAuctionListingRequest = z.infer<typeof insertAuctionListingSch
 export type ShopSuggestion = typeof shopSuggestions.$inferSelect;
 export type InsertShopSuggestion = typeof shopSuggestions.$inferInsert;
 
-// Global Vehicle Import Data Tables
-export const vinPatterns = pgTable("vin_patterns", {
+// Core PostgreSQL schemas for complete data persistence
+export const vehicleSpecs = pgTable("vehicle_specs", {
   id: serial("id").primaryKey(),
-  wmiCode: varchar("wmi_code", { length: 10 }).notNull().unique(),
+  vin: varchar("vin", { length: 17 }).unique(),
+  chassisCode: varchar("chassis_code", { length: 50 }),
+  make: varchar("make").notNull(),
+  model: varchar("model").notNull(),
+  year: integer("year").notNull(),
+  engine: varchar("engine"),
+  countryOfOrigin: varchar("country_of_origin").notNull(),
+  bodyType: varchar("body_type"),
+  confidenceScore: integer("confidence_score").notNull(),
+  sourceAttribution: text("source_attribution").notNull(),
+  sourceUrl: text("source_url"),
+  lastVerified: timestamp("last_verified").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const complianceRules = pgTable("compliance_rules", {
+  id: serial("id").primaryKey(),
+  country: varchar("country").notNull(),
+  region: varchar("region"), // state/province
+  rule: text("rule").notNull(),
+  notes: text("notes"),
+  minimumAge: integer("minimum_age"),
+  maximumAge: integer("maximum_age"),
+  leftHandDriveAllowed: boolean("left_hand_drive_allowed").default(true),
+  requirements: text("requirements").array(),
+  estimatedCosts: jsonb("estimated_costs"),
+  specialNotes: text("special_notes").array(),
+  confidenceScore: integer("confidence_score").notNull(),
+  sourceAttribution: text("source_attribution").notNull(),
+  sourceUrl: text("source_url"),
+  lastUpdated: timestamp("last_updated").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const shippingRoutes = pgTable("shipping_routes", {
+  id: serial("id").primaryKey(),
+  originCountry: varchar("origin_country").notNull(),
+  destCountry: varchar("dest_country").notNull(),
+  estCost: integer("est_cost").notNull(), // in USD cents
+  estDays: integer("est_days").notNull(),
+  routeName: varchar("route_name").notNull(),
+  originPort: varchar("origin_port"),
+  destinationPort: varchar("destination_port"),
+  serviceType: varchar("service_type"), // Container, RoRo, Air
+  confidenceScore: integer("confidence_score").notNull(),
+  sourceAttribution: text("source_attribution").notNull(),
+  sourceUrl: text("source_url"),
+  lastUpdated: timestamp("last_updated").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const marketDataSamples = pgTable("market_data_samples", {
+  id: serial("id").primaryKey(),
+  auctionSite: varchar("auction_site").notNull(),
+  carName: varchar("car_name").notNull(),
+  vin: varchar("vin", { length: 17 }),
+  priceUsd: integer("price_usd").notNull(), // in cents
+  dateListed: timestamp("date_listed").notNull(),
+  url: text("url").notNull(),
+  make: varchar("make"),
+  model: varchar("model"),
+  year: integer("year"),
+  mileage: varchar("mileage"),
+  condition: varchar("condition"),
+  location: varchar("location"),
+  confidenceScore: integer("confidence_score").notNull(),
+  sourceAttribution: text("source_attribution").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const exchangeRates = pgTable("exchange_rates", {
+  id: serial("id").primaryKey(),
+  fromCurrency: varchar("from_currency", { length: 3 }).notNull(),
+  toCurrency: varchar("to_currency", { length: 3 }).notNull(),
+  rate: decimal("rate", { precision: 10, scale: 6 }).notNull(),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+  confidenceScore: integer("confidence_score").notNull(),
+  sourceAttribution: text("source_attribution").notNull(),
+  sourceUrl: text("source_url"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const fallbackKeywords = pgTable("fallback_keywords", {
+  id: serial("id").primaryKey(),
+  inputVariation: varchar("input_variation").notNull(),
+  normalizedModel: varchar("normalized_model").notNull(),
+  matchScore: integer("match_score").notNull(), // 0-100
+  make: varchar("make"),
+  category: varchar("category"), // vin, model, chassis, etc
+  confidenceScore: integer("confidence_score").notNull(),
+  sourceAttribution: text("source_attribution").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Remove legacy tables that are replaced by new schemas above
+export const vinPatterns = pgTable("vin_patterns_legacy", {
+  id: serial("id").primaryKey(),
+  wmiCode: varchar("wmi_code", { length: 10 }).notNull(),
   manufacturer: varchar("manufacturer").notNull(),
   country: varchar("country").notNull(),
   countryCode: varchar("country_code", { length: 3 }).notNull(),
@@ -518,39 +618,6 @@ export const vinPatterns = pgTable("vin_patterns", {
   lastVerified: timestamp("last_verified").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-export const shippingRoutes = pgTable("shipping_routes", {
-  id: serial("id").primaryKey(),
-  originPort: varchar("origin_port").notNull(),
-  destinationPort: varchar("destination_port").notNull(),
-  originCountry: varchar("origin_country").notNull(),
-  destinationCountry: varchar("destination_country").notNull(),
-  estimatedCostUsd: integer("estimated_cost_usd").notNull(), // in cents
-  transitDays: integer("transit_days").notNull(),
-  serviceType: varchar("service_type").notNull(), // Container, RoRo, Air
-  confidence: integer("confidence").notNull(),
-  source: text("source").notNull(),
-  sourceUrl: text("source_url"),
-  lastUpdated: timestamp("last_updated").defaultNow(),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-export const complianceRules = pgTable("compliance_rules", {
-  id: serial("id").primaryKey(),
-  country: varchar("country").notNull(),
-  countryCode: varchar("country_code", { length: 2 }).notNull(),
-  minimumAge: integer("minimum_age"),
-  maximumAge: integer("maximum_age"),
-  leftHandDriveAllowed: boolean("left_hand_drive_allowed").default(true),
-  requirements: text("requirements").array(), // Array of requirement strings
-  estimatedCosts: jsonb("estimated_costs"), // JSON object with cost breakdown
-  specialNotes: text("special_notes").array(), // Array of special requirement notes
-  confidence: integer("confidence").notNull(),
-  source: text("source").notNull(),
-  sourceUrl: text("source_url"),
-  lastUpdated: timestamp("last_updated").defaultNow(),
-  createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const vehicleLookupRequests = pgTable("vehicle_lookup_requests", {
@@ -610,13 +677,21 @@ export const geographicCoverage = pgTable("geographic_coverage", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Type exports for new tables
-export type VinPattern = typeof vinPatterns.$inferSelect;
-export type InsertVinPattern = typeof vinPatterns.$inferInsert;
+// Type exports for PostgreSQL core schemas
+export type VehicleSpec = typeof vehicleSpecs.$inferSelect;
+export type InsertVehicleSpec = typeof vehicleSpecs.$inferInsert;
 export type ShippingRoute = typeof shippingRoutes.$inferSelect;
 export type InsertShippingRoute = typeof shippingRoutes.$inferInsert;
 export type ComplianceRule = typeof complianceRules.$inferSelect;
 export type InsertComplianceRule = typeof complianceRules.$inferInsert;
+export type MarketDataSample = typeof marketDataSamples.$inferSelect;
+export type InsertMarketDataSample = typeof marketDataSamples.$inferInsert;
+export type ExchangeRate = typeof exchangeRates.$inferSelect;
+export type InsertExchangeRate = typeof exchangeRates.$inferInsert;
+export type FallbackKeyword = typeof fallbackKeywords.$inferSelect;
+export type InsertFallbackKeyword = typeof fallbackKeywords.$inferInsert;
+export type VinPattern = typeof vinPatterns.$inferSelect;
+export type InsertVinPattern = typeof vinPatterns.$inferInsert;
 export type VehicleLookupRequest = typeof vehicleLookupRequests.$inferSelect;
 export type InsertVehicleLookupRequest = typeof vehicleLookupRequests.$inferInsert;
 export type DataQualityReport = typeof dataQualityReports.$inferSelect;

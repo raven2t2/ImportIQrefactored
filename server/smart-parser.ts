@@ -1,493 +1,532 @@
 /**
- * Smart Parser Result System - Trust-First Global Data Management
- * Handles fallback chaining, partial matches, and elegant data gap handling
+ * Smart Parser - PostgreSQL-Based Vehicle Intelligence Engine
+ * Complete refactor: No in-memory stores, JSON files, or ad-hoc object maps
+ * All data queries from PostgreSQL with confidence scoring and source attribution
  */
 
-import { db } from "./db";
-import { vinPatterns, shippingRoutes, complianceRules, vehicleLookupRequests, geographicCoverage } from "@shared/schema";
-import { eq, and, like, desc } from "drizzle-orm";
+import { db } from './db';
+import { 
+  vehicleSpecs, 
+  complianceRules, 
+  shippingRoutes, 
+  marketDataSamples, 
+  exchangeRates, 
+  fallbackKeywords,
+  vehicleLookupRequests 
+} from '@shared/schema';
+import { eq, and, or, like, ilike, desc, asc } from 'drizzle-orm';
 
-export interface SmartParseResult {
-  success: boolean;
-  confidence: number;
+export interface SmartParserResponse {
   data: any;
-  source: string;
-  gaps: DataGap[];
-  suggestions: ActionSuggestion[];
-  fallbackChain: string[];
-  processingTime: number;
-  adminOverride?: boolean;
+  confidenceScore: number;
+  sourceAttribution: string;
+  fallbackSuggestions?: string[];
+  lastUpdated?: string;
+  disclaimer?: string;
 }
 
-export interface DataGap {
-  type: 'missing_shipping' | 'missing_compliance' | 'missing_vin' | 'low_confidence';
-  description: string;
-  impact: 'low' | 'medium' | 'high' | 'critical';
-  suggestedAction: string;
-  contributionUrl?: string;
+export interface VINDecodeResult {
+  make?: string;
+  model?: string;
+  year?: number;
+  country?: string;
+  chassisCode?: string;
+  engine?: string;
+  bodyType?: string;
+  confidenceScore: number;
+  sourceAttribution: string;
 }
 
-export interface ActionSuggestion {
-  type: 'alternative_route' | 'similar_country' | 'contribute_data' | 'contact_support';
-  title: string;
-  description: string;
-  actionUrl?: string;
-  priority: number;
+export interface ComplianceCheckResult {
+  country: string;
+  region?: string;
+  isEligible: boolean;
+  minimumAge?: number;
+  maximumAge?: number;
+  requirements: string[];
+  estimatedCosts: any;
+  specialNotes: string[];
+  confidenceScore: number;
+  sourceAttribution: string;
 }
 
-export class SmartParser {
-  private startTime: number;
+export interface ShippingEstimate {
+  originCountry: string;
+  destCountry: string;
+  estCost: number;
+  estDays: number;
+  routeName: string;
+  confidenceScore: number;
+  sourceAttribution: string;
+}
 
-  constructor() {
-    this.startTime = Date.now();
-  }
+export interface MarketPricing {
+  averagePrice: number;
+  sampleCount: number;
+  priceRange: { min: number; max: number };
+  recentListings: any[];
+  confidenceScore: number;
+  sourceAttribution: string;
+}
 
+class PostgreSQLSmartParser {
+  
   /**
-   * Parse VIN with intelligent fallback and gap analysis
+   * Decode VIN using PostgreSQL vehicle_specs table
    */
-  async parseVIN(vin: string): Promise<SmartParseResult> {
-    const fallbackChain: string[] = [];
-    const gaps: DataGap[] = [];
-    const suggestions: ActionSuggestion[] = [];
-
+  async decodeVIN(vin: string): Promise<SmartParserResponse> {
     try {
-      // Primary: Exact WMI match
-      const wmiCode = vin.substring(0, 3);
-      fallbackChain.push(`Exact WMI match: ${wmiCode}`);
-
-      const [exactMatch] = await db
+      // Log the lookup request for audit trail
+      await this.logLookupRequest(vin, 'vin_decode');
+      
+      // Query exact VIN match first
+      const exactMatch = await db
         .select()
-        .from(vinPatterns)
-        .where(eq(vinPatterns.wmiCode, wmiCode))
+        .from(vehicleSpecs)
+        .where(eq(vehicleSpecs.vin, vin.toUpperCase()))
         .limit(1);
 
-      if (exactMatch) {
-        return this.buildResult({
-          success: true,
-          confidence: exactMatch.confidence,
+      if (exactMatch.length > 0) {
+        const spec = exactMatch[0];
+        return {
           data: {
-            make: exactMatch.manufacturer,
-            country: exactMatch.country,
-            countryCode: exactMatch.countryCode,
-            type: exactMatch.vehicleType,
-            year: this.extractYearFromVIN(vin),
-            source: exactMatch.source
+            make: spec.make,
+            model: spec.model,
+            year: spec.year,
+            country: spec.countryOfOrigin,
+            chassisCode: spec.chassisCode,
+            engine: spec.engine,
+            bodyType: spec.bodyType
           },
-          source: "Database Exact Match",
-          gaps,
-          suggestions,
-          fallbackChain
-        });
+          confidenceScore: spec.confidenceScore,
+          sourceAttribution: spec.sourceAttribution,
+          lastUpdated: spec.lastVerified?.toISOString()
+        };
       }
 
-      // Fallback: Partial WMI match
-      fallbackChain.push(`Partial WMI search: ${wmiCode.substring(0, 2)}*`);
+      // Try partial VIN matching (first 11 characters for WMI + VDS)
+      const partialVin = vin.substring(0, 11);
       const partialMatches = await db
         .select()
-        .from(vinPatterns)
-        .where(like(vinPatterns.wmiCode, `${wmiCode.substring(0, 2)}%`))
-        .orderBy(desc(vinPatterns.confidence))
-        .limit(3);
+        .from(vehicleSpecs)
+        .where(like(vehicleSpecs.vin, `${partialVin}%`))
+        .orderBy(desc(vehicleSpecs.confidenceScore))
+        .limit(5);
 
       if (partialMatches.length > 0) {
         const bestMatch = partialMatches[0];
-        gaps.push({
-          type: 'missing_vin',
-          description: `Exact WMI code ${wmiCode} not found, using similar pattern ${bestMatch.wmiCode}`,
-          impact: 'medium',
-          suggestedAction: 'Verify manufacturer details manually',
-          contributionUrl: '/contribute/vin-patterns'
-        });
-
-        suggestions.push({
-          type: 'contribute_data',
-          title: 'Help us improve VIN coverage',
-          description: `WMI code ${wmiCode} is not in our database. You can help by contributing this pattern.`,
-          actionUrl: '/contribute/vin-patterns',
-          priority: 1
-        });
-
-        return this.buildResult({
-          success: true,
-          confidence: Math.max(bestMatch.confidence - 20, 50),
+        const fallbacks = await this.getFallbackSuggestions(vin, 'vin');
+        
+        return {
           data: {
-            make: bestMatch.manufacturer,
-            country: bestMatch.country,
-            countryCode: bestMatch.countryCode,
-            type: bestMatch.vehicleType,
-            year: this.extractYearFromVIN(vin),
-            source: bestMatch.source,
-            note: `Partial match - exact WMI ${wmiCode} not found`
+            make: bestMatch.make,
+            model: bestMatch.model,
+            year: bestMatch.year,
+            country: bestMatch.countryOfOrigin,
+            chassisCode: bestMatch.chassisCode
           },
-          source: "Database Partial Match",
-          gaps,
-          suggestions,
-          fallbackChain
-        });
+          confidenceScore: Math.max(bestMatch.confidenceScore - 20, 60), // Reduce confidence for partial match
+          sourceAttribution: `${bestMatch.sourceAttribution} (Partial VIN match)`,
+          fallbackSuggestions: fallbacks,
+          disclaimer: "Partial VIN match - verify details with full vehicle inspection"
+        };
       }
 
-      // Final fallback: Generic patterns
-      fallbackChain.push("Generic manufacturer detection");
-      const genericData = this.applyGenericVINRules(vin);
-      
-      gaps.push({
-        type: 'missing_vin',
-        description: `VIN pattern ${wmiCode} not found in database`,
-        impact: 'high',
-        suggestedAction: 'Manual verification required',
-        contributionUrl: '/contribute/vin-patterns'
-      });
-
-      suggestions.push({
-        type: 'contribute_data',
-        title: 'Unknown VIN pattern detected',
-        description: 'This VIN pattern is not in our database. Contributing it will help other users.',
-        actionUrl: '/contribute/vin-patterns',
-        priority: 1
-      });
-
-      return this.buildResult({
-        success: true,
-        confidence: 30,
-        data: genericData,
-        source: "Generic Pattern Analysis",
-        gaps,
-        suggestions,
-        fallbackChain
-      });
+      // No matches found
+      const fallbacks = await this.getFallbackSuggestions(vin, 'vin');
+      return {
+        data: null,
+        confidenceScore: 0,
+        sourceAttribution: "No VIN match found in database",
+        fallbackSuggestions: fallbacks,
+        disclaimer: "VIN not found - consider manual vehicle verification"
+      };
 
     } catch (error) {
-      return this.buildResult({
-        success: false,
-        confidence: 0,
+      console.error('VIN decode error:', error);
+      return {
         data: null,
-        source: "Error",
-        gaps: [{
-          type: 'missing_vin',
-          description: `VIN parsing failed: ${error}`,
-          impact: 'critical',
-          suggestedAction: 'Check VIN format and try again'
-        }],
-        suggestions: [{
-          type: 'contact_support',
-          title: 'Need help with VIN lookup?',
-          description: 'Our support team can help identify this vehicle manually.',
-          actionUrl: '/contact',
-          priority: 1
-        }],
-        fallbackChain
-      });
+        confidenceScore: 0,
+        sourceAttribution: "Database query error",
+        disclaimer: "System error during VIN lookup"
+      };
     }
   }
 
   /**
-   * Find shipping routes with intelligent alternatives
+   * Check compliance using PostgreSQL compliance_rules table
    */
-  async findShippingRoutes(originCountry: string, destinationCountry: string): Promise<SmartParseResult> {
-    const fallbackChain: string[] = [];
-    const gaps: DataGap[] = [];
-    const suggestions: ActionSuggestion[] = [];
-
+  async checkCompliance(country: string, vehicleYear?: number, region?: string): Promise<SmartParserResponse> {
     try {
-      // Primary: Direct routes
-      fallbackChain.push(`Direct routes: ${originCountry} → ${destinationCountry}`);
-      
-      const directRoutes = await db
-        .select()
-        .from(shippingRoutes)
-        .where(and(
-          eq(shippingRoutes.originCountry, originCountry),
-          eq(shippingRoutes.destinationCountry, destinationCountry)
-        ))
-        .orderBy(desc(shippingRoutes.confidence));
+      await this.logLookupRequest(`${country}-${vehicleYear}-${region}`, 'compliance_check');
 
-      if (directRoutes.length > 0) {
-        return this.buildResult({
-          success: true,
-          confidence: Math.min(...directRoutes.map(r => r.confidence)),
-          data: directRoutes.map(route => ({
-            originPort: route.originPort,
-            destinationPort: route.destinationPort,
-            estimatedCostUSD: route.estimatedCostUsd / 100,
-            transitDays: route.transitDays,
-            serviceType: route.serviceType,
-            confidence: route.confidence,
-            source: route.source
-          })),
-          source: "Database Direct Routes",
-          gaps,
-          suggestions,
-          fallbackChain
-        });
-      }
-
-      // Fallback: Similar destination country routes
-      fallbackChain.push(`Similar routes from ${originCountry}`);
-      const similarRoutes = await db
-        .select()
-        .from(shippingRoutes)
-        .where(eq(shippingRoutes.originCountry, originCountry))
-        .orderBy(desc(shippingRoutes.confidence))
-        .limit(5);
-
-      if (similarRoutes.length > 0) {
-        gaps.push({
-          type: 'missing_shipping',
-          description: `No direct shipping routes found from ${originCountry} to ${destinationCountry}`,
-          impact: 'high',
-          suggestedAction: 'Consider alternative destination ports or shipping methods',
-          contributionUrl: '/contribute/shipping-routes'
-        });
-
-        suggestions.push({
-          type: 'alternative_route',
-          title: 'Alternative shipping destinations',
-          description: `We found routes from ${originCountry} to other countries. These may help estimate costs.`,
-          priority: 1
-        });
-
-        return this.buildResult({
-          success: true,
-          confidence: 40,
-          data: similarRoutes.map(route => ({
-            originPort: route.originPort,
-            destinationPort: route.destinationPort,
-            destinationCountry: route.destinationCountry,
-            estimatedCostUSD: route.estimatedCostUsd / 100,
-            transitDays: route.transitDays,
-            serviceType: route.serviceType,
-            confidence: route.confidence - 30,
-            source: route.source,
-            note: "Alternative destination - adjust for your target country"
-          })),
-          source: "Database Similar Routes",
-          gaps,
-          suggestions,
-          fallbackChain
-        });
-      }
-
-      // No routes found
-      gaps.push({
-        type: 'missing_shipping',
-        description: `No shipping routes found from ${originCountry}`,
-        impact: 'critical',
-        suggestedAction: 'Contact shipping providers directly or use alternative origin country',
-        contributionUrl: '/contribute/shipping-routes'
-      });
-
-      suggestions.push({
-        type: 'contribute_data',
-        title: 'Missing shipping data',
-        description: `Help expand coverage by contributing shipping routes from ${originCountry}.`,
-        actionUrl: '/contribute/shipping-routes',
-        priority: 1
-      });
-
-      return this.buildResult({
-        success: false,
-        confidence: 0,
-        data: null,
-        source: "No Data Available",
-        gaps,
-        suggestions,
-        fallbackChain
-      });
-
-    } catch (error) {
-      return this.buildResult({
-        success: false,
-        confidence: 0,
-        data: null,
-        source: "Error",
-        gaps: [{
-          type: 'missing_shipping',
-          description: `Shipping route lookup failed: ${error}`,
-          impact: 'critical',
-          suggestedAction: 'Try again or contact support'
-        }],
-        suggestions: [{
-          type: 'contact_support',
-          title: 'Technical issue detected',
-          description: 'Our team can help resolve this shipping lookup problem.',
-          actionUrl: '/contact',
-          priority: 1
-        }],
-        fallbackChain
-      });
-    }
-  }
-
-  /**
-   * Get compliance rules with regional alternatives
-   */
-  async getComplianceRules(countryCode: string, vehicleYear?: number): Promise<SmartParseResult> {
-    const fallbackChain: string[] = [];
-    const gaps: DataGap[] = [];
-    const suggestions: ActionSuggestion[] = [];
-
-    try {
-      fallbackChain.push(`Direct lookup: ${countryCode}`);
-      
-      const [rules] = await db
+      let query = db
         .select()
         .from(complianceRules)
-        .where(eq(complianceRules.countryCode, countryCode))
-        .limit(1);
+        .where(eq(complianceRules.country, country.toLowerCase()));
 
-      if (rules) {
-        return this.buildResult({
-          success: true,
-          confidence: rules.confidence,
-          data: {
-            country: rules.country,
-            minimumAge: rules.minimumAge,
-            maximumAge: rules.maximumAge,
-            leftHandDriveAllowed: rules.leftHandDriveAllowed,
-            requirements: rules.requirements,
-            estimatedCosts: rules.estimatedCosts,
-            specialNotes: rules.specialNotes,
-            source: rules.source
-          },
-          source: "Database Compliance Rules",
-          gaps,
-          suggestions,
-          fallbackChain
-        });
+      if (region) {
+        query = query.where(
+          or(
+            eq(complianceRules.region, region.toLowerCase()),
+            eq(complianceRules.region, null)
+          )
+        );
       }
 
-      gaps.push({
-        type: 'missing_compliance',
-        description: `Compliance rules for ${countryCode} not available`,
-        impact: 'critical',
-        suggestedAction: 'Contact local transport authority or import specialist',
-        contributionUrl: '/contribute/compliance-rules'
-      });
+      const rules = await query
+        .orderBy(desc(complianceRules.confidenceScore))
+        .limit(10);
 
-      suggestions.push({
-        type: 'contribute_data',
-        title: 'Missing compliance data',
-        description: `Help other importers by contributing compliance rules for ${countryCode}.`,
-        actionUrl: '/contribute/compliance-rules',
-        priority: 1
-      });
+      if (rules.length === 0) {
+        const fallbacks = await this.getFallbackSuggestions(country, 'compliance');
+        return {
+          data: null,
+          confidenceScore: 0,
+          sourceAttribution: "No compliance rules found",
+          fallbackSuggestions: fallbacks,
+          disclaimer: "Country not supported - contact customs authority"
+        };
+      }
 
-      return this.buildResult({
-        success: false,
-        confidence: 0,
-        data: null,
-        source: "No Data Available",
-        gaps,
-        suggestions,
-        fallbackChain
-      });
+      const primaryRule = rules[0];
+      const vehicleAge = vehicleYear ? new Date().getFullYear() - vehicleYear : 0;
+
+      // Check age eligibility
+      let isEligible = true;
+      if (primaryRule.minimumAge && vehicleAge < primaryRule.minimumAge) {
+        isEligible = false;
+      }
+      if (primaryRule.maximumAge && vehicleAge > primaryRule.maximumAge) {
+        isEligible = false;
+      }
+
+      const result: ComplianceCheckResult = {
+        country: primaryRule.country,
+        region: primaryRule.region,
+        isEligible,
+        minimumAge: primaryRule.minimumAge,
+        maximumAge: primaryRule.maximumAge,
+        requirements: primaryRule.requirements || [],
+        estimatedCosts: primaryRule.estimatedCosts || {},
+        specialNotes: primaryRule.specialNotes || [],
+        confidenceScore: primaryRule.confidenceScore,
+        sourceAttribution: primaryRule.sourceAttribution
+      };
+
+      return {
+        data: result,
+        confidenceScore: primaryRule.confidenceScore,
+        sourceAttribution: primaryRule.sourceAttribution,
+        lastUpdated: primaryRule.lastUpdated?.toISOString(),
+        disclaimer: isEligible ? undefined : "Vehicle may not meet import eligibility requirements"
+      };
 
     } catch (error) {
-      return this.buildResult({
-        success: false,
-        confidence: 0,
+      console.error('Compliance check error:', error);
+      return {
         data: null,
-        source: "Error",
-        gaps: [{
-          type: 'missing_compliance',
-          description: `Compliance lookup failed: ${error}`,
-          impact: 'critical',
-          suggestedAction: 'Try again or contact support'
-        }],
-        suggestions: [],
-        fallbackChain
-      });
+        confidenceScore: 0,
+        sourceAttribution: "Database query error",
+        disclaimer: "System error during compliance check"
+      };
     }
   }
 
   /**
-   * Get geographic coverage matrix
+   * Get shipping estimates using PostgreSQL shipping_routes table
    */
-  async getCoverageMatrix(): Promise<SmartParseResult> {
+  async getShippingEstimate(originCountry: string, destCountry: string): Promise<SmartParserResponse> {
     try {
-      const coverage = await db.select().from(geographicCoverage);
-      
-      return this.buildResult({
-        success: true,
-        confidence: 100,
-        data: coverage.map(c => ({
-          countryCode: c.countryCode,
-          countryName: c.countryName,
-          hasShippingData: c.hasShippingData,
-          hasComplianceData: c.hasComplianceData,
-          hasVinSupport: c.hasVinSupport,
-          coverageScore: c.coverageScore,
-          demandPriority: c.demandPriority
-        })),
-        source: "Geographic Coverage Database",
-        gaps: [],
-        suggestions: [],
-        fallbackChain: ["Coverage matrix lookup"]
-      });
+      await this.logLookupRequest(`${originCountry}-${destCountry}`, 'shipping_estimate');
+
+      const routes = await db
+        .select()
+        .from(shippingRoutes)
+        .where(
+          and(
+            eq(shippingRoutes.originCountry, originCountry.toLowerCase()),
+            eq(shippingRoutes.destCountry, destCountry.toLowerCase())
+          )
+        )
+        .orderBy(desc(shippingRoutes.confidenceScore))
+        .limit(5);
+
+      if (routes.length === 0) {
+        const fallbacks = await this.getFallbackSuggestions(`${originCountry}-${destCountry}`, 'shipping');
+        return {
+          data: null,
+          confidenceScore: 0,
+          sourceAttribution: "No shipping routes found",
+          fallbackSuggestions: fallbacks,
+          disclaimer: "Route not available - contact freight forwarder"
+        };
+      }
+
+      const bestRoute = routes[0];
+      const estimate: ShippingEstimate = {
+        originCountry: bestRoute.originCountry,
+        destCountry: bestRoute.destCountry,
+        estCost: bestRoute.estCost / 100, // Convert from cents
+        estDays: bestRoute.estDays,
+        routeName: bestRoute.routeName,
+        confidenceScore: bestRoute.confidenceScore,
+        sourceAttribution: bestRoute.sourceAttribution
+      };
+
+      return {
+        data: estimate,
+        confidenceScore: bestRoute.confidenceScore,
+        sourceAttribution: bestRoute.sourceAttribution,
+        lastUpdated: bestRoute.lastUpdated?.toISOString()
+      };
+
     } catch (error) {
-      return this.buildResult({
-        success: false,
-        confidence: 0,
+      console.error('Shipping estimate error:', error);
+      return {
         data: null,
-        source: "Error",
-        gaps: [],
-        suggestions: [],
-        fallbackChain: []
-      });
+        confidenceScore: 0,
+        sourceAttribution: "Database query error",
+        disclaimer: "System error during shipping calculation"
+      };
     }
   }
 
-  private buildResult(params: Omit<SmartParseResult, 'processingTime'>): SmartParseResult {
-    return {
-      ...params,
-      processingTime: Date.now() - this.startTime
-    };
+  /**
+   * Get market pricing using PostgreSQL market_data_samples table
+   */
+  async getMarketPricing(make: string, model: string, year?: number): Promise<SmartParserResponse> {
+    try {
+      await this.logLookupRequest(`${make}-${model}-${year}`, 'market_pricing');
+
+      let query = db
+        .select()
+        .from(marketDataSamples)
+        .where(
+          and(
+            ilike(marketDataSamples.make, `%${make}%`),
+            ilike(marketDataSamples.model, `%${model}%`)
+          )
+        );
+
+      if (year) {
+        query = query.where(eq(marketDataSamples.year, year));
+      }
+
+      const samples = await query
+        .orderBy(desc(marketDataSamples.dateListed))
+        .limit(50);
+
+      if (samples.length === 0) {
+        const fallbacks = await this.getFallbackSuggestions(`${make} ${model}`, 'market');
+        return {
+          data: null,
+          confidenceScore: 0,
+          sourceAttribution: "No market data found",
+          fallbackSuggestions: fallbacks,
+          disclaimer: "Insufficient market data for pricing analysis"
+        };
+      }
+
+      const prices = samples.map(s => s.priceUsd / 100); // Convert from cents
+      const averagePrice = prices.reduce((a, b) => a + b) / prices.length;
+      const minPrice = Math.min(...prices);
+      const maxPrice = Math.max(...prices);
+
+      const pricing: MarketPricing = {
+        averagePrice,
+        sampleCount: samples.length,
+        priceRange: { min: minPrice, max: maxPrice },
+        recentListings: samples.slice(0, 10).map(s => ({
+          auctionSite: s.auctionSite,
+          carName: s.carName,
+          price: s.priceUsd / 100,
+          dateListed: s.dateListed,
+          url: s.url
+        })),
+        confidenceScore: Math.min(samples.length * 2 + 60, 95), // Higher confidence with more samples
+        sourceAttribution: `Market analysis from ${samples.length} auction listings`
+      };
+
+      return {
+        data: pricing,
+        confidenceScore: pricing.confidenceScore,
+        sourceAttribution: pricing.sourceAttribution,
+        lastUpdated: samples[0]?.dateListed?.toISOString()
+      };
+
+    } catch (error) {
+      console.error('Market pricing error:', error);
+      return {
+        data: null,
+        confidenceScore: 0,
+        sourceAttribution: "Database query error",
+        disclaimer: "System error during market analysis"
+      };
+    }
   }
 
-  private extractYearFromVIN(vin: string): number | null {
-    if (vin.length < 10) return null;
-    
-    const yearChar = vin.charAt(9);
-    const yearMap: { [key: string]: number } = {
-      'A': 1980, 'B': 1981, 'C': 1982, 'D': 1983, 'E': 1984, 'F': 1985, 'G': 1986, 'H': 1987,
-      'J': 1988, 'K': 1989, 'L': 1990, 'M': 1991, 'N': 1992, 'P': 1993, 'R': 1994, 'S': 1995,
-      'T': 1996, 'V': 1997, 'W': 1998, 'X': 1999, 'Y': 2000, '1': 2001, '2': 2002, '3': 2003,
-      '4': 2004, '5': 2005, '6': 2006, '7': 2007, '8': 2008, '9': 2009, 'A': 2010, 'B': 2011,
-      'C': 2012, 'D': 2013, 'E': 2014, 'F': 2015, 'G': 2016, 'H': 2017, 'J': 2018, 'K': 2019,
-      'L': 2020, 'M': 2021, 'N': 2022, 'P': 2023, 'R': 2024, 'S': 2025
-    };
+  /**
+   * Get current exchange rates from PostgreSQL
+   */
+  async getExchangeRate(fromCurrency: string, toCurrency: string): Promise<SmartParserResponse> {
+    try {
+      const rate = await db
+        .select()
+        .from(exchangeRates)
+        .where(
+          and(
+            eq(exchangeRates.fromCurrency, fromCurrency.toUpperCase()),
+            eq(exchangeRates.toCurrency, toCurrency.toUpperCase())
+          )
+        )
+        .orderBy(desc(exchangeRates.timestamp))
+        .limit(1);
 
-    return yearMap[yearChar] || null;
+      if (rate.length === 0) {
+        return {
+          data: null,
+          confidenceScore: 0,
+          sourceAttribution: "No exchange rate found",
+          disclaimer: "Currency pair not available"
+        };
+      }
+
+      return {
+        data: {
+          rate: parseFloat(rate[0].rate),
+          fromCurrency: rate[0].fromCurrency,
+          toCurrency: rate[0].toCurrency,
+          timestamp: rate[0].timestamp
+        },
+        confidenceScore: rate[0].confidenceScore,
+        sourceAttribution: rate[0].sourceAttribution,
+        lastUpdated: rate[0].timestamp.toISOString()
+      };
+
+    } catch (error) {
+      console.error('Exchange rate error:', error);
+      return {
+        data: null,
+        confidenceScore: 0,
+        sourceAttribution: "Database query error",
+        disclaimer: "System error during currency lookup"
+      };
+    }
   }
 
-  private applyGenericVINRules(vin: string): any {
-    const firstChar = vin.charAt(0);
-    
-    // Generic country detection based on first character
-    const countryMap: { [key: string]: { country: string, code: string } } = {
-      '1': { country: 'United States', code: 'US' },
-      '2': { country: 'Canada', code: 'CA' },
-      '3': { country: 'Mexico', code: 'MX' },
-      'J': { country: 'Japan', code: 'JP' },
-      'K': { country: 'South Korea', code: 'KR' },
-      'L': { country: 'China', code: 'CN' },
-      'S': { country: 'United Kingdom', code: 'GB' },
-      'W': { country: 'Germany', code: 'DE' },
-      'V': { country: 'France', code: 'FR' },
-      'Z': { country: 'Italy', code: 'IT' }
-    };
+  /**
+   * Get fallback suggestions from PostgreSQL fallback_keywords table
+   */
+  private async getFallbackSuggestions(input: string, category: string): Promise<string[]> {
+    try {
+      const suggestions = await db
+        .select()
+        .from(fallbackKeywords)
+        .where(
+          and(
+            or(
+              ilike(fallbackKeywords.inputVariation, `%${input}%`),
+              ilike(fallbackKeywords.normalizedModel, `%${input}%`)
+            ),
+            eq(fallbackKeywords.category, category)
+          )
+        )
+        .orderBy(desc(fallbackKeywords.matchScore))
+        .limit(5);
 
-    const detected = countryMap[firstChar] || { country: 'Unknown', code: 'XX' };
+      return suggestions.map(s => s.normalizedModel);
+    } catch (error) {
+      console.error('Fallback suggestions error:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Log lookup request for audit trail and analytics
+   */
+  private async logLookupRequest(identifier: string, lookupType: string): Promise<void> {
+    try {
+      await db.insert(vehicleLookupRequests).values({
+        identifier,
+        lookupType,
+        timestamp: new Date(),
+        userAgent: 'SmartParser',
+        ipAddress: '127.0.0.1'
+      });
+    } catch (error) {
+      // Silent fail for logging - don't break main functionality
+      console.error('Lookup logging error:', error);
+    }
+  }
+
+  /**
+   * Get comprehensive vehicle analysis combining all data sources
+   */
+  async getVehicleAnalysis(identifier: string): Promise<SmartParserResponse> {
+    const analyses = [];
+
+    // Try VIN decode first
+    if (identifier.length === 17) {
+      const vinResult = await this.decodeVIN(identifier);
+      if (vinResult.data) {
+        analyses.push({
+          type: 'vin_decode',
+          ...vinResult
+        });
+      }
+    }
+
+    // Extract make/model if possible and get market data
+    const makeModelMatch = identifier.match(/(\w+)\s+(\w+)/);
+    if (makeModelMatch) {
+      const [, make, model] = makeModelMatch;
+      const marketResult = await this.getMarketPricing(make, model);
+      if (marketResult.data) {
+        analyses.push({
+          type: 'market_pricing',
+          ...marketResult
+        });
+      }
+    }
+
+    if (analyses.length === 0) {
+      return {
+        data: null,
+        confidenceScore: 0,
+        sourceAttribution: "No analysis possible",
+        disclaimer: "Unable to analyze provided identifier"
+      };
+    }
+
+    const avgConfidence = analyses.reduce((sum, a) => sum + a.confidenceScore, 0) / analyses.length;
     
     return {
-      make: 'Unknown',
-      country: detected.country,
-      countryCode: detected.code,
-      type: 'Passenger Car',
-      year: this.extractYearFromVIN(vin),
-      source: 'Generic VIN Pattern Analysis'
+      data: {
+        analysisTypes: analyses.map(a => a.type),
+        results: analyses.map(({ type, data, sourceAttribution }) => ({
+          type,
+          data,
+          sourceAttribution
+        }))
+      },
+      confidenceScore: Math.round(avgConfidence),
+      sourceAttribution: `Combined analysis from ${analyses.length} data sources`,
+      disclaimer: "Comprehensive analysis based on available data"
     };
   }
 }
 
-export const smartParser = new SmartParser();
+// Export singleton instance
+export const smartParser = new PostgreSQLSmartParser();
+
+// Legacy compatibility exports
+export const decodeVIN = (vin: string) => smartParser.decodeVIN(vin);
+export const checkCompliance = (country: string, year?: number, region?: string) => 
+  smartParser.checkCompliance(country, year, region);
+export const getShippingEstimate = (origin: string, dest: string) => 
+  smartParser.getShippingEstimate(origin, dest);
+export const getMarketPricing = (make: string, model: string, year?: number) => 
+  smartParser.getMarketPricing(make, model, year);
+export const getExchangeRate = (from: string, to: string) => 
+  smartParser.getExchangeRate(from, to);
