@@ -502,9 +502,9 @@ async function parseGooNetURL(url: string): Promise<ExtractedVehicleData> {
  */
 function extractFromURLPattern(url: string): ExtractedVehicleData {
   const urlPatterns = [
-    // Goo-net Exchange: /usedcars/NISSAN/SKYLINE/700020718930250607C
+    // Goo-net Exchange variations
     {
-      pattern: /\/usedcars\/([A-Z]+)\/([A-Z0-9\-]+)\/([A-Z0-9]+)/,
+      pattern: /goo-net.*\/usedcars\/([A-Z]+)\/([A-Z0-9\-]+)/i,
       extract: (match: RegExpMatchArray) => {
         const [, make, model] = match;
         const makeMapping: { [key: string]: string } = {
@@ -513,12 +513,24 @@ function extractFromURLPattern(url: string): ExtractedVehicleData {
         };
         const modelMapping: { [key: string]: string } = {
           'SKYLINE': 'Skyline', 'SILVIA': 'Silvia', 'SUPRA': 'Supra',
-          'RX7': 'RX-7', 'IMPREZA': 'Impreza', 'LANCER': 'Lancer'
+          'RX7': 'RX-7', 'RX-7': 'RX-7', 'IMPREZA': 'Impreza', 'LANCER': 'Lancer'
         };
         return {
-          year: 2010, // Default for used car listings
-          make: makeMapping[make] || make,
+          year: 2015, // Modern default for used cars
+          make: makeMapping[make] || make.charAt(0) + make.slice(1).toLowerCase(),
           model: modelMapping[model] || model.replace(/\-/g, ' ')
+        };
+      }
+    },
+    // Goo-net standard format
+    {
+      pattern: /\/usedcars\/([A-Z]+)\/([A-Z0-9\-]+)/i,
+      extract: (match: RegExpMatchArray) => {
+        const [, make, model] = match;
+        return {
+          year: 2015,
+          make: make.charAt(0) + make.slice(1).toLowerCase(),
+          model: model.replace(/\-/g, ' ')
         };
       }
     },
