@@ -139,6 +139,7 @@ function Router() {
       <Route path="/import-flow" component={ImportFlow} />
       <Route path="/eligibility-check" component={EligibilityCheck} />
       <Route path="/import-journey" component={ImportJourney} />
+      <Route path="/global-compliance" component={GlobalCompliance} />
       <Route component={NotFound} />
     </Switch>
   );
