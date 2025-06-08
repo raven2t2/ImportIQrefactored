@@ -25,7 +25,7 @@ import {
   lookupAnalytics, 
   vehicleModelPatterns 
 } from '@shared/schema';
-import { eq, desc, update } from 'drizzle-orm';
+import { eq, desc } from 'drizzle-orm';
 import { dataSeeder } from './data-seeder';
 import { getLiveMarketData, updateCachedVehicle, removeCachedVehicle } from "./live-market-data";
 import { saveVehicleCustomization } from "./vehicle-customizations";

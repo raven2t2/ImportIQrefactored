@@ -849,9 +849,9 @@ class PostgreSQLSmartParser {
 
         // Generate contextual next steps based on the matched vehicle
         const nextSteps = this.generateVehicleNextSteps(
-          bestMatch.canonical_make, 
-          bestMatch.canonical_model, 
-          bestMatch.year_range_start, 
+          bestMatch.canonicalMake, 
+          bestMatch.canonicalModel, 
+          bestMatch.yearRangeStart || 1990, 
           'japan' // Most pattern matches are JDM
         );
 
@@ -861,18 +861,18 @@ class PostgreSQLSmartParser {
           const inputYear = parseInt(yearMatch[0]);
           const fullYear = inputYear < 50 ? 2000 + inputYear : inputYear < 100 ? 1900 + inputYear : inputYear;
           
-          if (fullYear >= bestMatch.year_range_start && fullYear <= bestMatch.year_range_end) {
+          if (bestMatch.yearRangeStart && bestMatch.yearRangeEnd && fullYear >= bestMatch.yearRangeStart && fullYear <= bestMatch.yearRangeEnd) {
             nextSteps.unshift({
               title: `${fullYear} Model Year Confirmed`,
-              description: `This year falls within the ${bestMatch.canonical_make} ${bestMatch.canonical_model} production range`,
+              description: `This year falls within the ${bestMatch.canonicalMake} ${bestMatch.canonicalModel} production range`,
               priority: 'high',
               category: 'year_validation',
               estimatedTime: '1 minute'
             });
-          } else {
+          } else if (bestMatch.yearRangeStart && bestMatch.yearRangeEnd) {
             nextSteps.unshift({
               title: 'Year Range Mismatch',
-              description: `${fullYear} is outside the production range (${bestMatch.year_range_start}-${bestMatch.year_range_end}). Verify model year.`,
+              description: `${fullYear} is outside the production range (${bestMatch.yearRangeStart}-${bestMatch.yearRangeEnd}). Verify model year.`,
               priority: 'high',
               category: 'year_validation',
               estimatedTime: '5 minutes'
@@ -882,23 +882,23 @@ class PostgreSQLSmartParser {
 
         // Get strategic intelligence for matched vehicle
         const userIntent = await this.classifyUserIntent(query);
-        const importRiskIndex = await this.calculateImportRiskIndex(bestMatch.canonical_make, bestMatch.canonical_model, bestMatch.year_range_start);
-        const strategicRecommendations = await this.getStrategicRecommendations(bestMatch.canonical_make, bestMatch.canonical_model, 'australia');
+        const importRiskIndex = await this.calculateImportRiskIndex(bestMatch.canonicalMake, bestMatch.canonicalModel, bestMatch.yearRangeStart || 1990);
+        const strategicRecommendations = await this.getStrategicRecommendations(bestMatch.canonicalMake, bestMatch.canonicalModel, 'australia');
 
         return {
           data: {
-            make: bestMatch.canonical_make,
-            model: bestMatch.canonical_model,
-            chassisCode: bestMatch.chassis_code,
-            yearRange: `${bestMatch.year_range_start}-${bestMatch.year_range_end}`,
-            engine: bestMatch.engine_pattern,
-            bodyType: bestMatch.body_type,
-            specialNotes: bestMatch.special_notes
+            make: bestMatch.canonicalMake,
+            model: bestMatch.canonicalModel,
+            chassisCode: bestMatch.chassisCode,
+            yearRange: bestMatch.yearRangeStart && bestMatch.yearRangeEnd ? `${bestMatch.yearRangeStart}-${bestMatch.yearRangeEnd}` : 'Unknown',
+            engine: bestMatch.enginePattern,
+            bodyType: bestMatch.bodyType,
+            specialNotes: bestMatch.specialNotes
           },
-          confidenceScore: bestMatch.confidence_score,
-          sourceAttribution: bestMatch.source_attribution,
+          confidenceScore: bestMatch.confidenceScore,
+          sourceAttribution: bestMatch.sourceAttribution || 'Pattern Database',
           sourceBreakdown,
-          whyThisResult: `Pattern "${normalizedQuery}" matched ${bestMatch.canonical_make} ${bestMatch.canonical_model} with ${bestMatch.confidence_score}% confidence. This vehicle is recognized in our enthusiast database with chassis code ${bestMatch.chassis_code}.`,
+          whyThisResult: `Pattern "${normalizedQuery}" matched ${bestMatch.canonicalMake} ${bestMatch.canonicalModel} with ${bestMatch.confidenceScore}% confidence. This vehicle is recognized in our enthusiast database with chassis code ${bestMatch.chassisCode || 'N/A'}.`,
           nextSteps,
           userIntent,
           importRiskIndex,
