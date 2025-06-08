@@ -159,15 +159,77 @@ export default function ImportFlow() {
     return 'Poor';
   };
 
-  // Show processing screen when analyzing
+  // Progressive feedback hooks (must be called unconditionally)
+  const [progress, setProgress] = useState(0);
+  const [currentTask, setCurrentTask] = useState('Extracting vehicle data...');
+
+  useEffect(() => {
+    if (currentStep === 'processing' || extractMutation.isPending || checkEligibilityMutation.isPending) {
+      const tasks = [
+        'Extracting vehicle data...',
+        'Analyzing auction history...',
+        'Calculating import costs...',
+        'Checking global eligibility...',
+        'Finding similar vehicles...',
+        'Preparing your report...'
+      ];
+
+      let taskIndex = 0;
+      let progressValue = 0;
+
+      const interval = setInterval(() => {
+        progressValue += Math.random() * 15 + 5;
+        if (progressValue > 95) progressValue = 95;
+        
+        setProgress(progressValue);
+        
+        if (progressValue > 20 * (taskIndex + 1) && taskIndex < tasks.length - 1) {
+          taskIndex++;
+          setCurrentTask(tasks[taskIndex]);
+        }
+      }, 800);
+
+      return () => clearInterval(interval);
+    }
+  }, [currentStep, extractMutation.isPending, checkEligibilityMutation.isPending]);
+
+  // Show processing screen with progressive feedback
   if (currentStep === 'processing' || extractMutation.isPending || checkEligibilityMutation.isPending) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <div className="text-center space-y-6">
-          <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <div className="space-y-2">
-            <h2 className="text-2xl font-bold text-amber-500">Analyzing Your Vehicle</h2>
-            <p className="text-gray-300">Extracting data and calculating import possibilities...</p>
+        <div className="text-center space-y-8 max-w-md">
+          <div className="w-20 h-20 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          
+          <div className="space-y-4">
+            <h2 className="text-3xl font-bold text-amber-500">Analyzing Your Vehicle</h2>
+            <p className="text-xl text-gray-300">{currentTask}</p>
+            
+            <div className="w-full bg-gray-800 rounded-full h-2">
+              <div 
+                className="bg-gradient-to-r from-amber-500 to-yellow-400 h-2 rounded-full transition-all duration-500"
+                style={{ width: `${progress}%` }}
+              ></div>
+            </div>
+            <p className="text-sm text-gray-400">{Math.round(progress)}% complete</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 text-xs text-gray-500">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <span>Market data updated</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+              <span>Global compliance check</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+              <span>Cost calculation</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
+              <span>Auction matching</span>
+            </div>
           </div>
         </div>
       </div>
