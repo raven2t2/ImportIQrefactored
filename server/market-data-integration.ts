@@ -26,6 +26,7 @@ interface MarketVehicle {
   description: string;
   lastUpdated: string;
   source: string;
+  condition: string;
 }
 
 interface MarketData {
@@ -84,7 +85,8 @@ function convertJapaneseItem(listing: any, exchangeRates: { jpyToAud: number }):
     engineSize: listing.specifications?.engine || 'Unknown',
     description: listing.description || '',
     lastUpdated: new Date().toISOString(),
-    source: 'Japanese Auctions'
+    source: 'Japanese Auctions',
+    condition: listing.grading || 'Grade A'
   };
 }
 
@@ -110,7 +112,8 @@ function convertUSItem(listing: any, exchangeRates: { usdToAud: number }): Marke
     engineSize: listing.engineSize || 'Unknown',
     description: listing.description || '',
     lastUpdated: new Date().toISOString(),
-    source: 'US Auctions'
+    source: 'US Auctions',
+    condition: listing.condition || 'Run and Drive'
   };
 }
 
