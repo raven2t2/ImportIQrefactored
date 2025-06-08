@@ -30,6 +30,7 @@ import Subscribe from "@/pages/subscribe";
 import Pricing from "@/pages/pricing";
 import ValueEstimator from "@/pages/value-estimator";
 import VehicleLookup from "@/pages/vehicle-lookup";
+import { VehicleLookup as VehicleLookupNew } from "@/pages/VehicleLookup";
 import { SmartLookupPage } from "@/pages/smart-lookup";
 import CustomPlates from "@/pages/custom-plates";
 import RegistrationStats from "@/pages/registration-stats";
@@ -89,6 +90,7 @@ function Router() {
       <Route path="/mod-cost-estimator" component={ModCostEstimator} />
       <Route path="/value-estimator" component={ValueEstimator} />
       <Route path="/vehicle-lookup" component={VehicleLookup} />
+      <Route path="/vehicle-intelligence" component={VehicleLookupNew} />
       <Route path="/lookup" component={SmartLookupPage} />
       <Route path="/smart-lookup" component={SmartLookupPage} />
       <Route path="/registration-stats" component={RegistrationStats} />
