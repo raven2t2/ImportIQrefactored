@@ -2941,6 +2941,7 @@ Respond with a JSON object containing your recommendations.`;
   app.post("/api/smart-parse", async (req: any, res) => {
     try {
       const { input, type } = req.body;
+      const { enhanceVinData, enhanceUrlData, enhanceChassisData, enhanceModelData } = await import('./smart-validation-engine');
       
       let enhancedData: any = {};
       
@@ -2970,6 +2971,7 @@ Respond with a JSON object containing your recommendations.`;
   app.post("/api/check-eligibility", async (req: any, res) => {
     try {
       const { vehicleData, targetCountries } = req.body;
+      const { checkCountryEligibility, generateRecommendations } = await import('./smart-validation-engine');
       
       const eligibilityResults = await Promise.all(
         targetCountries.map(async (country: string) => {

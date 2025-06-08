@@ -29,10 +29,12 @@ export function SmartLookupPage() {
   // Check eligibility mutation
   const eligibilityMutation = useMutation({
     mutationFn: async (data: { vehicleData: any; targetCountries: string[] }) => {
-      return apiRequest('/api/check-eligibility', {
+      const response = await fetch('/api/check-eligibility', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
+      return response.json();
     },
     onSuccess: (data) => {
       setEligibilityResults(data);
