@@ -12,7 +12,13 @@ import {
   marketDataSamples, 
   exchangeRates, 
   fallbackKeywords,
-  vehicleLookupRequests 
+  vehicleLookupRequests,
+  vehicleManufacturers,
+  portIntelligence,
+  regionalComplianceDetails,
+  auctionHouses,
+  customsDuties,
+  vehicleSafetyRecalls
 } from '@shared/schema';
 import { eq, and, or, like, ilike, desc, asc } from 'drizzle-orm';
 
