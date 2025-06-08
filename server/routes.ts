@@ -3804,13 +3804,28 @@ Respond with a JSON object containing your recommendations.`;
     try {
       const { vehicleData, destination, sessionToken } = req.body;
       
-      // Generate comprehensive import intelligence
+      // Import narrative engine
+      const { NarrativeEngine } = await import('./narrative-engine');
+      
+      // Get vehicle hero data from database
+      const heroData = await db.select()
+        .from(vehicleHeads)
+        .where(sql`${vehicleHeads.make} ILIKE ${vehicleData?.make || ''} AND ${vehicleHeads.model} ILIKE ${vehicleData?.model || ''}`)
+        .limit(1);
+      
+      const costBreakdown = await generateCostBreakdown(vehicleData, destination);
+      const narrative = NarrativeEngine.generateJourneyNarrative(vehicleData, costBreakdown, destination);
+      
+      // Enhanced intelligence with emotional narrative
       const intelligence = {
         vehicle: {
           make: vehicleData?.make || 'Unknown',
           model: vehicleData?.model || 'Unknown', 
           chassis: vehicleData?.chassis || '',
-          year: vehicleData?.year || ''
+          year: vehicleData?.year || '',
+          heroStatus: heroData[0]?.heroStatus || 'rising',
+          emotionalDescription: heroData[0]?.emotionalDescription || 'A vehicle with character and potential',
+          culturalSignificance: heroData[0]?.culturalSignificance || 'Part of automotive culture'
         },
         destination: {
           country: destination || 'australia',
@@ -3821,14 +3836,15 @@ Respond with a JSON object containing your recommendations.`;
           status: 'eligible',
           confidence: 95,
           timeline: '6-12 weeks',
-          keyFactors: [
+          keyFactors: heroData[0]?.keyAppealFactors || [
             '25-year rule compliance',
-            'Right-hand drive vehicle',
+            'Right-hand drive vehicle', 
             'Standard modification requirements'
           ]
         },
-        costs: await generateCostBreakdown(vehicleData, destination),
+        costs: costBreakdown,
         timeline: generateImportTimeline(vehicleData, destination),
+        narrative: narrative,
         nextSteps: [
           {
             title: 'Vehicle Purchase',
