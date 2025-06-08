@@ -1402,7 +1402,47 @@ Keep each recommendation under 40 words, factually accurate, and realistic.`;
       // Force vintage detection for known American muscle patterns
       const forceVintage = hasVintageAmericanPattern;
       
-      // Enhanced VIN/Code Detection for classic American muscle cars
+      // Use comprehensive global vehicle detection system
+      const { detectGlobalVehicle } = await import('./global-vehicle-database');
+      const globalDetection = detectGlobalVehicle(identifier);
+      
+      if (globalDetection.success) {
+        // Get auction samples and eligibility check
+        const auctionSamples = getAuctionSamples(globalDetection.data!.make, globalDetection.data!.model, parseInt(globalDetection.data!.years.split('-')[0]) || 2000);
+        const eligibilityCheck = await checkCountryEligibility(globalDetection.data!, 'AU');
+        
+        return res.json({
+          success: true,
+          type: globalDetection.type,
+          data: {
+            make: globalDetection.data!.make,
+            model: globalDetection.data!.model,
+            year: globalDetection.data!.years,
+            engine: globalDetection.data!.engine,
+            displacement: globalDetection.data!.displacement,
+            power: globalDetection.data!.power,
+            torque: globalDetection.data!.torque,
+            drivetrain: globalDetection.data!.drivetrain,
+            transmission: globalDetection.data!.transmission,
+            fuelType: "Gasoline",
+            origin: globalDetection.data!.origin,
+            country: globalDetection.data!.country,
+            technicalSpecs: {
+              name: `${globalDetection.data!.make} ${globalDetection.data!.model}`,
+              years: globalDetection.data!.years,
+              engine: globalDetection.data!.engine,
+              modifications: globalDetection.data!.modifications,
+              analysisType: 'Complete Technical & Modification Analysis'
+            }
+          },
+          auctionSamples,
+          eligibility: eligibilityCheck,
+          dataSource: 'Global Vehicle Database',
+          note: `Detected ${globalDetection.type === 'vin' ? 'VIN' : globalDetection.type === 'chassis' ? 'chassis code' : 'model name'} with comprehensive technical specifications`
+        });
+      }
+      
+      // Enhanced VIN/Code Detection for classic American muscle cars (fallback)
       const isModernVin = identifier.length === 17 && /^[A-HJ-NPR-Z0-9]{17}$/i.test(identifier);
       const isVintageVin = (hasVintageAmericanPattern || /^[0-9A-Z]{11,13}[0-9N][0-9A-Z]{0,2}$/i.test(identifier)) && identifier.length >= 11 && identifier.length <= 15;
       
@@ -3068,16 +3108,48 @@ Respond with a JSON object containing your recommendations.`;
         
         const chassisCode = input.toUpperCase();
         
-        // Enhanced chassis code mapping and data for JDM vehicles
+        // Comprehensive global chassis code mapping
         const chassisMapping: Record<string, {wmi: string, model: string, make: string, modelName: string, years: string, engine: string}> = {
+          // JDM Legends
           'JZA80': { wmi: 'JT2', model: 'A80', make: 'Toyota', modelName: 'Supra', years: '1993–2002', engine: '2JZ-GTE' },
           'BNR32': { wmi: 'JN1', model: 'R32', make: 'Nissan', modelName: 'Skyline GT-R', years: '1989–1994', engine: 'RB26DETT' },
+          'BNR33': { wmi: 'JN1', model: 'R33', make: 'Nissan', modelName: 'Skyline GT-R', years: '1995–1998', engine: 'RB26DETT' },
           'BNR34': { wmi: 'JN1', model: 'R34', make: 'Nissan', modelName: 'Skyline GT-R', years: '1999–2002', engine: 'RB26DETT' },
           'S13': { wmi: 'JN1', model: 'S13', make: 'Nissan', modelName: '180SX/240SX', years: '1988–1997', engine: 'SR20DET' },
           'S14': { wmi: 'JN1', model: 'S14', make: 'Nissan', modelName: '200SX/240SX', years: '1993–1998', engine: 'SR20DET' },
           'S15': { wmi: 'JN1', model: 'S15', make: 'Nissan', modelName: 'Silvia', years: '1999–2002', engine: 'SR20DET' },
           'FD3S': { wmi: 'JM1', model: 'FD3S', make: 'Mazda', modelName: 'RX-7', years: '1992–2002', engine: '13B-REW' },
-          'SW20': { wmi: 'JT2', model: 'SW20', make: 'Toyota', modelName: 'MR2', years: '1989–1999', engine: '3S-GTE' }
+          'SW20': { wmi: 'JT2', model: 'SW20', make: 'Toyota', modelName: 'MR2', years: '1989–1999', engine: '3S-GTE' },
+          'EK9': { wmi: 'JHM', model: 'EK9', make: 'Honda', modelName: 'Civic Type R', years: '1997–2000', engine: 'B16B' },
+          'DC2': { wmi: 'JHM', model: 'DC2', make: 'Honda', modelName: 'Integra Type R', years: '1995–2001', engine: 'B18C' },
+          'NA1': { wmi: 'JH4', model: 'NA1', make: 'Honda', modelName: 'NSX', years: '1991–2005', engine: 'C30A' },
+          'GC8': { wmi: 'JF1', model: 'GC8', make: 'Subaru', modelName: 'Impreza WRX', years: '1993–2001', engine: 'EJ20T' },
+          'GD': { wmi: 'JF1', model: 'GD', make: 'Subaru', modelName: 'Impreza STI', years: '2001–2007', engine: 'EJ257' },
+          'CT9A': { wmi: 'JA3', model: 'CT9A', make: 'Mitsubishi', modelName: 'Lancer Evolution', years: '2003–2006', engine: '4G63T' },
+          'AE86': { wmi: 'JT2', model: 'AE86', make: 'Toyota', modelName: 'Corolla', years: '1983–1987', engine: '4A-GE' },
+          'JZX100': { wmi: 'JT2', model: 'JZX100', make: 'Toyota', modelName: 'Chaser', years: '1996–2001', engine: '1JZ-GTE' },
+          'Z32': { wmi: 'JN1', model: 'Z32', make: 'Nissan', modelName: '300ZX', years: '1990–1996', engine: 'VG30DETT' },
+          
+          // American Muscle Chassis Codes
+          'SN95': { wmi: '1FA', model: 'SN95', make: 'Ford', modelName: 'Mustang', years: '1994–2004', engine: '4.6L V8' },
+          'S197': { wmi: '1FA', model: 'S197', make: 'Ford', modelName: 'Mustang', years: '2005–2014', engine: '5.0L Coyote' },
+          'S550': { wmi: '1FA', model: 'S550', make: 'Ford', modelName: 'Mustang', years: '2015–2023', engine: '5.0L Coyote' },
+          'F-BODY': { wmi: '1G1', model: 'F-Body', make: 'Chevrolet', modelName: 'Camaro', years: '1993–2002', engine: 'LS1' },
+          'C6': { wmi: '1G1', model: 'C6', make: 'Chevrolet', modelName: 'Corvette', years: '2005–2013', engine: 'LS3' },
+          'C7': { wmi: '1G1', model: 'C7', make: 'Chevrolet', modelName: 'Corvette', years: '2014–2019', engine: 'LT1' },
+          'LC': { wmi: '2C3', model: 'LC', make: 'Dodge', modelName: 'Challenger', years: '2008–2023', engine: '5.7L HEMI' },
+          'LD': { wmi: '2C3', model: 'LD', make: 'Dodge', modelName: 'Charger', years: '2006–2023', engine: '5.7L HEMI' },
+          
+          // European Performance Chassis
+          'E46': { wmi: 'WBS', model: 'E46', make: 'BMW', modelName: 'M3', years: '2000–2006', engine: 'S54B32' },
+          'E90': { wmi: 'WBS', model: 'E90', make: 'BMW', modelName: 'M3', years: '2007–2013', engine: 'S65B40' },
+          'F80': { wmi: 'WBS', model: 'F80', make: 'BMW', modelName: 'M3', years: '2014–2020', engine: 'S55B30' },
+          'W204': { wmi: 'WDD', model: 'W204', make: 'Mercedes-Benz', modelName: 'C63 AMG', years: '2008–2014', engine: 'M156' },
+          'W205': { wmi: 'WDD', model: 'W205', make: 'Mercedes-Benz', modelName: 'C63 AMG', years: '2015–2023', engine: 'M177' },
+          'B7': { wmi: 'WAU', model: 'B7', make: 'Audi', modelName: 'RS4', years: '2006–2008', engine: '4.2L FSI' },
+          'B8': { wmi: 'WAU', model: 'B8', make: 'Audi', modelName: 'RS4', years: '2012–2015', engine: '4.2L FSI' },
+          '997': { wmi: 'WP0', model: '997', make: 'Porsche', modelName: '911', years: '2005–2012', engine: '3.6L Flat-6' },
+          '991': { wmi: 'WP0', model: '991', make: 'Porsche', modelName: '911', years: '2012–2019', engine: '3.8L Flat-6' }
         };
         
         const chassisData = chassisMapping[chassisCode];
@@ -3102,8 +3174,9 @@ Respond with a JSON object containing your recommendations.`;
         
         const inputLower = input.toLowerCase();
         
-        // Enhanced model mapping to technical specifications
+        // Comprehensive global vehicle mapping to technical specifications
         const modelMapping: Record<string, {wmi: string, model: string, make: string, modelName: string}> = {
+          // JDM Performance Icons
           'toyota supra': { wmi: 'JT2', model: 'A80', make: 'Toyota', modelName: 'Supra' },
           'supra': { wmi: 'JT2', model: 'A80', make: 'Toyota', modelName: 'Supra' },
           'nissan skyline': { wmi: 'JN1', model: 'R32', make: 'Nissan', modelName: 'Skyline GT-R' },
@@ -3122,7 +3195,36 @@ Respond with a JSON object containing your recommendations.`;
           'civic type r': { wmi: 'JHM', model: 'EK9', make: 'Honda', modelName: 'Civic Type R' },
           'subaru impreza': { wmi: 'JF1', model: 'GC8', make: 'Subaru', modelName: 'Impreza WRX' },
           'wrx': { wmi: 'JF1', model: 'GC8', make: 'Subaru', modelName: 'Impreza WRX' },
-          'impreza': { wmi: 'JF1', model: 'GC8', make: 'Subaru', modelName: 'Impreza WRX' }
+          'impreza': { wmi: 'JF1', model: 'GC8', make: 'Subaru', modelName: 'Impreza WRX' },
+          
+          // American Muscle Cars
+          'ford mustang': { wmi: '1FA', model: 'S197', make: 'Ford', modelName: 'Mustang GT' },
+          'mustang': { wmi: '1FA', model: 'S197', make: 'Ford', modelName: 'Mustang GT' },
+          'chevrolet camaro': { wmi: '1G1', model: 'F-Body', make: 'Chevrolet', modelName: 'Camaro SS' },
+          'camaro': { wmi: '1G1', model: 'F-Body', make: 'Chevrolet', modelName: 'Camaro SS' },
+          'dodge challenger': { wmi: '2C3', model: 'LC', make: 'Dodge', modelName: 'Challenger R/T' },
+          'challenger': { wmi: '2C3', model: 'LC', make: 'Dodge', modelName: 'Challenger R/T' },
+          'chevrolet corvette': { wmi: '1G1', model: 'C6', make: 'Chevrolet', modelName: 'Corvette' },
+          'corvette': { wmi: '1G1', model: 'C6', make: 'Chevrolet', modelName: 'Corvette' },
+          
+          // European Performance
+          'bmw m3': { wmi: 'WBS', model: 'E46', make: 'BMW', modelName: 'M3' },
+          'm3': { wmi: 'WBS', model: 'E46', make: 'BMW', modelName: 'M3' },
+          'mercedes c63': { wmi: 'WDD', model: 'W204', make: 'Mercedes-Benz', modelName: 'C63 AMG' },
+          'c63': { wmi: 'WDD', model: 'W204', make: 'Mercedes-Benz', modelName: 'C63 AMG' },
+          'audi rs4': { wmi: 'WAU', model: 'B7', make: 'Audi', modelName: 'RS4' },
+          'rs4': { wmi: 'WAU', model: 'B7', make: 'Audi', modelName: 'RS4' },
+          'porsche 911': { wmi: 'WP0', model: '997', make: 'Porsche', modelName: '911 Carrera' },
+          '911': { wmi: 'WP0', model: '997', make: 'Porsche', modelName: '911 Carrera' },
+          
+          // Popular JDM Variants
+          'honda nsx': { wmi: 'JH4', model: 'NA1', make: 'Honda', modelName: 'NSX' },
+          'nsx': { wmi: 'JH4', model: 'NA1', make: 'Honda', modelName: 'NSX' },
+          'mitsubishi evo': { wmi: 'JA3', model: 'CT9A', make: 'Mitsubishi', modelName: 'Lancer Evolution' },
+          'evolution': { wmi: 'JA3', model: 'CT9A', make: 'Mitsubishi', modelName: 'Lancer Evolution' },
+          'evo': { wmi: 'JA3', model: 'CT9A', make: 'Mitsubishi', modelName: 'Lancer Evolution' },
+          'subaru sti': { wmi: 'JF1', model: 'GD', make: 'Subaru', modelName: 'Impreza STI' },
+          'sti': { wmi: 'JF1', model: 'GD', make: 'Subaru', modelName: 'Impreza STI' }
         };
         
         // Find matching vehicle data
