@@ -29,6 +29,32 @@ export interface VehicleSpecs {
     difficulty: string;
     notes: string;
   };
+  eligibilityByYear?: {
+    australia: YearBasedEligibility;
+    usa: YearBasedEligibility;
+    uk: YearBasedEligibility;
+    germany: YearBasedEligibility;
+    canada: YearBasedEligibility;
+  };
+}
+
+export interface YearBasedEligibility {
+  currentYear: number;
+  eligibilityBreakdown: {
+    year: number;
+    eligible: boolean;
+    eligibilityType: string;
+    costs: {
+      import: number;
+      compliance: number;
+      registration: number;
+      total: number;
+    };
+    timeline: string;
+    requirements: string[];
+    notes: string;
+  }[];
+  summary: string;
 }
 
 // Comprehensive global VIN patterns covering every major manufacturer
@@ -102,6 +128,134 @@ export const GLOBAL_CHASSIS_PATTERNS: Record<string, VehicleSpecs> = {
       potential: 'Extreme', popular: ['Single turbo conversion', 'ECU tune', 'FMIC', 'Fuel system'],
       powerPotential: '600-1500hp+ capable', difficulty: 'Advanced',
       notes: 'Legendary 2JZ engine, extreme modification potential'
+    },
+    eligibilityByYear: {
+      australia: {
+        currentYear: 2025,
+        eligibilityBreakdown: [
+          {
+            year: 1993, eligible: true, eligibilityType: 'Fully Eligible (15+ years)',
+            costs: { import: 4500, compliance: 6500, registration: 800, total: 11800 },
+            timeline: '8-12 weeks', requirements: ['RAWS compliance', 'ADR modifications', 'State registration'],
+            notes: 'Prime import year - excellent condition examples still available'
+          },
+          {
+            year: 1994, eligible: true, eligibilityType: 'Fully Eligible (15+ years)',
+            costs: { import: 4500, compliance: 6500, registration: 800, total: 11800 },
+            timeline: '8-12 weeks', requirements: ['RAWS compliance', 'ADR modifications', 'State registration'],
+            notes: 'Sweet spot for price vs condition'
+          },
+          {
+            year: 1995, eligible: true, eligibilityType: 'Fully Eligible (15+ years)',
+            costs: { import: 4500, compliance: 6500, registration: 800, total: 11800 },
+            timeline: '8-12 weeks', requirements: ['RAWS compliance', 'ADR modifications', 'State registration'],
+            notes: 'Popular year with refined engineering'
+          },
+          {
+            year: 1996, eligible: true, eligibilityType: 'Fully Eligible (15+ years)',
+            costs: { import: 4500, compliance: 6500, registration: 800, total: 11800 },
+            timeline: '8-12 weeks', requirements: ['RAWS compliance', 'ADR modifications', 'State registration'],
+            notes: 'Introduction of VVTi variants in some markets'
+          },
+          {
+            year: 1997, eligible: true, eligibilityType: 'Fully Eligible (15+ years)',
+            costs: { import: 4500, compliance: 6500, registration: 800, total: 11800 },
+            timeline: '8-12 weeks', requirements: ['RAWS compliance', 'ADR modifications', 'State registration'],
+            notes: 'Peak production year with excellent build quality'
+          },
+          {
+            year: 1998, eligible: true, eligibilityType: 'Fully Eligible (15+ years)',
+            costs: { import: 4500, compliance: 6500, registration: 800, total: 11800 },
+            timeline: '8-12 weeks', requirements: ['RAWS compliance', 'ADR modifications', 'State registration'],
+            notes: 'Final years - becoming increasingly collectible'
+          },
+          {
+            year: 1999, eligible: true, eligibilityType: 'Fully Eligible (15+ years)',
+            costs: { import: 4500, compliance: 6500, registration: 800, total: 11800 },
+            timeline: '8-12 weeks', requirements: ['RAWS compliance', 'ADR modifications', 'State registration'],
+            notes: 'Late production - premium pricing due to rarity'
+          },
+          {
+            year: 2000, eligible: true, eligibilityType: 'Fully Eligible (15+ years)',
+            costs: { import: 4500, compliance: 6500, registration: 800, total: 11800 },
+            timeline: '8-12 weeks', requirements: ['RAWS compliance', 'ADR modifications', 'State registration'],
+            notes: 'Near-final year - highly sought after'
+          },
+          {
+            year: 2001, eligible: true, eligibilityType: 'Fully Eligible (15+ years)',
+            costs: { import: 4500, compliance: 6500, registration: 800, total: 11800 },
+            timeline: '8-12 weeks', requirements: ['RAWS compliance', 'ADR modifications', 'State registration'],
+            notes: 'Final production year - collector status'
+          },
+          {
+            year: 2002, eligible: true, eligibilityType: 'Fully Eligible (15+ years)',
+            costs: { import: 4500, compliance: 6500, registration: 800, total: 11800 },
+            timeline: '8-12 weeks', requirements: ['RAWS compliance', 'ADR modifications', 'State registration'],
+            notes: 'Last JZA80 Supras - premium collector pricing'
+          }
+        ],
+        summary: 'All Toyota Supra JZA80 years (1993-2002) are fully eligible for Australian import. Earlier years (1993-1996) offer better value, while later years (1999-2002) command premium collector prices.'
+      },
+      usa: {
+        currentYear: 2025,
+        eligibilityBreakdown: [
+          {
+            year: 1993, eligible: true, eligibilityType: 'Classic Car (25+ years)',
+            costs: { import: 3000, compliance: 2000, registration: 600, total: 5600 },
+            timeline: '6-8 weeks', requirements: ['EPA exemption', 'DOT exemption', 'State registration'],
+            notes: 'Full exemption from federal regulations'
+          },
+          {
+            year: 2001, eligible: false, eligibilityType: 'Too Recent',
+            costs: { import: 0, compliance: 0, registration: 0, total: 0 },
+            timeline: 'Not eligible', requirements: [],
+            notes: 'Becomes eligible in 2026 (25-year rule)'
+          },
+          {
+            year: 2002, eligible: false, eligibilityType: 'Too Recent',
+            costs: { import: 0, compliance: 0, registration: 0, total: 0 },
+            timeline: 'Not eligible', requirements: [],
+            notes: 'Becomes eligible in 2027 (25-year rule)'
+          }
+        ],
+        summary: 'JDM Supras 1993-2000 are eligible under 25-year rule. 2001-2002 models become eligible in 2026-2027.'
+      },
+      uk: {
+        currentYear: 2025,
+        eligibilityBreakdown: [
+          {
+            year: 1993, eligible: true, eligibilityType: 'Right Hand Drive Import',
+            costs: { import: 2500, compliance: 3000, registration: 800, total: 6300 },
+            timeline: '4-6 weeks', requirements: ['DVLA registration', 'MOT test', 'Insurance'],
+            notes: 'RHD advantage - straightforward registration process'
+          }
+        ],
+        summary: 'All Supra years eligible. RHD configuration simplifies UK registration compared to LHD imports.'
+      },
+      germany: {
+        currentYear: 2025,
+        eligibilityBreakdown: [
+          {
+            year: 1993, eligible: true, eligibilityType: 'Classic Vehicle (30+ years)',
+            costs: { import: 3500, compliance: 4500, registration: 1200, total: 9200 },
+            timeline: '10-14 weeks', requirements: ['TÜV inspection', 'H-Kennzeichen eligibility', 'Emissions testing'],
+            notes: 'H-Kennzeichen (historic plates) available for 30+ year vehicles'
+          }
+        ],
+        summary: 'All years eligible but complex. 1993-1995 models qualify for beneficial H-Kennzeichen registration.'
+      },
+      canada: {
+        currentYear: 2025,
+        eligibilityBreakdown: [
+          {
+            year: 1993, eligible: true, eligibilityType: 'Fully Eligible (15+ years)',
+            costs: { import: 2800, compliance: 3200, registration: 500, total: 6500 },
+            timeline: '6-10 weeks', requirements: ['Transport Canada compliance', 'Provincial safety', 'Emissions test'],
+            notes: '15-year rule makes all Supra years eligible'
+          }
+        ],
+        summary: 'All Supra production years eligible under 15-year import rule. Process similar to registering domestic vehicles.'
+      }
     }
   },
   'BNR32': {
@@ -230,6 +384,116 @@ export const GLOBAL_CHASSIS_PATTERNS: Record<string, VehicleSpecs> = {
       potential: 'Extreme', popular: ['Pulley upgrade', 'Headers', 'E85 tune', 'Fuel system'],
       powerPotential: '900-1200hp+ capable', difficulty: 'Advanced',
       notes: 'Factory supercharged beast, extremely popular in Australia'
+    },
+    eligibilityByYear: {
+      australia: {
+        currentYear: 2025,
+        eligibilityBreakdown: [
+          {
+            year: 2015, eligible: false, eligibilityType: 'Too Recent',
+            costs: { import: 0, compliance: 0, registration: 0, total: 0 },
+            timeline: 'Not eligible', requirements: [],
+            notes: 'Becomes eligible in 2030 (15-year rule)'
+          },
+          {
+            year: 2016, eligible: false, eligibilityType: 'Too Recent',
+            costs: { import: 0, compliance: 0, registration: 0, total: 0 },
+            timeline: 'Not eligible', requirements: [],
+            notes: 'Becomes eligible in 2031 (15-year rule)'
+          },
+          {
+            year: 2017, eligible: false, eligibilityType: 'Too Recent',
+            costs: { import: 0, compliance: 0, registration: 0, total: 0 },
+            timeline: 'Not eligible', requirements: [],
+            notes: 'Becomes eligible in 2032 (15-year rule)'
+          },
+          {
+            year: 2018, eligible: false, eligibilityType: 'Too Recent',
+            costs: { import: 0, compliance: 0, registration: 0, total: 0 },
+            timeline: 'Not eligible', requirements: [],
+            notes: 'Becomes eligible in 2033 (15-year rule)'
+          },
+          {
+            year: 2019, eligible: false, eligibilityType: 'Too Recent',
+            costs: { import: 0, compliance: 0, registration: 0, total: 0 },
+            timeline: 'Not eligible', requirements: [],
+            notes: 'Becomes eligible in 2034 (15-year rule)'
+          },
+          {
+            year: 2020, eligible: false, eligibilityType: 'Too Recent',
+            costs: { import: 0, compliance: 0, registration: 0, total: 0 },
+            timeline: 'Not eligible', requirements: [],
+            notes: 'Becomes eligible in 2035 (15-year rule)'
+          },
+          {
+            year: 2021, eligible: false, eligibilityType: 'Too Recent',
+            costs: { import: 0, compliance: 0, registration: 0, total: 0 },
+            timeline: 'Not eligible', requirements: [],
+            notes: 'Becomes eligible in 2036 (15-year rule)'
+          },
+          {
+            year: 2022, eligible: false, eligibilityType: 'Too Recent',
+            costs: { import: 0, compliance: 0, registration: 0, total: 0 },
+            timeline: 'Not eligible', requirements: [],
+            notes: 'Becomes eligible in 2037 (15-year rule)'
+          },
+          {
+            year: 2023, eligible: false, eligibilityType: 'Too Recent',
+            costs: { import: 0, compliance: 0, registration: 0, total: 0 },
+            timeline: 'Not eligible', requirements: [],
+            notes: 'Becomes eligible in 2038 (15-year rule)'
+          }
+        ],
+        summary: 'All Hellcat years (2015-2023) are currently too recent for Australian import under the 15-year rule. First eligible year will be 2015 models in 2030.'
+      },
+      usa: {
+        currentYear: 2025,
+        eligibilityBreakdown: [
+          {
+            year: 2015, eligible: true, eligibilityType: 'Domestic Vehicle',
+            costs: { import: 0, compliance: 0, registration: 800, total: 800 },
+            timeline: 'Immediate', requirements: ['EPA compliance', 'DOT standards'],
+            notes: 'US domestic market vehicle, no import restrictions'
+          }
+        ],
+        summary: 'All Hellcat years eligible in USA as domestic market vehicles.'
+      },
+      uk: {
+        currentYear: 2025,
+        eligibilityBreakdown: [
+          {
+            year: 2015, eligible: true, eligibilityType: 'Individual Vehicle Approval',
+            costs: { import: 3000, compliance: 5000, registration: 1200, total: 9200 },
+            timeline: '12-16 weeks', requirements: ['IVA test', 'DVLA registration', 'MOT test'],
+            notes: 'Requires Individual Vehicle Approval process'
+          }
+        ],
+        summary: 'Hellcats eligible through IVA process but expensive due to compliance requirements.'
+      },
+      germany: {
+        currentYear: 2025,
+        eligibilityBreakdown: [
+          {
+            year: 2015, eligible: true, eligibilityType: 'Individual Approval',
+            costs: { import: 4000, compliance: 8000, registration: 1000, total: 13000 },
+            timeline: '16-20 weeks', requirements: ['TÜV approval', 'Emissions compliance', 'German registration'],
+            notes: 'Complex process due to strict German regulations'
+          }
+        ],
+        summary: 'Possible but expensive and time-consuming due to strict German vehicle standards.'
+      },
+      canada: {
+        currentYear: 2025,
+        eligibilityBreakdown: [
+          {
+            year: 2015, eligible: true, eligibilityType: 'Similar Vehicle',
+            costs: { import: 2000, compliance: 3000, registration: 600, total: 5600 },
+            timeline: '8-12 weeks', requirements: ['Transport Canada compliance', 'Provincial registration'],
+            notes: 'Similar to US model, easier compliance process'
+          }
+        ],
+        summary: 'Relatively straightforward as vehicle meets North American standards.'
+      }
     }
   },
   'CHALLENGER_HELLCAT': {

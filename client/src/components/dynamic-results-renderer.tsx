@@ -56,6 +56,25 @@ interface Recommendations {
   }>;
 }
 
+interface YearBasedEligibility {
+  currentYear: number;
+  eligibilityBreakdown: {
+    year: number;
+    eligible: boolean;
+    eligibilityType: string;
+    costs: {
+      import: number;
+      compliance: number;
+      registration: number;
+      total: number;
+    };
+    timeline: string;
+    requirements: string[];
+    notes: string;
+  }[];
+  summary: string;
+}
+
 interface DynamicResultsRendererProps {
   results: EligibilityResult[];
   recommendations: Recommendations;
@@ -83,6 +102,13 @@ interface DynamicResultsRendererProps {
         powerPotential?: string;
         difficulty?: string;
         notes?: string;
+      };
+      eligibilityByYear?: {
+        australia?: YearBasedEligibility;
+        usa?: YearBasedEligibility;
+        uk?: YearBasedEligibility;
+        germany?: YearBasedEligibility;
+        canada?: YearBasedEligibility;
       };
     };
   };
