@@ -243,12 +243,36 @@ function extractVehicleInfo(input: string): {
     result.confidence += 0.3;
   }
 
-  // Check for chassis codes
+  // Check for chassis codes and aliases
   const chassisPattern = /\b[A-Z]{2,3}\d{1,3}[A-Z]?\b/g;
   const chassisMatch = input.match(chassisPattern);
   if (chassisMatch) {
     result.chassisCode = chassisMatch[0];
     result.confidence += 0.4;
+  }
+
+  // Handle common chassis code aliases
+  const chassisAliases: Record<string, string> = {
+    'r32': 'BNR32',
+    'r33': 'BNR33', 
+    'r34': 'BNR34',
+    'r35': 'CBA-R35',
+    's13': 'RPS13',
+    's14': 'S14A',
+    's15': 'S15',
+    'fd': 'FD3S',
+    'fc': 'FC3S',
+    'na': 'NA6C',
+    'nb': 'NB8C',
+    'sw20': 'SW20',
+    'ae86': 'AE86',
+    'jza80': 'JZA80'
+  };
+
+  const inputKey = inputLower.trim();
+  if (chassisAliases[inputKey]) {
+    result.chassisCode = chassisAliases[inputKey];
+    result.confidence += 0.6;
   }
 
   // Search through comprehensive database
