@@ -24,6 +24,20 @@ interface EligibilityResult {
     complexity: string;
   };
   nextSteps: string[];
+  modificationCompliance?: Array<{
+    modification: string;
+    feasibility: 'Legal' | 'Restricted' | 'Prohibited' | 'Requires Certification';
+    difficulty: 'Easy' | 'Moderate' | 'Complex' | 'Expert Required';
+    requirements: string[];
+    costs: {
+      certification?: number;
+      engineering?: number;
+      inspection?: number;
+      total: number;
+    };
+    timeline: string;
+    notes: string;
+  }>;
 }
 
 interface Recommendations {
@@ -358,14 +372,14 @@ export function DynamicResultsRenderer({ results, recommendations, vehicleInfo }
                       </div>
 
                       {/* Modification Compliance */}
-                      {result.modificationCompliance && result.modificationCompliance.length > 0 && (
+                      {(result as any).modificationCompliance && (result as any).modificationCompliance.length > 0 && (
                         <div>
                           <h4 className="font-medium mb-2 flex items-center gap-2">
                             <Settings className="h-4 w-4" />
                             Modification Feasibility
                           </h4>
                           <div className="space-y-2">
-                            {result.modificationCompliance.map((mod: any, index: number) => (
+                            {(result as any).modificationCompliance.map((mod: any, index: number) => (
                               <div key={index} className="p-2 bg-gray-50 rounded border text-xs">
                                 <div className="flex items-center justify-between mb-1">
                                   <span className="font-medium">{mod.modification}</span>
