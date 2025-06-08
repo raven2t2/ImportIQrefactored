@@ -3635,7 +3635,7 @@ Respond with a JSON object containing your recommendations.`;
         
         // Immediate intelligent fallback for common queries
         result = {
-          data: await performReliableLookup(query),
+          data: performReliableLookup(query),
           confidenceScore: 0.85,
           sourceAttribution: "Intelligent Fallback System",
           method: "reliable_fallback"
