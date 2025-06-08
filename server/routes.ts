@@ -3999,6 +3999,111 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
+  // Real-world auction data endpoints
+  app.post('/api/auction-data/ingest', async (req, res) => {
+    try {
+      const { ApifyAuctionIngestion } = await import('./apify-auction-ingestion.js');
+      
+      console.log('🔄 Starting manual auction data ingestion...');
+      const result = await ApifyAuctionIngestion.ingestAllAuctionData();
+      
+      res.json({
+        success: true,
+        message: 'Auction data ingestion completed',
+        ...result
+      });
+    } catch (error) {
+      console.error('Auction data ingestion failed:', error);
+      res.status(500).json({ 
+        error: 'Failed to ingest auction data',
+        details: error.message 
+      });
+    }
+  });
+
+  app.get('/api/auction-data/market-pricing', async (req, res) => {
+    try {
+      const { make, model, year } = req.query;
+      
+      if (!make) {
+        return res.status(400).json({ error: 'make parameter required' });
+      }
+
+      const { ApifyAuctionIngestion } = await import('./apify-auction-ingestion.js');
+      const pricing = await ApifyAuctionIngestion.getMarketPricing(
+        make as string,
+        model as string,
+        year ? parseInt(year as string) : undefined
+      );
+      
+      if (!pricing) {
+        return res.json({ 
+          message: 'No market data available for this vehicle',
+          make,
+          model,
+          year
+        });
+      }
+
+      res.json({
+        vehicle: { make, model, year },
+        marketData: pricing
+      });
+    } catch (error) {
+      console.error('Failed to get market pricing:', error);
+      res.status(500).json({ error: 'Failed to retrieve market pricing' });
+    }
+  });
+
+  // Admin endpoints for auction data
+  app.get('/api/admin/auctions/recent', async (req, res) => {
+    try {
+      const { vehicleAuctions } = await import('@shared/schema');
+      const { db } = await import('./db.js');
+      const { desc } = await import('drizzle-orm');
+
+      const recentAuctions = await db.select()
+        .from(vehicleAuctions)
+        .orderBy(desc(vehicleAuctions.fetchedAt))
+        .limit(25);
+
+      res.json({ auctions: recentAuctions });
+    } catch (error) {
+      console.error('Failed to get recent auctions:', error);
+      res.status(500).json({ error: 'Failed to retrieve recent auctions' });
+    }
+  });
+
+  app.get('/api/admin/auctions/changes', async (req, res) => {
+    try {
+      const { vehicleAuctionChanges } = await import('@shared/schema');
+      const { db } = await import('./db.js');
+      const { desc } = await import('drizzle-orm');
+
+      const changes = await db.select()
+        .from(vehicleAuctionChanges)
+        .orderBy(desc(vehicleAuctionChanges.changedAt))
+        .limit(50);
+
+      res.json({ changes });
+    } catch (error) {
+      console.error('Failed to get auction changes:', error);
+      res.status(500).json({ error: 'Failed to retrieve auction changes' });
+    }
+  });
+
+  app.get('/api/admin/auctions/summary', async (req, res) => {
+    try {
+      const { ApifyAuctionIngestion } = await import('./apify-auction-ingestion.js');
+      const summary = await ApifyAuctionIngestion.getAuctionSummary();
+      
+      res.json({ summary });
+    } catch (error) {
+      console.error('Failed to get auction summary:', error);
+      res.status(500).json({ error: 'Failed to retrieve auction summary' });
+    }
+  });
+
   function getCountryFlag(country: string): string {
     const flags: Record<string, string> = {
       'australia': '🇦🇺',

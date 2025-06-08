@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, decimal, jsonb, varchar, index } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, decimal, jsonb, varchar, index, numeric } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -1115,6 +1115,58 @@ export const geographicCoverage = pgTable("geographic_coverage", {
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Real-world auction data from Apify
+export const vehicleAuctions = pgTable("vehicle_auctions", {
+  id: serial("id").primaryKey(),
+  apifyId: text("apify_id").unique(),
+  category: text("category"), // e.g., "JDM", "US Muscle", "Skyline"
+  make: text("make"),
+  model: text("model"),
+  year: integer("year"),
+  chassisCode: text("chassis_code"),
+  engine: text("engine"),
+  transmission: text("transmission"),
+  mileage: text("mileage"),
+  fuelType: text("fuel_type"),
+  auctionEnd: timestamp("auction_end"),
+  price: numeric("price", { precision: 12, scale: 2 }),
+  location: text("location"),
+  source: text("source"),
+  sourceUrl: text("source_url"),
+  imageUrl: text("image_url"),
+  description: text("description"),
+  fetchedAt: timestamp("fetched_at").defaultNow(),
+  lastUpdated: timestamp("last_updated").defaultNow(),
+}, (table) => ({
+  apifyIdIdx: index("vehicle_auctions_apify_id_idx").on(table.apifyId),
+  categoryIdx: index("vehicle_auctions_category_idx").on(table.category),
+  makeModelIdx: index("vehicle_auctions_make_model_idx").on(table.make, table.model),
+  priceIdx: index("vehicle_auctions_price_idx").on(table.price),
+  fetchedAtIdx: index("vehicle_auctions_fetched_at_idx").on(table.fetchedAt),
+}));
+
+export const vehicleAuctionChanges = pgTable("vehicle_auction_changes", {
+  id: serial("id").primaryKey(),
+  auctionId: integer("auction_id").references(() => vehicleAuctions.id).notNull(),
+  oldData: jsonb("old_data"),
+  newData: jsonb("new_data"),
+  changedAt: timestamp("changed_at").defaultNow(),
+}, (table) => ({
+  auctionIdIdx: index("vehicle_auction_changes_auction_id_idx").on(table.auctionId),
+  changedAtIdx: index("vehicle_auction_changes_changed_at_idx").on(table.changedAt),
+}));
+
+export const datasetSources = pgTable("dataset_sources", {
+  id: serial("id").primaryKey(),
+  label: text("label").notNull(),
+  url: text("url").notNull(),
+  category: text("category").notNull(),
+  lastFetched: timestamp("last_fetched"),
+  fetchFrequency: integer("fetch_frequency").default(24), // hours
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 // Type exports for PostgreSQL core schemas
