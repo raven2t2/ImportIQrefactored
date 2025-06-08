@@ -489,14 +489,44 @@ export async function checkCountryEligibility(vehicleData: any, countryCode: str
         const { AUSTRALIAN_STATE_REQUIREMENTS } = await import('./australian-state-requirements');
         const { getModificationCompliance } = await import('./global-modification-compliance');
         regulations = AUSTRALIAN_STATE_REQUIREMENTS['NSW'] || {};
-        eligible = vehicleData.estimatedAge >= 15;
-        costs = {
-          import: 5000,
-          compliance: 8000,
-          registration: 800,
-          total: 13800
-        };
-        requirements = ['ADR Compliance', 'RAWS Registration', 'State Registration'];
+        
+        // Calculate vehicle age accurately
+        const currentYear = new Date().getFullYear();
+        const vehicleYear = vehicleData.year || (currentYear - (vehicleData.estimatedAge || 0));
+        const vehicleAge = currentYear - vehicleYear;
+        
+        // Australia: 25+ years = unrestricted, 15+ years = SEVS eligible
+        eligible = vehicleAge >= 15;
+        
+        // Adjust costs and timeline based on vehicle age
+        if (vehicleAge >= 25) {
+          costs = {
+            import: 3500,
+            compliance: 4500,
+            registration: 800,
+            total: 8800
+          };
+          timeline = '4-6 weeks';
+          requirements = ['Historic Vehicle Import', 'Basic Compliance', 'State Registration'];
+        } else if (vehicleAge >= 15) {
+          costs = {
+            import: 5000,
+            compliance: 8000,
+            registration: 800,
+            total: 13800
+          };
+          timeline = '8-12 weeks';
+          requirements = ['SEVS Eligibility', 'ADR Compliance', 'RAWS Registration', 'State Registration'];
+        } else {
+          costs = {
+            import: 8000,
+            compliance: 15000,
+            registration: 800,
+            total: 23800
+          };
+          timeline = '12+ weeks';
+          requirements = ['Special Import Approval', 'Full ADR Compliance', 'Workshop Approval'];
+        }
         
         // Add modification compliance analysis for popular modifications
         if (vehicleData.technicalSpecs?.popularModifications) {
@@ -519,14 +549,24 @@ export async function checkCountryEligibility(vehicleData: any, countryCode: str
         const { UK_REGIONAL_REGULATIONS } = await import('./uk-regional-regulations');
         const { getModificationCompliance: getUKModCompliance } = await import('./global-modification-compliance');
         regulations = UK_REGIONAL_REGULATIONS['england'] || {};
-        eligible = vehicleData.year >= 2001;
+        
+        // Calculate vehicle age for UK import rules
+        const currentYearUK = new Date().getFullYear();
+        const vehicleYearUK = vehicleData.year || (currentYearUK - (vehicleData.estimatedAge || 0));
+        const vehicleAgeUK = currentYearUK - vehicleYearUK;
+        
+        // UK: Most vehicles over 10 years eligible, JDM generally welcome
+        eligible = vehicleAgeUK >= 10 || vehicleData.origin === 'Japan';
+        
+        const estimatedValue = vehicleData.estimatedValue || 50000; // Default for Supra
         costs = {
           import: 1200,
-          vat: vehicleData.estimatedValue * 0.2 || 10000,
+          vat: estimatedValue * 0.2,
           iva: 456,
-          total: 1656 + (vehicleData.estimatedValue * 0.2 || 10000)
+          total: 1656 + (estimatedValue * 0.2)
         };
         requirements = ['IVA Test', 'DVLA Registration', 'MOT Certificate'];
+        timeline = '4-8 weeks';
         
         // Add modification compliance analysis for popular modifications
         if (vehicleData.technicalSpecs?.popularModifications) {
@@ -572,7 +612,15 @@ export async function checkCountryEligibility(vehicleData: any, countryCode: str
         const { US_STATE_REGULATIONS } = await import('./us-state-regulations');
         const { getModificationCompliance: getUSModCompliance } = await import('./global-modification-compliance');
         regulations = US_STATE_REGULATIONS['CA'] || {};
-        eligible = vehicleData.estimatedAge >= 25;
+        
+        // Calculate vehicle age for US 25-year rule
+        const currentYearUS = new Date().getFullYear();
+        const vehicleYearUS = vehicleData.year || (currentYearUS - (vehicleData.estimatedAge || 0));
+        const vehicleAgeUS = currentYearUS - vehicleYearUS;
+        
+        // US: 25+ years = legal import under classic car exemption
+        eligible = vehicleAgeUS >= 25;
+        
         costs = {
           import: 2500,
           epa: eligible ? 0 : 8000,
