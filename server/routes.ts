@@ -2914,93 +2914,21 @@ Respond with a JSON object containing your recommendations.`;
 
   app.get("/api/global-market-coverage", async (req: any, res) => {
     try {
-      // Import all regulation modules
-      const { US_STATE_REGULATIONS } = await import('./us-state-regulations');
-      const { CANADIAN_PROVINCIAL_REGULATIONS } = await import('./canadian-provincial-regulations');
-      const { UK_REGIONAL_REGULATIONS } = await import('./uk-regional-regulations');
-      const { AUSTRALIAN_STATE_REGULATIONS } = await import('./australian-state-regulations');
-      const { GERMAN_REGIONAL_REGULATIONS } = await import('./german-regional-regulations');
-      const { JAPANESE_REGIONAL_REGULATIONS } = await import('./japanese-regional-regulations');
-      const { EU_REGIONAL_REGULATIONS } = await import('./eu-regional-regulations');
-      const { GLOBAL_REGIONAL_REGULATIONS } = await import('./global-regional-regulations');
-
-      const coverage = {
-        totalMarkets: 0,
-        totalRegions: 0,
-        marketsByRegion: {
-          northAmerica: {
-            countries: ['United States', 'Canada'],
-            regions: Object.keys(US_STATE_REGULATIONS).length + Object.keys(CANADIAN_PROVINCIAL_REGULATIONS).length,
-            details: {
-              'United States': `${Object.keys(US_STATE_REGULATIONS).length} states`,
-              'Canada': `${Object.keys(CANADIAN_PROVINCIAL_REGULATIONS).length} provinces/territories`
-            }
-          },
-          europe: {
-            countries: ['United Kingdom', 'Germany', 'France', 'Italy', 'Netherlands', 'Belgium', 'Sweden', 'Norway', 'Denmark'],
-            regions: Object.keys(UK_REGIONAL_REGULATIONS).length + Object.keys(GERMAN_REGIONAL_REGULATIONS).length + Object.keys(EU_REGIONAL_REGULATIONS).length,
-            details: {
-              'United Kingdom': `${Object.keys(UK_REGIONAL_REGULATIONS).length} regions`,
-              'Germany': `${Object.keys(GERMAN_REGIONAL_REGULATIONS).length} federal states`,
-              'EU Countries': `${Object.keys(EU_REGIONAL_REGULATIONS).length} member states`
-            }
-          },
-          asiaPacific: {
-            countries: ['Japan', 'Australia', 'New Zealand', 'Singapore', 'Hong Kong'],
-            regions: Object.keys(JAPANESE_REGIONAL_REGULATIONS).length + Object.keys(AUSTRALIAN_STATE_REGULATIONS).length + 3,
-            details: {
-              'Japan': `${Object.keys(JAPANESE_REGIONAL_REGULATIONS).length} prefectures`,
-              'Australia': `${Object.keys(AUSTRALIAN_STATE_REGULATIONS).length} states/territories`,
-              'Others': '3 city-states/countries'
-            }
-          },
-          other: {
-            countries: ['South Africa'],
-            regions: 1,
-            details: {
-              'South Africa': '1 national system'
-            }
-          }
-        },
-        authenticDataFeatures: [
-          'Real government fees (e.g., UK IVA test £456)',
-          'Authentic processing times from official sources',
-          'Actual government website URLs',
-          'Current tax rates from revenue authorities',
-          'Verified inspection requirements',
-          'Official document requirements',
-          'Regional-specific compliance variations'
-        ],
-        competitiveAdvantages: [
-          'Sub-national regional specificity (not just country-level)',
-          'Real-time data validation against official sources',
-          'Comprehensive fee breakdowns with actual amounts',
-          'Multi-currency support with current exchange rates',
-          'Integration with live auction market data',
-          'Expert validation system for data accuracy'
-        ]
-      };
-
-      // Calculate totals
-      const allCountries = [
-        ...coverage.marketsByRegion.northAmerica.countries,
-        ...coverage.marketsByRegion.europe.countries,
-        ...coverage.marketsByRegion.asiaPacific.countries,
-        ...coverage.marketsByRegion.other.countries
-      ];
-
-      coverage.totalMarkets = allCountries.length;
-      coverage.totalRegions = Object.values(coverage.marketsByRegion).reduce((sum, region) => sum + region.regions, 0);
+      const { getMarketCoverageSummary, AUTHENTIC_DATA_EXAMPLES, generateCompetitiveReport } = await import('./market-coverage-summary');
+      
+      const summary = getMarketCoverageSummary();
+      const competitiveReport = generateCompetitiveReport();
 
       res.json({
         success: true,
-        coverage,
-        summary: {
-          totalMarkets: coverage.totalMarkets,
-          totalRegions: coverage.totalRegions,
-          competitorComparison: `ImportIQ: ${coverage.totalMarkets} markets vs Competitor: 25+ markets`,
-          dataIntegrityScore: "Real government data vs industry estimates"
-        }
+        summary,
+        competitiveReport,
+        authenticDataExamples: AUTHENTIC_DATA_EXAMPLES,
+        validationEndpoints: {
+          dataIntegrityReport: "/api/admin/data-integrity-report",
+          validateCountryData: "/api/admin/validate-country-data"
+        },
+        timestamp: new Date().toISOString()
       });
 
     } catch (error) {
