@@ -1,10 +1,13 @@
 import { useState } from 'react';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
-import { Check, Zap, Menu, X } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Check, Zap, Menu, X, ArrowRight } from 'lucide-react';
 
 export default function Landing() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [inputValue, setInputValue] = useState('');
+  const [, setLocation] = useLocation();
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -76,64 +79,77 @@ export default function Landing() {
           </h1>
 
           <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-2xl mx-auto">
-            Calculate import costs, check compliance, and track your vehicle import journey.
+            Get instant import costs, compliance checks, and vehicle eligibility analysis.
           </p>
 
-          {/* Region Selection */}
-          <div className="mb-12">
-            <h3 className="text-lg font-medium mb-6 text-white">Where are you importing to?</h3>
-            
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-lg mx-auto">
-              <Link href="/dashboard?region=AU">
-                <div className="bg-gray-900 rounded-lg p-4 border border-gray-800 hover:border-amber-400 transition-all duration-200 hover:bg-gray-800 cursor-pointer">
-                  <div className="text-2xl mb-2">🇦🇺</div>
-                  <div className="text-white font-medium text-sm">Australia</div>
-                </div>
-              </Link>
+          {/* Instant Input Field */}
+          <div className="max-w-lg mx-auto mb-12">
+            <div className="bg-gray-900/50 rounded-xl p-8 border border-gray-700">
+              <h3 className="text-lg font-medium mb-6 text-white text-center">
+                Check any vehicle instantly
+              </h3>
               
-              <Link href="/dashboard?region=US">
-                <div className="bg-gray-900 rounded-lg p-4 border border-gray-800 hover:border-amber-400 transition-all duration-200 hover:bg-gray-800 cursor-pointer">
-                  <div className="text-2xl mb-2">🇺🇸</div>
-                  <div className="text-white font-medium text-sm">United States</div>
+              <div className="space-y-4">
+                <div className="relative">
+                  <Input
+                    placeholder="Paste auction URL, VIN, or enter make/model..."
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && inputValue.trim()) {
+                        setLocation(`/vehicle-eligibility-checker?input=${encodeURIComponent(inputValue.trim())}`);
+                      }
+                    }}
+                    className="text-lg h-14 bg-gray-800 border-gray-600 text-white placeholder-gray-400 pr-12"
+                  />
+                  {inputValue.trim() && (
+                    <Button
+                      onClick={() => setLocation(`/vehicle-eligibility-checker?input=${encodeURIComponent(inputValue.trim())}`)}
+                      className="absolute right-2 top-2 h-10 w-10 p-0 bg-amber-400 hover:bg-amber-500 text-black"
+                    >
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
-              </Link>
-              
-              <Link href="/dashboard?region=UK">
-                <div className="bg-gray-900 rounded-lg p-4 border border-gray-800 hover:border-amber-400 transition-all duration-200 hover:bg-gray-800 cursor-pointer">
-                  <div className="text-2xl mb-2">🇬🇧</div>
-                  <div className="text-white font-medium text-sm">United Kingdom</div>
+                
+                <div className="grid grid-cols-1 gap-2 text-xs text-gray-500">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
+                    <span>URLs: copart.com, yahoo.co.jp auctions</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
+                    <span>VINs: 17-character vehicle identification</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
+                    <span>Manual: Toyota Supra, Honda NSX, etc.</span>
+                  </div>
                 </div>
-              </Link>
-              
-              <Link href="/dashboard?region=CA">
-                <div className="bg-gray-900 rounded-lg p-4 border border-gray-800 hover:border-amber-400 transition-all duration-200 hover:bg-gray-800 cursor-pointer">
-                  <div className="text-2xl mb-2">🇨🇦</div>
-                  <div className="text-white font-medium text-sm">Canada</div>
-                </div>
-              </Link>
+              </div>
             </div>
           </div>
 
-          {/* Simple Benefits */}
+          {/* Key Benefits */}
           <div className="max-w-md mx-auto mb-8">
             <div className="space-y-3 text-gray-400 text-sm">
               <div className="flex items-center gap-3">
                 <Check className="h-4 w-4 text-amber-400" />
-                <span>Calculate import costs and duties</span>
+                <span>Auto-extract from auction URLs</span>
               </div>
               <div className="flex items-center gap-3">
                 <Check className="h-4 w-4 text-amber-400" />
-                <span>Check vehicle compliance requirements</span>
+                <span>Decode VINs for complete vehicle data</span>
               </div>
               <div className="flex items-center gap-3">
                 <Check className="h-4 w-4 text-amber-400" />
-                <span>Track your import timeline</span>
+                <span>Calculate costs for any destination</span>
               </div>
             </div>
           </div>
 
           <p className="text-gray-500 text-sm">
-            Select your region above to get started
+            Start with any vehicle information - we'll guide you through the rest
           </p>
         </div>
       </div>
