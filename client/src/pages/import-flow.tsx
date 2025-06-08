@@ -122,8 +122,14 @@ export default function ImportFlow() {
       
       setVehicleData(extractedVehicle);
       
-      // Move to country selection instead of skipping it
-      setCurrentStep('country-select');
+      // If we have a target country, proceed to eligibility check
+      if (targetCountry) {
+        setCurrentTask('Checking eligibility...');
+        checkEligibilityMutation.mutate(extractedVehicle);
+      } else {
+        // Move to country selection if no country set
+        setCurrentStep('country-select');
+      }
     },
     onError: (error: any) => {
       console.error('Vehicle extraction failed:', error);
@@ -139,8 +145,14 @@ export default function ImportFlow() {
       
       setVehicleData(fallbackVehicle);
       
-      // Move to country selection instead of skipping it
-      setCurrentStep('country-select');
+      // If we have a target country, proceed to eligibility check
+      if (targetCountry) {
+        setCurrentTask('Checking eligibility...');
+        checkEligibilityMutation.mutate(fallbackVehicle);
+      } else {
+        // Move to country selection if no country set
+        setCurrentStep('country-select');
+      }
     }
   });
 
