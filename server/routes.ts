@@ -458,6 +458,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Professional compliance analysis endpoint
+  app.post('/api/professional-compliance-analysis', async (req, res) => {
+    try {
+      const { vehicle, targetCountry, targetState } = req.body;
+      
+      if (!vehicle || !targetCountry || !targetState) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Missing required parameters' 
+        });
+      }
+      
+      const { analyzeProfessionalCompliance } = await import('./professional-compliance-api');
+      const result = await analyzeProfessionalCompliance(vehicle, targetCountry, targetState);
+      
+      res.json(result);
+    } catch (error) {
+      console.error('Professional compliance analysis error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Analysis failed' 
+      });
+    }
+  });
+
+  // Professional market data endpoint
+  app.get('/api/professional-market-data', async (req, res) => {
+    try {
+      const { make, model } = req.query;
+      
+      const { getProfessionalMarketData } = await import('./professional-compliance-api');
+      const result = await getProfessionalMarketData(make as string, model as string);
+      
+      res.json(result);
+    } catch (error) {
+      console.error('Professional market data error:', error);
+      res.status(500).json({ 
+        vehicles: [],
+        error: 'Unable to fetch market data' 
+      });
+    }
+  });
+
   // Email checking endpoint for smart gating
   app.post("/api/check-email", async (req, res) => {
     try {
