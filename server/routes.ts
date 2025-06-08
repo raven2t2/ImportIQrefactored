@@ -1427,6 +1427,121 @@ Keep each recommendation under 40 words, factually accurate, and realistic.`;
     }
   });
 
+  // Internal VIN Decode endpoint
+  app.post("/api/internal/vin-decode", async (req, res) => {
+    try {
+      const { vin } = req.body;
+      
+      if (!vin) {
+        return res.status(400).json({
+          success: false,
+          error: "VIN is required"
+        });
+      }
+
+      const { internalDataEngine } = await import('./internal-data-engine');
+      const result = internalDataEngine.decodeVIN(vin);
+      
+      res.json({
+        success: true,
+        vin_decode: result,
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error: any) {
+      console.error("VIN decode error:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to decode VIN",
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
+  // Internal Shipping Estimate endpoint
+  app.post("/api/internal/shipping-estimate", async (req, res) => {
+    try {
+      const { originCountry, destinationCountry } = req.body;
+      
+      if (!originCountry || !destinationCountry) {
+        return res.status(400).json({
+          success: false,
+          error: "Both origin and destination countries are required"
+        });
+      }
+
+      const { internalDataEngine } = await import('./internal-data-engine');
+      const result = internalDataEngine.getShippingEstimate(originCountry, destinationCountry);
+      
+      res.json({
+        success: true,
+        shipping_estimate: result,
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error: any) {
+      console.error("Shipping estimate error:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to get shipping estimate",
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
+  // Internal Compliance Rules endpoint
+  app.post("/api/internal/compliance-rules", async (req, res) => {
+    try {
+      const { country, vehicleYear } = req.body;
+      
+      if (!country) {
+        return res.status(400).json({
+          success: false,
+          error: "Country is required"
+        });
+      }
+
+      const { internalDataEngine } = await import('./internal-data-engine');
+      const result = internalDataEngine.getComplianceRules(country, vehicleYear);
+      
+      res.json({
+        success: true,
+        compliance_rules: result,
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error: any) {
+      console.error("Compliance rules error:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to get compliance rules",
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
+  // Internal Data Quality Report endpoint
+  app.get("/api/internal/data-quality", async (req, res) => {
+    try {
+      const { internalDataEngine } = await import('./internal-data-engine');
+      const report = internalDataEngine.getDataQualityReport();
+      
+      res.json({
+        success: true,
+        data_quality: report,
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error: any) {
+      console.error("Data quality report error:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to generate data quality report",
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
   // Complete Database Ecosystem endpoint
   app.get("/api/database-ecosystem", async (req, res) => {
     try {
@@ -1511,6 +1626,33 @@ Keep each recommendation under 40 words, factually accurate, and realistic.`;
       const { inferVehicleYear } = await import('./intelligent-year-handler');
       const { internalDataEngine } = await import('./internal-data-engine');
       
+      // Enhanced VIN decoding using internal data engine
+      let vinDecodeResult = null;
+      let shippingEstimate = null;
+      let complianceRules = null;
+      
+      // Check if identifier is a VIN for enhanced decoding
+      if (identifier.length >= 10 && /^[A-HJ-NPR-Z0-9]+$/i.test(identifier)) {
+        const vinResult = internalDataEngine.decodeVIN(identifier);
+        if (vinResult.confidence > 50) {
+          vinDecodeResult = vinResult;
+          
+          // Get shipping estimates if country is detected
+          if (vinResult.data?.country) {
+            const shippingResult = internalDataEngine.getShippingEstimate(vinResult.data.country, 'Australia');
+            if (shippingResult.confidence > 50) {
+              shippingEstimate = shippingResult;
+            }
+          }
+          
+          // Get compliance rules for Australia
+          const complianceResult = internalDataEngine.getComplianceRules('Australia', vinResult.data?.year);
+          if (complianceResult.confidence > 50) {
+            complianceRules = complianceResult;
+          }
+        }
+      }
+
       const globalDetection = detectGlobalVehicle(identifier);
       
       if (globalDetection.success) {
