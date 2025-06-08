@@ -126,16 +126,16 @@ export default function Landing() {
           <div className="max-w-lg mx-auto mb-12">
             <div className="bg-gray-900/50 rounded-xl p-8 border border-gray-700">
               <h3 className="text-xl font-medium mb-2 text-white text-center">
-                Paste anything, get smart answers
+                Smart Search - Zero friction, instant intelligence
               </h3>
               <p className="text-gray-400 text-center mb-6 text-sm">
-                VIN, auction link, chassis code, or just type the car model
+                AI-powered parsing handles any format - VIN codes, auction URLs, chassis codes, or simple car names
               </p>
               
               <div className="space-y-4">
                 <div className="relative">
                   <Input
-                    placeholder="JTD1234567890123456, yahoo.auctions.co.jp/..., BNR32, or Toyota Supra..."
+                    placeholder="Try: skyline gtr, JTD123456789012345, yahoo.auctions.co.jp/b123456789, BNR32..."
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyDown={(e) => {
@@ -301,21 +301,25 @@ export default function Landing() {
             <div className="space-y-3 text-gray-400 text-sm">
               <div className="flex items-center gap-3">
                 <Check className="h-4 w-4 text-amber-400" />
-                <span>Auto-extract from auction URLs</span>
+                <span>Smart URL parsing extracts vehicle data automatically</span>
               </div>
               <div className="flex items-center gap-3">
                 <Check className="h-4 w-4 text-amber-400" />
-                <span>Decode VINs for complete vehicle data</span>
+                <span>Advanced VIN decoding with chassis code recognition</span>
               </div>
               <div className="flex items-center gap-3">
                 <Check className="h-4 w-4 text-amber-400" />
-                <span>Calculate costs for any destination</span>
+                <span>Intelligent model matching across all formats</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Check className="h-4 w-4 text-amber-400" />
+                <span>Instant eligibility and cost calculations</span>
               </div>
             </div>
           </div>
 
           <p className="text-gray-500 text-sm">
-            Start with any vehicle information - we'll guide you through the rest
+            Just type anything - our AI handles the complexity for you
           </p>
         </div>
       </div>
