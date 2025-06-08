@@ -171,9 +171,9 @@ export default function ProfessionalImportFlow() {
     }
   });
 
-  // Market data query
+  // Market data query using existing live market data system
   const { data: marketData } = useQuery({
-    queryKey: ['/api/professional-market-data', vehicleData?.make, vehicleData?.model],
+    queryKey: ['/api/live-market-data', vehicleData?.make, vehicleData?.model],
     enabled: currentStep === 'market-data' && vehicleData !== null,
   });
 
@@ -546,13 +546,43 @@ export default function ProfessionalImportFlow() {
                   <Search className="w-4 h-4 mr-2" />
                   View Available Vehicles
                 </Button>
-                <Button variant="outline" className="w-full">
-                  <FileText className="w-4 h-4 mr-2" />
-                  Download Full Report
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => {
+                    const params = new URLSearchParams();
+                    params.set("make", vehicleData?.make || "");
+                    params.set("model", vehicleData?.model || "");
+                    params.set("year", vehicleData?.year?.toString() || "");
+                    window.location.href = `/value-estimator?${params.toString()}`;
+                  }}
+                >
+                  <DollarSign className="w-4 h-4 mr-2" />
+                  Market Value Analysis
                 </Button>
-                <Button variant="outline" className="w-full">
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => window.location.href = '/shipping-calculator'}
+                >
                   <Truck className="w-4 h-4 mr-2" />
                   Get Shipping Quotes
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => window.location.href = '/compliance-checker'}
+                >
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Advanced Compliance Check
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => window.location.href = '/port-intelligence'}
+                >
+                  <Globe className="w-4 h-4 mr-2" />
+                  Port Intelligence
                 </Button>
               </div>
             </div>
@@ -641,184 +671,7 @@ export default function ProfessionalImportFlow() {
     );
   }
 
-  // Cost Breakdown Step
-  if (currentStep === 'cost-breakdown' && complianceResult) {
-    const vehiclePrice = vehicleData?.estimatedValue || 0;
-    const costs = complianceResult.estimatedCosts;
-    
-    return (
-      <div className="max-w-6xl mx-auto space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>Comprehensive Cost Breakdown</span>
-              <Button 
-                variant="outline" 
-                onClick={() => setCurrentStep('results')}
-              >
-                ← Back to Results
-              </Button>
-            </CardTitle>
-            <p className="text-gray-600">
-              Detailed professional analysis for {vehicleData?.year} {vehicleData?.make} {vehicleData?.model}
-            </p>
-          </CardHeader>
-          <CardContent>
-            <div className="grid lg:grid-cols-2 gap-8">
-              {/* Cost Summary */}
-              <div className="space-y-6">
-                <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-lg border border-green-200">
-                  <h3 className="text-xl font-bold text-green-800 mb-4">Total Import Investment</h3>
-                  <div className="text-3xl font-bold text-green-600 mb-2">
-                    {formatCurrency(costs.total + vehiclePrice)}
-                  </div>
-                  <p className="text-sm text-green-700">
-                    Vehicle + All Import Costs
-                  </p>
-                </div>
 
-                {/* Cost Categories */}
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <div>
-                      <div className="font-semibold text-blue-900">Vehicle Purchase Price</div>
-                      <div className="text-sm text-blue-700">Base acquisition cost</div>
-                    </div>
-                    <div className="text-xl font-bold text-blue-600">
-                      {formatCurrency(vehiclePrice)}
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between items-center p-4 bg-orange-50 rounded-lg border border-orange-200">
-                    <div>
-                      <div className="font-semibold text-orange-900">International Shipping</div>
-                      <div className="text-sm text-orange-700">Ocean freight + handling</div>
-                    </div>
-                    <div className="text-xl font-bold text-orange-600">
-                      {formatCurrency(costs.shipping)}
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between items-center p-4 bg-red-50 rounded-lg border border-red-200">
-                    <div>
-                      <div className="font-semibold text-red-900">Import Duties & Taxes</div>
-                      <div className="text-sm text-red-700">Government charges</div>
-                    </div>
-                    <div className="text-xl font-bold text-red-600">
-                      {formatCurrency(costs.duties)}
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between items-center p-4 bg-purple-50 rounded-lg border border-purple-200">
-                    <div>
-                      <div className="font-semibold text-purple-900">Compliance & Certification</div>
-                      <div className="text-sm text-purple-700">Legal requirements</div>
-                    </div>
-                    <div className="text-xl font-bold text-purple-600">
-                      {formatCurrency(costs.compliance)}
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between items-center p-4 bg-indigo-50 rounded-lg border border-indigo-200">
-                    <div>
-                      <div className="font-semibold text-indigo-900">Registration & Licensing</div>
-                      <div className="text-sm text-indigo-700">Local registration</div>
-                    </div>
-                    <div className="text-xl font-bold text-indigo-600">
-                      {formatCurrency(costs.registration)}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Additional Details */}
-              <div className="space-y-6">
-                {/* Cost Comparison */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Investment Analysis</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex justify-between">
-                      <span>Import Costs as % of Vehicle</span>
-                      <span className="font-semibold">
-                        {vehiclePrice > 0 ? ((costs.total / vehiclePrice) * 100).toFixed(1) : 0}%
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Total ROI Factor</span>
-                      <span className="font-semibold text-green-600">
-                        {vehiclePrice > 0 ? ((costs.total + vehiclePrice) / vehiclePrice).toFixed(2) : 0}x
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Break-even Local Price</span>
-                      <span className="font-semibold">
-                        {formatCurrency(costs.total + vehiclePrice)}
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Timeline Impact */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Timeline & Cash Flow</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span>Initial Payment (Vehicle + Shipping)</span>
-                        <span className="font-semibold">
-                          {formatCurrency(vehiclePrice + costs.shipping)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Customs Clearance</span>
-                        <span className="font-semibold">
-                          {formatCurrency(costs.duties)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Final Registration</span>
-                        <span className="font-semibold">
-                          {formatCurrency(costs.compliance + costs.registration)}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="pt-4 border-t">
-                      <div className="text-center">
-                        <div className="text-sm text-gray-600">Total Process Time</div>
-                        <div className="text-xl font-bold text-blue-600">
-                          {complianceResult.timeline.totalWeeks} weeks
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Actions */}
-                <div className="space-y-3">
-                  <Button className="w-full">
-                    <FileText className="w-4 h-4 mr-2" />
-                    Export Detailed Report
-                  </Button>
-                  <Button variant="outline" className="w-full">
-                    <Calculator className="w-4 h-4 mr-2" />
-                    Adjust Parameters
-                  </Button>
-                  <Button variant="outline" className="w-full">
-                    <Truck className="w-4 h-4 mr-2" />
-                    Get Shipping Quotes
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return null;
 }
