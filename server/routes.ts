@@ -158,17 +158,6 @@ async function performReliableLookup(query: string) {
     return generateEmergencyVehicleResponse(query);
   }
 }
-    
-    // Make extraction fallback
-    const extractedVehicle = await extractVehicleFromQueryDB(normalizedQuery);
-    return await generateVehicleResponseFromDB(extractedVehicle);
-    
-  } catch (error) {
-    console.error('PostgreSQL lookup failed, using emergency fallback:', error);
-    // Emergency in-memory fallback if PostgreSQL fails
-    return generateEmergencyVehicleResponse(normalizedQuery);
-  }
-}
 
 // PostgreSQL-powered vehicle response generation
 async function generateVehicleResponseFromDB(vehicle: any) {
@@ -185,13 +174,13 @@ async function generateVehicleResponseFromDB(vehicle: any) {
     `);
     
     const eligibility = {};
-    eligibilityRules.rows.forEach(rule => {
+    eligibilityRules.rows.forEach((rule: any) => {
       const currentYear = new Date().getFullYear();
       const vehicleAge = currentYear - (vehicle.typical_year || 1995);
       
-      eligibility[rule.destination_country] = {
-        eligible: vehicleAge >= rule.minimum_age_years,
-        minimumAge: rule.minimum_age_years,
+      (eligibility as any)[rule.destination_country] = {
+        eligible: vehicleAge >= (rule.minimum_age_years || 25),
+        minimumAge: rule.minimum_age_years || 25,
         specialRequirements: rule.special_requirements || []
       };
     });
