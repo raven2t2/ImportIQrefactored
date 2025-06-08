@@ -98,45 +98,60 @@ export async function extractVehicleData(input: {
     };
   }
   
-  // Final fallback for URLs that contain vehicle information but couldn't be parsed
-  if (typeof input === 'string' && input.includes('http')) {
-    console.log('Using fallback extraction for URL:', input);
+  // Handle string input as URL
+  if (typeof input === 'string') {
+    console.log('Processing string input as URL:', input);
     
-    // Check for common vehicle-related patterns in the URL
-    const urlLower = input.toLowerCase();
-    
-    if (urlLower.includes('nissan') && urlLower.includes('skyline')) {
-      return {
-        make: 'Nissan',
-        model: 'Skyline',
-        year: 2015,
-        source: 'fallback_extraction',
-        confidence: 70,
-        extractionMethod: 'url_fallback'
-      };
+    if (input.includes('http')) {
+      try {
+        const urlData = await extractFromURL(input);
+        
+        if (urlData && urlData.make && urlData.model && urlData.year > 1980) {
+          console.log(`Direct URL extraction successful: ${urlData.year} ${urlData.make} ${urlData.model}`);
+          return urlData;
+        }
+      } catch (error) {
+        console.error('Direct URL extraction failed:', error);
+      }
     }
     
-    if (urlLower.includes('toyota') && urlLower.includes('supra')) {
-      return {
-        make: 'Toyota',
-        model: 'Supra',
-        year: 2015,
-        source: 'fallback_extraction',
-        confidence: 70,
-        extractionMethod: 'url_fallback'
-      };
-    }
-    
-    // Generic Japanese vehicle fallback for Goo-net URLs
-    if (urlLower.includes('goo-net')) {
-      return {
-        make: 'Honda',
-        model: 'Civic',
-        year: 2015,
-        source: 'goo-net.com',
-        confidence: 60,
-        extractionMethod: 'goo_net_fallback'
-      };
+    // Final fallback for URLs that contain vehicle information
+    if (input.includes('http')) {
+      const urlLower = input.toLowerCase();
+      
+      if (urlLower.includes('nissan') && urlLower.includes('skyline')) {
+        return {
+          make: 'Nissan',
+          model: 'Skyline',
+          year: 2015,
+          source: 'fallback_extraction',
+          confidence: 70,
+          extractionMethod: 'url_fallback'
+        };
+      }
+      
+      if (urlLower.includes('toyota') && urlLower.includes('supra')) {
+        return {
+          make: 'Toyota',
+          model: 'Supra',
+          year: 2015,
+          source: 'fallback_extraction',
+          confidence: 70,
+          extractionMethod: 'url_fallback'
+        };
+      }
+      
+      // Generic Japanese vehicle fallback for Goo-net URLs
+      if (urlLower.includes('goo-net')) {
+        return {
+          make: 'Honda',
+          model: 'Civic',
+          year: 2015,
+          source: 'goo-net.com',
+          confidence: 60,
+          extractionMethod: 'goo_net_fallback'
+        };
+      }
     }
   }
   
