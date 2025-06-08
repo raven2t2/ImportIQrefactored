@@ -1402,13 +1402,25 @@ Keep each recommendation under 40 words, factually accurate, and realistic.`;
       // Force vintage detection for known American muscle patterns
       const forceVintage = hasVintageAmericanPattern;
       
-      // Use comprehensive global vehicle detection system
+      // Use comprehensive global vehicle detection system with comprehensive fallback
       const { detectGlobalVehicle } = await import('./global-vehicle-database');
+      const { comprehensiveFallback } = await import('./comprehensive-fallback-system');
+      const { inferVehicleYear } = await import('./intelligent-year-handler');
+      
       const globalDetection = detectGlobalVehicle(identifier);
       
       if (globalDetection.success) {
         // Get auction samples and eligibility check
         const auctionSamples = getAuctionSamples(globalDetection.data!.make, globalDetection.data!.model, parseInt(globalDetection.data!.years.split('-')[0]) || 2000);
+        
+        // Get comprehensive year-based eligibility data
+        const yearInference = inferVehicleYear(
+          globalDetection.data!.make,
+          globalDetection.data!.model,
+          undefined,
+          identifier.length === 17 ? identifier : undefined
+        );
+        
         // Create eligibility data directly
         const eligibilityCheck = {
           eligible: true,
@@ -1444,8 +1456,26 @@ Keep each recommendation under 40 words, factually accurate, and realistic.`;
           },
           auctionSamples,
           eligibility: eligibilityCheck,
+          eligibilityByCountry: yearInference.eligibilityByCountry,
           dataSource: 'Global Vehicle Database',
           note: `Detected ${globalDetection.type === 'vin' ? 'VIN' : globalDetection.type === 'chassis' ? 'chassis code' : 'model name'} with comprehensive technical specifications`
+        });
+      }
+      
+      // If global detection fails, use comprehensive fallback system
+      const fallbackResult = await comprehensiveFallback(identifier);
+      
+      if (fallbackResult.success) {
+        return res.json({
+          success: true,
+          type: fallbackResult.resultType,
+          confidence: fallbackResult.confidence,
+          data: fallbackResult.data,
+          eligibilityByCountry: fallbackResult.eligibilityByCountry,
+          estimatedCosts: fallbackResult.estimatedCosts,
+          guidance: fallbackResult.guidance,
+          dataSource: 'Comprehensive Fallback System',
+          note: `${fallbackResult.resultType.replace('_', ' ')} using intelligent inference and fuzzy matching`
         });
       }
       
