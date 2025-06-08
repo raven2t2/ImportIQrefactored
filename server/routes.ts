@@ -3810,10 +3810,16 @@ Respond with a JSON object containing your recommendations.`;
       const { NarrativeEngine } = await import('./narrative-engine');
       
       // Get vehicle hero data from database
-      const heroData = await db.select()
-        .from(vehicleHeads)
-        .where(sql`${vehicleHeads.make} ILIKE ${vehicleData?.make || ''} AND ${vehicleHeads.model} ILIKE ${vehicleData?.model || ''}`)
-        .limit(1);
+      let heroData = [];
+      try {
+        heroData = await db.select()
+          .from(vehicleHeads)
+          .where(sql`LOWER(${vehicleHeads.make}) = LOWER(${vehicleData?.make || ''}) AND LOWER(${vehicleHeads.model}) LIKE LOWER(${'%' + (vehicleData?.model || '') + '%'})`)
+          .limit(1);
+      } catch (error) {
+        console.log('Hero data lookup fallback:', error.message);
+        heroData = [];
+      }
       
       const costBreakdown = await generateCostBreakdown(vehicleData, destination);
       const narrative = NarrativeEngine.generateJourneyNarrative(vehicleData, costBreakdown, destination);
@@ -4055,7 +4061,7 @@ Respond with a JSON object containing your recommendations.`;
   app.get("/api/session/:sessionToken", async (req, res) => {
     try {
       const { sessionToken } = req.params;
-      const { SessionService } = require('./session-service');
+      const { SessionService } = await import('./session-service');
       
       const session = await SessionService.getSession(sessionToken);
       if (!session) {
@@ -4072,7 +4078,7 @@ Respond with a JSON object containing your recommendations.`;
   app.post("/api/session/reconstruct", async (req, res) => {
     try {
       const { make, model, chassis, year, destination } = req.body;
-      const { SessionService } = require('./session-service');
+      const { SessionService } = await import('./session-service');
       
       const sessionToken = await SessionService.reconstructSessionFromParams({
         make, model, chassis, year, destination
@@ -4093,7 +4099,7 @@ Respond with a JSON object containing your recommendations.`;
   app.get("/api/session/:sessionToken/recent-queries", async (req, res) => {
     try {
       const { sessionToken } = req.params;
-      const { SessionService } = require('./session-service');
+      const { SessionService } = await import('./session-service');
       
       const queries = await SessionService.getRecentQueries(sessionToken, 10);
       res.json(queries);
