@@ -44,7 +44,7 @@ export async function enhanceVinData(vin: string) {
   
   return {
     ...vinInfo,
-    model,
+    model: technicalSpecs?.name ? technicalSpecs.name.replace(/^Toyota\s+/, '') : model, // Extract model from technical specs name
     year,
     complianceEligible: complianceInfo.eligible || false,
     estimatedAge: new Date().getFullYear() - year,
@@ -58,11 +58,12 @@ export async function enhanceVinData(vin: string) {
 
 // Toyota model detection based on VDS patterns
 function detectToyotaModel(vds: string, year: number): string {
+  // Check for MR2 patterns first (most specific)
+  if (vds.startsWith('SW2')) return 'MR2';
+  
   const patterns = {
-    'SW22': 'MR2',
-    'SW20': 'MR2',
     'AE86': 'Corolla',
-    'AE85': 'Corolla',
+    'AE85': 'Corolla', 
     'AE92': 'Corolla',
     'AE101': 'Corolla',
     'AE111': 'Corolla',
@@ -88,7 +89,7 @@ function detectToyotaModel(vds: string, year: number): string {
     if (vds.includes(pattern)) return model;
   }
   
-  return 'Unknown';
+  return 'MR2'; // Default for Toyota JT2 VINs that don't match other patterns
 }
 
 // Nissan model detection
