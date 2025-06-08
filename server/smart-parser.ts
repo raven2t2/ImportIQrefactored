@@ -13,12 +13,6 @@ import {
   exchangeRates, 
   fallbackKeywords,
   vehicleLookupRequests,
-  vehicleManufacturers,
-  portIntelligence,
-  regionalComplianceDetails,
-  auctionHouses,
-  customsDuties,
-  vehicleSafetyRecalls,
   vehicleModelPatterns,
   smartParserHistory,
   adminQueryReviews,
@@ -847,8 +841,8 @@ class PostgreSQLSmartParser {
         const sourceBreakdown: SourceBreakdown[] = [
           {
             dataPoint: 'Vehicle Pattern Recognition',
-            source: bestMatch.source_attribution,
-            confidence: bestMatch.confidence_score,
+            source: bestMatch.sourceAttribution || 'Pattern Database',
+            confidence: bestMatch.confidenceScore,
             lastVerified: new Date().toISOString().split('T')[0]
           }
         ];
