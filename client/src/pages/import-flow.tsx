@@ -64,7 +64,7 @@ interface AuctionListing {
   condition: string;
 }
 
-type FlowStep = 'entry' | 'processing' | 'summary' | 'costs' | 'auctions' | 'services' | 'action';
+type FlowStep = 'entry' | 'country-select' | 'processing' | 'summary' | 'costs' | 'auctions' | 'services' | 'action';
 
 export default function ImportFlow() {
   const [currentStep, setCurrentStep] = useState<FlowStep>('entry');
@@ -126,7 +126,7 @@ export default function ImportFlow() {
       // Continue with eligibility check
       checkEligibilityMutation.mutate({
         ...fallbackVehicle,
-        targetCountries: ['AU', 'US', 'UK', 'CA']
+        targetCountries: [targetCountry]
       });
     }
   });

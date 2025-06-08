@@ -6252,11 +6252,6 @@ IMPORTANT GUIDELINES:
           estimatedValue: data.estimatedValue || 25000
         };
 
-        // Use target country from extracted data if available
-        const targetCountries = (extractedData as any).targetCountry ? 
-          [(extractedData as any).targetCountry] : 
-          (data.targetCountries || ['AU', 'US', 'UK', 'CA']);
-
         console.log(`Vehicle extraction successful: ${extractedData.year} ${extractedData.make} ${extractedData.model} (confidence: ${extractedData.confidence}%)`);
 
       } catch (extractionError) {
@@ -6285,6 +6280,11 @@ IMPORTANT GUIDELINES:
         
         return 'other';
       }
+
+      // Use target country from extracted data if available
+      const targetCountries = (extractedData as any).targetCountry ? 
+        [(extractedData as any).targetCountry] : 
+        (data.targetCountries || ['AU']);
 
       // Check eligibility for each target country
       const results = [];
