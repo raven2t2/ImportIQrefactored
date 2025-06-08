@@ -11,6 +11,7 @@ import ModularDashboard from "@/pages/modular-dashboard";
 import Features from "@/pages/features";
 import About from "@/pages/about";
 import ImportCalculator from "@/pages/import-calculator";
+import ImportCalculatorAU from "@/pages/import-calculator-au";
 import ComplianceEstimate from "@/pages/compliance-estimate";
 import ModEstimator from "@/pages/mod-estimator";
 import ModCostEstimator from "@/pages/mod-cost-estimator";
@@ -69,6 +70,7 @@ function Router() {
       <Route path="/about" component={About} />
       <Route path="/importiq" component={ImportIQ} />
       <Route path="/import-calculator" component={ImportCalculator} />
+      <Route path="/import-calculator-au" component={ImportCalculatorAU} />
       <Route path="/import-cost-calculator" component={ImportCalculator} />
       <Route path="/true-cost-explorer" component={TrueCostExplorer} />
       <Route path="/import-timeline" component={ImportTimeline} />

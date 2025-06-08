@@ -871,7 +871,13 @@ export default function ImportFlow() {
                       params.set("vehiclePrice", vehicleData?.estimatedValue?.toString() || "");
                       params.set("origin", vehicleData?.origin || "japan");
                       params.set("targetCountry", targetCountry || "AU");
-                      window.location.href = `/import-calculator?${params.toString()}`;
+                      
+                      // Route to country-specific calculator
+                      const calculatorRoute = targetCountry === 'AU' 
+                        ? '/import-calculator-au' 
+                        : '/import-calculator'; // Generic for other countries
+                      
+                      window.location.href = `${calculatorRoute}?${params.toString()}`;
                     }}
                     className="flex-1"
                   >

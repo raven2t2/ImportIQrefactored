@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useLocation } from "wouter";
 import { useMutation } from "@tanstack/react-query";
 import { Calculator, MapPin, DollarSign, FileText } from "lucide-react";
 import { Link } from "wouter";
@@ -56,6 +57,7 @@ interface AuCalculationResult {
 
 export default function ImportCalculatorAU() {
   const [calculations, setCalculations] = useState<AuCalculationResult | null>(null);
+  const [location] = useLocation();
   const { toast } = useToast();
 
   const form = useForm<AuCalculatorData>({
@@ -71,6 +73,45 @@ export default function ImportCalculatorAU() {
       fuelEfficient: false,
     },
   });
+
+  // Pre-fill form from URL parameters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const make = urlParams.get('make');
+    const model = urlParams.get('model');
+    const year = urlParams.get('year');
+    const vehiclePrice = urlParams.get('vehiclePrice');
+    const origin = urlParams.get('origin');
+
+    if (make || model || year || vehiclePrice || origin) {
+      const updates: Partial<AuCalculatorData> = {};
+      
+      if (make) updates.vehicleMake = make;
+      if (model) updates.vehicleModel = model;
+      if (year) updates.vehicleYear = parseInt(year) || 2020;
+      if (vehiclePrice) updates.vehiclePrice = parseInt(vehiclePrice) || 0;
+      if (origin) {
+        const originMap: Record<string, "japan" | "usa" | "uk" | "other"> = {
+          'japan': 'japan',
+          'usa': 'usa', 
+          'us': 'usa',
+          'uk': 'uk',
+          'other': 'other'
+        };
+        updates.shippingOrigin = originMap[origin.toLowerCase()] || 'japan';
+      }
+
+      // Update form with new values
+      Object.entries(updates).forEach(([key, value]) => {
+        form.setValue(key as keyof AuCalculatorData, value);
+      });
+
+      toast({
+        title: "Vehicle Data Loaded",
+        description: "Pre-filled calculator with vehicle details from import analysis.",
+      });
+    }
+  }, [location, form, toast]);
 
   const calculateMutation = useMutation({
     mutationFn: async (data: AuCalculatorData): Promise<AuCalculationResult> => {
