@@ -873,9 +873,30 @@ export default function ImportFlow() {
                       params.set("targetCountry", targetCountry || "AU");
                       
                       // Route to country-specific calculator
-                      const calculatorRoute = targetCountry === 'AU' 
-                        ? '/import-calculator-au' 
-                        : '/import-calculator'; // Generic for other countries
+                      const getCalculatorRoute = (country: string) => {
+                        switch (country) {
+                          case 'AU':
+                          case 'AUS':
+                          case 'AUSTRALIA':
+                            return '/import-calculator-au';
+                          case 'US':
+                          case 'USA':
+                          case 'UNITED STATES':
+                            return '/import-calculator-us';
+                          case 'CA':
+                          case 'CAN':
+                          case 'CANADA':
+                            return '/import-calculator-ca';
+                          case 'UK':
+                          case 'GB':
+                          case 'UNITED KINGDOM':
+                            return '/import-calculator-uk';
+                          default:
+                            return '/import-calculator'; // Generic fallback
+                        }
+                      };
+                      
+                      const calculatorRoute = getCalculatorRoute(targetCountry || 'AU');
                       
                       window.location.href = `${calculatorRoute}?${params.toString()}`;
                     }}
