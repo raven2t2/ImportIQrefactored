@@ -3770,114 +3770,70 @@ Respond with a JSON object containing your recommendations.`;
     try {
       const { vehicleData, destination, sessionToken } = req.body;
       
-      // Import narrative engine
-      const { NarrativeEngine } = await import('./narrative-engine');
-      
-      // Get vehicle hero data from database
-      let heroData = [];
-      try {
-        const { sql } = await import('drizzle-orm');
-        heroData = await db.select()
-          .from(vehicleHeads)
-          .where(sql`LOWER(${vehicleHeads.make}) = LOWER(${vehicleData?.make || ''}) AND LOWER(${vehicleHeads.model}) LIKE LOWER(${'%' + (vehicleData?.model || '') + '%'})`)
-          .limit(1);
-      } catch (error) {
-        console.log('Hero data lookup fallback:', error.message);
-        heroData = [];
-      }
-      
-      // Query database for existing cost calculations
-      let costBreakdown;
-      let existingCostData = [];
-      
-      try {
-        existingCostData = await db.select()
-          .from(importCostCalculations)
-          .where(eq(importCostCalculations.destination, destination))
-          .orderBy(desc(importCostCalculations.createdAt))
-          .limit(1);
-      } catch (error) {
-        console.log('Database cost query error:', error);
+      if (!vehicleData || !destination) {
+        return res.status(400).json({ 
+          error: 'Missing required parameters: vehicleData and destination' 
+        });
       }
 
-      if (existingCostData.length > 0) {
-        const dbCost = existingCostData[0];
-        costBreakdown = {
-          vehicle: parseFloat(dbCost.vehicleCostAud || '45000'),
-          shipping: parseFloat(dbCost.shippingCostAud || '3500'),
-          duties: parseFloat(dbCost.dutiesAndTaxes || '7325'),
-          compliance: parseFloat(dbCost.complianceCosts || '8500'),
-          total: parseFloat(dbCost.totalCostAud || '64325'),
-          breakdown: [
-            { category: 'Vehicle Purchase', amount: parseFloat(dbCost.vehicleCostAud || '45000'), description: 'Database-sourced vehicle cost' },
-            { category: 'Shipping', amount: parseFloat(dbCost.shippingCostAud || '3500'), description: 'Authenticated shipping rates' },
-            { category: 'Import Duties', amount: Math.round(parseFloat(dbCost.dutiesAndTaxes || '7325') * 0.4), description: '5% import duty' },
-            { category: 'GST', amount: Math.round(parseFloat(dbCost.dutiesAndTaxes || '7325') * 0.6), description: '10% goods and services tax' },
-            { category: 'Compliance', amount: parseFloat(dbCost.complianceCosts || '8500'), description: 'RAW approval and modifications' }
-          ]
-        };
-      } else {
-        costBreakdown = await generateCostBreakdown(vehicleData, destination);
-      }
+      console.log('Import intelligence request:', { vehicleData, destination });
+
+      // Use simplified PostgreSQL-only import intelligence
+      const { SimplifiedImportIntelligence } = await import('./simplified-import-intelligence.js');
       
-      const narrative = NarrativeEngine.generateJourneyNarrative(vehicleData, costBreakdown, destination);
-      
-      // Enhanced intelligence with database-driven data
-      const intelligence = {
+      const result = await SimplifiedImportIntelligence.generateIntelligence(
+        vehicleData,
+        destination,
+        sessionToken || 'anonymous'
+      );
+
+      res.json({
         vehicle: {
-          make: vehicleData?.make || 'Unknown',
-          model: vehicleData?.model || 'Unknown', 
-          chassis: vehicleData?.chassis || '',
-          year: vehicleData?.year || '',
-          heroStatus: heroData[0]?.heroStatus || 'legendary',
-          emotionalDescription: heroData[0]?.emotionalDescription || 'The ultimate JDM icon with sequential twin turbos and legendary 2JZ-GTE engine',
-          culturalSignificance: heroData[0]?.culturalSignificance || 'Defines the golden era of Japanese sports cars'
+          make: result.vehicle.make,
+          model: result.vehicle.model,
+          chassis: result.vehicle.chassisCode,
+          year: result.vehicle.year,
+          heroStatus: 'legendary',
+          emotionalDescription: `${result.vehicle.make} ${result.vehicle.model} - Premium Japanese import with authentic heritage`,
+          culturalSignificance: 'Authentic Japanese automotive excellence'
         },
         destination: {
-          country: destination || 'australia',
+          country: destination,
           flag: getCountryFlag(destination),
           name: getCountryName(destination)
         },
         eligibility: {
-          status: 'eligible',
-          confidence: 95,
-          timeline: '6-12 weeks',
-          keyFactors: heroData[0]?.keyAppealFactors || [
-            '2JZ-GTE engine',
-            'Sequential turbos',
-            'Tunability',
-            'Fast & Furious fame'
+          status: result.eligibility.eligible ? 'eligible' : 'restricted',
+          confidence: result.eligibility.eligible ? 95 : 30,
+          timeline: result.timeline.total,
+          keyFactors: result.eligibility.specialRequirements
+        },
+        costs: {
+          vehicle: result.costBreakdown.vehiclePrice,
+          shipping: result.costBreakdown.shipping,
+          duties: result.costBreakdown.duty + result.costBreakdown.gst,
+          compliance: result.costBreakdown.compliance,
+          total: result.costBreakdown.total,
+          breakdown: [
+            { category: 'Vehicle Purchase', amount: result.costBreakdown.vehiclePrice, description: 'Estimated vehicle cost' },
+            { category: 'Shipping', amount: result.costBreakdown.shipping, description: 'International shipping' },
+            { category: 'Import Duties', amount: result.costBreakdown.duty, description: 'Government duties' },
+            { category: 'GST', amount: result.costBreakdown.gst, description: 'Goods and services tax' },
+            { category: 'Compliance', amount: result.costBreakdown.compliance, description: 'Local compliance costs' }
           ]
         },
-        costs: costBreakdown,
-        timeline: generateImportTimeline(vehicleData, destination),
-        narrative: narrative,
-        nextSteps: [
-          {
-            title: 'Vehicle Purchase',
-            description: 'Secure purchase agreement with seller',
-            priority: 'high',
-            estimatedTime: '1-2 weeks'
-          },
-          {
-            title: 'Export Documentation', 
-            description: 'Obtain export permits and certificates',
-            priority: 'high',
-            estimatedTime: '2-3 weeks'
-          },
-          {
-            title: 'Shipping Arrangement',
-            description: 'Book container shipping to destination port',
-            priority: 'medium',
-            estimatedTime: '4-6 weeks'
-          }
-        ]
-      };
-      
-      res.json(intelligence);
+        timeline: result.timeline,
+        narrative: `Your ${result.vehicle.make} ${result.vehicle.model} represents ${result.eligibility.eligible ? 'an excellent import opportunity' : 'a challenging but possible import'} with total costs around ${result.costBreakdown.currency} ${result.costBreakdown.total.toLocaleString()}.`,
+        nextSteps: result.nextSteps,
+        lastUpdated: new Date().toISOString()
+      });
+
     } catch (error) {
       console.error('Import intelligence error:', error);
-      res.status(500).json({ error: 'Failed to generate import intelligence' });
+      res.status(500).json({ 
+        error: 'Failed to generate import intelligence',
+        details: error.message 
+      });
     }
   });
 
