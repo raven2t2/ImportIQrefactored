@@ -863,7 +863,16 @@ export default function ImportFlow() {
 
                 <div className="flex gap-4 mt-6">
                   <Button 
-                    onClick={() => setCurrentStep('costs')}
+                    onClick={() => {
+                      const params = new URLSearchParams();
+                      params.set("make", vehicleData?.make || "");
+                      params.set("model", vehicleData?.model || "");
+                      params.set("year", vehicleData?.year?.toString() || "");
+                      params.set("vehiclePrice", vehicleData?.estimatedValue?.toString() || "");
+                      params.set("origin", vehicleData?.origin || "japan");
+                      params.set("targetCountry", targetCountry || "AU");
+                      window.location.href = `/import-calculator?${params.toString()}`;
+                    }}
                     className="flex-1"
                   >
                     View Cost Breakdown
