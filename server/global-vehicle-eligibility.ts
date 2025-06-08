@@ -79,6 +79,42 @@ function checkAustralianEligibility(vehicle: VehicleDetails): GlobalEligibilityR
   const currentYear = new Date().getFullYear();
   const vehicleAge = currentYear - vehicle.year;
   
+  // Reject impossible scenarios
+  if (vehicle.year > currentYear) {
+    return {
+      targetCountry: 'AU',
+      eligible: false,
+      eligibilityType: 'Invalid Vehicle Year',
+      ageRequirement: {
+        minimumAge: 25,
+        currentAge: vehicleAge,
+        meetsRequirement: false,
+        ruleDescription: 'Vehicle year cannot be in the future'
+      },
+      complianceRequirements: {
+        standardsCompliance: false,
+        safetyModifications: [],
+        emissionsModifications: [],
+        inspectionRequired: false,
+        testingRequired: false
+      },
+      estimatedCosts: {
+        complianceCost: 0,
+        modificationCost: 0,
+        inspectionFees: 0,
+        dutyAndTaxes: 0
+      },
+      restrictions: ['Invalid vehicle year'],
+      nextSteps: ['Please verify vehicle information'],
+      warnings: ['Vehicle year appears to be incorrect'],
+      timeline: {
+        totalWeeks: 0,
+        phases: []
+      },
+      lastUpdated: new Date().toISOString()
+    };
+  }
+  
   let eligible = false;
   let eligibilityType = 'Not Eligible';
   let complianceCost = 0;
@@ -87,13 +123,14 @@ function checkAustralianEligibility(vehicle: VehicleDetails): GlobalEligibilityR
   const nextSteps: string[] = [];
   const warnings: string[] = [];
 
+  // Strict Australian import rules
   if (vehicleAge >= 25) {
     eligible = true;
     eligibilityType = '25-Year Rule (Historic Vehicle)';
     complianceCost = 1500;
     nextSteps.push('Apply for import approval via DITRDCA');
     nextSteps.push('Arrange basic safety inspection');
-  } else if (vehicleAge >= 15) {
+  } else if (vehicleAge >= 15 && vehicle.origin === 'japan') {
     eligible = true;
     eligibilityType = 'Personal Import Scheme (15+ years)';
     complianceCost = 3500;
