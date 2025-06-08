@@ -3065,42 +3065,33 @@ Respond with a JSON object containing your recommendations.`;
         
         // Get comprehensive technical specifications for chassis codes
         const { VIN_TECHNICAL_DATABASE } = await import('./authentic-vehicle-data');
-        const { jdmDatabase } = await import('./routes');
         
         const chassisCode = input.toUpperCase();
-        let technicalSpecs = null;
         
-        // Enhanced chassis code mapping for JDM vehicles
-        const chassisMapping: Record<string, {wmi: string, model: string}> = {
-          'JZA80': { wmi: 'JT2', model: 'A80' },
-          'BNR32': { wmi: 'JN1', model: 'R32' },
-          'BNR34': { wmi: 'JN1', model: 'R34' },
-          'S13': { wmi: 'JN1', model: 'S13' },
-          'S14': { wmi: 'JN1', model: 'S14' },
-          'S15': { wmi: 'JN1', model: 'S15' },
-          'FD3S': { wmi: 'JM1', model: 'FD3S' },
-          'SW20': { wmi: 'JT2', model: 'SW20' }
+        // Enhanced chassis code mapping and data for JDM vehicles
+        const chassisMapping: Record<string, {wmi: string, model: string, make: string, modelName: string, years: string, engine: string}> = {
+          'JZA80': { wmi: 'JT2', model: 'A80', make: 'Toyota', modelName: 'Supra', years: '1993–2002', engine: '2JZ-GTE' },
+          'BNR32': { wmi: 'JN1', model: 'R32', make: 'Nissan', modelName: 'Skyline GT-R', years: '1989–1994', engine: 'RB26DETT' },
+          'BNR34': { wmi: 'JN1', model: 'R34', make: 'Nissan', modelName: 'Skyline GT-R', years: '1999–2002', engine: 'RB26DETT' },
+          'S13': { wmi: 'JN1', model: 'S13', make: 'Nissan', modelName: '180SX/240SX', years: '1988–1997', engine: 'SR20DET' },
+          'S14': { wmi: 'JN1', model: 'S14', make: 'Nissan', modelName: '200SX/240SX', years: '1993–1998', engine: 'SR20DET' },
+          'S15': { wmi: 'JN1', model: 'S15', make: 'Nissan', modelName: 'Silvia', years: '1999–2002', engine: 'SR20DET' },
+          'FD3S': { wmi: 'JM1', model: 'FD3S', make: 'Mazda', modelName: 'RX-7', years: '1992–2002', engine: '13B-REW' },
+          'SW20': { wmi: 'JT2', model: 'SW20', make: 'Toyota', modelName: 'MR2', years: '1989–1999', engine: '3S-GTE' }
         };
         
-        // Direct chassis code lookup
-        if (chassisMapping[chassisCode]) {
-          const mapping = chassisMapping[chassisCode];
-          if (VIN_TECHNICAL_DATABASE[mapping.wmi]?.models[mapping.model]) {
-            technicalSpecs = VIN_TECHNICAL_DATABASE[mapping.wmi].models[mapping.model];
+        const chassisData = chassisMapping[chassisCode];
+        if (chassisData) {
+          // Set basic vehicle information
+          enhancedData.make = chassisData.make;
+          enhancedData.model = chassisData.modelName;
+          enhancedData.years = chassisData.years;
+          enhancedData.engine = chassisData.engine;
+          
+          // Try to get technical specifications
+          if (VIN_TECHNICAL_DATABASE[chassisData.wmi]?.models[chassisData.model]) {
+            enhancedData.technicalSpecs = VIN_TECHNICAL_DATABASE[chassisData.wmi].models[chassisData.model];
           }
-        }
-        
-        // Get basic vehicle info from JDM database
-        const jdmData = jdmDatabase[chassisCode as keyof typeof jdmDatabase];
-        if (jdmData) {
-          enhancedData.make = jdmData.make;
-          enhancedData.model = jdmData.model;
-          enhancedData.years = jdmData.years;
-          enhancedData.engine = jdmData.engine;
-        }
-        
-        if (technicalSpecs) {
-          enhancedData.technicalSpecs = technicalSpecs;
         }
         
       } else if (detectedType === 'model') {
