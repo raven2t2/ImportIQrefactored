@@ -535,6 +535,13 @@ export async function checkCountryEligibility(vehicleData: any, countryCode: str
             'UK',
             'england'
           );
+        } else {
+          // Default popular modifications for JDM vehicles
+          modificationCompliance = getUKModCompliance(
+            ['Turbo upgrade', 'ECU tune', 'Exhaust system', 'Coilover suspension'],
+            'UK',
+            'england'
+          );
         }
         break;
 
@@ -582,6 +589,13 @@ export async function checkCountryEligibility(vehicleData: any, countryCode: str
             'US',
             'CA'
           );
+        } else {
+          // Default popular modifications for JDM vehicles
+          modificationCompliance = getUSModCompliance(
+            ['Turbo upgrade', 'ECU tune', 'Exhaust system', 'Coilover suspension'],
+            'US',
+            'CA'
+          );
         }
         break;
 
@@ -602,6 +616,13 @@ export async function checkCountryEligibility(vehicleData: any, countryCode: str
         if (vehicleData.technicalSpecs?.popularModifications) {
           modificationCompliance = getCAModCompliance(
             vehicleData.technicalSpecs.popularModifications,
+            'CA',
+            'ON'
+          );
+        } else {
+          // Default popular modifications for JDM vehicles
+          modificationCompliance = getCAModCompliance(
+            ['Turbo upgrade', 'ECU tune', 'Exhaust system', 'Coilover suspension'],
             'CA',
             'ON'
           );
