@@ -163,88 +163,97 @@ export default function Landing() {
         </div>
       </div>
 
-      {/* Data Authenticity Section */}
+      {/* Top Import Destinations */}
       <div className="py-20 bg-gradient-to-b from-black to-gray-900">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
-              Real data from government sources
+              Most popular import destinations
             </h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              We use authentic regulatory data from 17 countries with 88 regional variations - 
-              no estimates, no guesswork.
+              Check import eligibility and costs for the top global markets 
+              with authentic government data and real fees.
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 mb-16">
-            <div className="bg-gray-900/50 rounded-xl p-8 border border-gray-800">
+            <div 
+              className="bg-gray-900/50 rounded-xl p-8 border border-gray-800 hover:bg-gray-900/70 transition-colors cursor-pointer"
+              onClick={() => setLocation('/smart-lookup')}
+            >
               <div className="w-12 h-12 bg-amber-400/20 rounded-lg flex items-center justify-center mb-6">
                 <span className="text-2xl">🇦🇺</span>
               </div>
-              <h3 className="text-xl font-semibold mb-4 text-white">Australia</h3>
+              <h3 className="text-xl font-semibold mb-4 text-white">#1 Australia</h3>
               <p className="text-gray-400 mb-4">
-                Direct from RAWS and state transport authorities
+                Most popular destination - 15+ year rule
               </p>
               <ul className="space-y-2 text-sm text-gray-500">
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-amber-400" />
-                  ADR compliance requirements
+                  Compliance cost: $8,000-$15,000
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-amber-400" />
-                  State registration fees
+                  Import duty: 5% + GST 10%
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-amber-400" />
-                  Port processing costs
+                  Timeline: 4-8 weeks
                 </li>
               </ul>
             </div>
 
-            <div className="bg-gray-900/50 rounded-xl p-8 border border-gray-800">
+            <div 
+              className="bg-gray-900/50 rounded-xl p-8 border border-gray-800 hover:bg-gray-900/70 transition-colors cursor-pointer"
+              onClick={() => setLocation('/smart-lookup')}
+            >
               <div className="w-12 h-12 bg-amber-400/20 rounded-lg flex items-center justify-center mb-6">
                 <span className="text-2xl">🇬🇧</span>
               </div>
-              <h3 className="text-xl font-semibold mb-4 text-white">United Kingdom</h3>
+              <h3 className="text-xl font-semibold mb-4 text-white">#2 United Kingdom</h3>
               <p className="text-gray-400 mb-4">
-                DVLA and HMRC official data
+                No age restrictions, IVA test required
               </p>
               <ul className="space-y-2 text-sm text-gray-500">
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-amber-400" />
-                  IVA test costs: £456
+                  IVA test: £456
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-amber-400" />
-                  VAT rates: 20%
+                  VAT: 20% + duties
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-amber-400" />
-                  Regional variations
+                  Timeline: 6-10 weeks
                 </li>
               </ul>
             </div>
 
-            <div className="bg-gray-900/50 rounded-xl p-8 border border-gray-800">
+            <div 
+              className="bg-gray-900/50 rounded-xl p-8 border border-gray-800 hover:bg-gray-900/70 transition-colors cursor-pointer"
+              onClick={() => setLocation('/smart-lookup')}
+            >
               <div className="w-12 h-12 bg-amber-400/20 rounded-lg flex items-center justify-center mb-6">
-                <span className="text-2xl">🇩🇪</span>
+                <span className="text-2xl">🇺🇸</span>
               </div>
-              <h3 className="text-xl font-semibold mb-4 text-white">Germany</h3>
+              <h3 className="text-xl font-semibold mb-4 text-white">#3 United States</h3>
               <p className="text-gray-400 mb-4">
-                TÜV and government authorities
+                25-year rule, high-value market
               </p>
               <ul className="space-y-2 text-sm text-gray-500">
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-amber-400" />
-                  TÜV inspection: €145.40
+                  Duty: 2.5% passenger cars
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-amber-400" />
-                  Registration fees by state
+                  No compliance cost (25+ years)
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-amber-400" />
-                  Emissions standards
+                  Timeline: 2-4 weeks
                 </li>
               </ul>
             </div>

@@ -142,43 +142,7 @@ export function SmartLookupPage() {
           </Card>
         )}
 
-        {/* Quick Intent Actions */}
-        {parsedInput && !eligibilityMutation.isPending && !showResults && (
-          <Card className="border-2 border-green-200 bg-green-50 mb-6">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <span className="text-2xl">{getIntentIcon(parsedInput.intent)}</span>
-                <span>Intent Detected: {getIntentAction(parsedInput.intent)}</span>
-                <Badge variant="outline" className="ml-auto">
-                  {parsedInput.confidence}% confidence
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-4 bg-white rounded-lg border">
-                  <div className="font-medium mb-2">Vehicle Detected</div>
-                  <div className="text-sm text-gray-600">
-                    {parsedInput.detectedInfo?.make || 'Unknown'} {parsedInput.detectedInfo?.model || ''}
-                    {parsedInput.detectedInfo?.year && ` (${parsedInput.detectedInfo.year})`}
-                  </div>
-                </div>
-                <div className="p-4 bg-white rounded-lg border">
-                  <div className="font-medium mb-2">Origin Market</div>
-                  <div className="text-sm text-gray-600">
-                    {parsedInput.detectedInfo?.origin || 'Detecting...'}
-                  </div>
-                </div>
-                <div className="p-4 bg-white rounded-lg border">
-                  <div className="font-medium mb-2">Analysis Type</div>
-                  <div className="text-sm text-gray-600 capitalize">
-                    {parsedInput.type} Analysis
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+
 
         {/* Results */}
         {showResults && eligibilityResults && (
