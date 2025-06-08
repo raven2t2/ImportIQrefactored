@@ -343,6 +343,40 @@ export const lookupAnalytics = pgTable("lookup_analytics", {
   dateAnalyzed: timestamp("date_analyzed").defaultNow(),
 });
 
+// Vehicle heads database with hero vehicles and emotional descriptions
+export const vehicleHeads = pgTable('vehicle_heads', {
+  id: serial('id').primaryKey(),
+  make: text('make').notNull(),
+  model: text('model').notNull(),
+  chassisCode: text('chassis_code'),
+  yearStart: integer('year_start'),
+  yearEnd: integer('year_end'),
+  originCountry: text('origin_country'),
+  heroStatus: text('hero_status'),
+  emotionalDescription: text('emotional_description'),
+  importDifficulty: text('import_difficulty'),
+  typicalPriceRange: text('typical_price_range'),
+  keyAppealFactors: text('key_appeal_factors').array(),
+  culturalSignificance: text('cultural_significance'),
+  createdAt: timestamp('created_at').defaultNow()
+});
+
+// Import cost calculations for tracking pricing data
+export const importCostCalculations = pgTable('import_cost_calculations', {
+  id: serial('id').primaryKey(),
+  vehicleData: jsonb('vehicle_data'),
+  destination: text('destination'),
+  vehicleCostAud: decimal('vehicle_cost_aud', { precision: 12, scale: 2 }),
+  shippingCostAud: decimal('shipping_cost_aud', { precision: 12, scale: 2 }),
+  dutiesAndTaxes: decimal('duties_and_taxes', { precision: 12, scale: 2 }),
+  complianceCosts: decimal('compliance_costs', { precision: 12, scale: 2 }),
+  totalCostAud: decimal('total_cost_aud', { precision: 12, scale: 2 }),
+  sessionToken: text('session_token'),
+  userAgent: text('user_agent'),
+  ipAddress: text('ip_address'),
+  createdAt: timestamp('created_at').defaultNow()
+});
+
 // Vehicle Journey Sessions - Full persistence for intelligent lookup journeys
 export const vehicleJourneySessions = pgTable("vehicle_journey_sessions", {
   id: serial("id").primaryKey(),
