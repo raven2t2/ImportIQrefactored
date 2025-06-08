@@ -29,9 +29,43 @@ export interface SmartParserResponse {
   sourceBreakdown: SourceBreakdown[];
   whyThisResult: string;
   nextSteps: NextStepRecommendation[];
+  userIntent?: UserIntentClassification;
+  importRiskIndex?: ImportRiskIndex;
+  strategicRecommendations?: StrategicRecommendation[];
   fallbackSuggestions?: string[];
   lastUpdated?: string;
   disclaimer?: string;
+}
+
+export interface UserIntentClassification {
+  category: string;
+  subcategory: string;
+  confidence: number;
+  riskFactors: string[];
+  detectedKeywords: string[];
+}
+
+export interface ImportRiskIndex {
+  score: number; // 0-100
+  riskLevel: 'low' | 'medium' | 'high' | 'critical';
+  factors: RiskFactor[];
+  explanation: string;
+}
+
+export interface RiskFactor {
+  name: string;
+  impact: number;
+  description: string;
+}
+
+export interface StrategicRecommendation {
+  type: string;
+  title: string;
+  description: string;
+  timing: string;
+  alternatives: string[];
+  confidence: number;
+  priority: 'low' | 'medium' | 'high';
 }
 
 export interface SourceBreakdown {
@@ -524,6 +558,146 @@ class PostgreSQLSmartParser {
       return suggestions.map(s => s.normalizedModel);
     } catch (error) {
       console.error('Fallback suggestions error:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Classify user intent from search query for strategic recommendations
+   */
+  private async classifyUserIntent(query: string): Promise<UserIntentClassification | undefined> {
+    const normalizedQuery = query.toLowerCase();
+    
+    try {
+      const patterns = await db.execute(
+        `SELECT * FROM user_intent_patterns 
+         WHERE LOWER($1) LIKE '%' || LOWER(search_pattern) || '%'
+         ORDER BY confidence_score DESC, LENGTH(search_pattern) DESC
+         LIMIT 1`,
+        [normalizedQuery]
+      );
+
+      if (patterns.rows.length > 0) {
+        const pattern = patterns.rows[0] as any;
+        
+        // Extract detected keywords
+        const detectedKeywords = [];
+        if (normalizedQuery.includes(pattern.search_pattern)) {
+          detectedKeywords.push(pattern.search_pattern);
+        }
+
+        return {
+          category: pattern.intent_category,
+          subcategory: pattern.intent_subcategory,
+          confidence: pattern.confidence_score,
+          riskFactors: pattern.risk_factors,
+          detectedKeywords
+        };
+      }
+    } catch (error) {
+      console.error('Intent classification error:', error);
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Calculate Import Risk Index based on multiple factors
+   */
+  private async calculateImportRiskIndex(make: string, model: string, year: number, destinationCountry: string = 'australia'): Promise<ImportRiskIndex> {
+    const factors: RiskFactor[] = [];
+    let totalRisk = 0;
+
+    // Vehicle age proximity to 25-year rule
+    const currentYear = new Date().getFullYear();
+    const vehicleAge = currentYear - year;
+    const yearsTo25 = 25 - vehicleAge;
+
+    if (yearsTo25 > 0 && yearsTo25 <= 5) {
+      const ageRisk = Math.max(0, (5 - yearsTo25) * 20); // Higher risk closer to 25 years
+      factors.push({
+        name: 'Age Threshold Proximity',
+        impact: ageRisk,
+        description: `Vehicle is ${yearsTo25} years from 25-year rule eligibility`
+      });
+      totalRisk += ageRisk;
+    }
+
+    // Compliance complexity based on make/model
+    const complexityVehicles = ['skyline', 'gtr', 'supra', 'rx7', 'nsx'];
+    const isComplexVehicle = complexityVehicles.some(v => model.toLowerCase().includes(v));
+    
+    if (isComplexVehicle) {
+      const complexityRisk = 25;
+      factors.push({
+        name: 'Compliance Complexity',
+        impact: complexityRisk,
+        description: 'High-performance vehicle requires additional certification steps'
+      });
+      totalRisk += complexityRisk;
+    }
+
+    // Destination volatility (Australia has stable rules)
+    if (destinationCountry === 'australia') {
+      const stabilityBonus = -10; // Negative risk = good
+      factors.push({
+        name: 'Regulatory Stability',
+        impact: stabilityBonus,
+        description: 'Australia has stable import regulations'
+      });
+      totalRisk += stabilityBonus;
+    }
+
+    // Calculate final risk score (0-100)
+    const riskScore = Math.max(0, Math.min(100, totalRisk));
+    
+    let riskLevel: 'low' | 'medium' | 'high' | 'critical';
+    if (riskScore < 25) riskLevel = 'low';
+    else if (riskScore < 50) riskLevel = 'medium';
+    else if (riskScore < 75) riskLevel = 'high';
+    else riskLevel = 'critical';
+
+    let explanation = `Import Risk Index: ${riskScore}/100 (${riskLevel}). `;
+    if (riskScore < 30) explanation += 'Straightforward import process expected.';
+    else if (riskScore < 60) explanation += 'Some complexity expected, plan additional time and budget.';
+    else explanation += 'High complexity import, consider professional assistance.';
+
+    return {
+      score: riskScore,
+      riskLevel,
+      factors,
+      explanation
+    };
+  }
+
+  /**
+   * Get strategic recommendations for vehicle and destination
+   */
+  private async getStrategicRecommendations(make: string, model: string, destinationCountry: string): Promise<StrategicRecommendation[]> {
+    const vehiclePattern = `${make.toLowerCase()} ${model.toLowerCase()}`;
+    
+    try {
+      const recommendations = await db.execute(
+        `SELECT * FROM strategic_recommendations 
+         WHERE LOWER(vehicle_pattern) LIKE LOWER($1) 
+         AND (destination_country = $2 OR destination_country IS NULL)
+         ORDER BY confidence_score DESC, priority_level DESC
+         LIMIT 3`,
+        [`%${vehiclePattern}%`, destinationCountry.toLowerCase()]
+      );
+
+      return recommendations.rows.map((rec: any) => ({
+        type: rec.recommendation_type,
+        title: rec.title,
+        description: rec.description,
+        timing: rec.timing_consideration || 'Consider timing factors',
+        alternatives: rec.alternatives || [],
+        confidence: rec.confidence_score,
+        priority: rec.priority_level
+      }));
+
+    } catch (error) {
+      console.error('Strategic recommendations error:', error);
       return [];
     }
   }
