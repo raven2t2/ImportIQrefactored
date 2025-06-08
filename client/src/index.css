@@ -31,29 +31,29 @@
 }
 
 .dark {
-  --background: 0 0% 0%; /* #000000 - Pure Black Background */
-  --foreground: 45 100% 50%; /* #FFB000 - Rich Gold Text */
-  --muted: 0 0% 8%; /* #141414 - Very Dark Gray */
-  --muted-foreground: 45 80% 70%; /* #FFCC66 - Light Gold Text */
-  --popover: 0 0% 5%; /* #0D0D0D - Very Dark Popover */
-  --popover-foreground: 45 100% 50%; /* #FFB000 - Gold Text */
-  --card: 0 0% 5%; /* #0D0D0D - Very Dark Card */
-  --card-foreground: 45 100% 50%; /* #FFB000 - Gold Text */
-  --border: 45 30% 20%; /* #333025 - Dark Gold Border */
-  --input: 0 0% 8%; /* #141414 - Dark Input */
-  --primary: 45 100% 50%; /* #FFB000 - Rich Gold */
+  --background: 210 11% 7%; /* #0F1419 - Dark Blue-Gray Background */
+  --foreground: 0 0% 95%; /* #F2F2F2 - Light Gray Text for Readability */
+  --muted: 210 11% 12%; /* #1A1F29 - Slightly Lighter Dark Background */
+  --muted-foreground: 0 0% 65%; /* #A6A6A6 - Medium Gray Text */
+  --popover: 210 11% 9%; /* #141924 - Dark Popover */
+  --popover-foreground: 0 0% 95%; /* #F2F2F2 - Light Text */
+  --card: 210 11% 9%; /* #141924 - Dark Card */
+  --card-foreground: 0 0% 95%; /* #F2F2F2 - Light Text */
+  --border: 210 11% 20%; /* #2B3340 - Dark Border */
+  --input: 210 11% 12%; /* #1A1F29 - Dark Input */
+  --primary: 45 100% 50%; /* #FFB000 - Rich Gold (Accent Only) */
   --primary-foreground: 0 0% 0%; /* #000000 - Black */
-  --secondary: 0 0% 8%; /* #141414 - Dark Secondary */
-  --secondary-foreground: 45 100% 50%; /* #FFB000 - Gold Text */
-  --accent: 45 100% 50%; /* #FFB000 - Rich Gold */
+  --secondary: 210 11% 12%; /* #1A1F29 - Dark Secondary */
+  --secondary-foreground: 0 0% 95%; /* #F2F2F2 - Light Text */
+  --accent: 45 100% 50%; /* #FFB000 - Rich Gold (Accent Only) */
   --accent-foreground: 0 0% 0%; /* #000000 - Black */
   --destructive: 0 62.8% 50%; /* Red for errors */
   --destructive-foreground: 0 0% 100%; /* #FFFFFF - White */
-  --ring: 51 100% 50%; /* #FFD700 - Bright Gold */
-  --chart-1: 51 100% 50%; /* #FFD700 - Gold */
+  --ring: 45 100% 50%; /* #FFB000 - Gold Ring */
+  --chart-1: 45 100% 50%; /* #FFB000 - Gold */
   --chart-2: 220 14% 60%; /* Light Blue Gray */
   --chart-3: 220 14% 40%; /* Medium Blue Gray */
-  --chart-4: 51 80% 40%; /* Darker Gold */
+  --chart-4: 45 80% 40%; /* Darker Gold */
   --chart-5: 220 14% 70%; /* Light Blue Gray */
 }
 

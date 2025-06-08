@@ -561,6 +561,133 @@ export const shopSuggestions = pgTable("shop_suggestions", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Global Compliance Rules Database
+export const globalComplianceRules = pgTable("global_compliance_rules", {
+  id: serial("id").primaryKey(),
+  country: varchar("country").notNull(),
+  region: varchar("region"), // state/province if applicable
+  ruleType: varchar("rule_type").notNull(), // age_restriction, emissions, safety, etc
+  vehicleCategory: varchar("vehicle_category"), // passenger, commercial, motorcycle
+  minimumAgeYears: integer("minimum_age_years"),
+  maximumAgeYears: integer("maximum_age_years"),
+  emissionStandard: varchar("emission_standard"),
+  safetyStandard: varchar("safety_standard"),
+  specialRequirements: jsonb("special_requirements"),
+  exemptions: jsonb("exemptions"),
+  complianceCost: decimal("compliance_cost", { precision: 10, scale: 2 }),
+  processingTimeWeeks: integer("processing_time_weeks"),
+  isActive: boolean("is_active").default(true),
+  effectiveDate: timestamp("effective_date"),
+  expiryDate: timestamp("expiry_date"),
+  sourceDocument: text("source_document"),
+  lastUpdated: timestamp("last_updated").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Vehicle Specifications Database
+export const vehicleSpecifications = pgTable("vehicle_specifications", {
+  id: serial("id").primaryKey(),
+  make: varchar("make").notNull(),
+  model: varchar("model").notNull(),
+  year: integer("year").notNull(),
+  chassis: varchar("chassis"),
+  engine: varchar("engine"),
+  displacement: varchar("displacement"),
+  transmission: varchar("transmission"),
+  driveType: varchar("drive_type"),
+  fuelType: varchar("fuel_type"),
+  bodyStyle: varchar("body_style"),
+  doors: integer("doors"),
+  seats: integer("seats"),
+  weight: integer("weight"), // kg
+  length: integer("length"), // mm
+  width: integer("width"), // mm
+  height: integer("height"), // mm
+  wheelbase: integer("wheelbase"), // mm
+  power: integer("power"), // hp
+  torque: integer("torque"), // nm
+  emissions: varchar("emissions"),
+  safetyRating: varchar("safety_rating"),
+  productionStart: timestamp("production_start"),
+  productionEnd: timestamp("production_end"),
+  marketRegions: text("market_regions").array(),
+  specialNotes: text("special_notes"),
+  isVerified: boolean("is_verified").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Import Cost Structure Database
+export const importCostStructure = pgTable("import_cost_structure", {
+  id: serial("id").primaryKey(),
+  originCountry: varchar("origin_country").notNull(),
+  destinationCountry: varchar("destination_country").notNull(),
+  destinationRegion: varchar("destination_region"),
+  vehicleType: varchar("vehicle_type"), // passenger, commercial, motorcycle
+  ageCategory: varchar("age_category"), // vintage, classic, modern
+  dutyRate: decimal("duty_rate", { precision: 5, scale: 4 }), // percentage as decimal
+  gstRate: decimal("gst_rate", { precision: 5, scale: 4 }),
+  luxuryTaxThreshold: decimal("luxury_tax_threshold", { precision: 12, scale: 2 }),
+  luxuryTaxRate: decimal("luxury_tax_rate", { precision: 5, scale: 4 }),
+  baseShippingCost: decimal("base_shipping_cost", { precision: 10, scale: 2 }),
+  inspectionFee: decimal("inspection_fee", { precision: 10, scale: 2 }),
+  complianceFee: decimal("compliance_fee", { precision: 10, scale: 2 }),
+  registrationFee: decimal("registration_fee", { precision: 10, scale: 2 }),
+  brokerageFee: decimal("brokerage_fee", { precision: 10, scale: 2 }),
+  storagePerDay: decimal("storage_per_day", { precision: 10, scale: 2 }),
+  currency: varchar("currency", { length: 3 }).default("AUD"),
+  effectiveDate: timestamp("effective_date").notNull(),
+  expiryDate: timestamp("expiry_date"),
+  isActive: boolean("is_active").default(true),
+  sourceAuthority: text("source_authority"),
+  lastUpdated: timestamp("last_updated").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Port and Shipping Database
+export const portInformation = pgTable("port_information", {
+  id: serial("id").primaryKey(),
+  portCode: varchar("port_code").notNull().unique(),
+  portName: varchar("port_name").notNull(),
+  country: varchar("country").notNull(),
+  region: varchar("region"),
+  city: varchar("city").notNull(),
+  latitude: decimal("latitude", { precision: 10, scale: 8 }),
+  longitude: decimal("longitude", { precision: 11, scale: 8 }),
+  portAuthority: varchar("port_authority"),
+  website: varchar("website"),
+  vehicleTerminal: boolean("vehicle_terminal").default(false),
+  roroCapable: boolean("roro_capable").default(false),
+  containerCapable: boolean("container_capable").default(false),
+  operatingHours: varchar("operating_hours"),
+  vehicleProcessingCapacity: integer("vehicle_processing_capacity"), // per month
+  averageProcessingDays: integer("average_processing_days"),
+  baseHandlingFee: decimal("base_handling_fee", { precision: 10, scale: 2 }),
+  quarantineInspectionFee: decimal("quarantine_inspection_fee", { precision: 10, scale: 2 }),
+  customsProcessingFee: decimal("customs_processing_fee", { precision: 10, scale: 2 }),
+  storagePerDay: decimal("storage_per_day", { precision: 10, scale: 2 }),
+  afterHoursFee: decimal("after_hours_fee", { precision: 10, scale: 2 }),
+  currentStatus: varchar("current_status"), // low, moderate, high, congested
+  averageWaitDays: integer("average_wait_days"),
+  peakSeasons: jsonb("peak_seasons"),
+  monthlyVehicleVolume: integer("monthly_vehicle_volume"),
+  congestionFactors: text("congestion_factors").array(),
+  quarantineStrictness: varchar("quarantine_strictness"), // standard, high, very_high
+  customsComplexity: varchar("customs_complexity"), // simple, moderate, complex
+  additionalRequirements: text("additional_requirements").array(),
+  recommendedAgents: text("recommended_agents").array(),
+  railConnections: boolean("rail_connections").default(false),
+  highwayAccess: varchar("highway_access"),
+  regionsServed: text("regions_served").array(),
+  bestFor: text("best_for").array(),
+  challenges: text("challenges").array(),
+  tips: text("tips").array(),
+  currency: varchar("currency", { length: 3 }).default("AUD"),
+  isActive: boolean("is_active").default(true),
+  lastUpdated: timestamp("last_updated").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Auction Data Ingestion System
 export const auctionListings = pgTable("auction_listings", {
   id: serial("id").primaryKey(),
