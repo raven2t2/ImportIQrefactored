@@ -124,6 +124,26 @@ async function extractFromURL(url: string): Promise<ExtractedVehicleData> {
  * Parse Copart auction URLs
  */
 async function parseCopartURL(url: string): Promise<ExtractedVehicleData> {
+  // Extract directly from URL pattern first
+  const urlPattern = /\/lot\/\d+\/(\d{4})-([a-zA-Z-]+)-([a-zA-Z0-9-]+)/;
+  const match = url.match(urlPattern);
+  
+  if (match) {
+    const [, year, make, model] = match;
+    const cleanMake = make.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    const cleanModel = model.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    
+    return {
+      make: normalizeCarMake(cleanMake),
+      model: normalizeCarModel(cleanModel),
+      year: parseInt(year),
+      source: 'copart.com',
+      confidence: 90,
+      extractionMethod: 'url_parsing'
+    };
+  }
+  
+  // Fallback to web scraping if URL pattern fails
   try {
     const response = await fetch(url, {
       headers: {
@@ -312,17 +332,136 @@ async function parseGooNetURL(url: string): Promise<ExtractedVehicleData> {
 }
 
 /**
- * Generic URL pattern extraction fallback
+ * Universal URL pattern extraction system
+ * Handles all major auction sites and listing platforms
  */
 function extractFromURLPattern(url: string): ExtractedVehicleData {
-  // Extract from URL structure
-  const urlParts = url.toLowerCase().split(/[\/\-_\+\s]+/);
+  const urlPatterns = [
+    // Copart: /lot/12345/1992-nissan-skyline-gt-ca-long-beach
+    {
+      pattern: /\/lot\/\d+\/(\d{4})-([a-zA-Z-]+)-([a-zA-Z0-9-]+)/,
+      extract: (match: RegExpMatchArray) => {
+        const [, year, make, model] = match;
+        return {
+          year: parseInt(year),
+          make: make.replace(/-/g, ' '),
+          model: model.replace(/-/g, ' ')
+        };
+      }
+    },
+    // IAAI: /vehicle/12345/1992-nissan-skyline
+    {
+      pattern: /\/vehicle\/\d+\/(\d{4})-([a-zA-Z-]+)-([a-zA-Z0-9-]+)/,
+      extract: (match: RegExpMatchArray) => {
+        const [, year, make, model] = match;
+        return {
+          year: parseInt(year),
+          make: make.replace(/-/g, ' '),
+          model: model.replace(/-/g, ' ')
+        };
+      }
+    },
+    // AutoTrader: /cars/1992/nissan/skyline/
+    {
+      pattern: /\/cars\/(\d{4})\/([a-zA-Z-]+)\/([a-zA-Z0-9-]+)/,
+      extract: (match: RegExpMatchArray) => {
+        const [, year, make, model] = match;
+        return {
+          year: parseInt(year),
+          make: make.replace(/-/g, ' '),
+          model: model.replace(/-/g, ' ')
+        };
+      }
+    },
+    // Cars.com: /vehicledetail/1992-nissan-skyline/
+    {
+      pattern: /\/vehicledetail\/(\d{4})-([a-zA-Z-]+)-([a-zA-Z0-9-]+)/,
+      extract: (match: RegExpMatchArray) => {
+        const [, year, make, model] = match;
+        return {
+          year: parseInt(year),
+          make: make.replace(/-/g, ' '),
+          model: model.replace(/-/g, ' ')
+        };
+      }
+    },
+    // CarGurus: /1992_Nissan_Skyline/
+    {
+      pattern: /\/(\d{4})_([a-zA-Z]+)_([a-zA-Z0-9]+)/,
+      extract: (match: RegExpMatchArray) => {
+        const [, year, make, model] = match;
+        return {
+          year: parseInt(year),
+          make: make,
+          model: model
+        };
+      }
+    },
+    // Generic: any URL with year-make-model pattern
+    {
+      pattern: /(\d{4})[\-_]([a-zA-Z]+)[\-_]([a-zA-Z0-9\-_]+)/,
+      extract: (match: RegExpMatchArray) => {
+        const [, year, make, model] = match;
+        return {
+          year: parseInt(year),
+          make: make.replace(/[\-_]/g, ' '),
+          model: model.replace(/[\-_]/g, ' ')
+        };
+      }
+    }
+  ];
+
+  // Try each pattern
+  for (const { pattern, extract } of urlPatterns) {
+    const match = url.match(pattern);
+    if (match) {
+      const extracted = extract(match);
+      
+      // Validate extracted data
+      if (extracted.year >= 1980 && extracted.year <= new Date().getFullYear() + 1) {
+        return {
+          make: normalizeCarMake(extracted.make),
+          model: normalizeCarModel(extracted.model),
+          year: extracted.year,
+          source: new URL(url).hostname,
+          confidence: 85,
+          extractionMethod: 'url_parsing'
+        };
+      }
+    }
+  }
+
+  // Fallback: Extract from URL parts using intelligent parsing
+  return extractFromURLParts(url);
+}
+
+/**
+ * Intelligent URL parts extraction
+ */
+function extractFromURLParts(url: string): ExtractedVehicleData {
+  const urlParts = url.toLowerCase().split(/[\/\-_\+\s\?&=]+/).filter(part => part.length > 0);
   
   let year = 0;
   let make = '';
   let model = '';
+  let lotNumber = '';
   
-  // Look for year pattern (19xx or 20xx)
+  // Enhanced car makes list with variations
+  const carMakes = new Map([
+    ['toyota', 'Toyota'], ['honda', 'Honda'], ['nissan', 'Nissan'], ['mazda', 'Mazda'],
+    ['subaru', 'Subaru'], ['mitsubishi', 'Mitsubishi'], ['suzuki', 'Suzuki'], ['isuzu', 'Isuzu'],
+    ['ford', 'Ford'], ['chevrolet', 'Chevrolet'], ['chevy', 'Chevrolet'], ['gmc', 'GMC'],
+    ['dodge', 'Dodge'], ['chrysler', 'Chrysler'], ['jeep', 'Jeep'], ['ram', 'Ram'],
+    ['cadillac', 'Cadillac'], ['buick', 'Buick'], ['lincoln', 'Lincoln'],
+    ['bmw', 'BMW'], ['mercedes', 'Mercedes-Benz'], ['audi', 'Audi'], ['volkswagen', 'Volkswagen'],
+    ['vw', 'Volkswagen'], ['porsche', 'Porsche'], ['volvo', 'Volvo'], ['saab', 'Saab'],
+    ['lexus', 'Lexus'], ['infiniti', 'Infiniti'], ['acura', 'Acura'],
+    ['hyundai', 'Hyundai'], ['kia', 'Kia'], ['genesis', 'Genesis'],
+    ['ferrari', 'Ferrari'], ['lamborghini', 'Lamborghini'], ['maserati', 'Maserati'],
+    ['bentley', 'Bentley'], ['rollsroyce', 'Rolls-Royce'], ['astonmartin', 'Aston Martin']
+  ]);
+
+  // Look for year (4-digit number between 1980-current+1)
   for (const part of urlParts) {
     const yearMatch = part.match(/\b(19|20)\d{2}\b/);
     if (yearMatch) {
@@ -331,40 +470,68 @@ function extractFromURLPattern(url: string): ExtractedVehicleData {
         year = potentialYear;
       }
     }
+    
+    // Look for lot numbers (for auction sites)
+    if (part.match(/^\d{6,8}$/) && !year) {
+      lotNumber = part;
+    }
   }
-  
-  // Common car makes to look for
-  const carMakes = [
-    'toyota', 'honda', 'nissan', 'mazda', 'subaru', 'mitsubishi', 'suzuki', 'isuzu',
-    'ford', 'chevrolet', 'gmc', 'dodge', 'chrysler', 'jeep', 'cadillac', 'buick',
-    'bmw', 'mercedes', 'audi', 'volkswagen', 'porsche', 'volvo', 'saab',
-    'lexus', 'infiniti', 'acura', 'hyundai', 'kia', 'genesis'
-  ];
-  
+
+  // Look for car make
   for (const part of urlParts) {
-    for (const carMake of carMakes) {
-      if (part.includes(carMake)) {
-        make = carMake;
+    for (const [key, value] of carMakes) {
+      if (part.includes(key) || key.includes(part)) {
+        make = value;
         break;
       }
     }
     if (make) break;
   }
-  
-  // Try to find model after make
+
+  // Try to find model near make
   if (make) {
-    const makeIndex = urlParts.findIndex(part => part.includes(make));
-    if (makeIndex !== -1 && makeIndex + 1 < urlParts.length) {
-      model = urlParts[makeIndex + 1];
+    const makeIndex = urlParts.findIndex(part => 
+      carMakes.has(part) || Array.from(carMakes.keys()).some(key => part.includes(key))
+    );
+    
+    if (makeIndex !== -1) {
+      // Look for model in next few parts
+      for (let i = makeIndex + 1; i < Math.min(makeIndex + 4, urlParts.length); i++) {
+        const part = urlParts[i];
+        // Skip common non-model words
+        if (!['car', 'auto', 'vehicle', 'lot', 'auction', 'for', 'sale', 'used', 'new'].includes(part)) {
+          model = part.replace(/[\-_]/g, ' ');
+          break;
+        }
+      }
     }
   }
-  
+
+  // If we couldn't find make through direct matching, try partial matching
+  if (!make) {
+    for (const part of urlParts) {
+      for (const [key, value] of carMakes) {
+        if (part.length >= 3 && (part.includes(key.substring(0, 4)) || key.includes(part))) {
+          make = value;
+          model = urlParts[urlParts.indexOf(part) + 1] || '';
+          break;
+        }
+      }
+      if (make) break;
+    }
+  }
+
+  // Final validation and cleanup
+  if (!make || !year) {
+    throw new Error('Unable to extract vehicle information from URL');
+  }
+
   return {
-    make: normalizeCarMake(make || 'Unknown'),
-    model: normalizeCarModel(model || 'Unknown'),
-    year: year || new Date().getFullYear(),
+    make: normalizeCarMake(make),
+    model: normalizeCarModel(model || 'Base'),
+    year: year,
     source: new URL(url).hostname,
-    confidence: 40,
+    confidence: 70,
     extractionMethod: 'url_parsing'
   };
 }

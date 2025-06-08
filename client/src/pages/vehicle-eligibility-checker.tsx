@@ -144,29 +144,59 @@ export default function VehicleEligibilityChecker() {
     
     switch (conversation.step) {
       case 'welcome':
-        // Smart detection of input type
-        if (currentValue.startsWith('http')) {
-          // URL input
+        // Enhanced smart detection of input type
+        if (currentValue.includes('http') || currentValue.includes('www.') || currentValue.includes('.com')) {
+          // URL input (handles partial URLs and various formats)
+          const fullUrl = currentValue.startsWith('http') ? currentValue : `https://${currentValue}`;
           setConversation(prev => ({ 
             ...prev, 
             step: 'loading',
-            data: { ...prev.data, auctionUrl: currentValue }
+            data: { ...prev.data, auctionUrl: fullUrl }
           }));
           eligibilityMutation.mutate({
             inputMethod: 'url',
-            url: currentValue
+            url: fullUrl
           });
-        } else if (/^[A-HJ-NPR-Z0-9]{17}$/i.test(currentValue)) {
-          // VIN input (17 characters, excluding I, O, Q)
+        } else if (/^[A-HJ-NPR-Z0-9]{17}$/i.test(currentValue.replace(/[\s\-]/g, ''))) {
+          // VIN input (17 characters, excluding I, O, Q, allows spaces and dashes)
+          const cleanVin = currentValue.replace(/[\s\-]/g, '').toUpperCase();
           setConversation(prev => ({ 
             ...prev, 
             step: 'loading',
-            data: { ...prev.data, vin: currentValue }
+            data: { ...prev.data, vin: cleanVin }
           }));
           eligibilityMutation.mutate({
             inputMethod: 'vin',
-            vin: currentValue
+            vin: cleanVin
           });
+        } else if (/\d{4}.*[a-zA-Z]{2,}.*[a-zA-Z]{2,}/.test(currentValue)) {
+          // Pattern matches year + make + model (e.g., "1992 Nissan Skyline")
+          const parts = currentValue.trim().split(/\s+/);
+          const year = parseInt(parts[0]);
+          if (year >= 1980 && year <= new Date().getFullYear() + 1) {
+            setConversation(prev => ({ 
+              ...prev, 
+              step: 'loading',
+              data: { ...prev.data, year, make: parts[1], model: parts.slice(2).join(' ') }
+            }));
+            eligibilityMutation.mutate({
+              inputMethod: 'manual',
+              year,
+              make: parts[1],
+              model: parts.slice(2).join(' '),
+              origin: 'japan',
+              estimatedValue: 25000
+            });
+          } else {
+            // Treat as make input
+            const suggestedModels = getMakeModels(currentValue);
+            setConversation(prev => ({ 
+              ...prev, 
+              step: 'model-input',
+              data: { ...prev.data, make: currentValue },
+              suggestions: suggestedModels
+            }));
+          }
         } else if (currentValue.trim()) {
           // Some other input - treat as make
           const suggestedModels = getMakeModels(currentValue);
