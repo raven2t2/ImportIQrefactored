@@ -246,13 +246,6 @@ export default function ImportFlow() {
   });
 
   const auctionListings = marketData?.vehicles || [];
-  
-  // Debug logging
-  console.log('Current step:', currentStep);
-  console.log('Vehicle data:', vehicleData);
-  console.log('Market data:', marketData);
-  console.log('Auction listings:', auctionListings);
-  console.log('Auction listings length:', auctionListings.length);
 
   const handleVehicleSubmit = () => {
     if (vehicleInput.trim()) {
@@ -956,15 +949,29 @@ export default function ImportFlow() {
               <CardContent>
                 {Array.isArray(auctionListings) && auctionListings.length > 0 ? (
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {auctionListings.slice(0, 6).map((listing: AuctionListing) => (
-                      <Card key={listing.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                        <div className="aspect-video bg-gray-200 relative">
-                          {listing.images?.[0] && (
+                    {auctionListings.slice(0, 6).map((listing: AuctionListing, index: number) => (
+                      <Card key={`${listing.id}-${index}`} className="overflow-hidden hover:shadow-lg transition-shadow">
+                        <div className="aspect-video bg-gray-200 relative flex items-center justify-center">
+                          {listing.images?.[0] ? (
                             <img 
                               src={listing.images[0]} 
                               alt={`${listing.year} ${listing.make} ${listing.model}`}
                               className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = 'none';
+                                const parent = (e.target as HTMLImageElement).parentElement;
+                                if (parent && !parent.querySelector('.no-image-placeholder')) {
+                                  const placeholder = document.createElement('div');
+                                  placeholder.className = 'no-image-placeholder text-gray-500 text-center px-4';
+                                  placeholder.innerHTML = '<div class="text-sm">No Image Available</div>';
+                                  parent.appendChild(placeholder);
+                                }
+                              }}
                             />
+                          ) : (
+                            <div className="text-gray-500 text-center px-4">
+                              <div className="text-sm">No Image Available</div>
+                            </div>
                           )}
                           <Badge className="absolute top-2 right-2">
                             {listing.source}
