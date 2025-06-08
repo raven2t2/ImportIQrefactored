@@ -19,6 +19,13 @@ import Stripe from "stripe";
 import bcrypt from "bcrypt";
 import fs from "fs";
 import { smartParser } from './smart-parser';
+import { 
+  adminQueryReviews, 
+  patternStaging, 
+  lookupAnalytics, 
+  vehicleModelPatterns 
+} from '@shared/schema';
+import { eq, desc, update } from 'drizzle-orm';
 import { dataSeeder } from './data-seeder';
 import { getLiveMarketData, updateCachedVehicle, removeCachedVehicle } from "./live-market-data";
 import { saveVehicleCustomization } from "./vehicle-customizations";
@@ -3660,6 +3667,127 @@ Respond with a JSON object containing your recommendations.`;
     } catch (error) {
       console.error("Eligibility check error:", error);
       res.status(500).json({ error: "Failed to check eligibility" });
+    }
+  });
+
+  // Admin Control Panel APIs
+  app.get("/api/admin/query-reviews", async (req, res) => {
+    try {
+      const reviews = await db.select().from(adminQueryReviews)
+        .orderBy(desc(adminQueryReviews.createdAt))
+        .limit(100);
+      res.json({ queryReviews: reviews });
+    } catch (error) {
+      console.error('Admin query reviews error:', error);
+      res.status(500).json({ error: "Failed to fetch query reviews" });
+    }
+  });
+
+  app.get("/api/admin/pattern-staging", async (req, res) => {
+    try {
+      const patterns = await db.select().from(patternStaging)
+        .orderBy(desc(patternStaging.createdAt))
+        .limit(50);
+      res.json({ patternStaging: patterns });
+    } catch (error) {
+      console.error('Admin pattern staging error:', error);
+      res.status(500).json({ error: "Failed to fetch pattern staging" });
+    }
+  });
+
+  app.get("/api/admin/lookup-analytics", async (req, res) => {
+    try {
+      const analytics = await db.select().from(lookupAnalytics)
+        .orderBy(desc(lookupAnalytics.dateAnalyzed))
+        .limit(25);
+      res.json({ analytics });
+    } catch (error) {
+      console.error('Admin lookup analytics error:', error);
+      res.status(500).json({ error: "Failed to fetch lookup analytics" });
+    }
+  });
+
+  app.post("/api/admin/approve-pattern", async (req, res) => {
+    try {
+      const { patternId, adminNotes } = req.body;
+      if (!patternId) {
+        return res.status(400).json({ error: "Pattern ID required" });
+      }
+
+      // Get the pattern from staging
+      const [pattern] = await db.select().from(patternStaging)
+        .where(eq(patternStaging.id, patternId));
+
+      if (!pattern) {
+        return res.status(404).json({ error: "Pattern not found" });
+      }
+
+      // Add to live patterns table
+      await db.insert(vehicleModelPatterns).values({
+        searchPattern: pattern.suggestedPattern,
+        canonicalMake: pattern.canonicalMake!,
+        canonicalModel: pattern.canonicalModel!,
+        chassisCode: pattern.chassisCode,
+        confidenceScore: pattern.confidenceEstimate,
+        sourceAttribution: "Admin Approved Pattern"
+      });
+
+      // Update staging record
+      await db.update(patternStaging)
+        .set({ 
+          adminStatus: 'approved',
+          adminNotes: adminNotes || 'Pattern approved for production'
+        })
+        .where(eq(patternStaging.id, patternId));
+
+      res.json({ success: true, message: "Pattern approved and added to production" });
+    } catch (error) {
+      console.error('Admin approve pattern error:', error);
+      res.status(500).json({ error: "Failed to approve pattern" });
+    }
+  });
+
+  app.post("/api/admin/reject-pattern", async (req, res) => {
+    try {
+      const { patternId, adminNotes } = req.body;
+      if (!patternId) {
+        return res.status(400).json({ error: "Pattern ID required" });
+      }
+
+      await db.update(patternStaging)
+        .set({ 
+          adminStatus: 'rejected',
+          adminNotes: adminNotes || 'Pattern rejected by admin'
+        })
+        .where(eq(patternStaging.id, patternId));
+
+      res.json({ success: true, message: "Pattern rejected" });
+    } catch (error) {
+      console.error('Admin reject pattern error:', error);
+      res.status(500).json({ error: "Failed to reject pattern" });
+    }
+  });
+
+  app.post("/api/admin/update-query-review", async (req, res) => {
+    try {
+      const { reviewId, adminNotes, enhancementSuggestions, reviewedBy } = req.body;
+      if (!reviewId) {
+        return res.status(400).json({ error: "Review ID required" });
+      }
+
+      await db.update(adminQueryReviews)
+        .set({ 
+          adminNotes,
+          enhancementSuggestions,
+          reviewedBy,
+          reviewedAt: new Date()
+        })
+        .where(eq(adminQueryReviews.id, reviewId));
+
+      res.json({ success: true, message: "Query review updated" });
+    } catch (error) {
+      console.error('Admin update query review error:', error);
+      res.status(500).json({ error: "Failed to update query review" });
     }
   });
 
