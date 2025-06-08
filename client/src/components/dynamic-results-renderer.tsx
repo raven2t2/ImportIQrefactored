@@ -91,6 +91,9 @@ interface DynamicResultsRendererProps {
 export function DynamicResultsRenderer({ results, recommendations, vehicleInfo }: DynamicResultsRendererProps) {
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   
+  console.log('DynamicResultsRenderer vehicleInfo:', vehicleInfo);
+  console.log('Technical specs available:', vehicleInfo?.technicalSpecs);
+  
   const eligibleResults = results.filter(r => r.eligible);
   const ineligibleResults = results.filter(r => !r.eligible);
 

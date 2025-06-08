@@ -73,6 +73,7 @@ export function SmartInputParser({ onInputParsed, placeholder = "Paste VIN, auct
       
       if (response.ok) {
         const enhanced = await response.json();
+        console.log('Enhanced API response:', enhanced);
         // Prioritize server-enhanced data over client-side detection
         const finalParsed = { 
           ...result, 
@@ -82,10 +83,12 @@ export function SmartInputParser({ onInputParsed, placeholder = "Paste VIN, auct
             model: enhanced.data.model || result.detectedInfo?.model || 'Unknown',
             year: enhanced.data.year || result.detectedInfo?.year,
             origin: enhanced.data.origin || result.detectedInfo?.origin,
-            platform: result.detectedInfo?.platform
+            platform: result.detectedInfo?.platform,
+            technicalSpecs: enhanced.data.technicalSpecs
           },
           technicalSpecs: enhanced.data.technicalSpecs
         };
+        console.log('Final parsed data:', finalParsed);
         onInputParsed(finalParsed);
       } else {
         onInputParsed(result);
