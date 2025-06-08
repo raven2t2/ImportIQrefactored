@@ -71,64 +71,31 @@ export default function ImportJourney() {
   // Initialize session and handle URL parameters
   useEffect(() => {
     const initializeSession = async () => {
-      // Check for existing session token
+      // Parse URL parameters first
+      const urlParams = SessionManager.parseUrlParams();
+      console.log('Parsing URL params:', urlParams);
+      
+      // Always set vehicle data from URL parameters
+      setVehicleData({
+        make: urlParams.make || '',
+        model: urlParams.model || '',
+        chassis: urlParams.chassis || '',
+        year: urlParams.year || ''
+      });
+      setDestination(urlParams.destination || 'australia');
+      
+      // Try to get or create session token
       let token = SessionManager.getSessionToken();
       
-      // Parse URL parameters
-      const urlParams = SessionManager.parseUrlParams();
-      
-      // Try to reconstruct session from URL if no session exists
       if (!token && (urlParams.make || urlParams.model)) {
         try {
           const reconstructed = await SessionManager.reconstructSession(urlParams);
           if (reconstructed) {
             token = reconstructed.sessionToken;
-            
-            // Populate data from reconstructed session
-            if (reconstructed.session) {
-              const sessionData = reconstructed.session.parsedData;
-              setVehicleData({
-                make: sessionData.make || urlParams.make || '',
-                model: sessionData.model || urlParams.model || '',
-                chassis: sessionData.chassis || urlParams.chassis || '',
-                year: sessionData.year || urlParams.year || ''
-              });
-              setDestination(reconstructed.session.currentDestination || urlParams.destination || '');
-            }
           }
         } catch (error) {
           console.error('Failed to reconstruct session:', error);
         }
-      }
-      
-      // If we have a session token, try to fetch the session data
-      if (token) {
-        try {
-          const session = await SessionManager.fetchSession(token);
-          if (session) {
-            const sessionData = session.parsedData;
-            setVehicleData({
-              make: sessionData.make || urlParams.make || '',
-              model: sessionData.model || urlParams.model || '',
-              chassis: sessionData.chassis || urlParams.chassis || '',
-              year: sessionData.year || urlParams.year || ''
-            });
-            setDestination(session.currentDestination || urlParams.destination || '');
-          }
-        } catch (error) {
-          console.error('Failed to fetch session:', error);
-        }
-      }
-      
-      // Fallback to URL parameters if no session data
-      if (!token || (!vehicleData.make && !vehicleData.model)) {
-        setVehicleData({
-          make: urlParams.make || '',
-          model: urlParams.model || '',
-          chassis: urlParams.chassis || '',
-          year: urlParams.year || ''
-        });
-        setDestination(urlParams.destination || '');
       }
       
       setSessionToken(token);
@@ -148,16 +115,28 @@ export default function ImportJourney() {
   const { data: importIntelligence, isLoading, error } = useQuery({
     queryKey: ['/api/import-intelligence', vehicleData, destination, sessionToken],
     enabled: !!(vehicleData.make && destination && isInitialized),
-    queryFn: () => apiRequest('/api/import-intelligence', {
-      method: 'POST',
-      body: { 
-        vehicleData: vehicleData, 
-        destination,
-        sessionToken 
+    queryFn: async () => {
+      try {
+        console.log('Making import intelligence request with:', { vehicleData, destination, sessionToken });
+        const response = await apiRequest('/api/import-intelligence', {
+          method: 'POST',
+          body: { 
+            vehicleData: vehicleData, 
+            destination,
+            sessionToken 
+          }
+        });
+        console.log('Import intelligence response:', response);
+        return response;
+      } catch (error) {
+        console.error('Import intelligence API error:', error);
+        throw error;
       }
-    }),
+    },
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
     gcTime: 30 * 60 * 1000, // Keep in memory for 30 minutes
+    retry: 3,
+    retryDelay: 1000,
   });
 
   const getDestinationInfo = (dest: string) => {
@@ -194,12 +173,28 @@ export default function ImportJourney() {
     );
   }
 
-  if (!importIntelligence) {
+  if (error) {
+    console.error('Import Intelligence Error:', error);
     return (
       <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-2">Unable to Load Import Intelligence</h2>
-          <p className="text-gray-400">Please try again or contact support</p>
+          <p className="text-gray-400">API Error: {error?.message || 'Unknown error'}</p>
+          <p className="text-gray-500 mt-2">Vehicle: {vehicleData.make} {vehicleData.model}</p>
+          <p className="text-gray-500">Destination: {destination}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!importIntelligence && !isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-2">No Import Intelligence Data</h2>
+          <p className="text-gray-400">Unable to generate analysis for this vehicle</p>
+          <p className="text-gray-500 mt-2">Vehicle: {vehicleData.make} {vehicleData.model}</p>
+          <p className="text-gray-500">Destination: {destination}</p>
         </div>
       </div>
     );
