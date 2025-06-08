@@ -515,10 +515,15 @@ function extractFromURLPattern(url: string): ExtractedVehicleData {
           'SKYLINE': 'Skyline', 'SILVIA': 'Silvia', 'SUPRA': 'Supra',
           'RX7': 'RX-7', 'RX-7': 'RX-7', 'IMPREZA': 'Impreza', 'LANCER': 'Lancer'
         };
+        const mappedMake = makeMapping[make.toUpperCase()] || make.charAt(0) + make.slice(1).toLowerCase();
+        const mappedModel = modelMapping[model.toUpperCase()] || model.replace(/\-/g, ' ');
+        
+        console.log(`Goo-net extraction: URL=${match[0]}, Make=${make}->${mappedMake}, Model=${model}->${mappedModel}`);
+        
         return {
-          year: 2015, // Modern default for used cars
-          make: makeMapping[make] || make.charAt(0) + make.slice(1).toLowerCase(),
-          model: modelMapping[model] || model.replace(/\-/g, ' ')
+          year: 2015,
+          make: mappedMake,
+          model: mappedModel
         };
       }
     },
@@ -527,10 +532,15 @@ function extractFromURLPattern(url: string): ExtractedVehicleData {
       pattern: /\/usedcars\/([A-Z]+)\/([A-Z0-9\-]+)/i,
       extract: (match: RegExpMatchArray) => {
         const [, make, model] = match;
+        const mappedMake = make.charAt(0) + make.slice(1).toLowerCase();
+        const mappedModel = model.replace(/\-/g, ' ');
+        
+        console.log(`Goo-net standard extraction: Make=${make}->${mappedMake}, Model=${model}->${mappedModel}`);
+        
         return {
           year: 2015,
-          make: make.charAt(0) + make.slice(1).toLowerCase(),
-          model: model.replace(/\-/g, ' ')
+          make: mappedMake,
+          model: mappedModel
         };
       }
     },
