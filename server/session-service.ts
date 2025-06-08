@@ -179,7 +179,7 @@ export class SessionService {
       const [cached] = await db.select().from(vehicleLookupCache)
         .where(and(
           eq(vehicleLookupCache.queryHash, queryHash),
-          gt(vehicleLookupCache.validUntil, now.toISOString())
+          gt(vehicleLookupCache.validUntil, now)
         ))
         .limit(1);
 

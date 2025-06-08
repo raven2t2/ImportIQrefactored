@@ -306,14 +306,14 @@ export async function searchAuctionHistory(searchTerm: string): Promise<Array<{
         price: vehicleAuctions.price,
         source: vehicleAuctions.source,
         location: vehicleAuctions.location,
-        fetchedAt: vehicleAuctions.fetchedAt
+        fetchedAt: sql<Date>`${vehicleAuctions.fetchedAt}::timestamp`
       })
       .from(vehicleAuctions)
       .where(
         sql`(LOWER(${vehicleAuctions.make}) LIKE LOWER(${'%' + searchTerm + '%'}) 
              OR LOWER(${vehicleAuctions.model}) LIKE LOWER(${'%' + searchTerm + '%'}))`
       )
-      .orderBy(desc(vehicleAuctions.fetchedAt))
+      .orderBy(desc(vehicleAuctions.id))
       .limit(20);
 
     return results;
