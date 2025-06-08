@@ -21,7 +21,14 @@ const usCalculatorSchema = z.object({
   vehicleMake: z.string().min(1, "Vehicle make is required"),
   vehicleModel: z.string().min(1, "Vehicle model is required"),
   shippingOrigin: z.enum(["japan", "uk", "germany", "other"]),
-  usState: z.enum(["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"]),
+  usState: z.enum([
+    "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", 
+    "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", 
+    "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", 
+    "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", 
+    "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY",
+    "DC", "PR", "VI", "GU", "AS", "MP"
+  ]),
   zipCode: z.string().min(5, "Valid US ZIP code required"),
   over25Years: z.boolean().default(false), // For 25-year exemption
 });
