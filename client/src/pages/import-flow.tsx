@@ -398,269 +398,275 @@ export default function ImportFlow() {
 
         {/* Step 2: Country & State Selection */}
         {currentStep === 'country-select' && (
-          <div className="max-w-6xl mx-auto space-y-8">
-            <div className="text-center space-y-4">
-              <h1 className="text-4xl font-bold text-amber-500">Choose Your Import Market</h1>
-              <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-                Each market has unique regulations and complexity levels. We'll show you the top 5 most complex states/provinces 
-                and recommend easier alternatives with strategic advantages.
+          <div className="max-w-7xl mx-auto space-y-8 bg-white text-gray-900 min-h-screen p-8">
+            <div className="text-center space-y-4 mb-12">
+              <h1 className="text-4xl font-bold text-gray-900">Choose Your Import Destination</h1>
+              <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+                Select your target market to see state-specific complexity analysis and strategic recommendations
               </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
               {/* Australia */}
-              <Card className="border-2 hover:border-amber-500 transition-colors">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-3">
-                    <Globe className="w-6 h-6 text-amber-500" />
-                    Australia
-                    <Badge variant="outline" className="text-amber-500 border-amber-500">Most Popular</Badge>
-                  </CardTitle>
-                  <p className="text-gray-600">25-year import rule, RHD advantage, strong JDM market</p>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-3">
-                    <h4 className="font-semibold text-red-400">Most Complex States:</h4>
+              <div className="bg-white border-2 border-gray-200 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 border-b border-gray-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <h2 className="text-2xl font-bold text-gray-900">🇦🇺 Australia</h2>
+                    <span className="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">Most Popular</span>
+                  </div>
+                  <p className="text-gray-600">25-year import rule • RHD advantage • Strong JDM market</p>
+                </div>
+                
+                <div className="p-6 space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold text-red-600 mb-3">⚠️ Most Complex States</h3>
                     {getTopComplexStates('AU', 3).map((state) => (
-                      <div key={state.code} className="flex justify-between items-center p-3 bg-gray-800 rounded-lg">
+                      <div key={state.code} className="flex justify-between items-center p-4 bg-red-50 border-l-4 border-red-200 mb-2 rounded-r-lg">
                         <div>
-                          <span className="font-medium">{state.name}</span>
-                          <Badge className={`ml-2 ${state.difficultyLevel === 'Extreme' ? 'bg-red-600' : 'bg-orange-600'}`}>
+                          <span className="font-semibold text-gray-900">{state.name}</span>
+                          <span className="ml-2 px-2 py-1 text-xs bg-red-100 text-red-700 rounded-full">
                             {state.difficultyLevel}
-                          </Badge>
+                          </span>
                         </div>
-                        <div className="text-right text-sm">
-                          <div className="text-amber-400">${state.additionalCosts.toLocaleString()}</div>
-                          <div className="text-gray-400">{state.estimatedTimeWeeks}w</div>
+                        <div className="text-right">
+                          <div className="font-semibold text-red-600">${state.additionalCosts.toLocaleString()}</div>
+                          <div className="text-sm text-gray-500">{state.estimatedTimeWeeks} weeks</div>
                         </div>
                       </div>
                     ))}
                   </div>
                   
-                  <div className="space-y-3">
-                    <h4 className="font-semibold text-green-400">Easier Alternatives:</h4>
+                  <div>
+                    <h3 className="text-lg font-semibold text-green-600 mb-3">✅ Recommended States</h3>
                     {getTopComplexStates('AU', 5).slice(3).map((state) => (
-                      <div key={state.code} className="flex justify-between items-center p-3 bg-green-900/20 rounded-lg border border-green-500/30">
+                      <div key={state.code} className="flex justify-between items-center p-4 bg-green-50 border-l-4 border-green-200 mb-2 rounded-r-lg">
                         <div>
-                          <span className="font-medium">{state.name}</span>
-                          <Badge className="ml-2 bg-green-600">{state.difficultyLevel}</Badge>
+                          <span className="font-semibold text-gray-900">{state.name}</span>
+                          <span className="ml-2 px-2 py-1 text-xs bg-green-100 text-green-700 rounded-full">
+                            {state.difficultyLevel}
+                          </span>
                         </div>
-                        <div className="text-right text-sm">
-                          <div className="text-green-400">${state.additionalCosts.toLocaleString()}</div>
-                          <div className="text-gray-400">{state.estimatedTimeWeeks}w</div>
+                        <div className="text-right">
+                          <div className="font-semibold text-green-600">${state.additionalCosts.toLocaleString()}</div>
+                          <div className="text-sm text-gray-500">{state.estimatedTimeWeeks} weeks</div>
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  <Button 
+                  <button 
                     onClick={() => {
                       setTargetCountry('AU');
-                      setSelectedState('QLD'); // Default to easier option
+                      setSelectedState('QLD');
                       setCurrentStep('processing');
                       setProgress(0);
                       setCurrentTask('Extracting vehicle data...');
                       extractMutation.mutate(vehicleInput);
                     }}
-                    className="w-full mt-4 bg-green-600 hover:bg-green-700"
+                    className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors duration-200"
                   >
-                    Start Australia Import Journey
-                  </Button>
-                </CardContent>
-              </Card>
+                    Start Australia Import Journey →
+                  </button>
+                </div>
+              </div>
 
               {/* United States */}
-              <Card className="border-2 hover:border-amber-500 transition-colors">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-3">
-                    <Globe className="w-6 h-6 text-blue-500" />
-                    United States
-                    <Badge variant="outline" className="text-blue-500 border-blue-500">25-Year Rule</Badge>
-                  </CardTitle>
-                  <p className="text-gray-600">Complex emissions, state-by-state regulations, high costs</p>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-3">
-                    <h4 className="font-semibold text-red-400">Most Complex States:</h4>
+              <div className="bg-white border-2 border-gray-200 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border-b border-gray-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <h2 className="text-2xl font-bold text-gray-900">🇺🇸 United States</h2>
+                    <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">25-Year Rule</span>
+                  </div>
+                  <p className="text-gray-600">Complex emissions • State regulations • High costs</p>
+                </div>
+                
+                <div className="p-6 space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold text-red-600 mb-3">⚠️ Most Complex States</h3>
                     {getTopComplexStates('US', 3).map((state) => (
-                      <div key={state.code} className="flex justify-between items-center p-3 bg-gray-800 rounded-lg">
+                      <div key={state.code} className="flex justify-between items-center p-4 bg-red-50 border-l-4 border-red-200 mb-2 rounded-r-lg">
                         <div>
-                          <span className="font-medium">{state.name}</span>
-                          <Badge className={`ml-2 ${state.difficultyLevel === 'Extreme' ? 'bg-red-600' : 'bg-orange-600'}`}>
+                          <span className="font-semibold text-gray-900">{state.name}</span>
+                          <span className="ml-2 px-2 py-1 text-xs bg-red-100 text-red-700 rounded-full">
                             {state.difficultyLevel}
-                          </Badge>
+                          </span>
                         </div>
-                        <div className="text-right text-sm">
-                          <div className="text-amber-400">${state.additionalCosts.toLocaleString()}</div>
-                          <div className="text-gray-400">{state.estimatedTimeWeeks}w</div>
+                        <div className="text-right">
+                          <div className="font-semibold text-red-600">${state.additionalCosts.toLocaleString()}</div>
+                          <div className="text-sm text-gray-500">{state.estimatedTimeWeeks} weeks</div>
                         </div>
                       </div>
                     ))}
                   </div>
                   
-                  <div className="space-y-3">
-                    <h4 className="font-semibold text-green-400">Easier Alternatives:</h4>
+                  <div>
+                    <h3 className="text-lg font-semibold text-green-600 mb-3">✅ Recommended States</h3>
                     {getTopComplexStates('US', 5).slice(3).map((state) => (
-                      <div key={state.code} className="flex justify-between items-center p-3 bg-green-900/20 rounded-lg border border-green-500/30">
+                      <div key={state.code} className="flex justify-between items-center p-4 bg-green-50 border-l-4 border-green-200 mb-2 rounded-r-lg">
                         <div>
-                          <span className="font-medium">{state.name}</span>
-                          <Badge className="ml-2 bg-green-600">{state.difficultyLevel}</Badge>
+                          <span className="font-semibold text-gray-900">{state.name}</span>
+                          <span className="ml-2 px-2 py-1 text-xs bg-green-100 text-green-700 rounded-full">
+                            {state.difficultyLevel}
+                          </span>
                         </div>
-                        <div className="text-right text-sm">
-                          <div className="text-green-400">${state.additionalCosts.toLocaleString()}</div>
-                          <div className="text-gray-400">{state.estimatedTimeWeeks}w</div>
+                        <div className="text-right">
+                          <div className="font-semibold text-green-600">${state.additionalCosts.toLocaleString()}</div>
+                          <div className="text-sm text-gray-500">{state.estimatedTimeWeeks} weeks</div>
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  <Button 
+                  <button 
                     onClick={() => {
                       setTargetCountry('US');
-                      setSelectedState('TX'); // Default to easier option
+                      setSelectedState('TX');
                       setCurrentStep('processing');
                       setProgress(0);
                       setCurrentTask('Extracting vehicle data...');
                       extractMutation.mutate(vehicleInput);
                     }}
-                    className="w-full mt-4 bg-blue-600 hover:bg-blue-700"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors duration-200"
                   >
-                    Start US Import Journey
-                  </Button>
-                </CardContent>
-              </Card>
+                    Start US Import Journey →
+                  </button>
+                </div>
+              </div>
 
               {/* United Kingdom */}
-              <Card className="border-2 hover:border-amber-500 transition-colors">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-3">
-                    <Globe className="w-6 h-6 text-purple-500" />
-                    United Kingdom
-                    <Badge variant="outline" className="text-purple-500 border-purple-500">RHD Friendly</Badge>
-                  </CardTitle>
-                  <p className="text-gray-600">IVA testing, DVLA registration, Brexit complications</p>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-3">
-                    <h4 className="font-semibold text-red-400">Most Complex Regions:</h4>
+              <div className="bg-white border-2 border-gray-200 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+                <div className="bg-gradient-to-r from-purple-50 to-violet-50 p-6 border-b border-gray-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <h2 className="text-2xl font-bold text-gray-900">🇬🇧 United Kingdom</h2>
+                    <span className="px-3 py-1 bg-purple-100 text-purple-800 text-sm font-medium rounded-full">RHD Friendly</span>
+                  </div>
+                  <p className="text-gray-600">IVA testing • DVLA registration • Brexit considerations</p>
+                </div>
+                
+                <div className="p-6 space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold text-red-600 mb-3">⚠️ Most Complex Regions</h3>
                     {getTopComplexStates('UK', 3).map((state) => (
-                      <div key={state.code} className="flex justify-between items-center p-3 bg-gray-800 rounded-lg">
+                      <div key={state.code} className="flex justify-between items-center p-4 bg-red-50 border-l-4 border-red-200 mb-2 rounded-r-lg">
                         <div>
-                          <span className="font-medium">{state.name}</span>
-                          <Badge className={`ml-2 ${state.difficultyLevel === 'Extreme' ? 'bg-red-600' : 'bg-orange-600'}`}>
+                          <span className="font-semibold text-gray-900">{state.name}</span>
+                          <span className="ml-2 px-2 py-1 text-xs bg-red-100 text-red-700 rounded-full">
                             {state.difficultyLevel}
-                          </Badge>
+                          </span>
                         </div>
-                        <div className="text-right text-sm">
-                          <div className="text-amber-400">${state.additionalCosts.toLocaleString()}</div>
-                          <div className="text-gray-400">{state.estimatedTimeWeeks}w</div>
+                        <div className="text-right">
+                          <div className="font-semibold text-red-600">${state.additionalCosts.toLocaleString()}</div>
+                          <div className="text-sm text-gray-500">{state.estimatedTimeWeeks} weeks</div>
                         </div>
                       </div>
                     ))}
                   </div>
                   
-                  <div className="space-y-3">
-                    <h4 className="font-semibold text-green-400">Easier Alternatives:</h4>
+                  <div>
+                    <h3 className="text-lg font-semibold text-green-600 mb-3">✅ Recommended Regions</h3>
                     {getTopComplexStates('UK', 5).slice(3).map((state) => (
-                      <div key={state.code} className="flex justify-between items-center p-3 bg-green-900/20 rounded-lg border border-green-500/30">
+                      <div key={state.code} className="flex justify-between items-center p-4 bg-green-50 border-l-4 border-green-200 mb-2 rounded-r-lg">
                         <div>
-                          <span className="font-medium">{state.name}</span>
-                          <Badge className="ml-2 bg-green-600">{state.difficultyLevel}</Badge>
+                          <span className="font-semibold text-gray-900">{state.name}</span>
+                          <span className="ml-2 px-2 py-1 text-xs bg-green-100 text-green-700 rounded-full">
+                            {state.difficultyLevel}
+                          </span>
                         </div>
-                        <div className="text-right text-sm">
-                          <div className="text-green-400">${state.additionalCosts.toLocaleString()}</div>
-                          <div className="text-gray-400">{state.estimatedTimeWeeks}w</div>
+                        <div className="text-right">
+                          <div className="font-semibold text-green-600">${state.additionalCosts.toLocaleString()}</div>
+                          <div className="text-sm text-gray-500">{state.estimatedTimeWeeks} weeks</div>
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  <Button 
+                  <button 
                     onClick={() => {
                       setTargetCountry('UK');
-                      setSelectedState('WAL'); // Default to easier option
+                      setSelectedState('WAL');
                       setCurrentStep('processing');
                       setProgress(0);
                       setCurrentTask('Extracting vehicle data...');
                       extractMutation.mutate(vehicleInput);
                     }}
-                    className="w-full mt-4 bg-purple-600 hover:bg-purple-700"
+                    className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors duration-200"
                   >
-                    Start UK Import Journey
-                  </Button>
-                </CardContent>
-              </Card>
+                    Start UK Import Journey →
+                  </button>
+                </div>
+              </div>
 
               {/* Canada */}
-              <Card className="border-2 hover:border-amber-500 transition-colors">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-3">
-                    <Globe className="w-6 h-6 text-red-500" />
-                    Canada
-                    <Badge variant="outline" className="text-red-500 border-red-500">15-Year Rule</Badge>
-                  </CardTitle>
-                  <p className="text-gray-600">Earlier import eligibility, winter considerations, provincial variations</p>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-3">
-                    <h4 className="font-semibold text-red-400">Most Complex Provinces:</h4>
+              <div className="bg-white border-2 border-gray-200 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+                <div className="bg-gradient-to-r from-red-50 to-rose-50 p-6 border-b border-gray-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <h2 className="text-2xl font-bold text-gray-900">🇨🇦 Canada</h2>
+                    <span className="px-3 py-1 bg-red-100 text-red-800 text-sm font-medium rounded-full">15-Year Rule</span>
+                  </div>
+                  <p className="text-gray-600">Earlier eligibility • Winter considerations • Provincial variations</p>
+                </div>
+                
+                <div className="p-6 space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold text-red-600 mb-3">⚠️ Most Complex Provinces</h3>
                     {getTopComplexStates('CA', 3).map((state) => (
-                      <div key={state.code} className="flex justify-between items-center p-3 bg-gray-800 rounded-lg">
+                      <div key={state.code} className="flex justify-between items-center p-4 bg-red-50 border-l-4 border-red-200 mb-2 rounded-r-lg">
                         <div>
-                          <span className="font-medium">{state.name}</span>
-                          <Badge className={`ml-2 ${state.difficultyLevel === 'Extreme' ? 'bg-red-600' : 'bg-orange-600'}`}>
+                          <span className="font-semibold text-gray-900">{state.name}</span>
+                          <span className="ml-2 px-2 py-1 text-xs bg-red-100 text-red-700 rounded-full">
                             {state.difficultyLevel}
-                          </Badge>
+                          </span>
                         </div>
-                        <div className="text-right text-sm">
-                          <div className="text-amber-400">${state.additionalCosts.toLocaleString()}</div>
-                          <div className="text-gray-400">{state.estimatedTimeWeeks}w</div>
+                        <div className="text-right">
+                          <div className="font-semibold text-red-600">${state.additionalCosts.toLocaleString()}</div>
+                          <div className="text-sm text-gray-500">{state.estimatedTimeWeeks} weeks</div>
                         </div>
                       </div>
                     ))}
                   </div>
                   
-                  <div className="space-y-3">
-                    <h4 className="font-semibold text-green-400">Easier Alternatives:</h4>
+                  <div>
+                    <h3 className="text-lg font-semibold text-green-600 mb-3">✅ Recommended Provinces</h3>
                     {getTopComplexStates('CA', 5).slice(3).map((state) => (
-                      <div key={state.code} className="flex justify-between items-center p-3 bg-green-900/20 rounded-lg border border-green-500/30">
+                      <div key={state.code} className="flex justify-between items-center p-4 bg-green-50 border-l-4 border-green-200 mb-2 rounded-r-lg">
                         <div>
-                          <span className="font-medium">{state.name}</span>
-                          <Badge className="ml-2 bg-green-600">{state.difficultyLevel}</Badge>
+                          <span className="font-semibold text-gray-900">{state.name}</span>
+                          <span className="ml-2 px-2 py-1 text-xs bg-green-100 text-green-700 rounded-full">
+                            {state.difficultyLevel}
+                          </span>
                         </div>
-                        <div className="text-right text-sm">
-                          <div className="text-green-400">${state.additionalCosts.toLocaleString()}</div>
-                          <div className="text-gray-400">{state.estimatedTimeWeeks}w</div>
+                        <div className="text-right">
+                          <div className="font-semibold text-green-600">${state.additionalCosts.toLocaleString()}</div>
+                          <div className="text-sm text-gray-500">{state.estimatedTimeWeeks} weeks</div>
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  <Button 
+                  <button 
                     onClick={() => {
                       setTargetCountry('CA');
-                      setSelectedState('AB'); // Default to easier option
+                      setSelectedState('AB');
                       setCurrentStep('processing');
                       setProgress(0);
                       setCurrentTask('Extracting vehicle data...');
                       extractMutation.mutate(vehicleInput);
                     }}
-                    className="w-full mt-4 bg-red-600 hover:bg-red-700"
+                    className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors duration-200"
                   >
-                    Start Canada Import Journey
-                  </Button>
-                </CardContent>
-              </Card>
+                    Start Canada Import Journey →
+                  </button>
+                </div>
+              </div>
             </div>
 
-            <div className="text-center">
-              <Button 
-                variant="outline" 
+            <div className="text-center mt-12">
+              <button 
                 onClick={() => setCurrentStep('entry')}
-                className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                className="px-6 py-3 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200"
               >
                 ← Back to Vehicle Entry
-              </Button>
+              </button>
             </div>
           </div>
         )}
