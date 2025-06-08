@@ -1115,20 +1115,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
           apiKey: process.env.OPENAI_API_KEY,
         });
 
-        const prompt = `As an ImportIQ AI specialist, provide strategic recommendations for importing a ${validatedData.year || 'vintage'} ${validatedData.category} vehicle to ${validatedData.targetCountry}/${validatedData.targetState}.
+        // Calculate vehicle age for better context
+        const currentYear = new Date().getFullYear();
+        const vehicleAge = currentYear - (validatedData.year || 2010);
+        
+        const prompt = `As an ImportIQ AI specialist, provide strategic recommendations for importing a ${vehicleAge}-year-old ${validatedData.year || 'vintage'} ${validatedData.category} vehicle to ${validatedData.targetCountry}/${validatedData.targetState}.
 
-Context:
-- Eligibility: ${isEligible ? 'ELIGIBLE' : 'CHALLENGING'}
-- Timeline: ${estimatedWeeks}
-- Key factors: ${factors.slice(0, 3).join(', ')}
-- Intelligence insights: ${intelligenceEnhancements.portRecommendation || 'Standard processing'}
+CRITICAL IMPORT RULES:
+- US: 25-year minimum age rule (no exceptions for regular cars)
+- Australia: 15+ years for personal import, or SEVS list approval
+- UK: Individual Vehicle Approval (IVA) for non-EU vehicles
+- Canada: 15+ years minimum age rule
+
+Vehicle Status:
+- Age: ${vehicleAge} years old
+- Eligibility: ${isEligible ? 'ELIGIBLE for import' : 'NOT ELIGIBLE under current regulations'}
+- Timeline if eligible: ${estimatedWeeks}
+
+${isEligible ? 
+  'This vehicle CAN be imported. Focus on optimization and process improvement.' : 
+  `This vehicle CANNOT be legally imported. Age requirement not met. Do NOT suggest workarounds, special permits, or compliance modifications that don't exist. Be honest about waiting periods or alternative vehicles.`}
 
 Provide 3 strategic recommendations:
 1. Immediate action (what to do right now)
-2. Strategic alternative (if this path isn't optimal)
-3. Pro tip (insider knowledge to save time/money)
+2. Strategic alternative (realistic options only)
+3. Pro tip (legitimate insider knowledge)
 
-Keep each recommendation under 40 words, actionable, and specific to this vehicle/destination combination.`;
+Keep each recommendation under 40 words, factually accurate, and realistic.`;
 
         const completion = await openai.chat.completions.create({
           model: "gpt-4o",
@@ -1149,17 +1162,71 @@ Keep each recommendation under 40 words, actionable, and specific to this vehicl
         }
       } catch (error) {
         console.log("AI recommendations unavailable:", error.message);
-        // Fallback to intelligent recommendations based on data
-        aiRecommendations = {
-          immediateAction: isEligible ? 
-            "Begin vehicle documentation and compliance planning now" : 
-            "Research SEVS eligibility or specialist import pathways",
-          strategicAlternative: intelligenceEnhancements.timelineOptimization || 
-            "Consider working with specialized compliance workshops",
-          proTip: intelligenceEnhancements.portRecommendation ? 
-            `Use ${intelligenceEnhancements.portRecommendation} for optimal processing` :
-            "Start the process during slower import seasons for faster processing"
-        };
+      }
+      
+      // Override AI recommendations for ineligible vehicles to ensure accuracy
+      if (!isEligible) {
+        const currentYear = new Date().getFullYear();
+        const vehicleAge = currentYear - (validatedData.year || 2010);
+        const yearsToWait = validatedData.targetCountry === 'US' ? (25 - vehicleAge) : (15 - vehicleAge);
+        
+        if (validatedData.targetCountry === 'US' && vehicleAge < 25) {
+          aiRecommendations = {
+            immediateAction: `Vehicle must be 25+ years old for US import. Wait ${yearsToWait} more years or abandon this vehicle`,
+            strategicAlternative: "Search for similar vehicles already available in the US domestic market",
+            proTip: "Join US-based car clubs to find domestic alternatives or pre-1999 versions of this model"
+          };
+        } else if ((validatedData.targetCountry === 'AU' || validatedData.targetCountry === 'CA') && vehicleAge < 15) {
+          aiRecommendations = {
+            immediateAction: `Vehicle must be 15+ years old for import. Wait ${yearsToWait} more years or choose different vehicle`,
+            strategicAlternative: "Search for similar vehicles in domestic market or check SEVS list for pre-approved models",
+            proTip: "Monitor government import scheme updates - occasionally new models get added to approved lists"
+          };
+        } else {
+          aiRecommendations = {
+            immediateAction: "This vehicle does not meet age requirements for import to selected country",
+            strategicAlternative: "Find equivalent models available domestically or wait for age eligibility",
+            proTip: "Research which generation/year of this model is closest to legal import age"
+          };
+        }
+      } else if (!aiRecommendations) {
+        // Fallback for eligible vehicles when AI is unavailable
+        const currentYear = new Date().getFullYear();
+        const vehicleAge = currentYear - (validatedData.year || 2010);
+        
+        if (isEligible) {
+          aiRecommendations = {
+            immediateAction: "Begin vehicle documentation and compliance planning now",
+            strategicAlternative: intelligenceEnhancements.timelineOptimization || 
+              "Consider working with specialized compliance workshops for faster processing",
+            proTip: intelligenceEnhancements.portRecommendation ? 
+              `Use ${intelligenceEnhancements.portRecommendation} for optimal processing` :
+              "Start the process during slower import seasons for faster processing"
+          };
+        } else {
+          // Vehicle is NOT eligible - provide realistic alternatives based on target country and age
+          const yearsToWait = validatedData.targetCountry === 'US' ? (25 - vehicleAge) : (15 - vehicleAge);
+          
+          if (validatedData.targetCountry === 'US' && vehicleAge < 25) {
+            aiRecommendations = {
+              immediateAction: `Vehicle must be 25+ years old for US import. Wait ${yearsToWait} more years or abandon this vehicle`,
+              strategicAlternative: "Search for similar vehicles already available in the US domestic market",
+              proTip: "Join US-based car clubs to find domestic alternatives or pre-1999 versions of this model"
+            };
+          } else if ((validatedData.targetCountry === 'AU' || validatedData.targetCountry === 'CA') && vehicleAge < 15) {
+            aiRecommendations = {
+              immediateAction: `Vehicle must be 15+ years old for import. Wait ${yearsToWait} more years or choose different vehicle`,
+              strategicAlternative: "Search for similar vehicles in domestic market or check SEVS list for pre-approved models",
+              proTip: "Monitor government import scheme updates - occasionally new models get added to approved lists"
+            };
+          } else {
+            aiRecommendations = {
+              immediateAction: "This vehicle does not meet age requirements for import to selected country",
+              strategicAlternative: "Find equivalent models available domestically or wait for age eligibility",
+              proTip: "Research which generation/year of this model is closest to legal import age"
+            };
+          }
+        }
       }
 
       res.json({
