@@ -143,8 +143,10 @@ async function performReliableLookup(query: string) {
   
   try {
     // Direct pattern match from PostgreSQL
-    const { db } = require('./db');
-    const { sql } = require('drizzle-orm');
+    const dbModule = await import('./db.js');
+    const drizzleModule = await import('drizzle-orm');
+    const { db } = dbModule;
+    const { sql } = drizzleModule;
     
     const directMatch = await db.execute(sql`
       SELECT * FROM vehicle_patterns 
@@ -186,8 +188,10 @@ async function performReliableLookup(query: string) {
 // PostgreSQL-powered vehicle response generation
 async function generateVehicleResponseFromDB(vehicle: any) {
   try {
-    const { db } = require('./db');
-    const { sql } = require('drizzle-orm');
+    const dbModule = await import('./db.js');
+    const drizzleModule = await import('drizzle-orm');
+    const { db } = dbModule;
+    const { sql } = drizzleModule;
     
     // Get eligibility rules from PostgreSQL
     const eligibilityRules = await db.execute(sql`
@@ -239,8 +243,10 @@ async function generateVehicleResponseFromDB(vehicle: any) {
 
 async function getMarketPricingFromDB(make: string, model: string) {
   try {
-    const { db } = require('./db');
-    const { sql } = require('drizzle-orm');
+    const dbModule = await import('./db.js');
+    const drizzleModule = await import('drizzle-orm');
+    const { db } = dbModule;
+    const { sql } = drizzleModule;
     
     const pricing = await db.execute(sql`
       SELECT AVG(price) as average_price, MIN(price) as min_price, MAX(price) as max_price, COUNT(*) as sample_count

@@ -20,7 +20,7 @@ import {
   lookupAnalytics,
   userWatchlist
 } from '@shared/schema';
-import { eq, and, or, like, ilike, desc, asc } from 'drizzle-orm';
+import { eq, and, or, like, ilike, desc, asc, sql } from 'drizzle-orm';
 
 export interface SmartParserResponse {
   data: any;
