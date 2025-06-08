@@ -266,26 +266,26 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* CTA */}
+          {/* Final CTA */}
           <div className="text-center">
-            <h3 className="text-2xl font-bold mb-4 text-white">Ready to scale your import business?</h3>
+            <h3 className="text-2xl font-bold mb-4 text-white">Stop guessing. Start importing.</h3>
             <p className="text-gray-400 mb-8 max-w-2xl mx-auto">
-              Access professional-grade import intelligence tools with authentic government data 
-              and comprehensive compliance checking across multiple regions.
+              Join thousands of car enthusiasts who use ImportIQ to make confident import decisions 
+              with real government data and authentic costs.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
-                className="bg-amber-400 hover:bg-amber-500 text-black font-medium px-8 py-3"
-                onClick={() => window.location.href = '/api/login'}
+                className="bg-amber-400 hover:bg-amber-500 text-black font-bold px-8 py-4 text-lg"
+                onClick={() => setLocation('/smart-lookup')}
               >
-                Start Free Trial
+                Start Your Import Check
               </Button>
               <Button 
                 variant="outline"
-                className="border-gray-600 text-white hover:bg-gray-800 px-8 py-3"
-                onClick={() => window.location.href = '/contact'}
+                className="border-gray-600 text-white hover:bg-gray-800 px-8 py-4"
+                onClick={() => setLocation('/features')}
               >
-                Schedule Demo
+                See All Tools
               </Button>
             </div>
           </div>
