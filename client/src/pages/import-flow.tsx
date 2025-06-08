@@ -64,7 +64,7 @@ interface AuctionListing {
   condition: string;
 }
 
-type FlowStep = 'entry' | 'summary' | 'costs' | 'auctions' | 'services' | 'action';
+type FlowStep = 'entry' | 'processing' | 'summary' | 'costs' | 'auctions' | 'services' | 'action';
 
 export default function ImportFlow() {
   const [currentStep, setCurrentStep] = useState<FlowStep>('entry');
@@ -73,6 +73,18 @@ export default function ImportFlow() {
   const [vehicleData, setVehicleData] = useState<VehicleData | null>(null);
   const [eligibilityResults, setEligibilityResults] = useState<EligibilityResult[]>([]);
   const [selectedResult, setSelectedResult] = useState<EligibilityResult | null>(null);
+
+  // Auto-detect and process URL parameter
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const inputParam = urlParams.get('input');
+    
+    if (inputParam) {
+      setVehicleInput(inputParam);
+      setCurrentStep('processing');
+      extractMutation.mutate(inputParam);
+    }
+  }, []);
 
   // Vehicle extraction mutation
   const extractMutation = useMutation({
@@ -147,35 +159,24 @@ export default function ImportFlow() {
     return 'Poor';
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto px-4 py-8">
-        
-        {/* Progress Indicator */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            {(['entry', 'summary', 'costs', 'auctions', 'services', 'action'] as FlowStep[]).map((step, index) => (
-              <div key={step} className="flex items-center">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                  currentStep === step ? 'bg-blue-600 text-white' :
-                  index < (['entry', 'summary', 'costs', 'auctions', 'services', 'action'] as FlowStep[]).indexOf(currentStep) ? 'bg-green-600 text-white' :
-                  'bg-gray-200 text-gray-600'
-                }`}>
-                  {index + 1}
-                </div>
-                {index < 5 && <div className="w-16 h-1 bg-gray-200 mx-2" />}
-              </div>
-            ))}
-          </div>
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              Import Intelligence Flow
-            </h1>
-            <p className="text-gray-600 dark:text-gray-300">
-              Your complete vehicle import journey, simplified
-            </p>
+  // Show processing screen when analyzing
+  if (currentStep === 'processing' || extractMutation.isPending || checkEligibilityMutation.isPending) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center space-y-6">
+          <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-bold text-amber-500">Analyzing Your Vehicle</h2>
+            <p className="text-gray-300">Extracting data and calculating import possibilities...</p>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-black text-white">
+      <div className="container mx-auto px-4 py-8">
 
         {/* Step 1: Vehicle Entry */}
         {currentStep === 'entry' && (
