@@ -1,13 +1,37 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'wouter';
+import { useQuery } from "@tanstack/react-query";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Check, Zap, Menu, X, ArrowRight } from 'lucide-react';
+import { Check, Zap, Menu, X, ArrowRight, Loader2, Shield, Target } from 'lucide-react';
+
+import { apiRequest } from "@/lib/queryClient";
 
 export default function Landing() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [, setLocation] = useLocation();
+
+  const { data: result, isLoading, error } = useQuery({
+    queryKey: ['/api/smart-parser/intelligent-lookup', searchQuery],
+    queryFn: async () => {
+      const response = await fetch('/api/smart-parser/intelligent-lookup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: searchQuery })
+      });
+      if (!response.ok) throw new Error('Search failed');
+      return response.json();
+    },
+    enabled: !!searchQuery
+  });
+
+  const handleSearch = () => {
+    if (inputValue.trim()) {
+      setSearchQuery(inputValue.trim());
+    }
+  };
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -116,28 +140,53 @@ export default function Landing() {
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && inputValue.trim()) {
-                        setLocation(`/smart-lookup?input=${encodeURIComponent(inputValue.trim())}`);
+                        handleSearch();
                       }
                     }}
                     className="text-lg h-14 bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                   />
                 </div>
                 <Button 
-                  onClick={() => {
-                    if (inputValue.trim()) {
-                      setLocation(`/smart-lookup?input=${encodeURIComponent(inputValue.trim())}`);
-                    } else {
-                      setLocation('/smart-lookup');
-                    }
-                  }}
-                  className="w-full bg-amber-400 hover:bg-amber-500 text-black font-bold py-4 text-xl"
+                  onClick={handleSearch}
+                  disabled={!inputValue.trim() || isLoading}
+                  className="w-full bg-amber-400 hover:bg-amber-500 text-black font-bold py-4 text-xl disabled:opacity-50"
                 >
-                  Check This Car Now
-                  <ArrowRight className="ml-2 h-6 w-6" />
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+                      Analyzing...
+                    </>
+                  ) : (
+                    <>
+                      Check This Car Now
+                      <ArrowRight className="ml-2 h-6 w-6" />
+                    </>
+                  )}
                 </Button>
               </div>
             </div>
           </div>
+
+          {/* Results Section */}
+          {result && (
+            <div className="max-w-5xl mx-auto mb-16">
+              <SmartParserResult data={result} />
+            </div>
+          )}
+
+          {error && (
+            <div className="max-w-lg mx-auto mb-12">
+              <div className="bg-red-900/20 border border-red-700 rounded-xl p-6">
+                <div className="flex items-center gap-3 mb-2">
+                  <X className="h-5 w-5 text-red-400" />
+                  <h3 className="font-medium text-red-300">Analysis Failed</h3>
+                </div>
+                <p className="text-red-400 text-sm">
+                  Unable to analyze this vehicle. Please check your input and try again.
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Key Benefits */}
           <div className="max-w-md mx-auto mb-8">
