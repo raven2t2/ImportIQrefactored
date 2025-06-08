@@ -1107,6 +1107,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
+      // Generate AI-powered recommendations for enhanced user experience
+      let aiRecommendations = null;
+      
+      try {
+        const openai = new OpenAI({
+          apiKey: process.env.OPENAI_API_KEY,
+        });
+
+        const prompt = `As an ImportIQ AI specialist, provide strategic recommendations for importing a ${validatedData.year || 'vintage'} ${validatedData.category} vehicle to ${validatedData.targetCountry}/${validatedData.targetState}.
+
+Context:
+- Eligibility: ${isEligible ? 'ELIGIBLE' : 'CHALLENGING'}
+- Timeline: ${estimatedWeeks}
+- Key factors: ${factors.slice(0, 3).join(', ')}
+- Intelligence insights: ${intelligenceEnhancements.portRecommendation || 'Standard processing'}
+
+Provide 3 strategic recommendations:
+1. Immediate action (what to do right now)
+2. Strategic alternative (if this path isn't optimal)
+3. Pro tip (insider knowledge to save time/money)
+
+Keep each recommendation under 40 words, actionable, and specific to this vehicle/destination combination.`;
+
+        const completion = await openai.chat.completions.create({
+          model: "gpt-4o",
+          messages: [{ role: "user", content: prompt }],
+          max_tokens: 300,
+          temperature: 0.7,
+        });
+
+        const aiResponse = completion.choices[0]?.message?.content;
+        if (aiResponse) {
+          // Parse AI response into structured recommendations
+          const lines = aiResponse.split('\n').filter(line => line.trim());
+          aiRecommendations = {
+            immediateAction: lines.find(line => line.includes('1.') || line.toLowerCase().includes('immediate'))?.replace(/^1\.?\s*/, '') || "Start documentation preparation immediately",
+            strategicAlternative: lines.find(line => line.includes('2.') || line.toLowerCase().includes('alternative'))?.replace(/^2\.?\s*/, '') || "Consider alternative import pathways",
+            proTip: lines.find(line => line.includes('3.') || line.toLowerCase().includes('tip'))?.replace(/^3\.?\s*/, '') || "Connect with specialized import agents early"
+          };
+        }
+      } catch (error) {
+        console.log("AI recommendations unavailable:", error.message);
+        // Fallback to intelligent recommendations based on data
+        aiRecommendations = {
+          immediateAction: isEligible ? 
+            "Begin vehicle documentation and compliance planning now" : 
+            "Research SEVS eligibility or specialist import pathways",
+          strategicAlternative: intelligenceEnhancements.timelineOptimization || 
+            "Consider working with specialized compliance workshops",
+          proTip: intelligenceEnhancements.portRecommendation ? 
+            `Use ${intelligenceEnhancements.portRecommendation} for optimal processing` :
+            "Start the process during slower import seasons for faster processing"
+        };
+      }
+
       res.json({
         success: true,
         estimatedWeeks,
@@ -1114,6 +1169,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         explanation,
         factors,
         isEligible,
+        aiRecommendations,
         ...intelligenceEnhancements
       });
     } catch (error) {

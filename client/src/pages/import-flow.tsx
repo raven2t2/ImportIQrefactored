@@ -75,6 +75,23 @@ export default function ImportFlow() {
   const [vehicleData, setVehicleData] = useState<VehicleData | null>(null);
   const [eligibilityResults, setEligibilityResults] = useState<EligibilityResult[]>([]);
   const [selectedResult, setSelectedResult] = useState<EligibilityResult | null>(null);
+  
+  // Fetch compliance data with AI recommendations
+  const { data: complianceData } = useQuery({
+    queryKey: ['/api/compliance-estimate', vehicleData, targetCountry, selectedState],
+    enabled: !!vehicleData && !!targetCountry,
+    queryFn: async () => {
+      const response = await apiRequest('POST', '/api/compliance-estimate', {
+        make: vehicleData?.make,
+        model: vehicleData?.model, 
+        year: vehicleData?.year,
+        category: 'passenger',
+        targetCountry,
+        targetState: selectedState
+      });
+      return response.json();
+    }
+  });
 
   // Auto-detect and process URL parameter
   useEffect(() => {
@@ -797,6 +814,32 @@ export default function ImportFlow() {
                   </div>
                 </div>
 
+                {/* AI-Powered Recommendations Section */}
+                {complianceData?.aiRecommendations && (
+                  <div className="mt-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                        <span className="text-white font-bold text-sm">AI</span>
+                      </div>
+                      <h3 className="font-semibold text-blue-900">ImportIQ Intelligence</h3>
+                    </div>
+                    <div className="grid md:grid-cols-3 gap-4">
+                      <div className="bg-white p-4 rounded-lg border border-blue-100">
+                        <h4 className="font-medium text-green-700 mb-2">🎯 Immediate Action</h4>
+                        <p className="text-sm text-gray-700">{complianceData.aiRecommendations.immediateAction}</p>
+                      </div>
+                      <div className="bg-white p-4 rounded-lg border border-blue-100">
+                        <h4 className="font-medium text-blue-700 mb-2">🔄 Strategic Alternative</h4>
+                        <p className="text-sm text-gray-700">{complianceData.aiRecommendations.strategicAlternative}</p>
+                      </div>
+                      <div className="bg-white p-4 rounded-lg border border-blue-100">
+                        <h4 className="font-medium text-purple-700 mb-2">💡 Pro Tip</h4>
+                        <p className="text-sm text-gray-700">{complianceData.aiRecommendations.proTip}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {selectedResult.warnings.length > 0 && (
                   <Alert className="mt-6">
                     <AlertTriangle className="w-4 h-4" />
@@ -924,9 +967,33 @@ export default function ImportFlow() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-12">
-                    <Search className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600">Loading available vehicles...</p>
+                  <div className="space-y-6">
+                    <div className="text-center py-8">
+                      <Search className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-600">No vehicles currently available in this category</p>
+                    </div>
+                    
+                    {/* AI-Powered Alternative Suggestions */}
+                    {complianceData?.aiRecommendations && (
+                      <div className="p-6 bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-lg">
+                        <div className="flex items-center gap-2 mb-4">
+                          <div className="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center">
+                            <span className="text-white font-bold text-sm">AI</span>
+                          </div>
+                          <h3 className="font-semibold text-orange-900">Smart Alternatives</h3>
+                        </div>
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div className="bg-white p-4 rounded-lg border border-orange-100">
+                            <h4 className="font-medium text-blue-700 mb-2">Alternative Strategy</h4>
+                            <p className="text-sm text-gray-700">{complianceData.aiRecommendations.strategicAlternative}</p>
+                          </div>
+                          <div className="bg-white p-4 rounded-lg border border-orange-100">
+                            <h4 className="font-medium text-green-700 mb-2">Next Steps</h4>
+                            <p className="text-sm text-gray-700">{complianceData.aiRecommendations.immediateAction}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
