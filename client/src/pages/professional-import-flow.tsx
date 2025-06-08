@@ -177,6 +177,8 @@ export default function ProfessionalImportFlow() {
     enabled: currentStep === 'market-data' && vehicleData !== null,
   });
 
+  const listings = marketData?.vehicles || [];
+
   const handleVehicleSubmit = () => {
     if (vehicleInput.trim()) {
       extractVehicleMutation.mutate(vehicleInput);
