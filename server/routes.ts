@@ -4056,6 +4056,47 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
+  app.post('/api/data-migration/execute', async (req, res) => {
+    try {
+      const { DataMigrationService } = await import('./data-migration-service');
+      
+      console.log('🔄 Starting comprehensive data migration to PostgreSQL...');
+      const result = await DataMigrationService.executeFullMigration();
+      
+      res.json({
+        success: result.success,
+        message: 'Data migration completed',
+        migratedSources: result.migratedSources,
+        totalRecords: result.totalRecords,
+        errors: result.errors
+      });
+    } catch (error) {
+      console.error('Data migration failed:', error);
+      res.status(500).json({ 
+        error: 'Failed to execute data migration',
+        details: error.message 
+      });
+    }
+  });
+
+  app.get('/api/data-migration/validate', async (req, res) => {
+    try {
+      const { DataMigrationService } = await import('./data-migration-service');
+      const validation = await DataMigrationService.validateMigration();
+      
+      res.json({
+        success: true,
+        data: validation
+      });
+    } catch (error) {
+      console.error('Migration validation failed:', error);
+      res.status(500).json({ 
+        error: 'Failed to validate migration',
+        details: error.message 
+      });
+    }
+  });
+
   app.get('/api/auction-data/market-pricing', async (req, res) => {
     try {
       const { make, model, year } = req.query;
