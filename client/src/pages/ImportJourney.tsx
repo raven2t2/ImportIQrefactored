@@ -8,6 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { CheckCircle, Clock, DollarSign, FileText, AlertCircle, ArrowRight, Calendar, MapPin, Truck, Shield } from 'lucide-react';
 
 import { apiRequest } from "@/lib/queryClient";
+import SessionManager from "@/lib/session-manager";
 
 interface ImportIntelligence {
   vehicle: {
@@ -64,26 +65,99 @@ export default function ImportJourney() {
   const [location] = useLocation();
   const [vehicleData, setVehicleData] = useState<any>({});
   const [destination, setDestination] = useState('');
+  const [sessionToken, setSessionToken] = useState<string | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Parse URL parameters
+  // Initialize session and handle URL parameters
   useEffect(() => {
-    const params = new URLSearchParams(location.split('?')[1] || '');
-    setVehicleData({
-      make: params.get('make') || '',
-      model: params.get('model') || '',
-      chassis: params.get('chassis') || '',
-      year: params.get('year') || ''
-    });
-    setDestination(params.get('destination') || '');
+    const initializeSession = async () => {
+      // Check for existing session token
+      let token = SessionManager.getSessionToken();
+      
+      // Parse URL parameters
+      const urlParams = SessionManager.parseUrlParams();
+      
+      // Try to reconstruct session from URL if no session exists
+      if (!token && (urlParams.make || urlParams.model)) {
+        try {
+          const reconstructed = await SessionManager.reconstructSession(urlParams);
+          if (reconstructed) {
+            token = reconstructed.sessionToken;
+            
+            // Populate data from reconstructed session
+            if (reconstructed.session) {
+              const sessionData = reconstructed.session.parsedData;
+              setVehicleData({
+                make: sessionData.make || urlParams.make || '',
+                model: sessionData.model || urlParams.model || '',
+                chassis: sessionData.chassis || urlParams.chassis || '',
+                year: sessionData.year || urlParams.year || ''
+              });
+              setDestination(reconstructed.session.currentDestination || urlParams.destination || '');
+            }
+          }
+        } catch (error) {
+          console.error('Failed to reconstruct session:', error);
+        }
+      }
+      
+      // If we have a session token, try to fetch the session data
+      if (token) {
+        try {
+          const session = await SessionManager.fetchSession(token);
+          if (session) {
+            const sessionData = session.parsedData;
+            setVehicleData({
+              make: sessionData.make || urlParams.make || '',
+              model: sessionData.model || urlParams.model || '',
+              chassis: sessionData.chassis || urlParams.chassis || '',
+              year: sessionData.year || urlParams.year || ''
+            });
+            setDestination(session.currentDestination || urlParams.destination || '');
+          }
+        } catch (error) {
+          console.error('Failed to fetch session:', error);
+        }
+      }
+      
+      // Fallback to URL parameters if no session data
+      if (!token || (!vehicleData.make && !vehicleData.model)) {
+        setVehicleData({
+          make: urlParams.make || '',
+          model: urlParams.model || '',
+          chassis: urlParams.chassis || '',
+          year: urlParams.year || ''
+        });
+        setDestination(urlParams.destination || '');
+      }
+      
+      setSessionToken(token);
+      setIsInitialized(true);
+    };
+    
+    initializeSession();
   }, [location]);
 
+  // Update URL parameters when vehicle data changes
+  useEffect(() => {
+    if (isInitialized && (vehicleData.make || vehicleData.model)) {
+      SessionManager.updateUrlParams(vehicleData, destination);
+    }
+  }, [vehicleData, destination, isInitialized]);
+
   const { data: importIntelligence, isLoading } = useQuery({
-    queryKey: ['/api/import-intelligence', vehicleData, destination],
+    queryKey: ['/api/import-intelligence', vehicleData, destination, sessionToken],
     queryFn: () => apiRequest('/api/import-intelligence', {
       method: 'POST',
-      body: { vehicle: vehicleData, destination }
+      body: { 
+        vehicle: vehicleData, 
+        destination,
+        sessionToken 
+      }
     }),
-    enabled: !!(vehicleData.make && destination)
+    enabled: !!(vehicleData.make && destination && isInitialized),
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    gcTime: 30 * 60 * 1000, // Keep in memory for 30 minutes
   });
 
   const getDestinationInfo = (dest: string) => {

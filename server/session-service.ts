@@ -246,7 +246,7 @@ export class SessionService {
         .where(and(
           eq(importIntelligenceCache.vehicleHash, vehicleHash),
           eq(importIntelligenceCache.destination, destination),
-          gt(importIntelligenceCache.validUntil, now)
+          gt(importIntelligenceCache.validUntil, now.toISOString())
         ))
         .limit(1);
 
@@ -333,15 +333,15 @@ export class SessionService {
       // Deactivate old sessions
       await db.update(vehicleJourneySessions)
         .set({ isActive: false })
-        .where(gt(oneDayAgo, vehicleJourneySessions.lastAccessed));
+        .where(lt(vehicleJourneySessions.lastAccessed, oneDayAgo.toISOString()));
 
       // Clean expired cache entries
       const now = new Date();
       await db.delete(vehicleLookupCache)
-        .where(gt(now, vehicleLookupCache.validUntil));
+        .where(lt(vehicleLookupCache.validUntil, now.toISOString()));
       
       await db.delete(importIntelligenceCache)
-        .where(gt(now, importIntelligenceCache.validUntil));
+        .where(lt(importIntelligenceCache.validUntil, now.toISOString()));
 
     } catch (error) {
       console.error('Session cleanup error:', error);
