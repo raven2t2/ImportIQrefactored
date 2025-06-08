@@ -1607,27 +1607,16 @@ Keep each recommendation under 40 words, factually accurate, and realistic.`;
             'SW20': { wmi: 'JT2', model: 'SW20' }
           };
           
-          console.log('Debug: Looking up chassis code:', chassisCode);
-          console.log('Debug: Chassis mapping:', chassisMapping[chassisCode]);
-          console.log('Debug: VIN_TECHNICAL_DATABASE keys:', Object.keys(VIN_TECHNICAL_DATABASE));
-          
           // Direct chassis code lookup
           if (chassisMapping[chassisCode]) {
             const mapping = chassisMapping[chassisCode];
-            console.log('Debug: Mapping found:', mapping);
-            console.log('Debug: WMI data available:', !!VIN_TECHNICAL_DATABASE[mapping.wmi]);
-            if (VIN_TECHNICAL_DATABASE[mapping.wmi]) {
-              console.log('Debug: Models in WMI:', Object.keys(VIN_TECHNICAL_DATABASE[mapping.wmi].models || {}));
-              if (VIN_TECHNICAL_DATABASE[mapping.wmi].models[mapping.model]) {
-                technicalSpecs = VIN_TECHNICAL_DATABASE[mapping.wmi].models[mapping.model];
-                console.log('Debug: Found technical specs:', technicalSpecs);
-              }
+            if (VIN_TECHNICAL_DATABASE[mapping.wmi]?.models[mapping.model]) {
+              technicalSpecs = VIN_TECHNICAL_DATABASE[mapping.wmi].models[mapping.model];
             }
           }
           
           // Fallback: search through all WMI codes for matching chassis or model
           if (!technicalSpecs) {
-            console.log('Debug: Searching fallback...');
             for (const [wmi, wmiData] of Object.entries(VIN_TECHNICAL_DATABASE)) {
               if (wmiData.models) {
                 for (const [modelCode, modelData] of Object.entries(wmiData.models)) {
@@ -1636,7 +1625,6 @@ Keep each recommendation under 40 words, factually accurate, and realistic.`;
                       modelCode === chassisCode ||
                       modelData.name.toLowerCase().includes(jdmData.model.toLowerCase())) {
                     technicalSpecs = modelData;
-                    console.log('Debug: Found fallback specs:', technicalSpecs);
                     break;
                   }
                 }
