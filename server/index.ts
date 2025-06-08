@@ -74,8 +74,9 @@ app.use((req, res, next) => {
     initializeDataRefreshScheduler();
     // Initialize live market data monitoring
     initializeLiveMarketDataMonitoring();
-    // Seed working vehicle database with authentic data
-    const { WorkingVehicleSeeder } = await import('./working-vehicle-seeder');
-    WorkingVehicleSeeder.seedWorkingVehicles();
+    // Seed final vehicle database with authentic data
+    const { FinalVehicleSeeder } = await import('./final-vehicle-seeder');
+    await FinalVehicleSeeder.seedFinalVehicles();
+    await FinalVehicleSeeder.testDatabase();
   });
 })();
