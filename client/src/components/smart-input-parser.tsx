@@ -77,7 +77,11 @@ export function SmartInputParser({ onInputParsed, placeholder = "Paste VIN, auct
         // Prioritize server-enhanced data over client-side detection
         const finalParsed = { 
           ...result, 
-          ...enhanced.data,
+          make: enhanced.data.make || result.detectedInfo?.make || 'Unknown',
+          model: enhanced.data.model || result.detectedInfo?.model || 'Unknown',
+          year: enhanced.data.year || result.detectedInfo?.year,
+          origin: enhanced.data.origin || result.detectedInfo?.origin,
+          technicalSpecs: enhanced.data.technicalSpecs,
           detectedInfo: {
             make: enhanced.data.make || result.detectedInfo?.make || 'Unknown',
             model: enhanced.data.model || result.detectedInfo?.model || 'Unknown',
@@ -85,8 +89,7 @@ export function SmartInputParser({ onInputParsed, placeholder = "Paste VIN, auct
             origin: enhanced.data.origin || result.detectedInfo?.origin,
             platform: result.detectedInfo?.platform,
             technicalSpecs: enhanced.data.technicalSpecs
-          },
-          technicalSpecs: enhanced.data.technicalSpecs
+          }
         };
         console.log('Final parsed data:', finalParsed);
         onInputParsed(finalParsed);
