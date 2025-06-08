@@ -3004,8 +3004,11 @@ Respond with a JSON object containing your recommendations.`;
       const { vehicleData, targetCountries } = req.body;
       const { checkCountryEligibility, generateRecommendations } = await import('./smart-validation-engine');
       
+      // Default to common target countries if none specified
+      const countries = targetCountries || ['AU', 'US', 'UK', 'DE', 'NZ', 'CA'];
+      
       const eligibilityResults = await Promise.all(
-        targetCountries.map(async (country: string) => {
+        countries.map(async (country: string) => {
           return await checkCountryEligibility(vehicleData, country);
         })
       );
