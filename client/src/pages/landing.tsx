@@ -33,6 +33,19 @@ export default function Landing() {
     }
   };
 
+  const handleDestinationSelect = (destination: string) => {
+    if (result?.data) {
+      const params = new URLSearchParams({
+        make: result.data.make || '',
+        model: result.data.model || '',
+        chassis: result.data.chassisCode || '',
+        year: result.data.productionYears || '',
+        destination: destination
+      });
+      setLocation(`/import-journey?${params.toString()}`);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Simple Navigation */}
@@ -219,58 +232,86 @@ export default function Landing() {
                       )}
                     </div>
 
-                    {/* Magic Moment - Action Journey Cards */}
-                    <div className="grid md:grid-cols-3 gap-4">
-                      <Link 
-                        href={`/eligibility-check?make=${encodeURIComponent(result.data.make || '')}&model=${encodeURIComponent(result.data.model || '')}&chassis=${encodeURIComponent(result.data.chassisCode || '')}`}
-                        className="bg-gradient-to-br from-red-900/20 to-red-800/20 border border-red-700/30 rounded-xl p-6 cursor-pointer hover:border-red-600/50 transition-all group block"
-                      >
-                        <div className="w-12 h-12 bg-red-500/20 rounded-lg flex items-center justify-center mb-4 group-hover:bg-red-500/30 transition-all">
-                          <svg className="h-6 w-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                        </div>
-                        <h4 className="text-lg font-semibold text-white mb-2">Can I import this car?</h4>
-                        <p className="text-gray-400 text-sm mb-4">Check eligibility across 17 countries with authentic government regulations</p>
-                        <div className="flex items-center text-red-400 text-sm font-medium">
-                          <span>Check eligibility →</span>
-                          <div className="ml-2 group-hover:translate-x-1 transition-transform">🚗</div>
-                        </div>
-                      </Link>
+                    {/* Smart Follow-Up Question */}
+                    <div className="bg-gradient-to-r from-purple-900/20 to-blue-900/20 rounded-xl p-6 border border-purple-700/30 mb-6">
+                      <h3 className="text-xl font-bold text-white mb-3">Where do you want to import this car?</h3>
+                      <p className="text-purple-200 mb-4">Choose your destination to get precise costs, timelines, and requirements</p>
+                      <div className="grid md:grid-cols-4 gap-3">
+                        <button 
+                          onClick={() => handleDestinationSelect('australia')}
+                          className="flex items-center gap-3 p-4 bg-green-900/20 hover:bg-green-900/40 border border-green-700/30 hover:border-green-600 rounded-lg transition-all group"
+                        >
+                          <span className="text-2xl">🇦🇺</span>
+                          <div className="text-left">
+                            <div className="text-white font-medium">Australia</div>
+                            <div className="text-green-400 text-xs">25-year rule</div>
+                          </div>
+                        </button>
+                        
+                        <button 
+                          onClick={() => handleDestinationSelect('usa')}
+                          className="flex items-center gap-3 p-4 bg-blue-900/20 hover:bg-blue-900/40 border border-blue-700/30 hover:border-blue-600 rounded-lg transition-all group"
+                        >
+                          <span className="text-2xl">🇺🇸</span>
+                          <div className="text-left">
+                            <div className="text-white font-medium">United States</div>
+                            <div className="text-blue-400 text-xs">25-year rule</div>
+                          </div>
+                        </button>
+                        
+                        <button 
+                          onClick={() => handleDestinationSelect('uk')}
+                          className="flex items-center gap-3 p-4 bg-purple-900/20 hover:bg-purple-900/40 border border-purple-700/30 hover:border-purple-600 rounded-lg transition-all group"
+                        >
+                          <span className="text-2xl">🇬🇧</span>
+                          <div className="text-left">
+                            <div className="text-white font-medium">United Kingdom</div>
+                            <div className="text-purple-400 text-xs">EU standards</div>
+                          </div>
+                        </button>
+                        
+                        <button 
+                          onClick={() => handleDestinationSelect('canada')}
+                          className="flex items-center gap-3 p-4 bg-red-900/20 hover:bg-red-900/40 border border-red-700/30 hover:border-red-600 rounded-lg transition-all group"
+                        >
+                          <span className="text-2xl">🇨🇦</span>
+                          <div className="text-left">
+                            <div className="text-white font-medium">Canada</div>
+                            <div className="text-red-400 text-xs">15-year rule</div>
+                          </div>
+                        </button>
+                      </div>
+                    </div>
 
-                      <Link 
-                        href={`/cost-calculator?make=${encodeURIComponent(result.data.make || '')}&model=${encodeURIComponent(result.data.model || '')}&chassis=${encodeURIComponent(result.data.chassisCode || '')}`}
-                        className="bg-gradient-to-br from-amber-900/20 to-yellow-800/20 border border-amber-700/30 rounded-xl p-6 cursor-pointer hover:border-amber-600/50 transition-all group block"
-                      >
-                        <div className="w-12 h-12 bg-amber-500/20 rounded-lg flex items-center justify-center mb-4 group-hover:bg-amber-500/30 transition-all">
-                          <svg className="h-6 w-6 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                          </svg>
+                    {/* Secondary Options */}
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <button className="bg-gradient-to-br from-orange-900/20 to-red-800/20 border border-orange-700/30 rounded-xl p-6 hover:border-orange-600/50 transition-all group text-left">
+                        <div className="flex items-center gap-4 mb-3">
+                          <div className="w-10 h-10 bg-orange-500/20 rounded-lg flex items-center justify-center">
+                            <svg className="h-5 w-5 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                            </svg>
+                          </div>
+                          <div>
+                            <h4 className="text-lg font-semibold text-white">Compare All Countries</h4>
+                            <p className="text-orange-300 text-sm">See eligibility, costs, and timelines everywhere</p>
+                          </div>
                         </div>
-                        <h4 className="text-lg font-semibold text-white mb-2">How much will it cost?</h4>
-                        <p className="text-gray-400 text-sm mb-4">Get real costs including duties, compliance, and regional fees</p>
-                        <div className="flex items-center text-amber-400 text-sm font-medium">
-                          <span>Calculate costs →</span>
-                          <div className="ml-2 group-hover:translate-x-1 transition-transform">💰</div>
-                        </div>
-                      </Link>
+                      </button>
 
-                      <Link 
-                        href={`/import-roadmap?make=${encodeURIComponent(result.data.make || '')}&model=${encodeURIComponent(result.data.model || '')}&chassis=${encodeURIComponent(result.data.chassisCode || '')}`}
-                        className="bg-gradient-to-br from-blue-900/20 to-blue-800/20 border border-blue-700/30 rounded-xl p-6 cursor-pointer hover:border-blue-600/50 transition-all group block"
-                      >
-                        <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mb-4 group-hover:bg-blue-500/30 transition-all">
-                          <svg className="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                          </svg>
+                      <button className="bg-gradient-to-br from-emerald-900/20 to-green-800/20 border border-emerald-700/30 rounded-xl p-6 hover:border-emerald-600/50 transition-all group text-left">
+                        <div className="flex items-center gap-4 mb-3">
+                          <div className="w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center">
+                            <svg className="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <h4 className="text-lg font-semibold text-white">Check Eligibility Timeline</h4>
+                            <p className="text-emerald-300 text-sm">When will this car become importable?</p>
+                          </div>
                         </div>
-                        <h4 className="text-lg font-semibold text-white mb-2">What do I need to do?</h4>
-                        <p className="text-gray-400 text-sm mb-4">Step-by-step guidance with timelines and next actions</p>
-                        <div className="flex items-center text-blue-400 text-sm font-medium">
-                          <span>Get roadmap →</span>
-                          <div className="ml-2 group-hover:translate-x-1 transition-transform">📋</div>
-                        </div>
-                      </Link>
+                      </button>
                     </div>
                   </div>
                 )}

@@ -63,6 +63,7 @@ import LiveMarketData from "@/pages/live-market-data";
 import ImportVolumeDashboard from "@/pages/import-volume-dashboard";
 import ImportFlow from "@/pages/import-flow";
 import EligibilityCheck from "@/pages/EligibilityCheck";
+import ImportJourney from "@/pages/ImportJourney";
 
 
 import NotFound from "@/pages/not-found";
@@ -136,6 +137,7 @@ function Router() {
       <Route path="/live-market-data" component={LiveMarketData} />
       <Route path="/import-flow" component={ImportFlow} />
       <Route path="/eligibility-check" component={EligibilityCheck} />
+      <Route path="/import-journey" component={ImportJourney} />
       <Route component={NotFound} />
     </Switch>
   );

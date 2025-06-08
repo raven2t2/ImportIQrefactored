@@ -3695,6 +3695,268 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
+  // Import Intelligence API
+  app.post("/api/import-intelligence", async (req, res) => {
+    try {
+      const { vehicle, destination } = req.body;
+      
+      if (!vehicle || !destination) {
+        return res.status(400).json({ error: "Vehicle data and destination required" });
+      }
+
+      // Calculate comprehensive import intelligence
+      const intelligence = {
+        vehicle: {
+          make: vehicle.make || 'Unknown',
+          model: vehicle.model || 'Unknown',
+          chassis: vehicle.chassis || '',
+          year: vehicle.year || ''
+        },
+        destination: {
+          country: destination,
+          flag: getDestinationFlag(destination),
+          name: getDestinationName(destination)
+        },
+        eligibility: calculateEligibility(vehicle, destination),
+        costs: calculateImportCosts(vehicle, destination),
+        timeline: generateImportTimeline(vehicle, destination),
+        nextSteps: generateNextSteps(vehicle, destination),
+        alternatives: generateAlternatives(vehicle, destination)
+      };
+
+      res.json(intelligence);
+    } catch (error) {
+      console.error('Import intelligence error:', error);
+      res.status(500).json({ error: "Failed to generate import intelligence" });
+    }
+  });
+
+  // Helper functions for import intelligence
+  function getDestinationFlag(destination: string): string {
+    const flags: Record<string, string> = {
+      australia: '🇦🇺',
+      usa: '🇺🇸',
+      uk: '🇬🇧',
+      canada: '🇨🇦'
+    };
+    return flags[destination] || '🌍';
+  }
+
+  function getDestinationName(destination: string): string {
+    const names: Record<string, string> = {
+      australia: 'Australia',
+      usa: 'United States',
+      uk: 'United Kingdom',
+      canada: 'Canada'
+    };
+    return names[destination] || 'International';
+  }
+
+  function calculateEligibility(vehicle: any, destination: string) {
+    const currentYear = new Date().getFullYear();
+    const vehicleYear = parseInt(vehicle.year) || 1999;
+    const vehicleAge = currentYear - vehicleYear;
+    
+    let status = 'eligible';
+    let confidence = 85;
+    let timeline = '3-6 months';
+    let keyFactors = [];
+
+    // Apply destination-specific rules
+    if (destination === 'australia' || destination === 'usa') {
+      if (vehicleAge < 25) {
+        status = 'restricted';
+        confidence = 45;
+        timeline = '12+ months or wait until eligible';
+        keyFactors = ['25-year import rule applies', 'Must wait until vehicle turns 25 years old'];
+      } else {
+        keyFactors = ['Meets 25-year rule', 'Standard compliance required'];
+      }
+    } else if (destination === 'canada') {
+      if (vehicleAge < 15) {
+        status = 'restricted';
+        confidence = 50;
+        timeline = '12+ months or wait until eligible';
+        keyFactors = ['15-year import rule applies', 'Must wait until vehicle turns 15 years old'];
+      } else {
+        keyFactors = ['Meets 15-year rule', 'Standard compliance required'];
+      }
+    } else if (destination === 'uk') {
+      keyFactors = ['EU/UK standards apply', 'Right-hand drive preferred'];
+    }
+
+    // Special cases for high-performance JDM cars
+    if (vehicle.chassis && (vehicle.chassis.includes('R34') || vehicle.chassis.includes('BNR34'))) {
+      if (destination === 'australia') {
+        status = 'conditional';
+        confidence = 75;
+        timeline = '6-9 months';
+        keyFactors.push('Additional compliance testing required', 'Engineering certificate needed');
+      }
+    }
+
+    return { status, confidence, timeline, keyFactors };
+  }
+
+  function calculateImportCosts(vehicle: any, destination: string) {
+    let vehiclePrice = 25000; // Base estimate
+    let shipping = 4500;
+    let duties = 6200;
+    let compliance = 8500;
+    let documentation = 1800;
+
+    // Adjust based on destination
+    if (destination === 'australia') {
+      duties = vehiclePrice * 0.05 + vehiclePrice * 0.10; // 5% duty + 10% GST
+      shipping = 4200;
+    } else if (destination === 'usa') {
+      duties = vehiclePrice * 0.025; // 2.5% duty
+      shipping = 4800;
+      compliance = 12000; // Higher compliance costs in US
+    } else if (destination === 'uk') {
+      duties = vehiclePrice * 0.10 + vehiclePrice * 0.20; // 10% duty + 20% VAT
+      shipping = 3800;
+    } else if (destination === 'canada') {
+      duties = vehiclePrice * 0.061 + vehiclePrice * 0.05; // 6.1% duty + 5% GST
+      shipping = 4600;
+    }
+
+    const total = vehiclePrice + shipping + duties + compliance + documentation;
+
+    return {
+      vehicle: vehiclePrice,
+      shipping,
+      duties: Math.round(duties),
+      compliance,
+      total: Math.round(total),
+      breakdown: [
+        { category: 'Vehicle Purchase', amount: vehiclePrice, description: 'Estimated market price in origin country' },
+        { category: 'Shipping & Logistics', amount: shipping, description: 'Ocean freight and handling' },
+        { category: 'Import Duties & Taxes', amount: Math.round(duties), description: 'Government fees and taxes' },
+        { category: 'Compliance & Certification', amount: compliance, description: 'Testing, modifications, and registration' },
+        { category: 'Documentation & Fees', amount: documentation, description: 'Permits, inspections, and processing' }
+      ]
+    };
+  }
+
+  function generateImportTimeline(vehicle: any, destination: string) {
+    const baseTimeline = [
+      {
+        phase: 'Vehicle Purchase & Export',
+        duration: '2-4 weeks',
+        status: 'upcoming',
+        description: 'Locate, purchase, and prepare vehicle for export',
+        requirements: [
+          'Find suitable vehicle in origin country',
+          'Complete purchase and obtain title',
+          'Arrange export documentation',
+          'Schedule pre-shipping inspection'
+        ]
+      },
+      {
+        phase: 'Shipping & Transit',
+        duration: '4-6 weeks',
+        status: 'upcoming',
+        description: 'Ocean freight from origin to destination port',
+        requirements: [
+          'Vehicle loading and securing',
+          'Ocean freight transit',
+          'Arrival at destination port',
+          'Port handling and storage'
+        ]
+      },
+      {
+        phase: 'Customs Clearance',
+        duration: '1-2 weeks',
+        status: 'upcoming',
+        description: 'Import duties, taxes, and customs processing',
+        requirements: [
+          'Submit import documentation',
+          'Pay import duties and taxes',
+          'Customs inspection',
+          'Release from customs'
+        ]
+      },
+      {
+        phase: 'Compliance & Certification',
+        duration: '6-12 weeks',
+        status: 'upcoming',
+        description: 'Vehicle compliance testing and modifications',
+        requirements: [
+          'Compliance testing and certification',
+          'Required modifications if needed',
+          'Safety and emissions testing',
+          'Compliance plate installation'
+        ]
+      },
+      {
+        phase: 'Registration & Completion',
+        duration: '1-3 weeks',
+        status: 'upcoming',
+        description: 'Local registration and final documentation',
+        requirements: [
+          'State/provincial registration',
+          'Insurance arrangement',
+          'License plate issuance',
+          'Final inspection and delivery'
+        ]
+      }
+    ];
+
+    return baseTimeline;
+  }
+
+  function generateNextSteps(vehicle: any, destination: string) {
+    return [
+      {
+        action: 'Verify Vehicle Eligibility',
+        priority: 'high',
+        timeline: 'Immediate',
+        description: 'Confirm specific vehicle meets import requirements for your destination'
+      },
+      {
+        action: 'Get Professional Assessment',
+        priority: 'high',
+        timeline: '1-2 days',
+        description: 'Connect with import specialist for detailed quote and timeline'
+      },
+      {
+        action: 'Research Vehicle Sources',
+        priority: 'medium',
+        timeline: '1-2 weeks',
+        description: 'Identify reputable sellers and auction houses in origin country'
+      },
+      {
+        action: 'Arrange Financing',
+        priority: 'medium',
+        timeline: '2-4 weeks',
+        description: 'Secure funding for purchase, shipping, and compliance costs'
+      }
+    ];
+  }
+
+  function generateAlternatives(vehicle: any, destination: string) {
+    const alternatives = [];
+
+    // Suggest alternatives for restricted vehicles
+    if (vehicle.chassis && vehicle.chassis.includes('R34')) {
+      alternatives.push({
+        make: 'Nissan',
+        model: 'Skyline R33 GT-R',
+        reason: 'Already 25+ years old',
+        advantage: 'Immediate eligibility with lower compliance costs'
+      });
+      alternatives.push({
+        make: 'Toyota',
+        model: 'Supra RZ (JZA80)',
+        reason: 'Similar performance, established import path',
+        advantage: 'Well-known compliance requirements and parts availability'
+      });
+    }
+
+    return alternatives;
+  }
+
   // User Watchlist APIs
   app.post("/api/watchlist/add", async (req, res) => {
     try {
