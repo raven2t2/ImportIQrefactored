@@ -334,6 +334,17 @@ export function DynamicResultsRenderer({ results, recommendations, vehicleInfo }
                       <Badge variant="outline">{result.requirements.length} items</Badge>
                     </div>
 
+                    {/* Modification Compliance Preview */}
+                    {(result as any).modificationCompliance && (result as any).modificationCompliance.length > 0 && (
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Settings className="h-4 w-4 text-purple-600" />
+                          <span className="font-medium">Modifications</span>
+                        </div>
+                        <Badge variant="outline" className="bg-purple-50">{(result as any).modificationCompliance.length} analyzed</Badge>
+                      </div>
+                    )}
+
                     <Progress value={result.confidence} className="h-2" />
                     <div className="text-xs text-gray-600 text-right">
                       {result.confidence}% confidence
@@ -342,6 +353,8 @@ export function DynamicResultsRenderer({ results, recommendations, vehicleInfo }
 
                   {selectedCountry === result.country && (
                     <div className="mt-4 pt-4 border-t space-y-4">
+                      {/* Debug modification compliance */}
+                      {console.log('Modification compliance for', result.country, ':', (result as any).modificationCompliance)}
                       {/* Cost Breakdown */}
                       <div>
                         <h4 className="font-medium mb-2">Cost Breakdown</h4>
@@ -373,10 +386,10 @@ export function DynamicResultsRenderer({ results, recommendations, vehicleInfo }
 
                       {/* Modification Compliance */}
                       {(result as any).modificationCompliance && (result as any).modificationCompliance.length > 0 && (
-                        <div>
-                          <h4 className="font-medium mb-2 flex items-center gap-2">
-                            <Settings className="h-4 w-4" />
-                            Modification Feasibility
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                          <h4 className="font-semibold mb-3 flex items-center gap-2 text-blue-900">
+                            <Settings className="h-5 w-5" />
+                            Popular Modifications Analysis
                           </h4>
                           <div className="space-y-2">
                             {(result as any).modificationCompliance.map((mod: any, index: number) => (

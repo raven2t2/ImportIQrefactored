@@ -505,6 +505,13 @@ export async function checkCountryEligibility(vehicleData: any, countryCode: str
             'AU',
             'NSW'
           );
+        } else {
+          // Default popular modifications for JDM vehicles
+          modificationCompliance = getModificationCompliance(
+            ['Turbo upgrade', 'ECU tune', 'Exhaust system', 'Coilover suspension'],
+            'AU',
+            'NSW'
+          );
         }
         break;
 
