@@ -6227,10 +6227,30 @@ IMPORTANT GUIDELINES:
       const data = req.body;
 
       let vehicleDetails;
+      let extractedData: any = null;
+
+      // Helper function to determine vehicle origin
+      function determineOrigin(source: string, providedOrigin?: string): 'japan' | 'usa' | 'uk' | 'europe' | 'other' {
+        if (providedOrigin) {
+          return providedOrigin as 'japan' | 'usa' | 'uk' | 'europe' | 'other';
+        }
+        
+        if (source.includes('yahoo.co.jp') || source.includes('goo-net.com') || source.includes('carsensor.net')) {
+          return 'japan';
+        } else if (source.includes('copart.com') || source.includes('iaai.com') || source.includes('autotrader.com') || source.includes('cars.com')) {
+          return 'usa';
+        } else if (source.includes('.co.uk') || source.includes('autotrader.co.uk')) {
+          return 'uk';
+        } else if (source.includes('.de') || source.includes('.fr') || source.includes('.it')) {
+          return 'europe';
+        }
+        
+        return 'other';
+      }
 
       try {
         // Use enhanced vehicle data extraction
-        const extractedData = await extractVehicleData(data.url || data.auctionUrl || {
+        extractedData = await extractVehicleData(data.url || data.auctionUrl || {
           vin: data.vin,
           make: data.make,
           model: data.model,
@@ -6262,28 +6282,9 @@ IMPORTANT GUIDELINES:
         });
       }
 
-      // Helper function to determine vehicle origin
-      function determineOrigin(source: string, providedOrigin?: string): 'japan' | 'usa' | 'uk' | 'europe' | 'other' {
-        if (providedOrigin) {
-          return providedOrigin as 'japan' | 'usa' | 'uk' | 'europe' | 'other';
-        }
-        
-        if (source.includes('yahoo.co.jp') || source.includes('goo-net.com') || source.includes('carsensor.net')) {
-          return 'japan';
-        } else if (source.includes('copart.com') || source.includes('iaai.com') || source.includes('autotrader.com') || source.includes('cars.com')) {
-          return 'usa';
-        } else if (source.includes('.co.uk') || source.includes('autotrader.co.uk')) {
-          return 'uk';
-        } else if (source.includes('.de') || source.includes('.fr') || source.includes('.it')) {
-          return 'europe';
-        }
-        
-        return 'other';
-      }
-
       // Use target country from extracted data if available
-      const targetCountries = (extractedData as any)?.targetCountry ? 
-        [(extractedData as any).targetCountry] : 
+      const targetCountries = extractedData?.targetCountry ? 
+        [extractedData.targetCountry] : 
         (data.targetCountries || ['AU']);
 
       // Check eligibility for each target country

@@ -136,7 +136,12 @@ export default function ImportFlow() {
   // Eligibility check mutation
   const checkEligibilityMutation = useMutation({
     mutationFn: async (vehicle: any) => {
-      const response = await apiRequest('POST', '/api/check-vehicle-eligibility', vehicle);
+      const payload = {
+        ...vehicle,
+        targetCountries: [targetCountry],
+        selectedState: selectedState
+      };
+      const response = await apiRequest('POST', '/api/check-vehicle-eligibility', payload);
       return response.json();
     },
     onSuccess: (data: any) => {
@@ -453,7 +458,9 @@ export default function ImportFlow() {
                       setTargetCountry('AU');
                       setSelectedState('QLD'); // Default to easier option
                       setCurrentStep('processing');
-                      handleVehicleSubmit();
+                      setProgress(0);
+                      setCurrentTask('Extracting vehicle data...');
+                      extractMutation.mutate(vehicleInput);
                     }}
                     className="w-full mt-4 bg-green-600 hover:bg-green-700"
                   >
@@ -512,7 +519,9 @@ export default function ImportFlow() {
                       setTargetCountry('US');
                       setSelectedState('TX'); // Default to easier option
                       setCurrentStep('processing');
-                      handleVehicleSubmit();
+                      setProgress(0);
+                      setCurrentTask('Extracting vehicle data...');
+                      extractMutation.mutate(vehicleInput);
                     }}
                     className="w-full mt-4 bg-blue-600 hover:bg-blue-700"
                   >
@@ -571,7 +580,9 @@ export default function ImportFlow() {
                       setTargetCountry('UK');
                       setSelectedState('WAL'); // Default to easier option
                       setCurrentStep('processing');
-                      handleVehicleSubmit();
+                      setProgress(0);
+                      setCurrentTask('Extracting vehicle data...');
+                      extractMutation.mutate(vehicleInput);
                     }}
                     className="w-full mt-4 bg-purple-600 hover:bg-purple-700"
                   >
@@ -630,7 +641,9 @@ export default function ImportFlow() {
                       setTargetCountry('CA');
                       setSelectedState('AB'); // Default to easier option
                       setCurrentStep('processing');
-                      handleVehicleSubmit();
+                      setProgress(0);
+                      setCurrentTask('Extracting vehicle data...');
+                      extractMutation.mutate(vehicleInput);
                     }}
                     className="w-full mt-4 bg-red-600 hover:bg-red-700"
                   >
