@@ -1203,29 +1203,6 @@ Keep each recommendation under 40 words, factually accurate, and realistic.`;
               `Use ${intelligenceEnhancements.portRecommendation} for optimal processing` :
               "Start the process during slower import seasons for faster processing"
           };
-        } else {
-          // Vehicle is NOT eligible - provide realistic alternatives based on target country and age
-          const yearsToWait = validatedData.targetCountry === 'US' ? (25 - vehicleAge) : (15 - vehicleAge);
-          
-          if (validatedData.targetCountry === 'US' && vehicleAge < 25) {
-            aiRecommendations = {
-              immediateAction: `Vehicle must be 25+ years old for US import. Wait ${yearsToWait} more years or abandon this vehicle`,
-              strategicAlternative: "Search for similar vehicles already available in the US domestic market",
-              proTip: "Join US-based car clubs to find domestic alternatives or pre-1999 versions of this model"
-            };
-          } else if ((validatedData.targetCountry === 'AU' || validatedData.targetCountry === 'CA') && vehicleAge < 15) {
-            aiRecommendations = {
-              immediateAction: `Vehicle must be 15+ years old for import. Wait ${yearsToWait} more years or choose different vehicle`,
-              strategicAlternative: "Search for similar vehicles in domestic market or check SEVS list for pre-approved models",
-              proTip: "Monitor government import scheme updates - occasionally new models get added to approved lists"
-            };
-          } else {
-            aiRecommendations = {
-              immediateAction: "This vehicle does not meet age requirements for import to selected country",
-              strategicAlternative: "Find equivalent models available domestically or wait for age eligibility",
-              proTip: "Research which generation/year of this model is closest to legal import age"
-            };
-          }
         }
       }
 
