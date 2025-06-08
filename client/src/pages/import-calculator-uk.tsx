@@ -21,6 +21,13 @@ const ukCalculatorSchema = z.object({
   vehicleMake: z.string().min(1, "Vehicle make is required"),
   vehicleModel: z.string().min(1, "Vehicle model is required"),
   shippingOrigin: z.enum(["japan", "usa", "europe", "other"]),
+  ukRegion: z.enum([
+    "ENG-LON", "ENG-SE", "ENG-SW", "ENG-E", "ENG-WM", "ENG-EM", "ENG-YH", "ENG-NW", "ENG-NE",
+    "SCT-CEN", "SCT-GLG", "SCT-EDI", "SCT-HIG", "SCT-SOU", "SCT-NOR",
+    "WAL-SOU", "WAL-MID", "WAL-NOR",
+    "NIR-BEL", "NIR-ARM", "NIR-DOWN", "NIR-FER", "NIR-LDY", "NIR-TYR",
+    "IOM", "JEY", "GUE"
+  ]),
   postcode: z.string().min(5, "Valid UK postcode required"),
   isClassicVehicle: z.boolean().default(false), // For 40+ year vehicles
 });

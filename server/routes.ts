@@ -29,6 +29,9 @@ import {
   getComplianceRoadmap,
   GLOBAL_PORT_INTELLIGENCE 
 } from "../shared/global-intelligence-modules";
+import { getStateRegulation, calculateStateCosts, findBestStatesForImport } from "./us-state-regulations";
+import { getProvincialRegulation, calculateProvincialCosts, findBestProvincesForImport } from "./canadian-provincial-regulations";
+import { getUkRegionalRegulation, calculateUkRegionalCosts, findBestUkRegionsForImport } from "./uk-regional-regulations";
 import path from "path";
 
 // Additional schemas for new tools
