@@ -246,6 +246,13 @@ export default function ImportFlow() {
   });
 
   const auctionListings = marketData?.vehicles || [];
+  
+  // Debug logging
+  console.log('Current step:', currentStep);
+  console.log('Vehicle data:', vehicleData);
+  console.log('Market data:', marketData);
+  console.log('Auction listings:', auctionListings);
+  console.log('Auction listings length:', auctionListings.length);
 
   const handleVehicleSubmit = () => {
     if (vehicleInput.trim()) {
