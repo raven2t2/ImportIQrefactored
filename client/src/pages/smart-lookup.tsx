@@ -20,6 +20,13 @@ interface ParsedInput {
     platform?: string;
   };
   intent: 'eligibility' | 'cost' | 'compliance' | 'general';
+  // Server-enhanced properties
+  make?: string;
+  model?: string;
+  year?: number;
+  origin?: string;
+  detectedType?: string;
+  originalInput?: string;
 }
 
 export function SmartLookupPage() {
@@ -59,8 +66,11 @@ export function SmartLookupPage() {
     
     // Automatically check eligibility for detected countries
     const vehicleData = {
-      ...parsed.detectedInfo,
-      estimatedAge: parsed.detectedInfo?.year ? new Date().getFullYear() - parsed.detectedInfo.year : 25,
+      make: parsed.make || parsed.detectedInfo?.make || 'Unknown',
+      model: parsed.model || parsed.detectedInfo?.model || 'Unknown',
+      year: parsed.year || parsed.detectedInfo?.year,
+      origin: parsed.origin || parsed.detectedInfo?.origin,
+      estimatedAge: (parsed.year || parsed.detectedInfo?.year) ? new Date().getFullYear() - (parsed.year || parsed.detectedInfo?.year) : 25,
       estimatedValue: 50000, // Default for calculation
       inputType: parsed.type,
       confidence: parsed.confidence
@@ -163,7 +173,12 @@ export function SmartLookupPage() {
             <DynamicResultsRenderer
               results={eligibilityResults.results}
               recommendations={eligibilityResults.recommendations}
-              vehicleInfo={parsedInput?.detectedInfo}
+              vehicleInfo={{
+                make: parsedInput?.make || parsedInput?.detectedInfo?.make || 'Unknown',
+                model: parsedInput?.model || parsedInput?.detectedInfo?.model || 'Unknown',
+                year: parsedInput?.year || parsedInput?.detectedInfo?.year,
+                origin: parsedInput?.origin || parsedInput?.detectedInfo?.origin
+              }}
             />
 
             {/* Next Step Call-to-Actions */}
