@@ -214,6 +214,51 @@ export const GLOBAL_CHASSIS_PATTERNS: Record<string, VehicleSpecs> = {
       notes: 'Modern muscle with classic styling'
     }
   },
+  'LD': {
+    make: 'Dodge', model: 'Charger', years: '2006-2023', engine: '5.7L/6.1L/6.4L HEMI',
+    displacement: '5.7L-6.4L', power: '370-485hp', torque: '529-644Nm', drivetrain: 'RWD/AWD', transmission: 'Auto',
+    modifications: {
+      potential: 'High', popular: ['Supercharger', 'Headers', 'Cold air intake', 'Tune'],
+      powerPotential: '500-800hp capable', difficulty: 'Moderate',
+      notes: '4-door muscle car, family-friendly performance'
+    }
+  },
+  'HELLCAT': {
+    make: 'Dodge', model: 'Charger Hellcat', years: '2015-2023', engine: '6.2L Supercharged HEMI',
+    displacement: '6.2L', power: '707-797hp', torque: '881-959Nm', drivetrain: 'RWD', transmission: 'Auto',
+    modifications: {
+      potential: 'Extreme', popular: ['Pulley upgrade', 'Headers', 'E85 tune', 'Fuel system'],
+      powerPotential: '900-1200hp+ capable', difficulty: 'Advanced',
+      notes: 'Factory supercharged beast, extremely popular in Australia'
+    }
+  },
+  'CHALLENGER_HELLCAT': {
+    make: 'Dodge', model: 'Challenger Hellcat', years: '2015-2023', engine: '6.2L Supercharged HEMI',
+    displacement: '6.2L', power: '717-807hp', torque: '881-959Nm', drivetrain: 'RWD', transmission: 'Manual/Auto',
+    modifications: {
+      potential: 'Extreme', popular: ['Pulley upgrade', 'Headers', 'E85 tune', 'Fuel system'],
+      powerPotential: '900-1200hp+ capable', difficulty: 'Advanced',
+      notes: 'Ultimate modern muscle car, highly sought after globally'
+    }
+  },
+  'REDEYE': {
+    make: 'Dodge', model: 'Challenger/Charger Redeye', years: '2018-2023', engine: '6.2L Supercharged HEMI',
+    displacement: '6.2L', power: '797hp', torque: '959Nm', drivetrain: 'RWD', transmission: 'Auto',
+    modifications: {
+      potential: 'Extreme', popular: ['E85 tune', 'Headers', 'Fuel system', 'Cooling upgrade'],
+      powerPotential: '1000-1400hp+ capable', difficulty: 'Expert',
+      notes: 'Most powerful factory muscle car, incredible modification potential'
+    }
+  },
+  'DEMON': {
+    make: 'Dodge', model: 'Challenger Demon', years: '2018', engine: '6.2L Supercharged HEMI',
+    displacement: '6.2L', power: '808hp', torque: '959Nm', drivetrain: 'RWD', transmission: 'Auto',
+    modifications: {
+      potential: 'Extreme', popular: ['Race fuel tune', 'Drag radials', 'Weight reduction', 'Launch control'],
+      powerPotential: '1000hp+ on race fuel', difficulty: 'Expert',
+      notes: 'Limited production drag strip legend, extremely valuable'
+    }
+  },
   
   // European Performance
   'E46': {
@@ -264,6 +309,22 @@ export const GLOBAL_MODEL_PATTERNS: Record<string, VehicleSpecs> = {
   'corvette': GLOBAL_CHASSIS_PATTERNS['C6'],
   'dodge challenger': GLOBAL_CHASSIS_PATTERNS['LC'],
   'challenger': GLOBAL_CHASSIS_PATTERNS['LC'],
+  'dodge charger': GLOBAL_CHASSIS_PATTERNS['LD'],
+  'charger': GLOBAL_CHASSIS_PATTERNS['LD'],
+  'hellcat': GLOBAL_CHASSIS_PATTERNS['HELLCAT'],
+  'dodge hellcat': GLOBAL_CHASSIS_PATTERNS['HELLCAT'],
+  'charger hellcat': GLOBAL_CHASSIS_PATTERNS['HELLCAT'],
+  'dodge charger hellcat': GLOBAL_CHASSIS_PATTERNS['HELLCAT'],
+  'challenger hellcat': GLOBAL_CHASSIS_PATTERNS['CHALLENGER_HELLCAT'],
+  'dodge challenger hellcat': GLOBAL_CHASSIS_PATTERNS['CHALLENGER_HELLCAT'],
+  'redeye': GLOBAL_CHASSIS_PATTERNS['REDEYE'],
+  'dodge redeye': GLOBAL_CHASSIS_PATTERNS['REDEYE'],
+  'charger redeye': GLOBAL_CHASSIS_PATTERNS['REDEYE'],
+  'challenger redeye': GLOBAL_CHASSIS_PATTERNS['REDEYE'],
+  'demon': GLOBAL_CHASSIS_PATTERNS['DEMON'],
+  'dodge demon': GLOBAL_CHASSIS_PATTERNS['DEMON'],
+  'challenger demon': GLOBAL_CHASSIS_PATTERNS['DEMON'],
+  'dodge challenger demon': GLOBAL_CHASSIS_PATTERNS['DEMON'],
   'bmw m3': GLOBAL_CHASSIS_PATTERNS['E46'],
   'm3': GLOBAL_CHASSIS_PATTERNS['E46'],
   'mercedes c63': GLOBAL_CHASSIS_PATTERNS['W204'],
