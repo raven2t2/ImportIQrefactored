@@ -132,55 +132,50 @@ export default function VehicleEligibilityChecker() {
     
     switch (conversation.step) {
       case 'welcome':
-        setConversation({
-          step: 'input-method',
-          data: {},
-          suggestions: ['Paste auction URL', 'Enter vehicle details']
-        });
-        break;
-        
-      case 'input-method':
-        if (currentValue.toLowerCase().includes('url') || currentValue.toLowerCase().includes('auction')) {
-          setConversation({
-            step: 'url-input',
-            data: { inputMethod: 'url' },
-            suggestions: ['yahoo.co.jp auction link', 'copart.com listing', 'cars.jp listing']
+        // Smart detection of input type
+        if (currentValue.startsWith('http')) {
+          // URL input
+          setConversation(prev => ({ 
+            ...prev, 
+            step: 'loading',
+            data: { ...prev.data, auctionUrl: currentValue }
+          }));
+          eligibilityMutation.mutate({
+            inputMethod: 'url',
+            url: currentValue
           });
+        } else if (/^[A-HJ-NPR-Z0-9]{17}$/i.test(currentValue)) {
+          // VIN input (17 characters, excluding I, O, Q)
+          setConversation(prev => ({ 
+            ...prev, 
+            step: 'loading',
+            data: { ...prev.data, vin: currentValue }
+          }));
+          eligibilityMutation.mutate({
+            inputMethod: 'vin',
+            vin: currentValue
+          });
+        } else if (currentValue.trim()) {
+          // Some other input - treat as make
+          const suggestedModels = getMakeModels(currentValue);
+          setConversation(prev => ({ 
+            ...prev, 
+            step: 'model-input',
+            data: { ...prev.data, make: currentValue },
+            suggestions: suggestedModels
+          }));
         } else {
+          // No input - show input method selection (fallback)
           setConversation({
-            step: 'make-selection',
-            data: { inputMethod: 'manual' },
-            suggestions: popularMakes
+            step: 'input-method',
+            data: {},
+            suggestions: ['Paste auction URL', 'Enter vehicle details']
           });
         }
         setInputValue('');
         break;
         
-      case 'url-input':
-        setConversation(prev => ({ 
-          ...prev, 
-          step: 'loading',
-          data: { ...prev.data, auctionUrl: currentValue }
-        }));
-        eligibilityMutation.mutate({
-          inputMethod: 'url',
-          url: currentValue
-        });
-        setInputValue('');
-        break;
-        
-      case 'vin-input':
-        setConversation(prev => ({ 
-          ...prev, 
-          step: 'loading',
-          data: { ...prev.data, vin: currentValue }
-        }));
-        eligibilityMutation.mutate({
-          inputMethod: 'vin',
-          vin: currentValue
-        });
-        setInputValue('');
-        break;
+
         
       case 'make-selection':
         const suggestedModels = getMakeModels(currentValue);
@@ -281,90 +276,74 @@ export default function VehicleEligibilityChecker() {
     switch (conversation.step) {
       case 'welcome':
         return (
-          <div className="space-y-6 text-center">
-            <div className="space-y-2">
+          <div className="space-y-6">
+            <div className="text-center space-y-2">
               <Sparkles className="h-12 w-12 text-yellow-500 mx-auto" />
               <h2 className="text-2xl font-bold">Vehicle Import Eligibility</h2>
               <p className="text-muted-foreground">
-                Get instant eligibility analysis for importing to Australia, US, UK, and Canada
+                Check import eligibility for Australia, US, UK, and Canada
               </p>
             </div>
-            <Button 
-              onClick={() => handleNext()}
-              className="bg-yellow-500 hover:bg-yellow-600 text-black font-medium px-8"
-            >
-              Start Analysis <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+            
+            <div className="space-y-4">
+              <div className="space-y-3">
+                <Input
+                  placeholder="Paste auction URL or enter VIN number..."
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && inputValue && handleNext()}
+                  className="text-lg text-white bg-gray-800 border-gray-600 placeholder-gray-400"
+                />
+                
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setInputValue('https://page.auctions.yahoo.co.jp/jp/auction/')}
+                    className="text-xs"
+                  >
+                    Yahoo Japan URL
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setInputValue('https://copart.com/lot/')}
+                    className="text-xs"
+                  >
+                    Copart URL
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setInputValue('JH4DC53849S123456')}
+                    className="text-xs"
+                  >
+                    Sample VIN
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="text-center">
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    setConversation(prev => ({
+                      ...prev,
+                      step: 'make-selection',
+                      data: { ...prev.data, inputMethod: 'manual' },
+                      suggestions: popularMakes.slice(0, 6)
+                    }));
+                  }}
+                  className="text-sm text-muted-foreground"
+                >
+                  Or enter details manually <ArrowRight className="ml-1 h-3 w-3" />
+                </Button>
+              </div>
+            </div>
           </div>
         );
 
-      case 'input-method':
-        return (
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 mb-4">
-              <MessageCircle className="h-5 w-5 text-yellow-500" />
-              <span className="font-medium">How would you like to check eligibility?</span>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setConversation(prev => ({
-                    ...prev,
-                    step: 'url-input',
-                    data: { ...prev.data, inputMethod: 'url' },
-                    suggestions: ['yahoo.co.jp', 'copart.com', 'iaai.com']
-                  }));
-                }}
-                className="h-auto p-4 text-left"
-              >
-                <div>
-                  <Link className="h-5 w-5 mb-2 text-yellow-500" />
-                  <div className="font-medium">Auction URL</div>
-                  <div className="text-sm text-muted-foreground">Auto-extract from listing</div>
-                </div>
-              </Button>
-              
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setConversation(prev => ({
-                    ...prev,
-                    step: 'vin-input',
-                    data: { ...prev.data, inputMethod: 'vin' },
-                    suggestions: ['17-character VIN', 'JH4DC53', 'WBANU5C']
-                  }));
-                }}
-                className="h-auto p-4 text-left"
-              >
-                <div>
-                  <Search className="h-5 w-5 mb-2 text-yellow-500" />
-                  <div className="font-medium">VIN Number</div>
-                  <div className="text-sm text-muted-foreground">Decode complete details</div>
-                </div>
-              </Button>
-              
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setConversation(prev => ({
-                    ...prev,
-                    step: 'make-selection',
-                    data: { ...prev.data, inputMethod: 'manual' },
-                    suggestions: popularMakes.slice(0, 6)
-                  }));
-                }}
-                className="h-auto p-4 text-left"
-              >
-                <div>
-                  <Car className="h-5 w-5 mb-2 text-yellow-500" />
-                  <div className="font-medium">Enter Manually</div>
-                  <div className="text-sm text-muted-foreground">Select make/model/year</div>
-                </div>
-              </Button>
-            </div>
-          </div>
-        );
+
 
       case 'url-input':
         return (
