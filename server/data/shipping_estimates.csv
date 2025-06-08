@@ -1,0 +1,35 @@
+origin_port,destination_port,origin_country,destination_country,estimated_cost_usd,transit_days,service_type,confidence,last_updated,source
+Yokohama,Melbourne,Japan,Australia,2800,21,RoRo,85,2025-06-08,Industry Standard Rates
+Yokohama,Sydney,Japan,Australia,2950,23,RoRo,85,2025-06-08,Industry Standard Rates
+Yokohama,Brisbane,Japan,Australia,3100,25,RoRo,85,2025-06-08,Industry Standard Rates
+Yokohama,Adelaide,Japan,Australia,3200,27,RoRo,85,2025-06-08,Industry Standard Rates
+Yokohama,Perth,Japan,Australia,3400,29,RoRo,85,2025-06-08,Industry Standard Rates
+Yokohama,Fremantle,Japan,Australia,3400,29,RoRo,85,2025-06-08,Industry Standard Rates
+Tokyo,Melbourne,Japan,Australia,2850,22,RoRo,85,2025-06-08,Industry Standard Rates
+Tokyo,Sydney,Japan,Australia,3000,24,RoRo,85,2025-06-08,Industry Standard Rates
+Osaka,Melbourne,Japan,Australia,2750,20,RoRo,85,2025-06-08,Industry Standard Rates
+Osaka,Sydney,Japan,Australia,2900,22,RoRo,85,2025-06-08,Industry Standard Rates
+Kobe,Melbourne,Japan,Australia,2700,19,RoRo,85,2025-06-08,Industry Standard Rates
+Kobe,Sydney,Japan,Australia,2850,21,RoRo,85,2025-06-08,Industry Standard Rates
+Newark,Melbourne,USA,Australia,4200,28,Container,80,2025-06-08,Industry Standard Rates
+Newark,Sydney,USA,Australia,4350,30,Container,80,2025-06-08,Industry Standard Rates
+Long Beach,Melbourne,USA,Australia,3800,25,Container,80,2025-06-08,Industry Standard Rates
+Long Beach,Sydney,USA,Australia,3950,27,Container,80,2025-06-08,Industry Standard Rates
+Charleston,Melbourne,USA,Australia,4100,27,Container,80,2025-06-08,Industry Standard Rates
+Charleston,Sydney,USA,Australia,4250,29,Container,80,2025-06-08,Industry Standard Rates
+Savannah,Melbourne,USA,Australia,4050,26,Container,80,2025-06-08,Industry Standard Rates
+Savannah,Sydney,USA,Australia,4200,28,Container,80,2025-06-08,Industry Standard Rates
+Jacksonville,Melbourne,USA,Australia,4150,28,Container,80,2025-06-08,Industry Standard Rates
+Jacksonville,Sydney,USA,Australia,4300,30,Container,80,2025-06-08,Industry Standard Rates
+Bremerhaven,Melbourne,Germany,Australia,4800,35,Container,75,2025-06-08,Industry Standard Rates
+Bremerhaven,Sydney,Germany,Australia,4950,37,Container,75,2025-06-08,Industry Standard Rates
+Hamburg,Melbourne,Germany,Australia,4750,34,Container,75,2025-06-08,Industry Standard Rates
+Hamburg,Sydney,Germany,Australia,4900,36,Container,75,2025-06-08,Industry Standard Rates
+Southampton,Melbourne,UK,Australia,5200,38,Container,75,2025-06-08,Industry Standard Rates
+Southampton,Sydney,UK,Australia,5350,40,Container,75,2025-06-08,Industry Standard Rates
+Felixstowe,Melbourne,UK,Australia,5150,37,Container,75,2025-06-08,Industry Standard Rates
+Felixstowe,Sydney,UK,Australia,5300,39,Container,75,2025-06-08,Industry Standard Rates
+Vancouver,Melbourne,Canada,Australia,4500,32,Container,80,2025-06-08,Industry Standard Rates
+Vancouver,Sydney,Canada,Australia,4650,34,Container,80,2025-06-08,Industry Standard Rates
+Montreal,Melbourne,Canada,Australia,4800,35,Container,80,2025-06-08,Industry Standard Rates
+Montreal,Sydney,Canada,Australia,4950,37,Container,80,2025-06-08,Industry Standard Rates

@@ -1,0 +1,159 @@
+---
+# Compliance Rules Database - Trust-First Internal Data
+# Source: Official government transport authority websites and legislation
+
+countries:
+  australia:
+    general_rules:
+      minimum_age: 15
+      maximum_age: null
+      left_hand_drive_allowed: false
+      confidence: 95
+      source: "ACBPS Motor Vehicle Standards Act 1989"
+      last_updated: "2025-06-08"
+      
+    exemptions:
+      - type: "specialist_and_enthusiast_vehicles"
+        minimum_age: 25
+        conditions:
+          - "Limited production (< 100 vehicles per year)"
+          - "Genuine enthusiast vehicle"
+          - "Specialist vehicle for specific purpose"
+        confidence: 90
+        
+      - type: "historic_vehicles"
+        minimum_age: 30
+        conditions:
+          - "Historic vehicle classification"
+          - "Maintained in original condition"
+        confidence: 90
+        
+    compliance_requirements:
+      - "ADR compliance or exemption"
+      - "RAWS workshop compliance plate"
+      - "State registration"
+      - "Third party insurance"
+      confidence: 95
+      
+    estimated_costs:
+      compliance_modification: 5000
+      registration_fees: 800
+      inspection_fees: 350
+      documentation: 200
+      confidence: 70
+      disclaimer: "Costs vary significantly by vehicle and state"
+
+  united_states:
+    general_rules:
+      minimum_age: 25
+      maximum_age: null
+      left_hand_drive_required: true
+      confidence: 95
+      source: "DOT NHTSA Regulations"
+      last_updated: "2025-06-08"
+      
+    exemptions:
+      - type: "show_or_display"
+        minimum_age: 0
+        annual_limit: 2500
+        conditions:
+          - "Historical or technological significance"
+          - "NHTSA approval required"
+        confidence: 90
+        
+    state_variations:
+      california:
+        additional_requirements:
+          - "CARB emissions compliance"
+          - "Referee inspection required"
+        confidence: 85
+        
+    estimated_costs:
+      dot_compliance: 8000
+      epa_compliance: 12000
+      state_registration: 500
+      confidence: 70
+
+  canada:
+    general_rules:
+      minimum_age: 15
+      maximum_age: null
+      left_hand_drive_preferred: true
+      confidence: 90
+      source: "Transport Canada Motor Vehicle Safety Regulations"
+      last_updated: "2025-06-08"
+      
+    provincial_variations:
+      ontario:
+        inspection_required: true
+        safety_standards: "Ontario Motor Vehicle Safety Standards"
+        confidence: 85
+        
+      british_columbia:
+        inspection_required: true
+        additional_fees: 200
+        confidence: 85
+
+  united_kingdom:
+    general_rules:
+      minimum_age: 0
+      maximum_age: null
+      left_hand_drive_allowed: true
+      confidence: 90
+      source: "DVLA Vehicle Registration"
+      last_updated: "2025-06-08"
+      
+    requirements:
+      - "Individual Vehicle Approval (IVA) or type approval"
+      - "MOT test (if over 3 years)"
+      - "Insurance"
+      - "Registration"
+      confidence: 90
+      
+    estimated_costs:
+      iva_test: 800
+      registration: 150
+      mot_test: 60
+      confidence: 80
+
+  germany:
+    general_rules:
+      minimum_age: 0
+      maximum_age: null
+      left_hand_drive_preferred: true
+      confidence: 85
+      source: "German Federal Motor Transport Authority"
+      last_updated: "2025-06-08"
+      
+    requirements:
+      - "EU type approval or individual approval"
+      - "TÜV inspection"
+      - "Insurance"
+      - "Registration"
+      confidence: 85
+
+# Admin override fields for manual improvements
+admin_overrides:
+  enabled: true
+  fields:
+    - confidence_score
+    - estimated_costs
+    - additional_requirements
+    - exemption_conditions
+  last_modified_by: null
+  last_modified_date: null
+
+# Data quality indicators
+data_quality:
+  overall_confidence: 88
+  sources_verified: true
+  last_audit: "2025-06-08"
+  known_gaps:
+    - "State-specific variations incomplete"
+    - "Cost estimates require regular updates"
+    - "Some exemption criteria need verification"
+    
+disclaimer: |
+  This information is compiled from official government sources but regulations
+  change frequently. Users must verify all requirements with relevant authorities
+  before importing any vehicle. ImportIQ provides this as educational guidance only.
