@@ -1,12 +1,17 @@
 /**
  * Internal Data Engine - Trust-First Infrastructure
  * 100% internal data processing with confidence scores and admin overrides
+ * Uses PostgreSQL with Smart Parser for intelligent fallback handling
  */
 
 import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
 import { fileURLToPath } from 'url';
+import { smartParser } from './smart-parser';
+import { dataSeeder } from './data-seeder';
+import { db } from './db';
+import { vehicleLookupRequests } from '@shared/schema';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -52,37 +57,28 @@ export interface ComplianceRule {
 }
 
 class InternalDataEngine {
-  private vinPatterns: any = null;
-  private shippingData: any[] = [];
-  private complianceRules: any = null;
-  private dataPath: string;
+  private dataSeeded: boolean = false;
 
   constructor() {
-    this.dataPath = path.join(__dirname, 'data');
-    this.loadAllData();
+    this.initializeDatabase();
   }
 
-  private loadAllData() {
+  private async initializeDatabase() {
     try {
-      // Load VIN patterns
-      const vinPath = path.join(this.dataPath, 'vin_patterns.json');
-      if (fs.existsSync(vinPath)) {
-        this.vinPatterns = JSON.parse(fs.readFileSync(vinPath, 'utf8'));
+      // Check if data exists in database
+      const summary = await dataSeeder.getSeededDataSummary();
+      
+      if (summary.vinPatterns === 0 || summary.shippingRoutes === 0) {
+        console.log('Database empty - seeding with authentic global data...');
+        await dataSeeder.seedAllData();
+        console.log('Database seeding completed');
+      } else {
+        console.log('Database already contains seeded data:', summary);
       }
-
-      // Load shipping estimates
-      const shippingPath = path.join(this.dataPath, 'shipping_estimates.csv');
-      if (fs.existsSync(shippingPath)) {
-        this.loadShippingCSV(shippingPath);
-      }
-
-      // Load compliance rules
-      const compliancePath = path.join(this.dataPath, 'compliance_rules.yaml');
-      if (fs.existsSync(compliancePath)) {
-        this.complianceRules = yaml.load(fs.readFileSync(compliancePath, 'utf8'));
-      }
+      
+      this.dataSeeded = true;
     } catch (error) {
-      console.error('Error loading internal data:', error);
+      console.error('Error initializing database:', error);
     }
   }
 
