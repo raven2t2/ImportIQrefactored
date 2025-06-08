@@ -33,3 +33,29 @@ Vancouver,Melbourne,Canada,Australia,4500,32,Container,80,2025-06-08,Industry St
 Vancouver,Sydney,Canada,Australia,4650,34,Container,80,2025-06-08,Industry Standard Rates
 Montreal,Melbourne,Canada,Australia,4800,35,Container,80,2025-06-08,Industry Standard Rates
 Montreal,Sydney,Canada,Australia,4950,37,Container,80,2025-06-08,Industry Standard Rates
+Le Havre,Melbourne,France,Australia,5100,36,Container,75,2025-06-08,Industry Standard Rates
+Le Havre,Sydney,France,Australia,5250,38,Container,75,2025-06-08,Industry Standard Rates
+Antwerp,Melbourne,Belgium,Australia,5000,35,Container,75,2025-06-08,Industry Standard Rates
+Antwerp,Sydney,Belgium,Australia,5150,37,Container,75,2025-06-08,Industry Standard Rates
+Rotterdam,Melbourne,Netherlands,Australia,4950,34,Container,75,2025-06-08,Industry Standard Rates
+Rotterdam,Sydney,Netherlands,Australia,5100,36,Container,75,2025-06-08,Industry Standard Rates
+La Spezia,Melbourne,Italy,Australia,5300,39,Container,70,2025-06-08,Industry Standard Rates
+La Spezia,Sydney,Italy,Australia,5450,41,Container,70,2025-06-08,Industry Standard Rates
+Newark,Southampton,USA,UK,3200,14,Container,85,2025-06-08,Industry Standard Rates
+Long Beach,Southampton,USA,UK,3800,21,Container,80,2025-06-08,Industry Standard Rates
+Charleston,Southampton,USA,UK,2900,12,Container,85,2025-06-08,Industry Standard Rates
+Newark,Montreal,USA,Canada,2100,8,Container,90,2025-06-08,Industry Standard Rates
+Long Beach,Vancouver,USA,Canada,1800,6,Container,90,2025-06-08,Industry Standard Rates
+Charleston,Montreal,USA,Canada,1950,7,Container,90,2025-06-08,Industry Standard Rates
+Melbourne,Long Beach,Australia,USA,4200,26,Container,80,2025-06-08,Industry Standard Rates
+Sydney,Long Beach,Australia,USA,4350,28,Container,80,2025-06-08,Industry Standard Rates
+Melbourne,Yokohama,Australia,Japan,3100,22,Container,80,2025-06-08,Industry Standard Rates
+Sydney,Yokohama,Australia,Japan,3250,24,Container,80,2025-06-08,Industry Standard Rates
+Busan,Melbourne,South Korea,Australia,3400,19,Container,75,2025-06-08,Industry Standard Rates
+Busan,Sydney,South Korea,Australia,3550,21,Container,75,2025-06-08,Industry Standard Rates
+Auckland,Melbourne,New Zealand,Australia,1800,7,RoRo,90,2025-06-08,Industry Standard Rates
+Auckland,Sydney,New Zealand,Australia,1650,6,RoRo,90,2025-06-08,Industry Standard Rates
+Dubai,Melbourne,UAE,Australia,4800,28,Container,70,2025-06-08,Industry Standard Rates
+Dubai,Sydney,UAE,Australia,4950,30,Container,70,2025-06-08,Industry Standard Rates
+Cape Town,Melbourne,South Africa,Australia,5500,35,Container,65,2025-06-08,Industry Standard Rates
+Cape Town,Sydney,South Africa,Australia,5650,37,Container,65,2025-06-08,Industry Standard Rates

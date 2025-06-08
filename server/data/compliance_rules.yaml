@@ -131,6 +131,310 @@ countries:
       - "Insurance"
       - "Registration"
       confidence: 85
+      
+    estimated_costs:
+      tuv_inspection: 150
+      registration: 120
+      insurance_minimum: 800
+      confidence: 80
+
+  france:
+    general_rules:
+      minimum_age: 0
+      maximum_age: null
+      left_hand_drive_preferred: true
+      confidence: 85
+      source: "French Ministry of Transport"
+      last_updated: "2025-06-08"
+      
+    requirements:
+      - "EU type approval or French individual approval"
+      - "Contrôle technique (technical inspection)"
+      - "Insurance certificate"
+      - "Carte grise (registration document)"
+      confidence: 85
+      
+    estimated_costs:
+      controle_technique: 80
+      registration: 150
+      approval_process: 300
+      confidence: 80
+
+  italy:
+    general_rules:
+      minimum_age: 0
+      maximum_age: null
+      left_hand_drive_preferred: true
+      confidence: 80
+      source: "Italian Ministry of Transport"
+      last_updated: "2025-06-08"
+      
+    requirements:
+      - "EU homologation or individual approval"
+      - "Revisione (technical inspection)"
+      - "RCA insurance"
+      - "Libretto di circolazione"
+      confidence: 80
+      
+    estimated_costs:
+      revisione: 90
+      registration: 200
+      homologation: 400
+      confidence: 75
+
+  netherlands:
+    general_rules:
+      minimum_age: 0
+      maximum_age: null
+      left_hand_drive_preferred: true
+      confidence: 85
+      source: "Dutch Vehicle Authority (RDW)"
+      last_updated: "2025-06-08"
+      
+    requirements:
+      - "EU type approval or individual approval"
+      - "APK inspection"
+      - "WA insurance"
+      - "Registration at RDW"
+      confidence: 85
+      
+    estimated_costs:
+      apk_inspection: 60
+      registration: 180
+      approval_process: 250
+      confidence: 85
+
+  belgium:
+    general_rules:
+      minimum_age: 0
+      maximum_age: null
+      left_hand_drive_preferred: true
+      confidence: 80
+      source: "Belgian Federal Public Service Mobility"
+      last_updated: "2025-06-08"
+      
+    requirements:
+      - "EU type approval or individual approval"
+      - "Technical inspection"
+      - "Civil liability insurance"
+      - "Registration certificate"
+      confidence: 80
+      
+    estimated_costs:
+      technical_inspection: 70
+      registration: 160
+      approval_process: 320
+      confidence: 75
+
+  south_korea:
+    general_rules:
+      minimum_age: 0
+      maximum_age: null
+      left_hand_drive_allowed: true
+      confidence: 75
+      source: "Korea Transportation Safety Authority"
+      last_updated: "2025-06-08"
+      
+    requirements:
+      - "Korean type approval or individual approval"
+      - "Safety inspection"
+      - "Emissions certification"
+      - "Motor vehicle registration"
+      confidence: 75
+      
+    estimated_costs:
+      safety_inspection: 200
+      emissions_test: 150
+      registration: 300
+      confidence: 70
+
+  new_zealand:
+    general_rules:
+      minimum_age: 0
+      maximum_age: null
+      left_hand_drive_restricted: true
+      confidence: 90
+      source: "New Zealand Transport Agency (NZTA)"
+      last_updated: "2025-06-08"
+      
+    requirements:
+      - "Entry certification"
+      - "Warrant of Fitness (WoF)"
+      - "Vehicle registration"
+      - "Third party insurance"
+      confidence: 90
+      
+    special_notes:
+      - "Left-hand drive vehicles restricted to specific categories"
+      - "Must be 20+ years old for LHD personal import"
+      
+    estimated_costs:
+      entry_certification: 400
+      wof_inspection: 80
+      registration: 250
+      confidence: 85
+
+  united_arab_emirates:
+    general_rules:
+      minimum_age: 0
+      maximum_age: 5
+      left_hand_drive_preferred: true
+      confidence: 70
+      source: "UAE Ministry of Interior"
+      last_updated: "2025-06-08"
+      
+    requirements:
+      - "Gulf Standardization Organization (GSO) compliance"
+      - "Emirates Authority for Standardization test"
+      - "Vehicle registration"
+      - "Insurance certificate"
+      confidence: 70
+      
+    special_notes:
+      - "Vehicles older than 5 years face restrictions"
+      - "Different rules apply per emirate"
+      
+    estimated_costs:
+      gso_compliance: 800
+      registration: 400
+      testing_fees: 600
+      confidence: 65
+
+  south_africa:
+    general_rules:
+      minimum_age: 0
+      maximum_age: null
+      left_hand_drive_restricted: true
+      confidence: 70
+      source: "South African National Roads Agency"
+      last_updated: "2025-06-08"
+      
+    requirements:
+      - "Roadworthy certificate"
+      - "National Traffic Information System registration"
+      - "Third party insurance"
+      - "Change of ownership"
+      confidence: 70
+      
+    special_notes:
+      - "Right-hand drive strongly preferred"
+      - "Left-hand drive requires special permit"
+      
+    estimated_costs:
+      roadworthy_certificate: 150
+      registration: 200
+      special_permit: 500
+      confidence: 65
+
+  japan:
+    general_rules:
+      minimum_age: 0
+      maximum_age: null
+      left_hand_drive_allowed: true
+      confidence: 85
+      source: "Japan Ministry of Land Infrastructure Transport"
+      last_updated: "2025-06-08"
+      
+    requirements:
+      - "Shaken (vehicle inspection)"
+      - "Jidōsha-son-gai hoken (compulsory insurance)"
+      - "Vehicle registration"
+      - "Emission compliance certificate"
+      confidence: 85
+      
+    estimated_costs:
+      shaken_inspection: 1200
+      registration: 800
+      insurance: 600
+      confidence: 90
+
+  norway:
+    general_rules:
+      minimum_age: 0
+      maximum_age: null
+      left_hand_drive_preferred: true
+      confidence: 80
+      source: "Norwegian Public Roads Administration"
+      last_updated: "2025-06-08"
+      
+    requirements:
+      - "EU type approval or individual approval"
+      - "Periodisk kjøretøykontroll (PKK)"
+      - "Traffic insurance"
+      - "Vehicle registration"
+      confidence: 80
+      
+    estimated_costs:
+      pkk_inspection: 90
+      registration: 300
+      approval_process: 400
+      confidence: 75
+
+  sweden:
+    general_rules:
+      minimum_age: 0
+      maximum_age: null
+      left_hand_drive_preferred: true
+      confidence: 80
+      source: "Swedish Transport Agency"
+      last_updated: "2025-06-08"
+      
+    requirements:
+      - "EU type approval or individual approval"
+      - "Vehicle inspection"
+      - "Traffic insurance"
+      - "Registration certificate"
+      confidence: 80
+      
+    estimated_costs:
+      vehicle_inspection: 100
+      registration: 250
+      approval_process: 350
+      confidence: 75
+
+  switzerland:
+    general_rules:
+      minimum_age: 0
+      maximum_age: null
+      left_hand_drive_preferred: true
+      confidence: 75
+      source: "Swiss Federal Roads Office"
+      last_updated: "2025-06-08"
+      
+    requirements:
+      - "Swiss type approval or individual approval"
+      - "MFK inspection"
+      - "Motor vehicle liability insurance"
+      - "Vehicle registration"
+      confidence: 75
+      
+    estimated_costs:
+      mfk_inspection: 120
+      registration: 200
+      approval_process: 500
+      confidence: 70
+
+  austria:
+    general_rules:
+      minimum_age: 0
+      maximum_age: null
+      left_hand_drive_preferred: true
+      confidence: 80
+      source: "Austrian Federal Ministry for Climate Action"
+      last_updated: "2025-06-08"
+      
+    requirements:
+      - "EU type approval or individual approval"
+      - "Begutachtung (inspection)"
+      - "Motor vehicle liability insurance"
+      - "Zulassungsbescheinigung (registration)"
+      confidence: 80
+      
+    estimated_costs:
+      begutachtung: 80
+      registration: 180
+      approval_process: 300
+      confidence: 75
 
 # Admin override fields for manual improvements
 admin_overrides:
