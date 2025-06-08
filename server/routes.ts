@@ -6102,10 +6102,65 @@ IMPORTANT GUIDELINES:
     }
   });
 
+  // Helper function to extract vehicle details from auction URLs
+  function extractVehicleFromUrl(url: string): any {
+    try {
+      // Basic URL parsing for common auction sites
+      if (url.includes('yahoo.co.jp') || url.includes('auctions.yahoo')) {
+        // Extract from Yahoo Auctions Japan URLs
+        const match = url.match(/([a-zA-Z]+)\s*([a-zA-Z0-9]+)\s*(\d{4})/);
+        if (match) {
+          return {
+            make: match[1],
+            model: match[2],
+            year: parseInt(match[3]),
+            origin: 'japan',
+            driveType: 'RHD',
+            estimatedValue: 25000 // Default estimate
+          };
+        }
+      } else if (url.includes('copart.com')) {
+        // Extract from Copart URLs
+        const match = url.match(/(\d{4})\s*([a-zA-Z]+)\s*([a-zA-Z0-9]+)/);
+        if (match) {
+          return {
+            make: match[2],
+            model: match[3],
+            year: parseInt(match[1]),
+            origin: 'usa',
+            driveType: 'LHD',
+            estimatedValue: 30000 // Default estimate
+          };
+        }
+      }
+      
+      // Default extraction from URL text
+      const urlText = decodeURIComponent(url);
+      const yearMatch = urlText.match(/\b(19|20)\d{2}\b/);
+      const makeMatch = urlText.match(/\b(toyota|nissan|honda|mazda|subaru|mitsubishi|lexus|bmw|mercedes|audi|porsche|ferrari|lamborghini|ford|chevrolet|dodge)\b/i);
+      
+      if (yearMatch && makeMatch) {
+        return {
+          make: makeMatch[1],
+          model: 'Unknown',
+          year: parseInt(yearMatch[0]),
+          origin: 'other',
+          driveType: 'RHD',
+          estimatedValue: 25000
+        };
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error extracting vehicle from URL:', error);
+      return null;
+    }
+  }
+
   // Global vehicle eligibility checker endpoint
   app.post("/api/check-vehicle-eligibility", async (req, res) => {
     try {
-      const { checkGlobalEligibility } = require('./global-vehicle-eligibility');
+      const { checkGlobalEligibility } = await import('./global-vehicle-eligibility');
       const data = req.body;
 
       let vehicleDetails;
@@ -6157,8 +6212,8 @@ IMPORTANT GUIDELINES:
           : 'None',
         cheapestCountry: eligibleResults.length > 0
           ? eligibleResults.reduce((a, b) => {
-              const totalA = Object.values(a.estimatedCosts).reduce((sum, cost) => sum + cost, 0);
-              const totalB = Object.values(b.estimatedCosts).reduce((sum, cost) => sum + cost, 0);
+              const totalA = Object.values(a.estimatedCosts).reduce((sum: number, cost: number) => sum + cost, 0);
+              const totalB = Object.values(b.estimatedCosts).reduce((sum: number, cost: number) => sum + cost, 0);
               return totalA < totalB ? a : b;
             }).targetCountry
           : 'None',
