@@ -6282,7 +6282,7 @@ IMPORTANT GUIDELINES:
       }
 
       // Use target country from extracted data if available
-      const targetCountries = (extractedData as any).targetCountry ? 
+      const targetCountries = (extractedData as any)?.targetCountry ? 
         [(extractedData as any).targetCountry] : 
         (data.targetCountries || ['AU']);
 
