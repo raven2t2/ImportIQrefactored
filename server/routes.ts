@@ -1703,8 +1703,14 @@ Keep each recommendation under 40 words, factually accurate, and realistic.`;
           auctionSamples,
           eligibility: eligibilityCheck,
           eligibilityByCountry: yearInference.eligibilityByCountry,
-          dataSource: 'Global Vehicle Database',
-          note: `Detected ${globalDetection.type === 'vin' ? 'VIN' : globalDetection.type === 'chassis' ? 'chassis code' : 'model name'} with comprehensive technical specifications`
+          // Trust-first internal data
+          internalData: {
+            vinDecoding: vinDecodeResult,
+            shippingEstimate: shippingEstimate,
+            complianceRules: complianceRules
+          },
+          dataSource: 'Global Vehicle Database + Internal Trust Engine',
+          note: `Detected ${globalDetection.type === 'vin' ? 'VIN' : globalDetection.type === 'chassis' ? 'chassis code' : 'model name'} with comprehensive technical specifications and trust-first data validation`
         });
       }
       

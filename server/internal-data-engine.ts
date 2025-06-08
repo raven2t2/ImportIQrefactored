@@ -6,6 +6,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export interface DataResponse {
   data: any;
@@ -51,9 +55,10 @@ class InternalDataEngine {
   private vinPatterns: any = null;
   private shippingData: any[] = [];
   private complianceRules: any = null;
-  private dataPath = path.join(__dirname, 'data');
+  private dataPath: string;
 
   constructor() {
+    this.dataPath = path.join(__dirname, 'data');
     this.loadAllData();
   }
 
@@ -312,5 +317,21 @@ class InternalDataEngine {
   }
 }
 
-// Singleton instance
-export const internalDataEngine = new InternalDataEngine();
+// Singleton instance - lazy initialization
+let _internalDataEngine: InternalDataEngine | null = null;
+
+export function getInternalDataEngine(): InternalDataEngine {
+  if (!_internalDataEngine) {
+    _internalDataEngine = new InternalDataEngine();
+  }
+  return _internalDataEngine;
+}
+
+// For backward compatibility
+export const internalDataEngine = {
+  get decodeVIN() { return getInternalDataEngine().decodeVIN.bind(getInternalDataEngine()); },
+  get getShippingEstimate() { return getInternalDataEngine().getShippingEstimate.bind(getInternalDataEngine()); },
+  get getComplianceRules() { return getInternalDataEngine().getComplianceRules.bind(getInternalDataEngine()); },
+  get getDataQualityReport() { return getInternalDataEngine().getDataQualityReport.bind(getInternalDataEngine()); },
+  get applyAdminOverride() { return getInternalDataEngine().applyAdminOverride.bind(getInternalDataEngine()); }
+};
