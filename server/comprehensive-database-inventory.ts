@@ -23,18 +23,18 @@ export const IMPORTIQ_DATABASE_ECOSYSTEM: Record<string, DatabaseInventory> = {
   // Core Vehicle Intelligence Databases
   'global-vehicle-database': {
     name: 'Global Vehicle Database',
-    description: 'Comprehensive vehicle specifications covering JDM, USDM, and European markets',
-    recordCount: 2847,
+    description: 'Curated vehicle specifications from publicly available sources',
+    recordCount: 487,
     coverage: ['Japan', 'USA', 'Germany', 'UK', 'Australia'],
-    dataSource: ['OEM Technical Specifications', 'Government VIN Databases', 'Manufacturer Archives'],
+    dataSource: ['Public Technical Specifications', 'Open VIN Databases', 'Community Archives'],
     lastUpdated: '2025-06-08',
-    integrityScore: 98,
+    integrityScore: 85,
     keyFeatures: [
-      'Complete chassis code mapping (JZA80, BNR34, etc.)',
-      'Power and torque specifications from factory documents',
-      'Production year ranges with market variants',
-      'Modification potential analysis',
-      'Engine displacement and configuration data'
+      'Known chassis code mapping for popular models',
+      'General power and torque specifications',
+      'Production year ranges for common vehicles',
+      'Basic modification information',
+      'Engine displacement data from public sources'
     ]
   },
 
@@ -177,19 +177,19 @@ export const IMPORTIQ_DATABASE_ECOSYSTEM: Record<string, DatabaseInventory> = {
 
   // Market Intelligence Databases
   'live-market-data': {
-    name: 'Live Market Data Intelligence',
-    description: 'Real-time auction data from Japanese and US auction houses',
-    recordCount: 15847,
+    name: 'Market Data Aggregation',
+    description: 'Limited market data from accessible automotive listing sources',
+    recordCount: 25,
     coverage: ['Japan', 'USA'],
-    dataSource: ['Yahoo Auctions Japan API', 'Copart Auction Data', 'IAA Insurance Auctions'],
+    dataSource: ['Goo-net Public Listings', 'Public Automotive Forums', 'Open Market Feeds'],
     lastUpdated: '2025-06-08',
-    integrityScore: 88,
+    integrityScore: 75,
     keyFeatures: [
-      'Real-time price tracking',
-      'Historical price trends',
-      'Vehicle condition assessments',
-      'Auction house reputation scoring',
-      'Bid pattern analysis'
+      'Small sample of authentic listings',
+      'Basic price information',
+      'Limited vehicle specifications',
+      'Educational market insights',
+      'Proof-of-concept data aggregation'
     ]
   },
 
@@ -264,19 +264,19 @@ export const IMPORTIQ_DATABASE_ECOSYSTEM: Record<string, DatabaseInventory> = {
 
   // Specialized Intelligence Modules
   'plate-availability': {
-    name: 'License Plate Availability',
-    description: 'Personalized license plate availability across jurisdictions',
-    recordCount: 847293,
+    name: 'License Plate Information',
+    description: 'Basic license plate format validation and general information',
+    recordCount: 47,
     coverage: ['Australia', 'USA', 'Canada', 'UK'],
-    dataSource: ['State/Provincial Transport Departments', 'DVLA Database', 'Provincial Registries'],
+    dataSource: ['Public Transport Department Information', 'General Format Guidelines', 'Educational Resources'],
     lastUpdated: '2025-06-08',
-    integrityScore: 94,
+    integrityScore: 70,
     keyFeatures: [
-      'Real-time plate availability checking',
-      'Personalized plate cost calculations',
-      'Jurisdiction-specific format validation',
-      'Special character restrictions',
-      'Renewal and transfer procedures'
+      'Format validation patterns',
+      'General cost information',
+      'Basic character restrictions',
+      'Educational guidelines',
+      'Jurisdiction format examples'
     ]
   },
 
