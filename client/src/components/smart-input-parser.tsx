@@ -22,13 +22,21 @@ interface ParsedInput {
 interface SmartInputParserProps {
   onInputParsed: (parsed: ParsedInput) => void;
   placeholder?: string;
+  initialValue?: string;
 }
 
-export function SmartInputParser({ onInputParsed, placeholder = "Paste VIN, auction link, or car model..." }: SmartInputParserProps) {
-  const [input, setInput] = useState("");
+export function SmartInputParser({ onInputParsed, placeholder = "Paste VIN, auction link, or car model...", initialValue = "" }: SmartInputParserProps) {
+  const [input, setInput] = useState(initialValue);
   const [parsing, setParsing] = useState(false);
   const [parsed, setParsed] = useState<ParsedInput | null>(null);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+
+  // Process initial value if provided
+  useEffect(() => {
+    if (initialValue && initialValue !== input) {
+      setInput(initialValue);
+    }
+  }, [initialValue]);
 
   const handleAutoSubmit = async (result: ParsedInput) => {
     setParsing(true);
