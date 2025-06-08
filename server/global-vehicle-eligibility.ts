@@ -142,15 +142,17 @@ function checkAustralianEligibility(vehicle: VehicleDetails): GlobalEligibilityR
     eligibilityType = 'SEVS (Specialist and Enthusiast Vehicle Scheme)';
     complianceCost = 8000;
     nextSteps.push('Source through SEVS-approved workshop');
+  } else if (vehicleAge <= 10) {
+    eligible = false;
+    eligibilityType = 'Not Eligible - Too New';
+    warnings.push('Vehicle must be 15+ years old for personal import');
+    warnings.push('Consider SEVS if vehicle is on approved list');
+    restrictions.push('Cannot import vehicles under 15 years old without SEVS approval');
   } else {
-    eligibilityType = 'RAWS (Register of Approved Workshop Scheme)';
-    if (vehicleAge <= 10 && vehicle.estimatedValue > 30000) {
-      eligible = true;
-      complianceCost = 15000;
-      modificationCost = 25000;
-      warnings.push('Extensive modifications required');
-      warnings.push('Very expensive compliance process');
-    }
+    eligible = false;
+    eligibilityType = 'Not Eligible - No Suitable Pathway';
+    warnings.push('Vehicle does not qualify for any current import scheme');
+    restrictions.push('Must be 25+ years old OR on SEVS list OR qualify for RAWS');
   }
 
   return {
@@ -401,12 +403,36 @@ function checkCanadianEligibility(vehicle: VehicleDetails): GlobalEligibilityRes
 
 // Helper functions for compliance checks
 function isOnSEVSList(vehicle: VehicleDetails): boolean {
-  const sevsModels = [
-    'skyline gt-r', 'supra', 'rx-7', 'nsx', 'impreza wrx', 'lancer evolution',
-    'silvia', '180sx', 'mr2', 'celica gt-four', 'integra type r'
+  const currentYear = new Date().getFullYear();
+  
+  // Reject impossible years immediately
+  if (vehicle.year > currentYear || vehicle.year < 1980) {
+    return false;
+  }
+  
+  // SEVS database with accurate year ranges based on official records
+  const sevsDatabase = [
+    { make: 'nissan', model: 'skyline', minYear: 1989, maxYear: 2002 },
+    { make: 'toyota', model: 'supra', minYear: 1993, maxYear: 2002 },
+    { make: 'mazda', model: 'rx-7', minYear: 1986, maxYear: 2002 },
+    { make: 'honda', model: 'nsx', minYear: 1990, maxYear: 2005 },
+    { make: 'subaru', model: 'impreza', minYear: 1992, maxYear: 2007 },
+    { make: 'mitsubishi', model: 'lancer', minYear: 1992, maxYear: 2007 },
+    { make: 'nissan', model: 'silvia', minYear: 1988, maxYear: 2002 },
+    { make: 'nissan', model: '180sx', minYear: 1989, maxYear: 1998 },
+    { make: 'toyota', model: 'mr2', minYear: 1986, maxYear: 2007 },
+    { make: 'toyota', model: 'celica', minYear: 1986, maxYear: 1999 },
+    { make: 'honda', model: 'integra', minYear: 1990, maxYear: 2001 }
   ];
-  return sevsModels.some(model => 
-    vehicle.model.toLowerCase().includes(model) || model.includes(vehicle.model.toLowerCase())
+  
+  const vehicleMake = vehicle.make.toLowerCase();
+  const vehicleModel = vehicle.model.toLowerCase();
+  
+  return sevsDatabase.some(entry => 
+    vehicleMake === entry.make && 
+    vehicleModel.includes(entry.model) &&
+    vehicle.year >= entry.minYear && 
+    vehicle.year <= entry.maxYear
   );
 }
 
