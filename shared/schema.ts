@@ -217,6 +217,117 @@ export const bookings = pgTable("bookings", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Memory and Personalization Tables
+export const recentLookups = pgTable("recent_lookups", {
+  id: serial("id").primaryKey(),
+  sessionId: text("session_id").notNull(),
+  userId: integer("user_id"), // nullable for anonymous users
+  vehicleMake: text("vehicle_make").notNull(),
+  vehicleModel: text("vehicle_model").notNull(),
+  chassisCode: text("chassis_code"),
+  destination: text("destination").notNull(),
+  lookupType: text("lookup_type").default("smart_lookup"), // smart_lookup, import_intelligence, compliance_check
+  resultSummary: text("result_summary"), // brief summary of what was found
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  sessionIdx: index("recent_lookups_session_idx").on(table.sessionId),
+  userIdx: index("recent_lookups_user_idx").on(table.userId),
+  createdAtIdx: index("recent_lookups_created_at_idx").on(table.createdAt),
+}));
+
+export const savedJourneys = pgTable("saved_journeys", {
+  id: serial("id").primaryKey(),
+  sessionId: text("session_id").notNull(),
+  userId: integer("user_id"), // nullable for anonymous users
+  journeyName: text("journey_name").notNull(), // user-defined or auto-generated
+  vehicleMake: text("vehicle_make").notNull(),
+  vehicleModel: text("vehicle_model").notNull(),
+  chassisCode: text("chassis_code"),
+  vehicleYear: integer("vehicle_year"),
+  destination: text("destination").notNull(),
+  journeyData: jsonb("journey_data").notNull(), // full import intelligence result
+  aiSummary: text("ai_summary"), // GPT-generated personalized summary
+  isBookmarked: boolean("is_bookmarked").default(true),
+  tags: text("tags").array(), // user or AI-generated tags
+  progress: text("progress").default("planning"), // planning, purchasing, shipping, compliance, completed
+  estimatedCompletion: timestamp("estimated_completion"),
+  totalCostEstimate: integer("total_cost_estimate"), // in cents
+  currency: text("currency").default("AUD"),
+  lastViewed: timestamp("last_viewed").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  sessionIdx: index("saved_journeys_session_idx").on(table.sessionId),
+  userIdx: index("saved_journeys_user_idx").on(table.userId),
+  progressIdx: index("saved_journeys_progress_idx").on(table.progress),
+  lastViewedIdx: index("saved_journeys_last_viewed_idx").on(table.lastViewed),
+}));
+
+export const vehicleWatchlist = pgTable("vehicle_watchlist", {
+  id: serial("id").primaryKey(),
+  sessionId: text("session_id").notNull(),
+  userId: integer("user_id"), // nullable for anonymous users
+  vehicleMake: text("vehicle_make").notNull(),
+  vehicleModel: text("vehicle_model").notNull(),
+  chassisCode: text("chassis_code"),
+  destination: text("destination").notNull(),
+  watchType: text("watch_type").notNull(), // price_alert, eligibility_change, regulation_update
+  alertThreshold: integer("alert_threshold"), // price threshold in cents
+  currentStatus: text("current_status"), // current eligibility or price
+  lastChecked: timestamp("last_checked").defaultNow(),
+  isActive: boolean("is_active").default(true),
+  alertFrequency: text("alert_frequency").default("weekly"), // daily, weekly, monthly
+  contactEmail: text("contact_email"), // for notifications
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  sessionIdx: index("vehicle_watchlist_session_idx").on(table.sessionId),
+  userIdx: index("vehicle_watchlist_user_idx").on(table.userId),
+  watchTypeIdx: index("vehicle_watchlist_watch_type_idx").on(table.watchType),
+  isActiveIdx: index("vehicle_watchlist_is_active_idx").on(table.isActive),
+}));
+
+export const journeyEvents = pgTable("journey_events", {
+  id: serial("id").primaryKey(),
+  sessionId: text("session_id").notNull(),
+  userId: integer("user_id"), // nullable for anonymous users
+  savedJourneyId: integer("saved_journey_id").references(() => savedJourneys.id),
+  eventType: text("event_type").notNull(), // lookup, save_journey, bookmark, price_check, compliance_update
+  eventData: jsonb("event_data"), // contextual data for the event
+  vehicleMake: text("vehicle_make"),
+  vehicleModel: text("vehicle_model"),
+  destination: text("destination"),
+  description: text("description"), // human-readable event description
+  importance: text("importance").default("medium"), // low, medium, high, critical
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  sessionIdx: index("journey_events_session_idx").on(table.sessionId),
+  userIdx: index("journey_events_user_idx").on(table.userId),
+  savedJourneyIdx: index("journey_events_saved_journey_idx").on(table.savedJourneyId),
+  eventTypeIdx: index("journey_events_event_type_idx").on(table.eventType),
+  createdAtIdx: index("journey_events_created_at_idx").on(table.createdAt),
+}));
+
+export const sessionMemory = pgTable("session_memory", {
+  id: serial("id").primaryKey(),
+  sessionId: text("session_id").notNull().unique(),
+  userId: integer("user_id"), // nullable for anonymous users
+  lastActivity: timestamp("last_activity").defaultNow().notNull(),
+  totalLookups: integer("total_lookups").default(0),
+  favoriteDestination: text("favorite_destination"),
+  preferredVehicleTypes: text("preferred_vehicle_types").array(),
+  journeyStage: text("journey_stage").default("exploring"), // exploring, researching, decided, importing
+  personalizationData: jsonb("personalization_data"), // AI insights about user preferences
+  returningUser: boolean("returning_user").default(false),
+  firstVisit: timestamp("first_visit").defaultNow(),
+  deviceFingerprint: text("device_fingerprint"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  sessionIdIdx: index("session_memory_session_id_idx").on(table.sessionId),
+  userIdx: index("session_memory_user_idx").on(table.userId),
+  lastActivityIdx: index("session_memory_last_activity_idx").on(table.lastActivity),
+}));
+
 // Affiliate System Tables
 export const affiliates = pgTable("affiliates", {
   id: serial("id").primaryKey(),

@@ -3780,11 +3780,21 @@ Respond with a JSON object containing your recommendations.`;
 
       // Use simplified PostgreSQL-only import intelligence
       const { SimplifiedImportIntelligence } = await import('./simplified-import-intelligence.js');
+      const { MemoryService } = await import('./memory-service.js');
       
       const result = await SimplifiedImportIntelligence.generateIntelligence(
         vehicleData,
         destination,
         sessionToken || 'anonymous'
+      );
+
+      // Record this lookup in memory for personalization
+      await MemoryService.recordLookup(
+        sessionToken || 'anonymous',
+        vehicleData,
+        destination,
+        'import_intelligence',
+        `${result.vehicle.make} ${result.vehicle.model} - ${result.eligibility.eligible ? 'Eligible' : 'Restricted'} for ${destination}`
       );
 
       res.json({
@@ -3834,6 +3844,158 @@ Respond with a JSON object containing your recommendations.`;
         error: 'Failed to generate import intelligence',
         details: error.message 
       });
+    }
+  });
+
+  // Memory-powered personalization endpoints
+  app.get('/api/memory/recent-lookups', async (req, res) => {
+    try {
+      const { sessionToken } = req.query;
+      if (!sessionToken) {
+        return res.status(400).json({ error: 'sessionToken required' });
+      }
+
+      const { MemoryService } = await import('./memory-service.js');
+      const lookups = await MemoryService.getRecentLookups(sessionToken as string);
+      
+      res.json({ lookups });
+    } catch (error) {
+      console.error('Failed to get recent lookups:', error);
+      res.status(500).json({ error: 'Failed to retrieve recent lookups' });
+    }
+  });
+
+  app.post('/api/memory/save-journey', async (req, res) => {
+    try {
+      const { sessionToken, vehicleData, destination, journeyData, journeyName } = req.body;
+      
+      if (!sessionToken || !vehicleData || !destination || !journeyData) {
+        return res.status(400).json({ error: 'Missing required parameters' });
+      }
+
+      const { MemoryService } = await import('./memory-service.js');
+      const savedJourney = await MemoryService.saveJourney(
+        sessionToken,
+        vehicleData,
+        destination,
+        journeyData,
+        journeyName
+      );
+      
+      res.json({ journey: savedJourney });
+    } catch (error) {
+      console.error('Failed to save journey:', error);
+      res.status(500).json({ error: 'Failed to save journey' });
+    }
+  });
+
+  app.get('/api/memory/saved-journeys', async (req, res) => {
+    try {
+      const { sessionToken } = req.query;
+      if (!sessionToken) {
+        return res.status(400).json({ error: 'sessionToken required' });
+      }
+
+      const { MemoryService } = await import('./memory-service.js');
+      const journeys = await MemoryService.getSavedJourneys(sessionToken as string);
+      
+      res.json({ journeys });
+    } catch (error) {
+      console.error('Failed to get saved journeys:', error);
+      res.status(500).json({ error: 'Failed to retrieve saved journeys' });
+    }
+  });
+
+  app.post('/api/memory/add-watchlist', async (req, res) => {
+    try {
+      const { sessionToken, vehicleData, destination, watchType, alertThreshold, contactEmail } = req.body;
+      
+      if (!sessionToken || !vehicleData || !destination || !watchType) {
+        return res.status(400).json({ error: 'Missing required parameters' });
+      }
+
+      const { MemoryService } = await import('./memory-service.js');
+      const watchItem = await MemoryService.addToWatchlist(
+        sessionToken,
+        vehicleData,
+        destination,
+        watchType,
+        alertThreshold,
+        contactEmail
+      );
+      
+      res.json({ watchItem });
+    } catch (error) {
+      console.error('Failed to add to watchlist:', error);
+      res.status(500).json({ error: 'Failed to add to watchlist' });
+    }
+  });
+
+  app.get('/api/memory/watchlist', async (req, res) => {
+    try {
+      const { sessionToken } = req.query;
+      if (!sessionToken) {
+        return res.status(400).json({ error: 'sessionToken required' });
+      }
+
+      const { MemoryService } = await import('./memory-service.js');
+      const watchlist = await MemoryService.getWatchlist(sessionToken as string);
+      
+      res.json({ watchlist });
+    } catch (error) {
+      console.error('Failed to get watchlist:', error);
+      res.status(500).json({ error: 'Failed to retrieve watchlist' });
+    }
+  });
+
+  app.get('/api/memory/journey-timeline', async (req, res) => {
+    try {
+      const { sessionToken } = req.query;
+      if (!sessionToken) {
+        return res.status(400).json({ error: 'sessionToken required' });
+      }
+
+      const { MemoryService } = await import('./memory-service.js');
+      const timeline = await MemoryService.getJourneyTimeline(sessionToken as string);
+      
+      res.json({ timeline });
+    } catch (error) {
+      console.error('Failed to get journey timeline:', error);
+      res.status(500).json({ error: 'Failed to retrieve journey timeline' });
+    }
+  });
+
+  app.get('/api/memory/personalized-recommendations', async (req, res) => {
+    try {
+      const { sessionToken } = req.query;
+      if (!sessionToken) {
+        return res.status(400).json({ error: 'sessionToken required' });
+      }
+
+      const { MemoryService } = await import('./memory-service.js');
+      const recommendations = await MemoryService.getPersonalizedRecommendations(sessionToken as string);
+      
+      res.json({ recommendations });
+    } catch (error) {
+      console.error('Failed to get recommendations:', error);
+      res.status(500).json({ error: 'Failed to retrieve recommendations' });
+    }
+  });
+
+  app.get('/api/memory/session-insights', async (req, res) => {
+    try {
+      const { sessionToken } = req.query;
+      if (!sessionToken) {
+        return res.status(400).json({ error: 'sessionToken required' });
+      }
+
+      const { MemoryService } = await import('./memory-service.js');
+      const insights = await MemoryService.getSessionInsights(sessionToken as string);
+      
+      res.json({ insights });
+    } catch (error) {
+      console.error('Failed to get session insights:', error);
+      res.status(500).json({ error: 'Failed to retrieve session insights' });
     }
   });
 
