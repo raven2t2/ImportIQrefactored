@@ -200,7 +200,8 @@ export function SmartLookupPage() {
                 make: parsedInput?.make || parsedInput?.detectedInfo?.make || 'Unknown',
                 model: parsedInput?.model || parsedInput?.detectedInfo?.model || 'Unknown',
                 year: parsedInput?.year || parsedInput?.detectedInfo?.year,
-                origin: parsedInput?.origin || parsedInput?.detectedInfo?.origin
+                origin: parsedInput?.origin || parsedInput?.detectedInfo?.origin,
+                technicalSpecs: parsedInput?.technicalSpecs
               }}
             />
 
