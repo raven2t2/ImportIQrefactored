@@ -3,6 +3,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeDataRefreshScheduler } from "./auction-data-manager";
 import { initializeLiveMarketDataMonitoring } from "./live-market-data";
+import { ComprehensiveDataSeeder } from "./comprehensive-data-seeder";
 
 const app = express();
 app.use(express.json());
@@ -72,5 +73,7 @@ app.use((req, res, next) => {
     initializeDataRefreshScheduler();
     // Initialize live market data monitoring
     initializeLiveMarketDataMonitoring();
+    // Seed comprehensive database tables with authentic compliance and vehicle data
+    ComprehensiveDataSeeder.seedAllTables();
   });
 })();
