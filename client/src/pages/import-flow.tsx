@@ -122,11 +122,8 @@ export default function ImportFlow() {
       
       setVehicleData(extractedVehicle);
       
-      // Automatically check eligibility
-      checkEligibilityMutation.mutate({
-        ...extractedVehicle,
-        targetCountries: ['AU', 'US', 'UK', 'CA']
-      });
+      // Move to country selection instead of skipping it
+      setCurrentStep('country-select');
     },
     onError: (error: any) => {
       console.error('Vehicle extraction failed:', error);
@@ -142,11 +139,8 @@ export default function ImportFlow() {
       
       setVehicleData(fallbackVehicle);
       
-      // Continue with eligibility check
-      checkEligibilityMutation.mutate({
-        ...fallbackVehicle,
-        targetCountries: [targetCountry]
-      });
+      // Move to country selection instead of skipping it
+      setCurrentStep('country-select');
     }
   });
 
@@ -477,8 +471,14 @@ export default function ImportFlow() {
                       setSelectedState('QLD');
                       setCurrentStep('processing');
                       setProgress(0);
-                      setCurrentTask('Extracting vehicle data...');
-                      extractMutation.mutate(vehicleInput);
+                      setCurrentTask('Checking Australia eligibility...');
+                      // Use existing vehicle data and check eligibility
+                      if (vehicleData) {
+                        checkEligibilityMutation.mutate({
+                          ...vehicleData,
+                          targetCountries: ['AU']
+                        });
+                      }
                     }}
                     className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors duration-200"
                   >
@@ -540,8 +540,14 @@ export default function ImportFlow() {
                       setSelectedState('TX');
                       setCurrentStep('processing');
                       setProgress(0);
-                      setCurrentTask('Extracting vehicle data...');
-                      extractMutation.mutate(vehicleInput);
+                      setCurrentTask('Checking US eligibility...');
+                      // Use existing vehicle data and check eligibility
+                      if (vehicleData) {
+                        checkEligibilityMutation.mutate({
+                          ...vehicleData,
+                          targetCountries: ['US']
+                        });
+                      }
                     }}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors duration-200"
                   >
@@ -603,8 +609,14 @@ export default function ImportFlow() {
                       setSelectedState('WAL');
                       setCurrentStep('processing');
                       setProgress(0);
-                      setCurrentTask('Extracting vehicle data...');
-                      extractMutation.mutate(vehicleInput);
+                      setCurrentTask('Checking UK eligibility...');
+                      // Use existing vehicle data and check eligibility
+                      if (vehicleData) {
+                        checkEligibilityMutation.mutate({
+                          ...vehicleData,
+                          targetCountries: ['UK']
+                        });
+                      }
                     }}
                     className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors duration-200"
                   >
@@ -666,8 +678,14 @@ export default function ImportFlow() {
                       setSelectedState('AB');
                       setCurrentStep('processing');
                       setProgress(0);
-                      setCurrentTask('Extracting vehicle data...');
-                      extractMutation.mutate(vehicleInput);
+                      setCurrentTask('Checking Canada eligibility...');
+                      // Use existing vehicle data and check eligibility
+                      if (vehicleData) {
+                        checkEligibilityMutation.mutate({
+                          ...vehicleData,
+                          targetCountries: ['CA']
+                        });
+                      }
                     }}
                     className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors duration-200"
                   >
