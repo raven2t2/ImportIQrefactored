@@ -107,6 +107,12 @@ export function SmartInputParser({ onInputParsed, placeholder = "Paste VIN, auct
 
     const analyzeAndSubmit = async () => {
       const trimmed = input.trim();
+      
+      // Prevent duplicate processing
+      if (parsed && parsed.value === trimmed) {
+        return;
+      }
+      
       let result: ParsedInput;
 
       // VIN Detection (17 characters, alphanumeric)
@@ -153,15 +159,15 @@ export function SmartInputParser({ onInputParsed, placeholder = "Paste VIN, auct
       setParsed(result);
       generateSuggestions(result);
 
-      // Auto-submit if confidence is high enough
-      if (result.confidence >= 85 || result.type === 'vin' || result.type === 'url') {
+      // Auto-submit if confidence is high enough and not already processing
+      if ((result.confidence >= 85 || result.type === 'vin' || result.type === 'url') && !parsing) {
         await handleAutoSubmit(result);
       }
     };
 
-    const debounce = setTimeout(analyzeAndSubmit, 800);
+    const debounce = setTimeout(analyzeAndSubmit, 500);
     return () => clearTimeout(debounce);
-  }, [input]);
+  }, [input, parsed, parsing]);
 
   const extractVinInfo = (vin: string) => {
     // Basic VIN decoding
