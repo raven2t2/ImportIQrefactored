@@ -6230,8 +6230,7 @@ IMPORTANT GUIDELINES:
 
       try {
         // Use enhanced vehicle data extraction
-        const extractedData = await extractVehicleData({
-          url: data.url || data.auctionUrl,
+        const extractedData = await extractVehicleData(data.url || data.auctionUrl || {
           vin: data.vin,
           make: data.make,
           model: data.model,
