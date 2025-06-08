@@ -6161,35 +6161,63 @@ IMPORTANT GUIDELINES:
   app.post("/api/check-vehicle-eligibility", async (req, res) => {
     try {
       const { checkGlobalEligibility } = await import('./global-vehicle-eligibility');
+      const { extractVehicleData } = await import('./vehicle-data-extractor');
       const data = req.body;
 
       let vehicleDetails;
 
-      // Handle URL-based input (auto-detect vehicle details)
-      if (data.inputMethod === 'url' && data.auctionUrl) {
-        // Extract vehicle details from auction URL
-        vehicleDetails = extractVehicleFromUrl(data.auctionUrl);
-        if (!vehicleDetails) {
-          return res.status(400).json({
-            error: 'Unable to extract vehicle details from URL',
-            message: 'Please check the URL or enter details manually'
-          });
-        }
-      } else {
-        // Use manually entered details
-        vehicleDetails = {
+      try {
+        // Use enhanced vehicle data extraction
+        const extractedData = await extractVehicleData({
+          url: data.url || data.auctionUrl,
+          vin: data.vin,
           make: data.make,
           model: data.model,
-          year: data.year,
-          vin: data.vin,
+          year: data.year
+        });
+
+        // Map extracted data to expected format
+        vehicleDetails = {
+          make: extractedData.make,
+          model: extractedData.model,
+          year: extractedData.year,
+          vin: extractedData.vin,
           engineSize: data.engineSize,
           fuelType: data.fuelType,
           bodyType: data.bodyType,
           driveType: data.driveType,
-          transmission: data.transmission,
-          origin: data.origin,
-          estimatedValue: data.estimatedValue
+          transmission: extractedData.transmission || data.transmission,
+          origin: determineOrigin(extractedData.source, data.origin),
+          estimatedValue: data.estimatedValue || 25000
         };
+
+        console.log(`Vehicle extraction successful: ${extractedData.year} ${extractedData.make} ${extractedData.model} (confidence: ${extractedData.confidence}%)`);
+
+      } catch (extractionError) {
+        console.error('Vehicle extraction failed:', extractionError);
+        return res.status(400).json({
+          error: 'Unable to extract vehicle details',
+          message: extractionError instanceof Error ? extractionError.message : 'Please provide valid vehicle information or URL'
+        });
+      }
+
+      // Helper function to determine vehicle origin
+      function determineOrigin(source: string, providedOrigin?: string): 'japan' | 'usa' | 'uk' | 'europe' | 'other' {
+        if (providedOrigin) {
+          return providedOrigin as 'japan' | 'usa' | 'uk' | 'europe' | 'other';
+        }
+        
+        if (source.includes('yahoo.co.jp') || source.includes('goo-net.com') || source.includes('carsensor.net')) {
+          return 'japan';
+        } else if (source.includes('copart.com') || source.includes('iaai.com') || source.includes('autotrader.com') || source.includes('cars.com')) {
+          return 'usa';
+        } else if (source.includes('.co.uk') || source.includes('autotrader.co.uk')) {
+          return 'uk';
+        } else if (source.includes('.de') || source.includes('.fr') || source.includes('.it')) {
+          return 'europe';
+        }
+        
+        return 'other';
       }
 
       // Check eligibility for each target country
