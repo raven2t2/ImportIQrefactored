@@ -481,11 +481,13 @@ export async function checkCountryEligibility(vehicleData: any, countryCode: str
   let costs: any = {};
   let requirements: string[] = [];
   let timeline = '4-8 weeks';
+  let modificationCompliance: any = null;
 
   try {
     switch (countryCode) {
       case 'AU':
         const { AUSTRALIAN_STATE_REQUIREMENTS } = await import('./australian-state-requirements');
+        const { getModificationCompliance } = await import('./global-modification-compliance');
         regulations = AUSTRALIAN_STATE_REQUIREMENTS['NSW'] || {};
         eligible = vehicleData.estimatedAge >= 15;
         costs = {
@@ -495,6 +497,15 @@ export async function checkCountryEligibility(vehicleData: any, countryCode: str
           total: 13800
         };
         requirements = ['ADR Compliance', 'RAWS Registration', 'State Registration'];
+        
+        // Add modification compliance analysis for popular modifications
+        if (vehicleData.technicalSpecs?.popularModifications) {
+          modificationCompliance = getModificationCompliance(
+            vehicleData.technicalSpecs.popularModifications,
+            'AU',
+            'NSW'
+          );
+        }
         break;
 
       case 'UK':
