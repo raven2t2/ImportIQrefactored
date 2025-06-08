@@ -30,7 +30,7 @@ export function SmartInputParser({ onInputParsed, placeholder = "Paste VIN, auct
   const [parsed, setParsed] = useState<ParsedInput | null>(null);
   const [suggestions, setSuggestions] = useState<string[]>([]);
 
-  // Real-time input analysis
+  // Real-time input analysis with auto-submission
   useEffect(() => {
     if (input.length < 3) {
       setParsed(null);
@@ -38,7 +38,7 @@ export function SmartInputParser({ onInputParsed, placeholder = "Paste VIN, auct
       return;
     }
 
-    const analyzeInput = () => {
+    const analyzeAndSubmit = async () => {
       const trimmed = input.trim();
       let result: ParsedInput;
 
@@ -85,9 +85,14 @@ export function SmartInputParser({ onInputParsed, placeholder = "Paste VIN, auct
 
       setParsed(result);
       generateSuggestions(result);
+
+      // Auto-submit if confidence is high enough
+      if (result.confidence >= 85 || result.type === 'vin' || result.type === 'url') {
+        await handleAutoSubmit(result);
+      }
     };
 
-    const debounce = setTimeout(analyzeInput, 300);
+    const debounce = setTimeout(analyzeAndSubmit, 800);
     return () => clearTimeout(debounce);
   }, [input]);
 
