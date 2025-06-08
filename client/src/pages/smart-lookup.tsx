@@ -89,11 +89,11 @@ export function SmartLookupPage() {
     
     // Automatically check eligibility for detected countries
     const vehicleData = {
-      make: parsed.detectedMake || parsed.detectedInfo?.make || parsed.make || 'Unknown',
-      model: parsed.detectedModel || parsed.detectedInfo?.model || parsed.model || 'Unknown',
-      year: parsed.detectedYear || parsed.detectedInfo?.year || parsed.year,
+      make: parsed.make || parsed.detectedInfo?.make || 'Unknown',
+      model: parsed.model || parsed.detectedInfo?.model || 'Unknown',
+      year: parsed.year || parsed.detectedInfo?.year,
       origin: parsed.origin || parsed.detectedInfo?.origin,
-      estimatedAge: (parsed.detectedYear || parsed.detectedInfo?.year || parsed.year) ? new Date().getFullYear() - (parsed.detectedYear || parsed.detectedInfo?.year || parsed.year) : 25,
+      estimatedAge: (parsed.year || parsed.detectedInfo?.year) ? new Date().getFullYear() - (parsed.year || parsed.detectedInfo?.year) : 25,
       estimatedValue: 50000, // Default for calculation
       inputType: parsed.type,
       confidence: parsed.confidence,
@@ -203,7 +203,7 @@ export function SmartLookupPage() {
                 model: parsedInput?.model || parsedInput?.detectedInfo?.model || 'Unknown',
                 year: parsedInput?.year || parsedInput?.detectedInfo?.year,
                 origin: parsedInput?.origin || parsedInput?.detectedInfo?.origin,
-                technicalSpecs: parsedInput?.technicalSpecs || parsedInput?.detectedInfo?.technicalSpecs
+                technicalSpecs: parsedInput?.technicalSpecs
               }}
             />
 
