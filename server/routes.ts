@@ -19,6 +19,7 @@ import Stripe from "stripe";
 import bcrypt from "bcrypt";
 import fs from "fs";
 import { smartParser } from './smart-parser';
+import { JourneyToolsService } from './journey-tools-service';
 import { 
   adminQueryReviews, 
   patternStaging, 
@@ -9284,6 +9285,217 @@ async function getMarketPricingData(filters: {
   }
 
   return allData;
+
+  // PostgreSQL-Powered Journey Tools API Endpoints
+  
+  // Import Cost Calculator with PostgreSQL persistence
+  app.post("/api/journey-tools/import-calculator", async (req, res) => {
+    try {
+      const { sessionId, vehicleData, originCountry, destinationCountry, destinationState } = req.body;
+      
+      if (!sessionId || !vehicleData || !originCountry || !destinationCountry) {
+        return res.status(400).json({ error: "Missing required parameters" });
+      }
+
+      const result = await JourneyToolsService.calculateImportCosts(
+        sessionId, 
+        vehicleData, 
+        originCountry, 
+        destinationCountry, 
+        destinationState
+      );
+
+      res.json(result);
+    } catch (error) {
+      console.error('Import calculator error:', error);
+      res.status(500).json({ error: "Failed to calculate import costs" });
+    }
+  });
+
+  // Vehicle Eligibility Checker with PostgreSQL persistence
+  app.post("/api/journey-tools/eligibility-checker", async (req, res) => {
+    try {
+      const { sessionId, vehicleData, destinationCountry, destinationState } = req.body;
+      
+      if (!sessionId || !vehicleData || !destinationCountry) {
+        return res.status(400).json({ error: "Missing required parameters" });
+      }
+
+      const result = await JourneyToolsService.checkVehicleEligibility(
+        sessionId, 
+        vehicleData, 
+        destinationCountry, 
+        destinationState
+      );
+
+      res.json(result);
+    } catch (error) {
+      console.error('Eligibility checker error:', error);
+      res.status(500).json({ error: "Failed to check vehicle eligibility" });
+    }
+  });
+
+  // Shipping Estimate Calculator with PostgreSQL persistence
+  app.post("/api/journey-tools/shipping-calculator", async (req, res) => {
+    try {
+      const { sessionId, vehicleData, originCountry, destinationCountry } = req.body;
+      
+      if (!sessionId || !vehicleData || !originCountry || !destinationCountry) {
+        return res.status(400).json({ error: "Missing required parameters" });
+      }
+
+      const result = await JourneyToolsService.getShippingEstimate(
+        sessionId, 
+        vehicleData, 
+        originCountry, 
+        destinationCountry
+      );
+
+      res.json(result);
+    } catch (error) {
+      console.error('Shipping calculator error:', error);
+      res.status(500).json({ error: "Failed to calculate shipping estimate" });
+    }
+  });
+
+  // Compliance Checklist Generator with PostgreSQL persistence
+  app.post("/api/journey-tools/compliance-checklist", async (req, res) => {
+    try {
+      const { sessionId, vehicleData, destinationCountry } = req.body;
+      
+      if (!sessionId || !vehicleData || !destinationCountry) {
+        return res.status(400).json({ error: "Missing required parameters" });
+      }
+
+      const result = await JourneyToolsService.generateComplianceChecklist(
+        sessionId, 
+        vehicleData, 
+        destinationCountry
+      );
+
+      res.json(result);
+    } catch (error) {
+      console.error('Compliance checklist error:', error);
+      res.status(500).json({ error: "Failed to generate compliance checklist" });
+    }
+  });
+
+  // Get All Journey Tools for Session
+  app.get("/api/journey-tools/:sessionId", async (req, res) => {
+    try {
+      const { sessionId } = req.params;
+      
+      if (!sessionId) {
+        return res.status(400).json({ error: "Session ID required" });
+      }
+
+      const tools = await JourneyToolsService.getJourneyTools(sessionId);
+      res.json({ tools });
+    } catch (error) {
+      console.error('Journey tools retrieval error:', error);
+      res.status(500).json({ error: "Failed to retrieve journey tools" });
+    }
+  });
+
+  // Update Compliance Checklist Progress with PostgreSQL persistence
+  app.patch("/api/journey-tools/compliance-checklist/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { completedItems, progressPercentage } = req.body;
+      
+      await db.execute(sql`
+        UPDATE compliance_checklists 
+        SET completed_items = ${JSON.stringify(completedItems)}, 
+            progress_percentage = ${progressPercentage},
+            updated_at = NOW()
+        WHERE id = ${parseInt(id)}
+      `);
+
+      res.json({ success: true, message: "Checklist progress updated" });
+    } catch (error) {
+      console.error('Checklist update error:', error);
+      res.status(500).json({ error: "Failed to update checklist progress" });
+    }
+  });
+
+  // Get Import Cost History for Analytics
+  app.get("/api/journey-tools/import-costs/:sessionId", async (req, res) => {
+    try {
+      const { sessionId } = req.params;
+      
+      const costs = await db.execute(sql`
+        SELECT * FROM import_cost_calculations 
+        WHERE session_id = ${sessionId}
+        ORDER BY created_at DESC
+      `);
+
+      res.json({ costs });
+    } catch (error) {
+      console.error('Import costs history error:', error);
+      res.status(500).json({ error: "Failed to retrieve import cost history" });
+    }
+  });
+
+  // Get Eligibility Check History
+  app.get("/api/journey-tools/eligibility-checks/:sessionId", async (req, res) => {
+    try {
+      const { sessionId } = req.params;
+      
+      const checks = await db.execute(sql`
+        SELECT * FROM vehicle_eligibility_checks 
+        WHERE session_id = ${sessionId}
+        ORDER BY created_at DESC
+      `);
+
+      res.json({ checks });
+    } catch (error) {
+      console.error('Eligibility checks history error:', error);
+      res.status(500).json({ error: "Failed to retrieve eligibility check history" });
+    }
+  });
+
+  // Get Shipping Estimates History
+  app.get("/api/journey-tools/shipping-estimates/:sessionId", async (req, res) => {
+    try {
+      const { sessionId } = req.params;
+      
+      const estimates = await db.execute(sql`
+        SELECT * FROM shipping_estimates 
+        WHERE session_id = ${sessionId}
+        ORDER BY created_at DESC
+      `);
+
+      res.json({ estimates });
+    } catch (error) {
+      console.error('Shipping estimates history error:', error);
+      res.status(500).json({ error: "Failed to retrieve shipping estimates history" });
+    }
+  });
+
+  // Journey Analytics - Get Tool Usage Statistics
+  app.get("/api/journey-tools/analytics", async (req, res) => {
+    try {
+      const analytics = await db.execute(sql`
+        SELECT 
+          tool_name,
+          COUNT(*) as usage_count,
+          AVG(CASE 
+            WHEN completion_status = 'completed' THEN 1 
+            ELSE 0 
+          END) as success_rate,
+          DATE_TRUNC('day', created_at) as usage_date
+        FROM vehicle_journey_tools 
+        WHERE created_at >= NOW() - INTERVAL '30 days'
+        GROUP BY tool_name, DATE_TRUNC('day', created_at)
+        ORDER BY usage_date DESC, usage_count DESC
+      `);
+
+      res.json({ analytics });
+    } catch (error) {
+      console.error('Journey analytics error:', error);
+      res.status(500).json({ error: "Failed to retrieve journey analytics" });
+    }
+  });
 
   return server;
 }
