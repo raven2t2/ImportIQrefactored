@@ -113,11 +113,11 @@ export default function VehicleEligibilityChecker() {
 
   const eligibilityMutation = useMutation({
     mutationFn: async (data: any): Promise<EligibilityResults> => {
-      const response = await apiRequest('/api/check-vehicle-eligibility', {
+      const response = await apiRequest('POST', '/api/check-vehicle-eligibility', {
         ...data,
         targetCountries: ['AU', 'US', 'UK', 'CA']
       });
-      return response;
+      return await response.json();
     },
     onSuccess: (data) => {
       setResults(data);
