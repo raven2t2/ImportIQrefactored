@@ -149,7 +149,22 @@ export class ComprehensiveDataSeeder {
     ];
 
     for (const rule of complianceRules) {
-      await db.insert(globalComplianceRules).values(rule).onConflictDoNothing();
+      await db.insert(globalComplianceRules).values({
+        country: rule.country,
+        region: rule.region,
+        ruleType: rule.ruleType,
+        vehicleCategory: rule.vehicleCategory,
+        minimumAgeYears: rule.minimumAgeYears,
+        maximumAgeYears: rule.maximumAgeYears,
+        emissionStandard: rule.emissionStandard,
+        safetyStandard: rule.safetyStandard,
+        specialRequirements: rule.specialRequirements,
+        exemptions: rule.exemptions,
+        complianceCost: rule.complianceCost,
+        processingTimeWeeks: rule.processingTimeWeeks,
+        effectiveDate: rule.effectiveDate,
+        sourceDocument: rule.sourceDocument
+      }).onConflictDoNothing();
     }
     
     console.log(`✅ Seeded ${complianceRules.length} compliance rules`);
