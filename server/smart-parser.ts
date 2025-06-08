@@ -797,6 +797,93 @@ class PostgreSQLSmartParser {
   }
 
   /**
+   * Intelligent fallback matching for common vehicle patterns not in database
+   */
+  private handleIntelligentFallback(query: string): any | null {
+    const normalizedQuery = query.toLowerCase().trim();
+    
+    // Common JDM patterns
+    const jdmPatterns = [
+      // Skyline patterns
+      { pattern: /r3[234]\s*skyline|skyline\s*r3[234]/, make: 'Nissan', model: 'Skyline GT-R', 
+        chassisCode: (m: string) => m.includes('r32') ? 'BNR32' : m.includes('r33') ? 'BCNR33' : 'BNR34',
+        yearStart: (m: string) => m.includes('r32') ? 1989 : m.includes('r33') ? 1995 : 1999,
+        yearEnd: (m: string) => m.includes('r32') ? 1994 : m.includes('r33') ? 1998 : 2002,
+        confidence: 95 },
+      
+      // Supra patterns  
+      { pattern: /supra|2jz/, make: 'Toyota', model: 'Supra', chassisCode: 'JZA80', 
+        yearStart: 1993, yearEnd: 2002, confidence: 92 },
+      
+      // RX-7 patterns
+      { pattern: /rx-?7|fd3s/, make: 'Mazda', model: 'RX-7', chassisCode: 'FD3S',
+        yearStart: 1992, yearEnd: 2002, confidence: 90 },
+      
+      // NSX patterns
+      { pattern: /nsx/, make: 'Honda', model: 'NSX', chassisCode: 'NA1',
+        yearStart: 1990, yearEnd: 2005, confidence: 88 },
+      
+      // Silvia patterns
+      { pattern: /s1[345]\s*silvia|silvia\s*s1[345]/, make: 'Nissan', model: 'Silvia',
+        chassisCode: (m: string) => m.includes('s13') ? 'PS13' : m.includes('s14') ? 'S14' : 'S15',
+        yearStart: (m: string) => m.includes('s13') ? 1988 : m.includes('s14') ? 1993 : 1999,
+        yearEnd: (m: string) => m.includes('s13') ? 1994 : m.includes('s14') ? 1998 : 2002,
+        confidence: 90 },
+        
+      // Lancer Evolution patterns
+      { pattern: /evo\s*(vi{1,3}|[6-9]|x)|lancer\s*evo/, make: 'Mitsubishi', model: 'Lancer Evolution',
+        chassisCode: 'CT9A', yearStart: 1992, yearEnd: 2016, confidence: 87 },
+        
+      // WRX STI patterns
+      { pattern: /wrx\s*sti|sti/, make: 'Subaru', model: 'Impreza WRX STI',
+        chassisCode: 'GC8', yearStart: 1992, yearEnd: 2019, confidence: 85 }
+    ];
+    
+    for (const jdmPattern of jdmPatterns) {
+      if (jdmPattern.pattern.test(normalizedQuery)) {
+        const match = normalizedQuery.match(jdmPattern.pattern);
+        if (match) {
+          return {
+            make: jdmPattern.make,
+            model: jdmPattern.model,
+            chassisCode: typeof jdmPattern.chassisCode === 'function' 
+              ? jdmPattern.chassisCode(normalizedQuery) 
+              : jdmPattern.chassisCode,
+            yearStart: typeof jdmPattern.yearStart === 'function'
+              ? jdmPattern.yearStart(normalizedQuery)
+              : jdmPattern.yearStart,
+            yearEnd: typeof jdmPattern.yearEnd === 'function'
+              ? jdmPattern.yearEnd(normalizedQuery)
+              : jdmPattern.yearEnd,
+            engine: this.getEngineForModel(jdmPattern.make, jdmPattern.model),
+            bodyType: 'coupe',
+            confidence: jdmPattern.confidence
+          };
+        }
+      }
+    }
+    
+    return null;
+  }
+  
+  /**
+   * Get typical engine for a make/model combination
+   */
+  private getEngineForModel(make: string, model: string): string {
+    const engineMap: Record<string, string> = {
+      'Nissan-Skyline GT-R': 'RB26DETT',
+      'Toyota-Supra': '2JZ-GTE',
+      'Mazda-RX-7': '13B-REW',
+      'Honda-NSX': 'C30A',
+      'Nissan-Silvia': 'SR20DET',
+      'Mitsubishi-Lancer Evolution': '4G63T',
+      'Subaru-Impreza WRX STI': 'EJ257'
+    };
+    
+    return engineMap[`${make}-${model}`] || 'Unknown';
+  }
+
+  /**
    * Log lookup request for audit trail and analytics
    */
   private async logLookupRequest(identifier: string, lookupType: string): Promise<void> {
@@ -821,17 +908,117 @@ class PostgreSQLSmartParser {
     const normalizedQuery = query.toLowerCase().trim();
     
     try {
-      // Query vehicle model patterns for intelligent matching
+      // Extract key terms for flexible matching
+      const queryTerms = normalizedQuery.split(/\s+/);
+      
+      // Build comprehensive pattern matching query
       const patterns = await db.select()
         .from(vehicleModelPatterns)
         .where(
           or(
+            // Exact match
             eq(vehicleModelPatterns.searchPattern, normalizedQuery),
-            like(vehicleModelPatterns.searchPattern, `%${normalizedQuery}%`)
+            // Query contains pattern
+            like(vehicleModelPatterns.searchPattern, `%${normalizedQuery}%`),
+            // Pattern contains query
+            ilike(vehicleModelPatterns.searchPattern, `%${normalizedQuery}%`),
+            // Reverse word order matching (r34 skyline -> skyline r34)
+            ...queryTerms.length >= 2 ? [
+              ilike(vehicleModelPatterns.searchPattern, `%${queryTerms.reverse().join(' ')}%`),
+              ilike(vehicleModelPatterns.searchPattern, `%${queryTerms.join('%')}%`)
+            ] : [],
+            // Individual term matching for partial hits
+            ...queryTerms.map(term => 
+              and(
+                ilike(vehicleModelPatterns.searchPattern, `%${term}%`),
+                or(
+                  ilike(vehicleModelPatterns.canonicalMake, `%${term}%`),
+                  ilike(vehicleModelPatterns.canonicalModel, `%${term}%`),
+                  ilike(vehicleModelPatterns.chassisCode, `%${term}%`)
+                )
+              )
+            )
           )
         )
         .orderBy(desc(vehicleModelPatterns.confidenceScore))
-        .limit(5);
+        .limit(10);
+
+      // If no patterns found, try intelligent fallback matching
+      if (patterns.length === 0) {
+        // Handle common variations that might not be in database
+        const fallbackMatch = this.handleIntelligentFallback(normalizedQuery);
+        if (fallbackMatch) {
+          // Add the successful fallback pattern to database for future use
+          try {
+            await db.insert(vehicleModelPatterns).values({
+              searchPattern: normalizedQuery,
+              canonicalMake: fallbackMatch.make,
+              canonicalModel: fallbackMatch.model,
+              chassisCode: fallbackMatch.chassisCode,
+              yearRangeStart: fallbackMatch.yearStart,
+              yearRangeEnd: fallbackMatch.yearEnd,
+              enginePattern: fallbackMatch.engine,
+              bodyType: fallbackMatch.bodyType,
+              specialNotes: 'Auto-generated from intelligent fallback',
+              confidenceScore: fallbackMatch.confidence,
+              sourceAttribution: 'Intelligent Pattern Recognition'
+            });
+          } catch (error) {
+            // Silent fail on database insert - don't break main functionality
+            console.error('Failed to persist fallback pattern:', error);
+          }
+          
+          return {
+            data: {
+              make: fallbackMatch.make,
+              model: fallbackMatch.model,
+              chassisCode: fallbackMatch.chassisCode,
+              productionYears: fallbackMatch.yearStart && fallbackMatch.yearEnd ? `${fallbackMatch.yearStart}-${fallbackMatch.yearEnd}` : 'Unknown'
+            },
+            confidenceScore: fallbackMatch.confidence,
+            sourceAttribution: 'Intelligent Pattern Recognition (Auto-generated)',
+            sourceBreakdown: [{
+              dataPoint: 'Vehicle Recognition',
+              source: 'Pattern Analysis Engine',
+              confidence: fallbackMatch.confidence,
+              lastVerified: new Date().toISOString().split('T')[0]
+            }],
+            whyThisResult: `Intelligent pattern recognition identified this as ${fallbackMatch.make} ${fallbackMatch.model} based on common naming conventions and automotive knowledge.`,
+            nextSteps: this.generateVehicleNextSteps(fallbackMatch.make, fallbackMatch.model, fallbackMatch.yearStart || 1990, 'japan'),
+            importRiskIndex: await this.calculateImportRiskIndex(fallbackMatch.make, fallbackMatch.model, fallbackMatch.yearStart || 1990),
+            strategicRecommendations: await this.getStrategicRecommendations(fallbackMatch.make, fallbackMatch.model, 'australia'),
+            disclaimer: "Result generated from intelligent pattern matching - verify details independently"
+          };
+        }
+        
+        // No intelligent match found
+        const fallbacks = await this.getFallbackSuggestions(normalizedQuery, 'vehicle');
+        return {
+          data: null,
+          confidenceScore: 0,
+          sourceAttribution: "No vehicle pattern recognition match",
+          sourceBreakdown: [],
+          whyThisResult: `Query "${query}" did not match any known vehicle patterns in our database. This could indicate: 1) Uncommon vehicle variant, 2) Typo in search terms, or 3) Vehicle not yet in our pattern database.`,
+          nextSteps: [
+            {
+              title: 'Try Alternative Search Terms',
+              description: 'Use official model names or chassis codes for better results',
+              priority: 'high',
+              category: 'search_optimization',
+              estimatedTime: '2 minutes'
+            },
+            {
+              title: 'Manual Vehicle Entry',
+              description: 'Enter make, model, and year separately for comprehensive lookup',
+              priority: 'medium',
+              category: 'alternative_lookup',
+              estimatedTime: '3 minutes'
+            }
+          ],
+          fallbackSuggestions: fallbacks,
+          disclaimer: "No matching vehicle patterns found in database"
+        };
+      }
 
       if (patterns.length > 0) {
         const bestMatch = patterns[0];
