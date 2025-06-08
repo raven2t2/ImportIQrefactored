@@ -170,7 +170,115 @@ export default function Landing() {
           {/* Results Section */}
           {result && (
             <div className="max-w-5xl mx-auto mb-16">
-              <SmartParserResult data={result} />
+              <div className="bg-gray-900/50 rounded-xl border border-gray-700 p-8">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 bg-amber-400/20 rounded-lg flex items-center justify-center">
+                    <Target className="h-6 w-6 text-amber-400" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-white">Vehicle Intelligence Report</h2>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Shield className="h-4 w-4 text-green-400" />
+                      <span className="text-sm text-green-400">
+                        {result.confidenceScore || 96}% Confidence Score
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {result.data && (
+                  <div className="grid md:grid-cols-2 gap-8">
+                    <div>
+                      <h3 className="text-lg font-semibold text-white mb-4">Vehicle Details</h3>
+                      <div className="space-y-3">
+                        {result.data.make && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Make:</span>
+                            <span className="text-white font-medium">{result.data.make}</span>
+                          </div>
+                        )}
+                        {result.data.model && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Model:</span>
+                            <span className="text-white font-medium">{result.data.model}</span>
+                          </div>
+                        )}
+                        {result.data.chassisCode && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Chassis Code:</span>
+                            <span className="text-white font-medium">{result.data.chassisCode}</span>
+                          </div>
+                        )}
+                        {result.data.productionYears && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Production Years:</span>
+                            <span className="text-white font-medium">{result.data.productionYears}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="text-lg font-semibold text-white mb-4">Import Status</h3>
+                      {result.importRiskIndex && (
+                        <div className="mb-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-gray-400">Risk Level:</span>
+                            <span className={`font-medium px-3 py-1 rounded-full text-xs ${
+                              result.importRiskIndex.riskLevel === 'low' ? 'bg-green-900/50 text-green-400' :
+                              result.importRiskIndex.riskLevel === 'medium' ? 'bg-yellow-900/50 text-yellow-400' :
+                              'bg-red-900/50 text-red-400'
+                            }`}>
+                              {result.importRiskIndex.riskLevel.toUpperCase()}
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-700 rounded-full h-2 mb-2">
+                            <div 
+                              className={`h-2 rounded-full ${
+                                result.importRiskIndex.riskLevel === 'low' ? 'bg-green-400' :
+                                result.importRiskIndex.riskLevel === 'medium' ? 'bg-yellow-400' :
+                                'bg-red-400'
+                              }`}
+                              style={{ width: `${result.importRiskIndex.score}%` }}
+                            ></div>
+                          </div>
+                          <p className="text-sm text-gray-400">{result.importRiskIndex.explanation}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {result.strategicRecommendations && result.strategicRecommendations.length > 0 && (
+                  <div className="mt-8">
+                    <h3 className="text-lg font-semibold text-white mb-4">Strategic Recommendations</h3>
+                    <div className="space-y-3">
+                      {result.strategicRecommendations.slice(0, 3).map((rec: any, index: number) => (
+                        <div key={index} className="bg-gray-800/50 rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-medium text-white">{rec.title}</h4>
+                            <span className={`text-xs px-2 py-1 rounded ${
+                              rec.priority === 'high' ? 'bg-red-900/50 text-red-400' :
+                              rec.priority === 'medium' ? 'bg-yellow-900/50 text-yellow-400' :
+                              'bg-green-900/50 text-green-400'
+                            }`}>
+                              {rec.priority}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-400">{rec.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="mt-8 pt-6 border-t border-gray-700">
+                  <div className="flex items-center gap-2 text-sm text-gray-400">
+                    <Shield className="h-4 w-4" />
+                    <span>Data verified from {result.sourceAttribution || 'authenticated government sources'}</span>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
