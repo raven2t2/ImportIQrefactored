@@ -226,27 +226,56 @@ async function extractFromVIN(vin: string): Promise<ExtractedVehicleData> {
 }
 
 /**
- * Extract vehicle data from auction/listing URLs
+ * Extract vehicle data from auction/listing URLs with global support
  */
 async function extractFromURL(url: string): Promise<ExtractedVehicleData> {
   try {
-    // Determine site type and use appropriate parser
-    if (url.includes('copart.com')) {
-      return await parseCopartURL(url);
-    } else if (url.includes('iaai.com') || url.includes('iaai-auction.com')) {
-      return await parseIAAIURL(url);
-    } else if (url.includes('yahoo.co.jp') || url.includes('auctions.yahoo.co.jp')) {
-      return await parseYahooAuctionURL(url);
-    } else if (url.includes('goo-net.com')) {
+    // Global site detection and parsing
+    const hostname = new URL(url).hostname.toLowerCase();
+    
+    // Japanese sites
+    if (hostname.includes('goo-net') || hostname.includes('goo-net-exchange')) {
       return await parseGooNetURL(url);
-    } else if (url.includes('carsensor.net')) {
+    } else if (hostname.includes('yahoo.co.jp') || hostname.includes('auctions.yahoo')) {
+      return await parseYahooAuctionURL(url);
+    } else if (hostname.includes('carsensor.net')) {
       return await parseCarSensorURL(url);
-    } else if (url.includes('autotrader.com')) {
+    } 
+    // US sites
+    else if (hostname.includes('copart.com')) {
+      return await parseCopartURL(url);
+    } else if (hostname.includes('iaai.com') || hostname.includes('iaai-auction.com')) {
+      return await parseIAAIURL(url);
+    } else if (hostname.includes('autotrader.com')) {
       return await parseAutoTraderURL(url);
-    } else if (url.includes('cars.com')) {
+    } else if (hostname.includes('cars.com')) {
       return await parseCarsComURL(url);
+    }
+    // UK sites
+    else if (hostname.includes('autotrader.co.uk')) {
+      return await parseAutoTraderUKURL(url);
+    } else if (hostname.includes('pistonheads.com')) {
+      return await parsePistonHeadsURL(url);
+    }
+    // European sites
+    else if (hostname.includes('mobile.de')) {
+      return await parseMobileDeURL(url);
+    } else if (hostname.includes('autoscout24')) {
+      return await parseAutoScout24URL(url);
+    }
+    // Canadian sites
+    else if (hostname.includes('autotrader.ca')) {
+      return await parseAutoTraderCAURL(url);
+    } else if (hostname.includes('kijiji.ca')) {
+      return await parseKijijiURL(url);
+    }
+    // Australian sites
+    else if (hostname.includes('carsales.com.au')) {
+      return await parseCarsalesURL(url);
+    } else if (hostname.includes('gumtree.com.au')) {
+      return await parseGumtreeURL(url);
     } else {
-      // Try generic parsing
+      // Try universal pattern extraction
       return await parseGenericURL(url);
     }
   } catch (error) {
@@ -1009,7 +1038,39 @@ async function parseCarsComURL(url: string): Promise<ExtractedVehicleData> {
 }
 
 async function parseCarSensorURL(url: string): Promise<ExtractedVehicleData> {
-  // Implementation for CarSensor parsing
+  return extractFromURLPattern(url);
+}
+
+// Global URL parsers for international markets
+async function parseAutoTraderUKURL(url: string): Promise<ExtractedVehicleData> {
+  return extractFromURLPattern(url);
+}
+
+async function parsePistonHeadsURL(url: string): Promise<ExtractedVehicleData> {
+  return extractFromURLPattern(url);
+}
+
+async function parseMobileDeURL(url: string): Promise<ExtractedVehicleData> {
+  return extractFromURLPattern(url);
+}
+
+async function parseAutoScout24URL(url: string): Promise<ExtractedVehicleData> {
+  return extractFromURLPattern(url);
+}
+
+async function parseAutoTraderCAURL(url: string): Promise<ExtractedVehicleData> {
+  return extractFromURLPattern(url);
+}
+
+async function parseKijijiURL(url: string): Promise<ExtractedVehicleData> {
+  return extractFromURLPattern(url);
+}
+
+async function parseCarsalesURL(url: string): Promise<ExtractedVehicleData> {
+  return extractFromURLPattern(url);
+}
+
+async function parseGumtreeURL(url: string): Promise<ExtractedVehicleData> {
   return extractFromURLPattern(url);
 }
 
