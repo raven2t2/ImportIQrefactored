@@ -357,6 +357,55 @@ export function DynamicResultsRenderer({ results, recommendations, vehicleInfo }
                         </ul>
                       </div>
 
+                      {/* Modification Compliance */}
+                      {result.modificationCompliance && result.modificationCompliance.length > 0 && (
+                        <div>
+                          <h4 className="font-medium mb-2 flex items-center gap-2">
+                            <Settings className="h-4 w-4" />
+                            Modification Feasibility
+                          </h4>
+                          <div className="space-y-2">
+                            {result.modificationCompliance.map((mod: any, index: number) => (
+                              <div key={index} className="p-2 bg-gray-50 rounded border text-xs">
+                                <div className="flex items-center justify-between mb-1">
+                                  <span className="font-medium">{mod.modification}</span>
+                                  <div className="flex gap-1">
+                                    <Badge 
+                                      variant="outline" 
+                                      className={`text-xs ${
+                                        mod.feasibility === 'Legal' ? 'bg-green-100 text-green-800' :
+                                        mod.feasibility === 'Restricted' ? 'bg-yellow-100 text-yellow-800' :
+                                        mod.feasibility === 'Requires Certification' ? 'bg-orange-100 text-orange-800' :
+                                        'bg-red-100 text-red-800'
+                                      }`}
+                                    >
+                                      {mod.feasibility}
+                                    </Badge>
+                                    <Badge 
+                                      variant="outline" 
+                                      className={`text-xs ${getComplexityColor(mod.difficulty)}`}
+                                    >
+                                      {mod.difficulty}
+                                    </Badge>
+                                  </div>
+                                </div>
+                                <div className="text-gray-600 mb-1">{mod.notes}</div>
+                                {mod.costs.total > 0 && (
+                                  <div className="flex justify-between">
+                                    <span>Est. Cost:</span>
+                                    <span className="font-medium">{formatCurrency(mod.costs.total, result.country)}</span>
+                                  </div>
+                                )}
+                                <div className="flex justify-between">
+                                  <span>Timeline:</span>
+                                  <span>{mod.timeline}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
                       {/* Next Steps */}
                       <div>
                         <h4 className="font-medium mb-2">Next Steps</h4>
