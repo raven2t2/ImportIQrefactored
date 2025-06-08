@@ -5,6 +5,11 @@
  */
 
 import * as cheerio from 'cheerio';
+import OpenAI from 'openai';
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
 
 export interface ExtractedVehicleData {
   make: string;
@@ -38,13 +43,39 @@ export async function extractVehicleData(input: {
     return await extractFromVIN(input.vin);
   }
   
-  // URL parsing second priority
+  // URL parsing with AI enhancement
   if (input.url) {
-    return await extractFromURL(input.url);
+    try {
+      const urlData = await extractFromURL(input.url);
+      
+      // If extraction confidence is low, enhance with AI
+      if (urlData.confidence < 80) {
+        const enhancedData = await enhanceExtractionWithAI(input.url, urlData);
+        if (enhancedData && enhancedData.confidence > urlData.confidence) {
+          return enhancedData;
+        }
+      }
+      
+      return urlData;
+    } catch (error) {
+      // Fallback to AI analysis for complex URLs
+      const aiData = await enhanceExtractionWithAI(input.url);
+      if (aiData && aiData.confidence > 60) {
+        return aiData;
+      }
+      throw error;
+    }
   }
   
-  // Manual input as fallback
+  // Manual input with validation
   if (input.make && input.model && input.year) {
+    const currentYear = new Date().getFullYear();
+    
+    // Validate year is reasonable
+    if (input.year > currentYear + 1 || input.year < 1900) {
+      throw new Error(`Invalid vehicle year: ${input.year}. Please verify the vehicle information.`);
+    }
+    
     return {
       make: normalizeCarMake(input.make),
       model: normalizeCarModel(input.model),
@@ -55,7 +86,112 @@ export async function extractVehicleData(input: {
     };
   }
   
-  throw new Error('Insufficient vehicle information provided');
+  throw new Error('Insufficient vehicle information provided. Please provide a valid URL, VIN, or complete vehicle details.');
+}
+
+/**
+ * Enhanced vehicle data extraction using OpenAI for complex URLs and descriptions
+ */
+async function enhanceExtractionWithAI(url: string, existingData?: ExtractedVehicleData): Promise<ExtractedVehicleData | null> {
+  try {
+    if (!process.env.OPENAI_API_KEY) {
+      console.log('OpenAI API key not available, skipping AI enhancement');
+      return null;
+    }
+
+    const prompt = `
+Analyze this vehicle listing URL and extract accurate vehicle information:
+
+URL: ${url}
+
+${existingData ? `
+Current extraction attempt found:
+- Make: ${existingData.make}
+- Model: ${existingData.model} 
+- Year: ${existingData.year}
+- Confidence: ${existingData.confidence}%
+
+Please verify and improve this information.` : ''}
+
+Extract the following vehicle details with high accuracy:
+1. Make (Toyota, Honda, Nissan, etc.)
+2. Model (Skyline, Supra, etc.)
+3. Year (must be between 1980-${new Date().getFullYear() + 1})
+4. Any additional details like trim, engine, transmission
+
+Respond ONLY with a JSON object in this exact format:
+{
+  "make": "exact_make_name",
+  "model": "exact_model_name", 
+  "year": actual_numeric_year,
+  "trim": "trim_if_available",
+  "engine": "engine_if_available",
+  "transmission": "transmission_if_available",
+  "confidence": confidence_score_0_to_100
+}
+
+If you cannot determine accurate information, return confidence below 50.
+If the year seems incorrect or impossible, set confidence to 0.
+`;
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [
+        {
+          role: "system",
+          content: "You are an expert automotive data analyst. Extract vehicle information with extreme accuracy. Never guess - only provide information you're confident about."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      temperature: 0.1,
+      max_tokens: 500
+    });
+
+    const aiResponse = response.choices[0]?.message?.content;
+    if (!aiResponse) {
+      return null;
+    }
+
+    // Parse AI response
+    const vehicleData = JSON.parse(aiResponse);
+    
+    // Validate response structure
+    if (!vehicleData.make || !vehicleData.model || !vehicleData.year || !vehicleData.confidence) {
+      console.log('AI response missing required fields');
+      return null;
+    }
+
+    // Validate year range
+    const currentYear = new Date().getFullYear();
+    if (vehicleData.year > currentYear + 1 || vehicleData.year < 1980) {
+      console.log(`AI provided invalid year: ${vehicleData.year}`);
+      vehicleData.confidence = 0;
+    }
+
+    // Only return if confidence is reasonable
+    if (vehicleData.confidence < 50) {
+      return null;
+    }
+
+    return {
+      make: normalizeCarMake(vehicleData.make),
+      model: normalizeCarModel(vehicleData.model),
+      year: vehicleData.year,
+      trim: vehicleData.trim,
+      engine: vehicleData.engine,
+      transmission: vehicleData.transmission,
+      source: 'ai_enhanced',
+      confidence: Math.min(vehicleData.confidence, 90), // Cap AI confidence at 90%
+      extractionMethod: 'url_parsing'
+    };
+
+  } catch (error) {
+    console.error('OpenAI enhancement failed:', error);
+    return null;
+  }
 }
 
 /**
