@@ -114,11 +114,8 @@ export default function VehicleEligibilityChecker() {
   const eligibilityMutation = useMutation({
     mutationFn: async (data: any): Promise<EligibilityResults> => {
       const response = await apiRequest('/api/check-vehicle-eligibility', {
-        method: 'POST',
-        body: JSON.stringify({
-          ...data,
-          targetCountries: ['AU', 'US', 'UK', 'CA']
-        })
+        ...data,
+        targetCountries: ['AU', 'US', 'UK', 'CA']
       });
       return response;
     },
@@ -326,7 +323,7 @@ export default function VehicleEligibilityChecker() {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && inputValue && handleNext()}
-                className="text-lg"
+                className="text-lg text-white bg-gray-800 border-gray-600 placeholder-gray-400"
               />
               <div className="flex flex-wrap gap-2">
                 {conversation.suggestions.map((suggestion, index) => (
@@ -366,7 +363,7 @@ export default function VehicleEligibilityChecker() {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && inputValue && handleNext()}
-                className="text-lg"
+                className="text-lg text-white bg-gray-800 border-gray-600 placeholder-gray-400"
               />
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                 {conversation.suggestions.map((suggestion, index) => (
@@ -397,7 +394,7 @@ export default function VehicleEligibilityChecker() {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && inputValue && handleNext()}
-                className="text-lg"
+                className="text-lg text-white bg-gray-800 border-gray-600 placeholder-gray-400"
               />
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                 {conversation.suggestions.map((suggestion, index) => (
@@ -428,7 +425,7 @@ export default function VehicleEligibilityChecker() {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && inputValue && handleNext()}
-                className="text-lg"
+                className="text-lg text-white bg-gray-800 border-gray-600 placeholder-gray-400"
                 type="number"
               />
               <div className="flex flex-wrap gap-2">
@@ -460,7 +457,7 @@ export default function VehicleEligibilityChecker() {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && inputValue && handleNext()}
-                className="text-lg"
+                className="text-lg text-white bg-gray-800 border-gray-600 placeholder-gray-400"
               />
               <div className="grid grid-cols-2 gap-2">
                 {conversation.suggestions.map((suggestion, index) => (
