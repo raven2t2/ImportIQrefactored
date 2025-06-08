@@ -510,6 +510,7 @@ export async function checkCountryEligibility(vehicleData: any, countryCode: str
 
       case 'UK':
         const { UK_REGIONAL_REGULATIONS } = await import('./uk-regional-regulations');
+        const { getModificationCompliance: getUKModCompliance } = await import('./global-modification-compliance');
         regulations = UK_REGIONAL_REGULATIONS['england'] || {};
         eligible = vehicleData.year >= 2001;
         costs = {
@@ -519,10 +520,20 @@ export async function checkCountryEligibility(vehicleData: any, countryCode: str
           total: 1656 + (vehicleData.estimatedValue * 0.2 || 10000)
         };
         requirements = ['IVA Test', 'DVLA Registration', 'MOT Certificate'];
+        
+        // Add modification compliance analysis for popular modifications
+        if (vehicleData.technicalSpecs?.popularModifications) {
+          modificationCompliance = getUKModCompliance(
+            vehicleData.technicalSpecs.popularModifications,
+            'UK',
+            'england'
+          );
+        }
         break;
 
       case 'DE':
         const { GERMAN_REGIONAL_REGULATIONS } = await import('./german-regional-regulations');
+        const { getModificationCompliance: getDEModCompliance } = await import('./global-modification-compliance');
         regulations = GERMAN_REGIONAL_REGULATIONS['bayern'] || {};
         eligible = true;
         costs = {
@@ -532,10 +543,20 @@ export async function checkCountryEligibility(vehicleData: any, countryCode: str
           total: 945 + (vehicleData.estimatedValue * 0.19 || 9500)
         };
         requirements = ['TÜV Inspection', 'German Registration', 'Insurance'];
+        
+        // Add modification compliance analysis for popular modifications
+        if (vehicleData.technicalSpecs?.popularModifications) {
+          modificationCompliance = getDEModCompliance(
+            vehicleData.technicalSpecs.popularModifications,
+            'DE',
+            'bayern'
+          );
+        }
         break;
 
       case 'US':
         const { US_STATE_REGULATIONS } = await import('./us-state-regulations');
+        const { getModificationCompliance: getUSModCompliance } = await import('./global-modification-compliance');
         regulations = US_STATE_REGULATIONS['CA'] || {};
         eligible = vehicleData.estimatedAge >= 25;
         costs = {
@@ -546,10 +567,20 @@ export async function checkCountryEligibility(vehicleData: any, countryCode: str
         };
         requirements = eligible ? ['HS-7 Form', 'EPA 3520-1'] : ['DOT Approval', 'EPA Compliance', 'NHTSA Approval'];
         timeline = eligible ? '2-4 weeks' : '6-12 months';
+        
+        // Add modification compliance analysis for popular modifications
+        if (vehicleData.technicalSpecs?.popularModifications) {
+          modificationCompliance = getUSModCompliance(
+            vehicleData.technicalSpecs.popularModifications,
+            'US',
+            'CA'
+          );
+        }
         break;
 
       case 'CA':
         const { CANADIAN_PROVINCIAL_REGULATIONS } = await import('./canadian-provincial-regulations');
+        const { getModificationCompliance: getCAModCompliance } = await import('./global-modification-compliance');
         regulations = CANADIAN_PROVINCIAL_REGULATIONS['ON'] || {};
         eligible = vehicleData.estimatedAge >= 15;
         costs = {
@@ -559,6 +590,15 @@ export async function checkCountryEligibility(vehicleData: any, countryCode: str
           total: 2101
         };
         requirements = ['RIV Inspection', 'Provincial Safety', 'Provincial Registration'];
+        
+        // Add modification compliance analysis for popular modifications
+        if (vehicleData.technicalSpecs?.popularModifications) {
+          modificationCompliance = getCAModCompliance(
+            vehicleData.technicalSpecs.popularModifications,
+            'CA',
+            'ON'
+          );
+        }
         break;
 
       case 'NZ':
@@ -593,6 +633,7 @@ export async function checkCountryEligibility(vehicleData: any, countryCode: str
       website: regulations.website || '#',
       complexity: regulations.difficultyLevel || regulations.complexity || 'Moderate'
     },
+    modificationCompliance,
     nextSteps: eligible ? 
       [`Get ${countryCode} import quote`, `Find compliance workshop`, `Prepare documentation`] :
       [`Check alternative markets`, `Wait for eligibility date`, `Consider modification options`]
