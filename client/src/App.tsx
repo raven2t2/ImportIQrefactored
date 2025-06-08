@@ -56,7 +56,7 @@ import WebhookIntegration from "@/pages/webhook-integration";
 import LiveMarketData from "@/pages/live-market-data";
 import ImportVolumeDashboard from "@/pages/import-volume-dashboard";
 import ImportFlow from "@/pages/import-flow";
-import ProfessionalImportFlow from "@/pages/professional-import-flow";
+
 
 import NotFound from "@/pages/not-found";
 
@@ -121,7 +121,6 @@ function Router() {
       <Route path="/us-market-intelligence" component={USMarketIntelligence} />
       <Route path="/live-market-data" component={LiveMarketData} />
       <Route path="/import-flow" component={ImportFlow} />
-      <Route path="/professional-import" component={ProfessionalImportFlow} />
       <Route component={NotFound} />
     </Switch>
   );
