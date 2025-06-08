@@ -816,17 +816,19 @@ class PostgreSQLSmartParser {
     
     try {
       // Query vehicle model patterns for intelligent matching
-      const patterns = await db.execute(
-        `SELECT * FROM vehicle_model_patterns 
-         WHERE LOWER(search_pattern) = LOWER($1) 
-         OR LOWER($2) LIKE '%' || LOWER(search_pattern) || '%'
-         ORDER BY confidence_score DESC, LENGTH(search_pattern) DESC
-         LIMIT 5`,
-        [normalizedQuery, normalizedQuery]
-      );
+      const patterns = await db.select()
+        .from(vehicleModelPatterns)
+        .where(
+          or(
+            eq(vehicleModelPatterns.searchPattern, normalizedQuery),
+            like(vehicleModelPatterns.searchPattern, `%${normalizedQuery}%`)
+          )
+        )
+        .orderBy(desc(vehicleModelPatterns.confidenceScore))
+        .limit(5);
 
-      if (patterns.rows.length > 0) {
-        const bestMatch = patterns.rows[0] as any;
+      if (patterns.length > 0) {
+        const bestMatch = patterns[0];
         
         const sourceBreakdown: SourceBreakdown[] = [
           {
