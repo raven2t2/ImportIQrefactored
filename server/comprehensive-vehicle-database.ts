@@ -248,7 +248,26 @@ export class ComprehensiveVehicleDatabase {
     ];
 
     for (const vehicle of jdmIcons) {
-      await db.insert(vehicleSpecifications).values(vehicle);
+      // Map comprehensive vehicle data to PostgreSQL schema
+      const mappedVehicle = {
+        make: vehicle.make,
+        model: vehicle.model,
+        year: vehicle.year,
+        chassis: vehicle.chassis,
+        engine: vehicle.engine,
+        displacement: vehicle.displacement?.toString(),
+        transmission: vehicle.transmission,
+        driveType: vehicle.drivetrain,
+        fuelType: vehicle.fuelType,
+        bodyStyle: vehicle.bodyType,
+        doors: vehicle.doors,
+        power: vehicle.power,
+        torque: vehicle.torque,
+        specialNotes: `${vehicle.notes} | Category: ${vehicle.category} | Market Value: $${vehicle.marketValue} | Rarity: ${vehicle.rarityScore}/100 | Mod Potential: ${vehicle.modificationPotential} | Import Status: ${vehicle.importEligibility}`,
+        isVerified: vehicle.isVerified
+      };
+      
+      await db.insert(vehicleSpecifications).values(mappedVehicle).onConflictDoNothing();
     }
     
     console.log(`✅ Seeded ${jdmIcons.length} JDM Performance Icons`);
@@ -338,7 +357,26 @@ export class ComprehensiveVehicleDatabase {
     ];
 
     for (const vehicle of americanMuscle) {
-      await db.insert(vehicleSpecifications).values(vehicle);
+      // Map comprehensive vehicle data to PostgreSQL schema
+      const mappedVehicle = {
+        make: vehicle.make,
+        model: vehicle.model,
+        year: vehicle.year,
+        chassis: vehicle.chassis,
+        engine: vehicle.engine,
+        displacement: vehicle.displacement?.toString(),
+        transmission: vehicle.transmission,
+        driveType: vehicle.drivetrain,
+        fuelType: vehicle.fuelType,
+        bodyStyle: vehicle.bodyType,
+        doors: vehicle.doors,
+        power: vehicle.power,
+        torque: vehicle.torque,
+        specialNotes: `${vehicle.notes} | Category: ${vehicle.category} | Market Value: $${vehicle.marketValue} | Rarity: ${vehicle.rarityScore}/100 | Mod Potential: ${vehicle.modificationPotential} | Import Status: ${vehicle.importEligibility}`,
+        isVerified: vehicle.isVerified
+      };
+      
+      await db.insert(vehicleSpecifications).values(mappedVehicle).onConflictDoNothing();
     }
     
     console.log(`✅ Seeded ${americanMuscle.length} American Muscle Cars`);
@@ -453,7 +491,26 @@ export class ComprehensiveVehicleDatabase {
     ];
 
     for (const vehicle of europeanPerformance) {
-      await db.insert(vehicleSpecifications).values(vehicle);
+      // Map comprehensive vehicle data to PostgreSQL schema
+      const mappedVehicle = {
+        make: vehicle.make,
+        model: vehicle.model,
+        year: vehicle.year,
+        chassis: vehicle.chassis,
+        engine: vehicle.engine,
+        displacement: vehicle.displacement?.toString(),
+        transmission: vehicle.transmission,
+        driveType: vehicle.drivetrain,
+        fuelType: vehicle.fuelType,
+        bodyStyle: vehicle.bodyType,
+        doors: vehicle.doors,
+        power: vehicle.power,
+        torque: vehicle.torque,
+        specialNotes: `${vehicle.notes} | Category: ${vehicle.category} | Market Value: $${vehicle.marketValue} | Rarity: ${vehicle.rarityScore}/100 | Mod Potential: ${vehicle.modificationPotential} | Import Status: ${vehicle.importEligibility}`,
+        isVerified: vehicle.isVerified
+      };
+      
+      await db.insert(vehicleSpecifications).values(mappedVehicle).onConflictDoNothing();
     }
     
     console.log(`✅ Seeded ${europeanPerformance.length} European Performance Vehicles`);
@@ -539,7 +596,26 @@ export class ComprehensiveVehicleDatabase {
     ];
 
     for (const vehicle of chassisCodes) {
-      await db.insert(vehicleSpecifications).values(vehicle);
+      // Map comprehensive vehicle data to PostgreSQL schema
+      const mappedVehicle = {
+        make: vehicle.make,
+        model: vehicle.model,
+        year: vehicle.year,
+        chassis: vehicle.chassis,
+        engine: vehicle.engine,
+        displacement: vehicle.displacement?.toString(),
+        transmission: vehicle.transmission,
+        driveType: vehicle.drivetrain,
+        fuelType: vehicle.fuelType,
+        bodyStyle: vehicle.bodyType,
+        doors: vehicle.doors,
+        power: vehicle.power,
+        torque: vehicle.torque,
+        specialNotes: `${vehicle.notes} | Category: ${vehicle.category} | Market Value: $${vehicle.marketValue} | Rarity: ${vehicle.rarityScore}/100 | Mod Potential: ${vehicle.modificationPotential} | Import Status: ${vehicle.importEligibility}`,
+        isVerified: vehicle.isVerified
+      };
+      
+      await db.insert(vehicleSpecifications).values(mappedVehicle).onConflictDoNothing();
     }
     
     console.log(`✅ Seeded ${chassisCodes.length} Global Chassis Codes`);
