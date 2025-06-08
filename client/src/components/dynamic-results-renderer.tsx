@@ -134,35 +134,7 @@ export function DynamicResultsRenderer({ results, recommendations, vehicleInfo }
 
   return (
     <div className="space-y-6">
-      {/* Vehicle Summary */}
-      {vehicleInfo && (
-        <Card className="border-2 border-blue-200 bg-blue-50">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <MapPin className="h-5 w-5 text-blue-600" />
-              <span className="font-semibold">Vehicle Analysis Complete</span>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              <div>
-                <span className="text-gray-600">Make:</span>
-                <span className="ml-2 font-medium">{vehicleInfo.make || 'Detected'}</span>
-              </div>
-              <div>
-                <span className="text-gray-600">Model:</span>
-                <span className="ml-2 font-medium">{vehicleInfo.model || 'Various'}</span>
-              </div>
-              <div>
-                <span className="text-gray-600">Year:</span>
-                <span className="ml-2 font-medium">{vehicleInfo.year || 'Estimated'}</span>
-              </div>
-              <div>
-                <span className="text-gray-600">Origin:</span>
-                <span className="ml-2 font-medium">{vehicleInfo.origin || 'Multiple'}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+
 
       {/* Engine & Technical Specifications */}
       {vehicleInfo?.technicalSpecs && (

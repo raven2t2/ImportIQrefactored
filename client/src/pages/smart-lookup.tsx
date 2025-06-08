@@ -73,7 +73,8 @@ export function SmartLookupPage() {
       estimatedAge: (parsed.year || parsed.detectedInfo?.year) ? new Date().getFullYear() - (parsed.year || parsed.detectedInfo?.year) : 25,
       estimatedValue: 50000, // Default for calculation
       inputType: parsed.type,
-      confidence: parsed.confidence
+      confidence: parsed.confidence,
+      technicalSpecs: parsed.technicalSpecs
     };
 
     // Determine target countries based on intent and origin

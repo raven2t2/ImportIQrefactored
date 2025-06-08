@@ -17,6 +17,28 @@ interface ParsedInput {
     platform?: string;
   };
   intent: 'eligibility' | 'cost' | 'compliance' | 'general';
+  technicalSpecs?: {
+    name?: string;
+    years?: string;
+    engine?: {
+      code?: string;
+      type?: string;
+      displacement?: string;
+      power?: string;
+      torque?: string;
+      compression?: string;
+    };
+    drivetrain?: string;
+    transmission?: string;
+    modifications?: {
+      potential?: string;
+      popular?: string[];
+      powerPotential?: string;
+      difficulty?: string;
+      notes?: string;
+    };
+    analysisType?: string;
+  };
 }
 
 interface SmartInputParserProps {
@@ -61,7 +83,8 @@ export function SmartInputParser({ onInputParsed, placeholder = "Paste VIN, auct
             year: enhanced.data.year || result.detectedInfo?.year,
             origin: enhanced.data.origin || result.detectedInfo?.origin,
             platform: result.detectedInfo?.platform
-          }
+          },
+          technicalSpecs: enhanced.data.technicalSpecs
         };
         onInputParsed(finalParsed);
       } else {
