@@ -222,8 +222,19 @@ class PostgreSQLSmartParser {
       return {
         data: null,
         confidenceScore: 0,
-        sourceAttribution: "Database query error",
-        disclaimer: "System error during VIN lookup"
+        sourceAttribution: "Database system error",
+        sourceBreakdown: [],
+        whyThisResult: 'Technical error occurred during VIN lookup. Database connectivity or query processing issue.',
+        nextSteps: [
+          {
+            title: 'Retry Lookup',
+            description: 'Try the VIN lookup again in a few moments',
+            priority: 'high',
+            category: 'system',
+            estimatedTime: '1 minute'
+          }
+        ],
+        disclaimer: "System error prevented VIN lookup completion"
       };
     }
   }
@@ -620,6 +631,134 @@ class PostgreSQLSmartParser {
     } catch (error) {
       // Silent fail for logging - don't break main functionality
       console.error('Lookup logging error:', error);
+    }
+  }
+
+  /**
+   * Intelligent vehicle lookup using pattern recognition for natural language queries
+   */
+  async intelligentVehicleLookup(query: string): Promise<SmartParserResponse> {
+    const normalizedQuery = query.toLowerCase().trim();
+    
+    try {
+      // Query vehicle model patterns for intelligent matching
+      const patterns = await db.execute(
+        `SELECT * FROM vehicle_model_patterns 
+         WHERE LOWER(search_pattern) = LOWER($1) 
+         OR LOWER($2) LIKE '%' || LOWER(search_pattern) || '%'
+         ORDER BY confidence_score DESC, LENGTH(search_pattern) DESC
+         LIMIT 5`,
+        [normalizedQuery, normalizedQuery]
+      );
+
+      if (patterns.rows.length > 0) {
+        const bestMatch = patterns.rows[0] as any;
+        
+        const sourceBreakdown: SourceBreakdown[] = [
+          {
+            dataPoint: 'Vehicle Pattern Recognition',
+            source: bestMatch.source_attribution,
+            confidence: bestMatch.confidence_score,
+            lastVerified: new Date().toISOString().split('T')[0]
+          }
+        ];
+
+        // Generate contextual next steps based on the matched vehicle
+        const nextSteps = this.generateVehicleNextSteps(
+          bestMatch.canonical_make, 
+          bestMatch.canonical_model, 
+          bestMatch.year_range_start, 
+          'japan' // Most pattern matches are JDM
+        );
+
+        // Add year range guidance if query contains partial year
+        const yearMatch = query.match(/\d{2,4}/);
+        if (yearMatch) {
+          const inputYear = parseInt(yearMatch[0]);
+          const fullYear = inputYear < 50 ? 2000 + inputYear : inputYear < 100 ? 1900 + inputYear : inputYear;
+          
+          if (fullYear >= bestMatch.year_range_start && fullYear <= bestMatch.year_range_end) {
+            nextSteps.unshift({
+              title: `${fullYear} Model Year Confirmed`,
+              description: `This year falls within the ${bestMatch.canonical_make} ${bestMatch.canonical_model} production range`,
+              priority: 'high',
+              category: 'year_validation',
+              estimatedTime: '1 minute'
+            });
+          } else {
+            nextSteps.unshift({
+              title: 'Year Range Mismatch',
+              description: `${fullYear} is outside the production range (${bestMatch.year_range_start}-${bestMatch.year_range_end}). Verify model year.`,
+              priority: 'high',
+              category: 'year_validation',
+              estimatedTime: '5 minutes'
+            });
+          }
+        }
+
+        return {
+          data: {
+            make: bestMatch.canonical_make,
+            model: bestMatch.canonical_model,
+            chassisCode: bestMatch.chassis_code,
+            yearRange: `${bestMatch.year_range_start}-${bestMatch.year_range_end}`,
+            engine: bestMatch.engine_pattern,
+            bodyType: bestMatch.body_type,
+            specialNotes: bestMatch.special_notes
+          },
+          confidenceScore: bestMatch.confidence_score,
+          sourceAttribution: bestMatch.source_attribution,
+          sourceBreakdown,
+          whyThisResult: `Pattern "${normalizedQuery}" matched ${bestMatch.canonical_make} ${bestMatch.canonical_model} with ${bestMatch.confidence_score}% confidence. This vehicle is recognized in our enthusiast database with chassis code ${bestMatch.chassis_code}.`,
+          nextSteps
+        };
+      }
+
+      // No pattern match found
+      return {
+        data: null,
+        confidenceScore: 0,
+        sourceAttribution: "No vehicle pattern recognition match",
+        sourceBreakdown: [],
+        whyThisResult: `Query "${query}" did not match any known vehicle patterns. Try using specific make/model names or common enthusiast terminology.`,
+        nextSteps: [
+          {
+            title: 'Try VIN Lookup',
+            description: 'Enter the 17-character VIN for precise vehicle identification',
+            priority: 'high',
+            category: 'alternative_lookup',
+            estimatedTime: '2 minutes'
+          },
+          {
+            title: 'Manual Make/Model Entry',
+            description: 'Enter manufacturer and model separately for standard search',
+            priority: 'medium',
+            category: 'alternative_lookup',
+            estimatedTime: '3 minutes'
+          }
+        ],
+        disclaimer: "Vehicle pattern not recognized in database"
+      };
+
+    } catch (error) {
+      console.error('Intelligent lookup error:', error);
+      return {
+        data: null,
+        confidenceScore: 0,
+        sourceAttribution: "Pattern recognition system error",
+        sourceBreakdown: [],
+        whyThisResult: "Technical error in pattern recognition system",
+        nextSteps: [
+          {
+            title: 'Use Standard Lookup',
+            description: 'Try VIN or manual make/model entry instead',
+            priority: 'high',
+            category: 'system_fallback',
+            estimatedTime: '2 minutes'
+          }
+        ],
+        disclaimer: "System error during pattern recognition"
+      };
     }
   }
 
