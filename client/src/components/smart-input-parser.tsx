@@ -30,6 +30,31 @@ export function SmartInputParser({ onInputParsed, placeholder = "Paste VIN, auct
   const [parsed, setParsed] = useState<ParsedInput | null>(null);
   const [suggestions, setSuggestions] = useState<string[]>([]);
 
+  const handleAutoSubmit = async (result: ParsedInput) => {
+    setParsing(true);
+    
+    // Enhanced parsing with server validation
+    try {
+      const response = await fetch('/api/smart-parse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input: result.value, type: result.type })
+      });
+      
+      if (response.ok) {
+        const enhanced = await response.json();
+        const finalParsed = { ...result, ...enhanced.data };
+        onInputParsed(finalParsed);
+      } else {
+        onInputParsed(result);
+      }
+    } catch (error) {
+      onInputParsed(result);
+    } finally {
+      setParsing(false);
+    }
+  };
+
   // Real-time input analysis with auto-submission
   useEffect(() => {
     if (input.length < 3) {
@@ -212,31 +237,9 @@ export function SmartInputParser({ onInputParsed, placeholder = "Paste VIN, auct
     setSuggestions(suggestions);
   };
 
-  const handleSubmit = async () => {
+  const handleManualSubmit = async () => {
     if (!parsed) return;
-    
-    setParsing(true);
-    
-    // Enhanced parsing with server validation
-    try {
-      const response = await fetch('/api/smart-parse', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ input: parsed.value, type: parsed.type })
-      });
-      
-      if (response.ok) {
-        const enhanced = await response.json();
-        const finalParsed = { ...parsed, ...enhanced.data };
-        onInputParsed(finalParsed);
-      } else {
-        onInputParsed(parsed);
-      }
-    } catch (error) {
-      onInputParsed(parsed);
-    } finally {
-      setParsing(false);
-    }
+    await handleAutoSubmit(parsed);
   };
 
   const getTypeIcon = (type: string) => {
@@ -262,12 +265,12 @@ export function SmartInputParser({ onInputParsed, placeholder = "Paste VIN, auct
           onChange={(e) => setInput(e.target.value)}
           placeholder={placeholder}
           className="text-lg py-6 pr-20 border-2 border-gray-200 focus:border-blue-500 transition-colors"
-          onKeyPress={(e) => e.key === 'Enter' && parsed && handleSubmit()}
+          onKeyPress={(e) => e.key === 'Enter' && parsed && handleManualSubmit()}
         />
         
         {parsed && (
           <Button
-            onClick={handleSubmit}
+            onClick={handleManualSubmit}
             disabled={parsing || !parsed}
             className="absolute right-2 top-1/2 transform -translate-y-1/2"
             size="sm"
