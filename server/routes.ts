@@ -4837,9 +4837,9 @@ Respond with a JSON object containing your recommendations.`;
           flag: getDestinationFlag(destination),
           name: getDestinationName(destination)
         },
-        eligibility: calculateEligibility(vehicle, destination),
+        eligibility: await calculateEligibility(vehicle, destination),
         costs: await calculateRealAuctionBasedCosts(vehicle, destination),
-        timeline: generateImportTimeline(vehicle, destination),
+        timeline: await generateImportTimeline(vehicle, destination),
         nextSteps: generateNextSteps(vehicle, destination),
         alternatives: generateAlternatives(vehicle, destination)
       };
@@ -4892,50 +4892,92 @@ Respond with a JSON object containing your recommendations.`;
     return names[destination] || 'International';
   }
 
-  function calculateEligibility(vehicle: any, destination: string) {
-    const currentYear = new Date().getFullYear();
-    const vehicleYear = parseInt(vehicle.year) || 1999;
-    const vehicleAge = currentYear - vehicleYear;
+  async function calculateEligibility(vehicle: any, destination: string) {
+    console.log(`🔍 calculateEligibility called for ${vehicle?.make} ${vehicle?.model} to ${destination}`);
     
-    let status = 'eligible';
-    let confidence = 85;
-    let timeline = '3-6 months';
-    let keyFactors = [];
+    try {
+      // Query customs regulations from database for the specific destination
+      const regulations = await db.select()
+        .from(customsRegulations)
+        .where(eq(customsRegulations.destinationCountry, destination))
+        .limit(1);
 
-    // Apply destination-specific rules
-    if (destination === 'australia' || destination === 'usa') {
-      if (vehicleAge < 25) {
-        status = 'restricted';
-        confidence = 45;
-        timeline = '12+ months or wait until eligible';
-        keyFactors = ['25-year import rule applies', 'Must wait until vehicle turns 25 years old'];
+      const currentYear = new Date().getFullYear();
+      const vehicleYear = parseInt(vehicle.year) || 1999;
+      const vehicleAge = currentYear - vehicleYear;
+      
+      let status = 'eligible';
+      let confidence = 85;
+      let timeline = '3-6 months';
+      let keyFactors = [];
+
+      if (regulations.length > 0) {
+        const regulation = regulations[0];
+        console.log(`✅ Found customs regulation for ${destination}:`, regulation);
+        
+        // Apply database-driven rules
+        if (regulation.minimumAge && vehicleAge < regulation.minimumAge) {
+          status = 'restricted';
+          confidence = 45;
+          timeline = '12+ months or wait until eligible';
+          keyFactors = [
+            `${regulation.minimumAge}-year import rule applies`,
+            `Must wait until vehicle turns ${regulation.minimumAge} years old`
+          ];
+        } else {
+          keyFactors = [
+            `Meets ${regulation.minimumAge || 0}-year rule`,
+            'Standard compliance required'
+          ];
+        }
+
+        // Add destination-specific requirements
+        if (regulation.requiresCompliance) {
+          keyFactors.push('Vehicle compliance certification required');
+        }
+        if (regulation.requiresInspection) {
+          keyFactors.push('Professional vehicle inspection required');
+        }
+        
+        timeline = regulation.typicalProcessingTime || timeline;
       } else {
-        keyFactors = ['Meets 25-year rule', 'Standard compliance required'];
+        console.log(`⚠️ No customs regulation found for ${destination}, using defaults`);
+        // Fallback to basic rules if no database entry exists
+        if (destination === 'australia' || destination === 'usa') {
+          if (vehicleAge < 25) {
+            status = 'restricted';
+            confidence = 45;
+            timeline = '12+ months or wait until eligible';
+            keyFactors = ['25-year import rule applies', 'Must wait until vehicle turns 25 years old'];
+          } else {
+            keyFactors = ['Meets 25-year rule', 'Standard compliance required'];
+          }
+        } else if (destination === 'canada') {
+          if (vehicleAge < 15) {
+            status = 'restricted';
+            confidence = 50;
+            timeline = '12+ months or wait until eligible';
+            keyFactors = ['15-year import rule applies', 'Must wait until vehicle turns 15 years old'];
+          } else {
+            keyFactors = ['Meets 15-year rule', 'Standard compliance required'];
+          }
+        } else if (destination === 'uk') {
+          keyFactors = ['EU/UK standards apply', 'Right-hand drive preferred'];
+        }
       }
-    } else if (destination === 'canada') {
-      if (vehicleAge < 15) {
-        status = 'restricted';
-        confidence = 50;
-        timeline = '12+ months or wait until eligible';
-        keyFactors = ['15-year import rule applies', 'Must wait until vehicle turns 15 years old'];
-      } else {
-        keyFactors = ['Meets 15-year rule', 'Standard compliance required'];
-      }
-    } else if (destination === 'uk') {
-      keyFactors = ['EU/UK standards apply', 'Right-hand drive preferred'];
-    }
 
-    // Special cases for high-performance JDM cars
-    if (vehicle.chassis && (vehicle.chassis.includes('R34') || vehicle.chassis.includes('BNR34'))) {
-      if (destination === 'australia') {
-        status = 'conditional';
-        confidence = 75;
-        timeline = '6-9 months';
-        keyFactors.push('Additional compliance testing required', 'Engineering certificate needed');
-      }
+      console.log(`✅ Eligibility calculated: ${status} (${confidence}% confidence)`);
+      return { status, confidence, timeline, keyFactors };
+    } catch (error) {
+      console.error('Error calculating eligibility:', error);
+      // Return safe fallback
+      return {
+        status: 'conditional',
+        confidence: 60,
+        timeline: '6-12 months',
+        keyFactors: ['Manual review required', 'Contact specialist for detailed assessment']
+      };
     }
-
-    return { status, confidence, timeline, keyFactors };
   }
 
   async function calculateRealAuctionBasedCosts(vehicle: any, destination: string) {
@@ -5097,15 +5139,33 @@ Respond with a JSON object containing your recommendations.`;
     };
   }
 
-  function generateImportTimeline(vehicle: any, destination: string) {
-    const baseTimeline = [
-      {
-        phase: 'Vehicle Purchase & Export',
-        duration: '2-4 weeks',
-        status: 'upcoming',
-        description: 'Locate, purchase, and prepare vehicle for export',
-        requirements: [
-          'Find suitable vehicle in origin country',
+  async function generateImportTimeline(vehicle: any, destination: string) {
+    console.log(`🔍 generateImportTimeline called for ${vehicle?.make} ${vehicle?.model} to ${destination}`);
+    
+    try {
+      // Query customs regulations for destination-specific timelines
+      const regulations = await db.select()
+        .from(customsRegulations)
+        .where(eq(customsRegulations.destinationCountry, destination))
+        .limit(1);
+
+      let processingTime = '3-6 months';
+      let complianceTime = '4-6 weeks';
+      
+      if (regulations.length > 0) {
+        const regulation = regulations[0];
+        processingTime = regulation.typicalProcessingTime || processingTime;
+        console.log(`✅ Using database timeline for ${destination}: ${processingTime}`);
+      }
+
+      const baseTimeline = [
+        {
+          phase: 'Vehicle Purchase & Export',
+          duration: '2-4 weeks',
+          status: 'upcoming',
+          description: 'Locate, purchase, and prepare vehicle for export',
+          requirements: [
+            'Find suitable vehicle in origin country',
           'Complete purchase and obtain title',
           'Arrange export documentation',
           'Schedule pre-shipping inspection'
@@ -5162,6 +5222,33 @@ Respond with a JSON object containing your recommendations.`;
     ];
 
     return baseTimeline;
+    } catch (error) {
+      console.error('Error generating timeline:', error);
+      // Return fallback timeline
+      return [
+        {
+          phase: 'Vehicle Purchase & Export',
+          duration: '2-4 weeks',
+          status: 'upcoming',
+          description: 'Locate, purchase, and prepare vehicle for export',
+          requirements: ['Find suitable vehicle', 'Complete purchase', 'Export documentation']
+        },
+        {
+          phase: 'Shipping & Transit',
+          duration: '4-6 weeks',
+          status: 'upcoming',
+          description: 'Ocean freight to destination',
+          requirements: ['Loading', 'Transit', 'Port arrival']
+        },
+        {
+          phase: 'Customs & Compliance',
+          duration: '6-12 weeks',
+          status: 'upcoming',
+          description: 'Import processing and compliance',
+          requirements: ['Customs clearance', 'Compliance testing', 'Registration']
+        }
+      ];
+    }
   }
 
   function generateNextSteps(vehicle: any, destination: string) {
