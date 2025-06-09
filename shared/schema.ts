@@ -99,6 +99,86 @@ export const trials = pgTable("trials", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Mod Shop Partner Database Schema
+export const modShopPartners = pgTable("mod_shop_partners", {
+  id: serial("id").primaryKey(),
+  businessName: varchar("business_name", { length: 200 }).notNull(),
+  contactPerson: varchar("contact_person", { length: 100 }),
+  email: varchar("email", { length: 100 }),
+  phone: varchar("phone", { length: 20 }),
+  website: varchar("website", { length: 300 }),
+  
+  // Location data
+  streetAddress: varchar("street_address", { length: 300 }),
+  city: varchar("city", { length: 100 }),
+  stateProvince: varchar("state_province", { length: 100 }),
+  postalCode: varchar("postal_code", { length: 20 }),
+  country: varchar("country", { length: 50 }),
+  latitude: decimal("latitude", { precision: 10, scale: 8 }),
+  longitude: decimal("longitude", { precision: 11, scale: 8 }),
+  
+  // Services offered
+  servicesOffered: jsonb("services_offered"), // ["emissions_testing", "safety_inspection", "title_transfer", "dot_compliance", "epa_compliance"]
+  specialties: jsonb("specialties"), // ["jdm_vehicles", "european_cars", "classic_cars", "motorcycles", "commercial"]
+  certifications: jsonb("certifications"), // ["ase_certified", "state_inspector", "emissions_certified"]
+  
+  // Business details
+  yearsInBusiness: integer("years_in_business"),
+  customerRating: decimal("customer_rating", { precision: 3, scale: 2 }),
+  reviewCount: integer("review_count"),
+  averageCostRange: varchar("average_cost_range", { length: 50 }), // "500-1500"
+  typicalTurnaroundDays: integer("typical_turnaround_days"),
+  
+  // Verification
+  verifiedPartner: boolean("verified_partner").default(false),
+  lastVerified: date("last_verified"),
+  partnershipStatus: varchar("partnership_status", { length: 20 }).default("active"), // active, pending, inactive
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const serviceAreas = pgTable("service_areas", {
+  id: serial("id").primaryKey(),
+  shopId: integer("shop_id").references(() => modShopPartners.id),
+  serviceRadiusMiles: integer("service_radius_miles"),
+  servesStateProvince: varchar("serves_state_province", { length: 100 }),
+  servesMetroArea: varchar("serves_metro_area", { length: 100 }),
+  mobileService: boolean("mobile_service").default(false),
+});
+
+export const shopReviews = pgTable("shop_reviews", {
+  id: serial("id").primaryKey(),
+  shopId: integer("shop_id").references(() => modShopPartners.id),
+  customerName: varchar("customer_name", { length: 100 }),
+  rating: integer("rating"), // CHECK constraint handled in application
+  reviewText: text("review_text"),
+  serviceType: varchar("service_type", { length: 100 }),
+  vehicleType: varchar("vehicle_type", { length: 100 }),
+  totalCost: decimal("total_cost", { precision: 10, scale: 2 }),
+  reviewDate: date("review_date"),
+  verifiedCustomer: boolean("verified_customer").default(false),
+});
+
+export const importServices = pgTable("import_services", {
+  id: serial("id").primaryKey(),
+  serviceName: varchar("service_name", { length: 200 }),
+  serviceDescription: text("service_description"),
+  typicalCostMin: decimal("typical_cost_min", { precision: 10, scale: 2 }),
+  typicalCostMax: decimal("typical_cost_max", { precision: 10, scale: 2 }),
+  typicalTimeDays: integer("typical_time_days"),
+  requiredForCountries: jsonb("required_for_countries"), // ["USA", "Canada", "UK"]
+});
+
+export const shopServiceCapabilities = pgTable("shop_service_capabilities", {
+  id: serial("id").primaryKey(),
+  shopId: integer("shop_id").references(() => modShopPartners.id),
+  serviceId: integer("service_id").references(() => importServices.id),
+  certified: boolean("certified").default(false),
+  costOverride: decimal("cost_override", { precision: 10, scale: 2 }), // shop-specific pricing
+  turnaroundOverride: integer("turnaround_override"), // shop-specific timing
+});
+
 // Category 1: Government Customs and Import/Export Data
 export const customsRegulations = pgTable("customs_regulations", {
   id: serial("id").primaryKey(),
@@ -1152,8 +1232,8 @@ export const vehicleBuilds = pgTable("vehicle_builds", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Mod Shop Partners
-export const modShopPartners = pgTable("mod_shop_partners", {
+// Legacy mod shop partners (renamed to avoid conflict)
+export const modShopPartnersLegacy = pgTable("mod_shop_partners_legacy", {
   id: serial("id").primaryKey(),
   name: varchar("name").notNull(),
   description: text("description"),
@@ -1774,6 +1854,29 @@ export interface CalculationResult {
     region: string;
   };
 }
+
+// Mod Shop Partner Types
+export type ModShopPartner = typeof modShopPartners.$inferSelect;
+export type InsertModShopPartner = typeof modShopPartners.$inferInsert;
+
+export type ServiceArea = typeof serviceAreas.$inferSelect;
+export type InsertServiceArea = typeof serviceAreas.$inferInsert;
+
+export type ShopReview = typeof shopReviews.$inferSelect;
+export type InsertShopReview = typeof shopReviews.$inferInsert;
+
+export type ImportService = typeof importServices.$inferSelect;
+export type InsertImportService = typeof importServices.$inferInsert;
+
+export type ShopServiceCapability = typeof shopServiceCapabilities.$inferSelect;
+export type InsertShopServiceCapability = typeof shopServiceCapabilities.$inferInsert;
+
+// Insert schemas with validation
+export const insertModShopPartnerSchema = createInsertSchema(modShopPartners);
+export const insertServiceAreaSchema = createInsertSchema(serviceAreas);
+export const insertShopReviewSchema = createInsertSchema(shopReviews);
+export const insertImportServiceSchema = createInsertSchema(importServices);
+export const insertShopServiceCapabilitySchema = createInsertSchema(shopServiceCapabilities);
 
 // Export compliance forms schema
 export * from "./compliance-forms-schema";

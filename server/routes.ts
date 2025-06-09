@@ -14,6 +14,8 @@ import { checkPlateRequirements } from "./plate-availability";
 import { getStateRequirements, getStatesByDifficulty, compareStatesCosts } from "./australian-state-requirements";
 import { getAllPorts, getPortByCode, findBestPortsForLocation, calculatePortCosts, getSeasonalRecommendations } from "./australian-port-intelligence";
 import { PostgreSQLComplianceService } from "./postgresql-compliance-service";
+import modShopRoutes from "./mod-shop-api-routes";
+import { initializeModShopScraping } from "./mod-shop-geodata-scraper";
 import { z } from "zod";
 import OpenAI from "openai";
 import Stripe from "stripe";
