@@ -16,7 +16,7 @@ router.get('/search', async (req: Request, res: Response) => {
     const searchRadius = radius ? parseInt(String(radius)) : 50; // miles
     
     let query = sql`
-      SELECT id, business_name, contact_person, email, phone, website,
+      SELECT id, business_name, contact_person, phone, website,
              street_address, city, state_province, postal_code, country,
              latitude, longitude, services_offered, specialties, certifications,
              years_in_business, customer_rating, review_count, average_cost_range,

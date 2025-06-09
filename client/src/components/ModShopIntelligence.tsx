@@ -86,13 +86,13 @@ export function ModShopIntelligence({ vehicleMake, vehicleModel, destination }: 
     }
   });
 
-  const handleLocationSearch = () => {
-    setLocationSearch(userLocation);
-  };
-
   const [showAll, setShowAll] = useState(false);
   const [userLocation, setUserLocation] = useState('');
   const [locationSearch, setLocationSearch] = useState('');
+
+  const handleLocationSearch = () => {
+    setLocationSearch(userLocation);
+  };
 
   if (loadingRecommended || loadingAll) {
     return (
@@ -125,6 +125,32 @@ export function ModShopIntelligence({ vehicleMake, vehicleModel, destination }: 
         <p className="text-sm text-purple-700 mt-1">
           Qualified specialists for {vehicleMake} {vehicleModel} import preparation and modifications
         </p>
+        
+        {/* Location Input for Geographic Targeting */}
+        <div className="mt-4 flex gap-2">
+          <div className="flex-1">
+            <input
+              type="text"
+              placeholder="Enter your location (postal code, city, or state)"
+              value={userLocation}
+              onChange={(e) => setUserLocation(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+              onKeyPress={(e) => e.key === 'Enter' && handleLocationSearch()}
+            />
+          </div>
+          <button
+            onClick={handleLocationSearch}
+            className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 text-sm"
+          >
+            Search
+          </button>
+        </div>
+        
+        {locationSearch && (
+          <div className="mt-2 text-sm text-purple-600">
+            Showing results near: {locationSearch}
+          </div>
+        )}
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Specialty Recommendation */}
