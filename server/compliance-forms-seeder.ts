@@ -103,7 +103,7 @@ export class ComplianceFormsSeeder {
         mandatory: true,
         processingTimeDays: 7,
         fees: { amount: 0, currency: 'USD', description: 'No fee' },
-        lastVerified: new Date('2024-12-01')
+        lastVerified: '2024-12-01'
       },
       {
         countryId: usaCountry.id,
@@ -116,7 +116,7 @@ export class ComplianceFormsSeeder {
         mandatory: true,
         processingTimeDays: 10,
         fees: { amount: 25, currency: 'USD', description: 'Entry processing fee' },
-        lastVerified: new Date('2024-12-01')
+        lastVerified: '2024-12-01'
       },
       {
         countryId: usaCountry.id,
@@ -129,7 +129,7 @@ export class ComplianceFormsSeeder {
         mandatory: true,
         processingTimeDays: 30,
         fees: { amount: 0, currency: 'USD', description: 'No EPA fee' },
-        lastVerified: new Date('2024-12-01')
+        lastVerified: '2024-12-01'
       },
       {
         countryId: usaCountry.id,
@@ -142,7 +142,7 @@ export class ComplianceFormsSeeder {
         mandatory: true,
         processingTimeDays: 21,
         fees: { amount: 0, currency: 'USD', description: 'No NHTSA fee' },
-        lastVerified: new Date('2024-12-01')
+        lastVerified: '2024-12-01'
       }
     ];
     
@@ -167,7 +167,7 @@ export class ComplianceFormsSeeder {
         mandatory: true,
         processingTimeDays: 5,
         fees: { amount: 0, currency: 'CAD', description: 'No CBSA processing fee' },
-        lastVerified: new Date('2024-12-01')
+        lastVerified: '2024-12-01'
       },
       {
         countryId: canadaCountry.id,
@@ -180,7 +180,7 @@ export class ComplianceFormsSeeder {
         mandatory: true,
         processingTimeDays: 15,
         fees: { amount: 195, currency: 'CAD', description: 'RIV inspection fee' },
-        lastVerified: new Date('2024-12-01')
+        lastVerified: '2024-12-01'
       },
       {
         countryId: canadaCountry.id,
@@ -193,7 +193,7 @@ export class ComplianceFormsSeeder {
         mandatory: true,
         processingTimeDays: 10,
         fees: { amount: 0, currency: 'CAD', description: 'No Transport Canada fee' },
-        lastVerified: new Date('2024-12-01')
+        lastVerified: '2024-12-01'
       }
     ];
     
@@ -218,7 +218,7 @@ export class ComplianceFormsSeeder {
         mandatory: true,
         processingTimeDays: 7,
         fees: { amount: 0, currency: 'GBP', description: 'No declaration fee' },
-        lastVerified: new Date('2024-12-01')
+        lastVerified: '2024-12-01'
       },
       {
         countryId: ukCountry.id,
@@ -231,7 +231,7 @@ export class ComplianceFormsSeeder {
         mandatory: true,
         processingTimeDays: 14,
         fees: { amount: 55, currency: 'GBP', description: 'First registration fee' },
-        lastVerified: new Date('2024-12-01')
+        lastVerified: '2024-12-01'
       },
       {
         countryId: ukCountry.id,
@@ -244,7 +244,7 @@ export class ComplianceFormsSeeder {
         mandatory: false,
         processingTimeDays: 21,
         fees: { amount: 12, currency: 'GBP', description: 'Certificate fee' },
-        lastVerified: new Date('2024-12-01')
+        lastVerified: '2024-12-01'
       }
     ];
     
@@ -269,7 +269,7 @@ export class ComplianceFormsSeeder {
         mandatory: true,
         processingTimeDays: 5,
         fees: { amount: 50, currency: 'AUD', description: 'Import declaration fee' },
-        lastVerified: new Date('2024-12-01')
+        lastVerified: '2024-12-01'
       },
       {
         countryId: ausCountry.id,
@@ -282,7 +282,7 @@ export class ComplianceFormsSeeder {
         mandatory: true,
         processingTimeDays: 30,
         fees: { amount: 518, currency: 'AUD', description: 'RAV application fee' },
-        lastVerified: new Date('2024-12-01')
+        lastVerified: '2024-12-01'
       },
       {
         countryId: ausCountry.id,
@@ -295,12 +295,12 @@ export class ComplianceFormsSeeder {
         mandatory: true,
         processingTimeDays: 21,
         fees: { amount: 250, currency: 'AUD', description: 'Compliance plate fee' },
-        lastVerified: new Date('2024-12-01')
+        lastVerified: '2024-12-01'
       }
     ];
     
     for (const form of ausaForms) {
-      await db.insert(complianceForms).values(form).onConflictDoNothing();
+      await db.insert(complianceForms).values([form]).onConflictDoNothing();
     }
   }
   
@@ -320,7 +320,7 @@ export class ComplianceFormsSeeder {
         mandatory: true,
         processingTimeDays: 3,
         fees: { amount: 0, currency: 'EUR', description: 'No customs fee' },
-        lastVerified: new Date('2024-12-01')
+        lastVerified: '2024-12-01'
       },
       {
         countryId: germanCountry.id,
@@ -333,12 +333,12 @@ export class ComplianceFormsSeeder {
         mandatory: true,
         processingTimeDays: 14,
         fees: { amount: 75, currency: 'EUR', description: 'Type approval fee' },
-        lastVerified: new Date('2024-12-01')
+        lastVerified: '2024-12-01'
       }
     ];
     
     for (const form of germanyForms) {
-      await db.insert(complianceForms).values(form).onConflictDoNothing();
+      await db.insert(complianceForms).values([form]).onConflictDoNothing();
     }
   }
   
@@ -358,7 +358,7 @@ export class ComplianceFormsSeeder {
         mandatory: true,
         processingTimeDays: 7,
         fees: { amount: 0, currency: 'JPY', description: 'No customs fee' },
-        lastVerified: new Date('2024-12-01')
+        lastVerified: '2024-12-01'
       }
     ];
     

@@ -6,6 +6,7 @@ import { initializeDataRefreshScheduler } from "./auction-data-manager";
 import { initializeLiveMarketDataMonitoring } from "./live-market-data";
 import { ComprehensiveDataSeeder } from "./comprehensive-data-seeder";
 import { ComprehensiveVehicleDatabase } from "./comprehensive-vehicle-database";
+import { ComplianceFormsSeeder } from "./compliance-forms-seeder";
 
 const app = express();
 app.use(express.json());
@@ -273,5 +274,10 @@ app.use((req, res, next) => {
     const { FinalVehicleSeeder } = await import('./final-vehicle-seeder');
     await FinalVehicleSeeder.seedFinalVehicles();
     await FinalVehicleSeeder.testDatabase();
+    
+    // Seed comprehensive global vehicle import compliance forms database
+    console.log('🏛️ Seeding global vehicle import compliance forms database...');
+    await ComplianceFormsSeeder.seedComplianceDatabase();
+    console.log('✅ Global vehicle import compliance forms database ready');
   });
 })();
