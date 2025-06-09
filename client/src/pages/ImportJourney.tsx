@@ -124,8 +124,11 @@ export default function ImportJourney() {
         sessionToken
       });
 
-      const response = await apiRequest('/api/import-intelligence', {
+      const response = await fetch('/api/import-intelligence', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           vehicleData,
           destination,
@@ -133,8 +136,14 @@ export default function ImportJourney() {
         })
       });
 
-      console.log('Import intelligence response:', response);
-      return response;
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      console.log('Import intelligence response:', data);
+      return data;
     },
     enabled: !!(vehicleData.make && vehicleData.model && sessionToken && isInitialized),
     staleTime: 5 * 60 * 1000, // 5 minutes
