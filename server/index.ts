@@ -221,6 +221,10 @@ app.use((req, res, next) => {
   const googleMapsRoutes = await import('./google-maps-routes');
   app.use('/api/maps', googleMapsRoutes.default);
   
+  // Enhanced Google Maps integration with Places API and business discovery
+  const googleMapsEnhanced = await import('./google-maps-enhanced-integration');
+  app.use('/api/maps-enhanced', googleMapsEnhanced.default);
+  
   // Enhanced location intelligence for import journey optimization
   const locationIntelligenceRoutes = await import('./location-intelligence-routes');
   app.use('/api/location', locationIntelligenceRoutes.default);

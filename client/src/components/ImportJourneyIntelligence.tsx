@@ -78,10 +78,31 @@ export default function ImportJourneyIntelligence() {
   });
   const [searchTriggered, setSearchTriggered] = useState(false);
 
+  // Enhanced Google Maps integration for comprehensive journey planning
   const { data: journeyData, isLoading } = useQuery({
-    queryKey: ['/api/location/journey/complete', userLocation, vehicleDetails],
+    queryKey: ['/api/maps-enhanced/journey/complete', userLocation, vehicleDetails],
     enabled: searchTriggered && userLocation.length > 2,
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
+    queryFn: async () => {
+      // Use enhanced Google Maps services for complete journey intelligence
+      const [portsData, businessesData, complianceData] = await Promise.all([
+        fetch(`/api/maps-enhanced/shipping/ports?origin=${vehicleDetails.origin}&destination=${userLocation}`).then(r => r.json()),
+        fetch(`/api/maps-enhanced/businesses/search?location=${userLocation}&type=automotive&radius=100000`).then(r => r.json()),
+        fetch(`/api/maps-enhanced/compliance/facilities?location=${userLocation}&type=inspection`).then(r => r.json())
+      ]);
+
+      return {
+        journey: {
+          vehicle: vehicleDetails,
+          destination: { location: userLocation, region: 'Auto-detected' },
+          recommendations: {
+            ports: portsData.ports || [],
+            businesses: businessesData.businesses || [],
+            compliance: complianceData.facilities || []
+          }
+        }
+      };
+    }
   });
 
   const handleSearch = () => {
