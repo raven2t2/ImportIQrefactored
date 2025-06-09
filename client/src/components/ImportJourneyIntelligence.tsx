@@ -150,22 +150,34 @@ export default function ImportJourneyIntelligence({ destination }: ImportJourney
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-2">
-            <Input
-              placeholder="Enter your city, state/country (e.g., Sydney, Australia)"
-              value={locationInput}
-              onChange={(e) => setLocationInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleLocationSearch()}
-              className="flex-1"
-            />
-            <Button 
-              onClick={handleLocationSearch}
-              disabled={!locationInput.trim()}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              <Search className="h-4 w-4 mr-2" />
-              Search
-            </Button>
+          <div className="space-y-4">
+            <div className="flex gap-3">
+              <Input
+                placeholder="Enter your city, state/country (e.g., Sydney, Australia)"
+                value={locationInput}
+                onChange={(e) => setLocationInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleLocationSearch()}
+                className="flex-1 text-lg py-3"
+              />
+              <Button 
+                onClick={handleLocationSearch}
+                disabled={!locationInput.trim()}
+                className="bg-blue-600 hover:bg-blue-700 px-6"
+                size="lg"
+              >
+                <Search className="h-4 w-4 mr-2" />
+                Find Services
+              </Button>
+            </div>
+            <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
+              <div className="font-medium text-blue-800 mb-1">What you'll discover:</div>
+              <ul className="text-blue-700 space-y-1">
+                <li>• Verified compliance shops and import specialists</li>
+                <li>• Authenticated shipping agents and freight forwarders</li>
+                <li>• Real business data from Google Maps integration</li>
+                <li>• Location-optimized cost calculations and recommendations</li>
+              </ul>
+            </div>
           </div>
         </CardContent>
       </Card>

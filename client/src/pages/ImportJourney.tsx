@@ -467,8 +467,21 @@ export default function ImportJourney() {
           </Card>
         </div>
 
-        {/* Local Service Providers */}
-
+        {/* Location-Based Service Finder */}
+        <Card className="bg-white mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-green-600" />
+              Find Local Import Services
+            </CardTitle>
+            <CardDescription>
+              Enter your location to find nearby compliance shops, shipping agents, and import specialists
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ImportJourneyIntelligence destination={destination} />
+          </CardContent>
+        </Card>
 
         {/* Comprehensive Import Intelligence Display */}
         {importIntelligence && (
