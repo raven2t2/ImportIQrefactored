@@ -39,7 +39,7 @@ import {
   vehicleAuctions,
   auctionListings
 } from '@shared/schema';
-import { eq, desc, lt, sql } from 'drizzle-orm';
+import { eq, desc, lt, sql, and } from 'drizzle-orm';
 import { db } from './db';
 import { dataSeeder } from './data-seeder';
 import { getLiveMarketData, updateCachedVehicle, removeCachedVehicle } from "./live-market-data";
@@ -4936,9 +4936,9 @@ Respond with a JSON object containing your recommendations.`;
       
       if (auctionData.length > 0) {
         // Calculate average price from recent auction listings with valid prices
-        const validPrices = auctionData.filter(listing => listing.price && listing.price > 0);
+        const validPrices = auctionData.filter(listing => listing.price && Number(listing.price) > 0);
         if (validPrices.length > 0) {
-          const avgPrice = validPrices.reduce((sum, listing) => sum + listing.price, 0) / validPrices.length;
+          const avgPrice = validPrices.reduce((sum, listing) => sum + Number(listing.price), 0) / validPrices.length;
           vehiclePrice = Math.round(avgPrice);
           console.log(`Using real auction price for ${vehicle.make} ${vehicle.model}: $${vehiclePrice.toLocaleString()} (from ${validPrices.length} listings)`);
         }
