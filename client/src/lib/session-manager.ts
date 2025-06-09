@@ -12,6 +12,15 @@ class SessionManager {
     }
   }
   
+  // Generate new session token
+  static generateSessionToken(): string {
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(2, 15);
+    const token = `iq_${timestamp}_${random}`;
+    this.setSessionToken(token);
+    return token;
+  }
+
   // Store session token
   static setSessionToken(token: string): void {
     try {
