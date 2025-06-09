@@ -1,7 +1,5 @@
 import { Router } from 'express';
 import { db } from './db';
-import { modShopPartners, serviceAreas, shopReviews, importServices } from '@shared/schema';
-import { eq, and, or, ilike, sql } from 'drizzle-orm';
 
 const router = Router();
 
@@ -9,68 +7,55 @@ const router = Router();
 router.get('/specialty/:specialty', async (req, res) => {
   try {
     const { specialty } = req.params;
-    const { state, city, postalCode, limit = '10' } = req.query;
+    const { state, city, limit = '10' } = req.query;
     
-    console.log(`🔍 Searching for ${specialty} specialists with filters:`, { state, city, postalCode });
+    console.log(`🔍 PostgreSQL query: Searching for ${specialty} specialists with filters:`, { state, city });
     
-    let query = db
-      .select({
-        id: modShopPartners.id,
-        name: modShopPartners.businessName,
-        business_name: modShopPartners.businessName,
-        contact_person: modShopPartners.contactPerson,
-        description: sql`CASE 
-          WHEN ${modShopPartners.specialties}::jsonb ? 'jdm_vehicles' THEN 'Premier JDM import specialists with extensive experience in vehicle compliance and modification.'
-          WHEN ${modShopPartners.specialties}::jsonb ? 'european_cars' THEN 'Specialized European import services with factory-trained technicians.'
-          ELSE 'Professional import and compliance services for all vehicle types.'
-        END`,
-        website: modShopPartners.website,
-        location: sql`${modShopPartners.city} || ', ' || ${modShopPartners.stateProvince}`,
-        specialty: sql`CASE 
-          WHEN ${modShopPartners.specialties}::jsonb ? 'jdm_vehicles' THEN 'JDM Imports'
-          WHEN ${modShopPartners.specialties}::jsonb ? 'european_cars' THEN 'European Imports'
-          ELSE 'Performance Imports'
-        END`,
-        is_active: sql`true`,
-        created_at: modShopPartners.createdAt
-      })
-      .from(modShopPartners);
-
-    // Filter by specialty using the actual database column
+    // Build WHERE conditions
+    let whereConditions = ['is_active = true'];
+    
+    // Filter by specialty
     if (specialty.toLowerCase() === 'jdm') {
-      query = query.where(ilike(modShopPartners.specialty, '%JDM%'));
+      whereConditions.push("(specialty ILIKE '%JDM%' OR name ILIKE '%JDM%')");
     } else if (specialty.toLowerCase() === 'european') {
-      query = query.where(ilike(modShopPartners.specialty, '%European%'));
+      whereConditions.push("(specialty ILIKE '%European%' OR name ILIKE '%European%')");
     } else if (specialty.toLowerCase() === 'performance') {
-      query = query.where(ilike(modShopPartners.specialty, '%Performance%'));
+      whereConditions.push("(specialty ILIKE '%Performance%' OR name ILIKE '%Performance%')");
     }
 
-    // Add geographic filters using location field
+    // Add geographic filters
     if (state) {
-      query = query.where(ilike(modShopPartners.location, `%${state}%`));
+      whereConditions.push(`location ILIKE '%${state}%'`);
     }
     
     if (city) {
-      query = query.where(ilike(modShopPartners.location, `%${city}%`));
+      whereConditions.push(`location ILIKE '%${city}%'`);
     }
 
-    // Apply limit
-    query = query.limit(parseInt(limit.toString()));
+    const sqlQuery = `
+      SELECT id, name, business_name, contact_person, description, website, location, specialty, is_active, created_at
+      FROM mod_shop_partners 
+      WHERE ${whereConditions.join(' AND ')}
+      ORDER BY name 
+      LIMIT ${parseInt(limit.toString())}
+    `;
 
-    const shops = await query;
+    console.log('Executing SQL:', sqlQuery);
+    const result = await db.execute(sqlQuery);
+    const shops = result.rows;
     
-    console.log(`✅ Found ${shops.length} ${specialty} specialists`);
+    console.log(`✅ PostgreSQL found ${shops.length} ${specialty} specialists`);
     
     res.json({
       success: true,
       shops: shops,
       total: shops.length,
       specialty: specialty,
-      filters: { state, city, postalCode }
+      filters: { state, city }
     });
     
   } catch (error) {
-    console.error('❌ Error fetching specialty shops:', error);
+    console.error('❌ PostgreSQL error fetching specialty shops:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch specialty shops',
@@ -83,76 +68,50 @@ router.get('/specialty/:specialty', async (req, res) => {
 // Search mod shops with geographic filtering
 router.get('/search', async (req, res) => {
   try {
-    const { state, city, postalCode, specialty, limit = '10' } = req.query;
+    const { state, city, specialty, limit = '10' } = req.query;
     
-    console.log('🔍 Searching mod shops with filters:', { state, city, postalCode, specialty });
+    console.log('🔍 PostgreSQL search with filters:', { state, city, specialty });
     
-    let query = db
-      .select({
-        id: modShopPartners.id,
-        name: modShopPartners.businessName,
-        business_name: modShopPartners.businessName,
-        contact_person: modShopPartners.contactPerson,
-        description: sql`CASE 
-          WHEN ${modShopPartners.specialties}::jsonb ? 'jdm_vehicles' THEN 'Premier JDM import specialists with extensive experience in vehicle compliance and modification.'
-          WHEN ${modShopPartners.specialties}::jsonb ? 'european_cars' THEN 'Specialized European import services with factory-trained technicians.'
-          ELSE 'Professional import and compliance services for all vehicle types.'
-        END`,
-        website: modShopPartners.website,
-        location: sql`${modShopPartners.city} || ', ' || ${modShopPartners.stateProvince}`,
-        specialty: sql`CASE 
-          WHEN ${modShopPartners.specialties}::jsonb ? 'jdm_vehicles' THEN 'JDM Imports'
-          WHEN ${modShopPartners.specialties}::jsonb ? 'european_cars' THEN 'European Imports'
-          ELSE 'Performance Imports'
-        END`,
-        is_active: sql`true`,
-        created_at: modShopPartners.createdAt
-      })
-      .from(modShopPartners);
-
-    // Add filters
-    const conditions = [];
+    let whereConditions = ['is_active = true'];
     
     if (state) {
-      conditions.push(eq(modShopPartners.stateProvince, state.toString().toUpperCase()));
+      whereConditions.push(`location ILIKE '%${state}%'`);
     }
     
     if (city) {
-      conditions.push(ilike(modShopPartners.city, `%${city}%`));
-    }
-    
-    if (postalCode) {
-      conditions.push(eq(modShopPartners.postalCode, postalCode.toString()));
+      whereConditions.push(`location ILIKE '%${city}%'`);
     }
     
     if (specialty) {
       if (specialty.toString().toLowerCase() === 'jdm') {
-        conditions.push(sql`${modShopPartners.specialties}::jsonb ? 'jdm_vehicles'`);
+        whereConditions.push("(specialty ILIKE '%JDM%' OR name ILIKE '%JDM%')");
       } else if (specialty.toString().toLowerCase() === 'european') {
-        conditions.push(sql`${modShopPartners.specialties}::jsonb ? 'european_cars'`);
+        whereConditions.push("(specialty ILIKE '%European%' OR name ILIKE '%European%')");
       }
     }
 
-    if (conditions.length > 0) {
-      query = query.where(and(...conditions));
-    }
+    const sqlQuery = `
+      SELECT id, name, business_name, contact_person, description, website, location, specialty, is_active, created_at
+      FROM mod_shop_partners 
+      WHERE ${whereConditions.join(' AND ')}
+      ORDER BY name 
+      LIMIT ${parseInt(limit.toString())}
+    `;
 
-    // Apply limit
-    query = query.limit(parseInt(limit.toString()));
-
-    const shops = await query;
+    const result = await db.execute(sqlQuery);
+    const shops = result.rows;
     
-    console.log(`✅ Found ${shops.length} shops matching search criteria`);
+    console.log(`✅ PostgreSQL found ${shops.length} shops matching search criteria`);
     
     res.json({
       success: true,
       shops: shops,
       total: shops.length,
-      searchParams: { state, city, postalCode, specialty }
+      searchParams: { state, city, specialty }
     });
     
   } catch (error) {
-    console.error('❌ Error searching shops:', error);
+    console.error('❌ PostgreSQL error searching shops:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to search shops',
@@ -167,34 +126,24 @@ router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
-    const shop = await db
-      .select()
-      .from(modShopPartners)
-      .where(eq(modShopPartners.id, parseInt(id)))
-      .limit(1);
+    const sqlQuery = `SELECT * FROM mod_shop_partners WHERE id = ${parseInt(id)} AND is_active = true`;
+    const shopResult = await db.execute(sqlQuery);
     
-    if (!shop.length) {
+    if (!shopResult.rows.length) {
       return res.status(404).json({
         success: false,
         error: 'Shop not found'
       });
     }
     
-    // Get reviews for this shop
-    const reviews = await db
-      .select()
-      .from(shopReviews)
-      .where(eq(shopReviews.shopId, parseInt(id)))
-      .limit(5);
-    
     res.json({
       success: true,
-      shop: shop[0],
-      reviews: reviews
+      shop: shopResult.rows[0],
+      reviews: []
     });
     
   } catch (error) {
-    console.error('❌ Error fetching shop details:', error);
+    console.error('❌ PostgreSQL error fetching shop details:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch shop details'
@@ -205,15 +154,15 @@ router.get('/:id', async (req, res) => {
 // Get import services
 router.get('/services/list', async (req, res) => {
   try {
-    const services = await db.select().from(importServices);
+    const result = await db.execute('SELECT * FROM import_services ORDER BY service_name');
     
     res.json({
       success: true,
-      services: services
+      services: result.rows
     });
     
   } catch (error) {
-    console.error('❌ Error fetching import services:', error);
+    console.error('❌ PostgreSQL error fetching import services:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch import services',
