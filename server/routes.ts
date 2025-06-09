@@ -4814,7 +4814,7 @@ Respond with a JSON object containing your recommendations.`;
           name: getDestinationName(destination)
         },
         eligibility: calculateEligibility(vehicle, destination),
-        costs: calculateImportCosts(vehicle, destination),
+        costs: await calculateImportCosts(vehicle, destination),
         timeline: generateImportTimeline(vehicle, destination),
         nextSteps: generateNextSteps(vehicle, destination),
         alternatives: generateAlternatives(vehicle, destination)
@@ -4914,8 +4914,35 @@ Respond with a JSON object containing your recommendations.`;
     return { status, confidence, timeline, keyFactors };
   }
 
-  function calculateImportCosts(vehicle: any, destination: string) {
-    let vehiclePrice = 25000; // Base estimate
+  async function calculateImportCosts(vehicle: any, destination: string) {
+    // Get real auction market price from PostgreSQL
+    let vehiclePrice = 25000; // Fallback only
+    
+    try {
+      // Query for real auction pricing data
+      const auctionData = await db.select()
+        .from(auctionListings)
+        .where(
+          and(
+            eq(auctionListings.make, vehicle.make?.toLowerCase() || ''),
+            eq(auctionListings.model, vehicle.model?.toLowerCase() || '')
+          )
+        )
+        .orderBy(desc(auctionListings.createdAt))
+        .limit(5);
+      
+      if (auctionData.length > 0) {
+        // Calculate average price from recent auction listings
+        const avgPrice = auctionData.reduce((sum, listing) => sum + listing.priceAud, 0) / auctionData.length;
+        vehiclePrice = Math.round(avgPrice);
+        console.log(`Using real auction price for ${vehicle.make} ${vehicle.model}: $${vehiclePrice.toLocaleString()}`);
+      } else {
+        console.log(`No auction data found for ${vehicle.make} ${vehicle.model}, using fallback price: $${vehiclePrice.toLocaleString()}`);
+      }
+    } catch (error) {
+      console.error('Error fetching auction price:', error);
+    }
+
     let shipping = 4500;
     let duties = 6200;
     let compliance = 8500;
@@ -4946,11 +4973,11 @@ Respond with a JSON object containing your recommendations.`;
       compliance,
       total: Math.round(total),
       breakdown: [
-        { category: 'Vehicle Purchase', amount: vehiclePrice, description: 'Estimated market price in origin country' },
-        { category: 'Shipping & Logistics', amount: shipping, description: 'Ocean freight and handling' },
-        { category: 'Import Duties & Taxes', amount: Math.round(duties), description: 'Government fees and taxes' },
-        { category: 'Compliance & Certification', amount: compliance, description: 'Testing, modifications, and registration' },
-        { category: 'Documentation & Fees', amount: documentation, description: 'Permits, inspections, and processing' }
+        { category: 'Vehicle Purchase', amount: vehiclePrice, description: 'Estimated vehicle cost' },
+        { category: 'Shipping', amount: shipping, description: 'International shipping' },
+        { category: 'Import Duties', amount: Math.round(duties * 0.33), description: 'Government duties' },
+        { category: 'GST', amount: Math.round(duties * 0.67), description: 'Goods and services tax' },
+        { category: 'Compliance', amount: compliance, description: 'Local compliance costs' }
       ]
     };
   }
