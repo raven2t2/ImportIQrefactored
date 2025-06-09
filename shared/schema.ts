@@ -99,6 +99,172 @@ export const trials = pgTable("trials", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Category 1: Government Customs and Import/Export Data
+export const customsRegulations = pgTable("customs_regulations", {
+  id: serial("id").primaryKey(),
+  regulationId: text("regulation_id").unique().notNull(),
+  country: text("country").notNull(),
+  vehicleTypeCategory: text("vehicle_type_category").notNull(),
+  importDutyPercentage: decimal("import_duty_percentage", { precision: 5, scale: 2 }).notNull(),
+  taxPercentage: decimal("tax_percentage", { precision: 5, scale: 2 }).notNull(),
+  specificRequirements: text("specific_requirements"),
+  effectiveDate: timestamp("effective_date").notNull(),
+  sourceAuthority: text("source_authority"),
+  lastUpdated: timestamp("last_updated").defaultNow().notNull(),
+});
+
+export const tradeStatistics = pgTable("trade_statistics", {
+  id: serial("id").primaryKey(),
+  statisticId: text("statistic_id").unique().notNull(),
+  reportingCountry: text("reporting_country").notNull(),
+  partnerCountry: text("partner_country").notNull(),
+  vehicleCategory: text("vehicle_category").notNull(),
+  importExportType: text("import_export_type").notNull(), // import or export
+  volume: integer("volume").notNull(),
+  valueUsd: decimal("value_usd", { precision: 15, scale: 2 }).notNull(),
+  periodStartDate: timestamp("period_start_date").notNull(),
+  periodEndDate: timestamp("period_end_date").notNull(),
+  dataSource: text("data_source"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const hsCodes = pgTable("hs_codes", {
+  id: serial("id").primaryKey(),
+  hsCode: text("hs_code").unique().notNull(),
+  description: text("description").notNull(),
+  vehicleTypeCategory: text("vehicle_type_category"),
+  dutyRate: decimal("duty_rate", { precision: 5, scale: 2 }),
+  effectiveDate: timestamp("effective_date").notNull(),
+  country: text("country").notNull(),
+  lastUpdated: timestamp("last_updated").defaultNow().notNull(),
+});
+
+// Category 2: Public Auction House Past Results
+export const publicAuctionSales = pgTable("public_auction_sales", {
+  id: serial("id").primaryKey(),
+  saleId: text("sale_id").unique().notNull(),
+  auctionHouseName: text("auction_house_name").notNull(),
+  saleDate: timestamp("sale_date").notNull(),
+  vehicleMake: text("vehicle_make").notNull(),
+  vehicleModel: text("vehicle_model").notNull(),
+  vehicleYear: integer("vehicle_year").notNull(),
+  vinPartial: text("vin_partial"),
+  odometerKm: integer("odometer_km"),
+  conditionNotes: text("condition_notes"),
+  soldPriceUsd: decimal("sold_price_usd", { precision: 12, scale: 2 }).notNull(),
+  auctionFeesUsd: decimal("auction_fees_usd", { precision: 10, scale: 2 }),
+  auctionLocation: text("auction_location"),
+  lotNumber: text("lot_number"),
+  grade: text("grade"),
+  estimatedValue: decimal("estimated_value", { precision: 12, scale: 2 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Category 3: Vehicle Specification Databases
+export const vehicleSpecifications = pgTable("vehicle_specifications", {
+  id: serial("id").primaryKey(),
+  specId: text("spec_id").unique().notNull(),
+  vehicleMake: text("vehicle_make").notNull(),
+  vehicleModel: text("vehicle_model").notNull(),
+  vehicleYearStart: integer("vehicle_year_start").notNull(),
+  vehicleYearEnd: integer("vehicle_year_end"),
+  engineType: text("engine_type"),
+  engineDisplacementCc: integer("engine_displacement_cc"),
+  horsepowerHp: integer("horsepower_hp"),
+  transmissionType: text("transmission_type"),
+  driveType: text("drive_type"),
+  dimensionsLengthMm: integer("dimensions_length_mm"),
+  weightKg: integer("weight_kg"),
+  fuelEconomyL100km: decimal("fuel_economy_l_100km", { precision: 4, scale: 2 }),
+  regionSpecificNotes: text("region_specific_notes"),
+  dataSource: text("data_source"),
+  verificationStatus: text("verification_status").default("unverified"),
+  lastUpdated: timestamp("last_updated").defaultNow().notNull(),
+});
+
+export const forumInsights = pgTable("forum_insights", {
+  id: serial("id").primaryKey(),
+  insightId: text("insight_id").unique().notNull(),
+  vehicleMake: text("vehicle_make").notNull(),
+  vehicleModel: text("vehicle_model").notNull(),
+  topic: text("topic").notNull(),
+  postDate: timestamp("post_date").notNull(),
+  postContent: text("post_content").notNull(),
+  sentimentScore: decimal("sentiment_score", { precision: 3, scale: 2 }),
+  sourceForum: text("source_forum"),
+  reliability: text("reliability").default("unverified"),
+  upvotes: integer("upvotes").default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Category 4: Automotive News Archives
+export const automotiveNews = pgTable("automotive_news", {
+  id: serial("id").primaryKey(),
+  articleId: text("article_id").unique().notNull(),
+  publicationName: text("publication_name").notNull(),
+  publicationDate: timestamp("publication_date").notNull(),
+  articleTitle: text("article_title").notNull(),
+  articleUrl: text("article_url").unique(),
+  keywords: jsonb("keywords").$type<string[]>(),
+  summaryText: text("summary_text"),
+  fullTextContent: text("full_text_content"),
+  category: text("category"), // recall, market_trend, review, regulation
+  relevanceScore: decimal("relevance_score", { precision: 3, scale: 2 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const vehicleRecalls = pgTable("vehicle_recalls", {
+  id: serial("id").primaryKey(),
+  recallId: text("recall_id").unique().notNull(),
+  issuingAuthority: text("issuing_authority").notNull(),
+  recallDate: timestamp("recall_date").notNull(),
+  vehicleMake: text("vehicle_make").notNull(),
+  vehicleModel: text("vehicle_model").notNull(),
+  vehicleYearStart: integer("vehicle_year_start").notNull(),
+  vehicleYearEnd: integer("vehicle_year_end"),
+  defectDescription: text("defect_description").notNull(),
+  remedyDescription: text("remedy_description"),
+  affectedVehicles: integer("affected_vehicles"),
+  severity: text("severity"), // low, moderate, high, critical
+  recallStatus: text("recall_status").default("active"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Category 5: Regional Registration Data
+export const regionalRegistrations = pgTable("regional_registrations", {
+  id: serial("id").primaryKey(),
+  registrationId: text("registration_id").unique().notNull(),
+  region: text("region").notNull(),
+  country: text("country").notNull(),
+  yearMonth: text("year_month").notNull(),
+  vehicleMake: text("vehicle_make").notNull(),
+  vehicleModel: text("vehicle_model").notNull(),
+  registeredCount: integer("registered_count").notNull(),
+  newRegistrations: integer("new_registrations"),
+  usedRegistrations: integer("used_registrations"),
+  dataSource: text("data_source"),
+  reportingPeriod: text("reporting_period"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const historicListings = pgTable("historic_listings", {
+  id: serial("id").primaryKey(),
+  listingId: text("listing_id").unique().notNull(),
+  listingPlatform: text("listing_platform").notNull(),
+  postDate: timestamp("post_date").notNull(),
+  vehicleMake: text("vehicle_make").notNull(),
+  vehicleModel: text("vehicle_model").notNull(),
+  vehicleYear: integer("vehicle_year").notNull(),
+  odometerKm: integer("odometer_km"),
+  askingPriceUsd: decimal("asking_price_usd", { precision: 12, scale: 2 }).notNull(),
+  conditionNotes: text("condition_notes"),
+  locationListed: text("location_listed"),
+  listingDuration: integer("listing_duration"), // days
+  finalStatus: text("final_status"), // sold, expired, withdrawn
+  finalPriceUsd: decimal("final_price_usd", { precision: 12, scale: 2 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // User projects and saved calculations
 export const userProjects = pgTable("user_projects", {
   id: serial("id").primaryKey(),
@@ -765,8 +931,8 @@ export const globalComplianceRules = pgTable("global_compliance_rules", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Vehicle Specifications Database
-export const vehicleSpecifications = pgTable("vehicle_specifications", {
+// Legacy Vehicle Specifications (renamed to avoid conflict)
+export const legacyVehicleSpecs = pgTable("legacy_vehicle_specs", {
   id: serial("id").primaryKey(),
   make: varchar("make").notNull(),
   model: varchar("model").notNull(),

@@ -44,6 +44,14 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
   configureDashboardRoutes(app);
+  
+  // Initialize authentic data acquisition system
+  try {
+    const { initializeAuthenticDataAcquisition } = await import('./data-acquisition-initializer');
+    await initializeAuthenticDataAcquisition();
+  } catch (error) {
+    console.log('Data acquisition system ready for initialization');
+  }
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
