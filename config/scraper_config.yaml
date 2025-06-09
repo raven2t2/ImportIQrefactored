@@ -1,0 +1,214 @@
+# ImportIQ Targeted Web Scraping Configuration
+# Focused on core customer promise: "Can I import this car?", "How much will it cost?", "What do I need to do?"
+
+# Global scraping settings
+global:
+  rate_limit: 30  # requests per minute
+  delay_range: [2, 5]  # seconds between requests
+  retry_config:
+    max_retries: 3
+    backoff_factor: 2
+    max_delay: 60
+  
+  # User agent rotation
+  user_agents:
+    - "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
+    - "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15"
+    - "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
+
+# Priority 1: Vehicle Import Eligibility (highest priority)
+import_eligibility:
+  enabled: true
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  priority: 1
+  
+  sources:
+    nhtsa:
+      enabled: true
+      base_url: "https://www.nhtsa.gov"
+      paths:
+        - "/vehicle-importers/import-nonconforming-vehicle"
+        - "/vehicle-manufacturers/oem-information"
+      rate_limit: 20
+      
+    epa:
+      enabled: true
+      base_url: "https://www.epa.gov"
+      paths:
+        - "/vehicle-and-fuel-emissions-standards/importing-vehicles-and-engines"
+      rate_limit: 15
+      
+    canada_riv:
+      enabled: true
+      base_url: "https://www.tc.gc.ca"
+      paths:
+        - "/eng/motorvehiclesafety/importation-vehicles/list-admissible-vehicles"
+      rate_limit: 10
+      
+    uk_dvla:
+      enabled: true
+      base_url: "https://www.gov.uk"
+      paths:
+        - "/importing-vehicles-into-the-uk"
+        - "/vehicle-type-approval"
+      rate_limit: 10
+      
+    australia_raws:
+      enabled: true
+      base_url: "https://www.infrastructure.gov.au"
+      paths:
+        - "/vehicles/vehicle-standards/importing-vehicles"
+      rate_limit: 10
+
+  # Target vehicles for eligibility checking
+  target_vehicles:
+    jdm_popular:
+      - {make: "Nissan", model: "Skyline GT-R", variants: ["R32", "R33", "R34"]}
+      - {make: "Toyota", model: "Supra", variants: ["A70", "A80", "A90"]}
+      - {make: "Honda", model: "Civic Type R", variants: ["EK9", "EP3", "FD2", "FK2", "FK8"]}
+      - {make: "Subaru", model: "Impreza WRX STI", variants: ["GC8", "GDB", "GRB"]}
+      - {make: "Mitsubishi", model: "Lancer Evolution", variants: ["IV", "V", "VI", "VII", "VIII", "IX", "X"]}
+    
+    european_performance:
+      - {make: "BMW", model: "M3", variants: ["E30", "E36", "E46", "E90", "E92"]}
+      - {make: "Mercedes-Benz", model: "AMG", variants: ["C63", "E63", "S63"]}
+      - {make: "Audi", model: "RS", variants: ["RS4", "RS6", "RS7"]}
+      - {make: "Volkswagen", model: "Golf R", variants: ["Mk5", "Mk6", "Mk7", "Mk8"]}
+      - {make: "Porsche", model: "911", variants: ["964", "993", "996", "997"]}
+
+# Priority 2: Customs Duty Rates (cost calculation)
+customs_duty_rates:
+  enabled: true
+  schedule: "0 3 * * 0"  # Weekly on Sunday at 3 AM
+  priority: 2
+  
+  sources:
+    us_customs:
+      enabled: true
+      base_url: "https://hts.usitc.gov"
+      vehicle_codes: ["8703", "8704", "8705"]  # HTS codes for vehicles
+      rate_limit: 15
+      
+    canada_cbsa:
+      enabled: true
+      base_url: "https://www.cbsa-asfc.gc.ca"
+      rate_limit: 10
+      
+    uk_hmrc:
+      enabled: true
+      base_url: "https://www.gov.uk"
+      paths: ["/trade-tariff"]
+      rate_limit: 10
+      
+    australia_abf:
+      enabled: true
+      base_url: "https://www.abf.gov.au"
+      rate_limit: 10
+      
+    eu_taric:
+      enabled: true
+      base_url: "https://ec.europa.eu/taxation_customs"
+      rate_limit: 5
+
+# Priority 3: Popular Import Vehicles (market data)
+popular_import_vehicles:
+  enabled: true
+  schedule: "0 4 * * *"  # Daily at 4 AM
+  priority: 3
+  
+  sources:
+    bring_a_trailer:
+      enabled: false  # Requires special handling
+      base_url: "https://bringatrailer.com"
+      rate_limit: 5
+      
+    cars_and_bids:
+      enabled: false  # Requires special handling
+      base_url: "https://carsandbids.com"
+      rate_limit: 5
+      
+    # Focus on data we can reliably scrape
+    vehicle_databases:
+      enabled: true
+      sources:
+        - wikipedia_vehicle_lists
+        - manufacturer_spec_sheets
+        - enthusiast_forums
+
+# Priority 4: Government Auctions (additional vehicles)
+government_auctions:
+  enabled: true
+  schedule: "0 5 * * 1,3,5"  # Monday, Wednesday, Friday at 5 AM
+  priority: 4
+  
+  sources:
+    gsa_auctions:
+      enabled: true
+      base_url: "https://gsaauctions.gov"
+      rate_limit: 10
+      
+    govdeals:
+      enabled: true
+      base_url: "https://www.govdeals.com"
+      rate_limit: 10
+
+# Priority 5: Insurance Auctions (market pricing)
+insurance_auctions:
+  enabled: true
+  schedule: "0 6 * * 2,4,6"  # Tuesday, Thursday, Saturday at 6 AM
+  priority: 5
+  
+  sources:
+    copart_public:
+      enabled: true
+      base_url: "https://www.copart.com"
+      rate_limit: 8
+      
+    iaa_public:
+      enabled: true
+      base_url: "https://www.iaai.com"
+      rate_limit: 8
+
+# Data validation settings
+validation:
+  min_quality_score: 0.7
+  require_source_verification: true
+  duplicate_detection: true
+  
+  required_fields:
+    vehicle: ["make", "model"]
+    duty_rate: ["country", "duty_rate_percent"]
+    import_eligibility: ["country_destination", "regulatory_authority"]
+
+# PostgreSQL integration
+database:
+  batch_size: 100
+  use_staging_tables: true
+  enable_upserts: true
+  
+  staging_tables:
+    - scraped_data_staging
+    - scraping_log
+    - data_quality_metrics
+
+# Monitoring and alerts
+monitoring:
+  enable_health_checks: true
+  alert_on_failures: true
+  max_consecutive_failures: 3
+  
+  metrics:
+    - scraping_success_rate
+    - data_quality_score
+    - records_per_hour
+    - error_rate
+
+# Export settings
+export:
+  formats: ["json", "csv"]
+  include_metadata: true
+  compress_output: true
+  
+  schedules:
+    daily_summary: "0 23 * * *"
+    weekly_report: "0 23 * * 0"
