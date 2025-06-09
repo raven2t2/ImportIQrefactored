@@ -152,7 +152,7 @@ export default function ImportJourneyIntelligence({ destination }: ImportJourney
           <div className="space-y-4">
             <div className="flex gap-3">
               <Input
-                placeholder="Enter your city, state/country (e.g., Sydney, Australia)"
+                placeholder="Enter your location, postal code, or address (e.g., Sydney NSW 2000, Toronto M5V 3A8, 90210 USA)"
                 value={locationInput}
                 onChange={(e) => setLocationInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleLocationSearch()}
@@ -169,7 +169,15 @@ export default function ImportJourneyIntelligence({ destination }: ImportJourney
               </Button>
             </div>
             <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
-              <div className="font-medium text-blue-800 mb-1">What you'll discover:</div>
+              <div className="font-medium text-blue-800 mb-2">Global Location Support:</div>
+              <div className="text-blue-700 mb-2">
+                Accepts cities, postal codes, and addresses worldwide including:
+                <br />• Australia: Sydney NSW 2000, Melbourne VIC 3000
+                <br />• Canada: Toronto M5V 3A8, Vancouver V6B 1A1  
+                <br />• USA: Los Angeles 90210, New York 10001
+                <br />• UK: London SW1A 1AA, Manchester M1 1AA
+              </div>
+              <div className="font-medium text-blue-800 mb-1">You'll find:</div>
               <ul className="text-blue-700 space-y-1">
                 <li>• Verified compliance shops and import specialists</li>
                 <li>• Authenticated shipping agents and freight forwarders</li>
