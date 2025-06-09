@@ -36,10 +36,11 @@ import {
   anonymousSessions,
   globalComplianceRules,
   vehicleSpecifications,
-  importCostStructure,
   portInformation,
-  vehicleAuctions,
-  auctionListings
+  auctionListings,
+  customsRegulations,
+  automotiveNews,
+  vehicleRegistrations
 } from '@shared/schema';
 import { eq, desc, lt, sql, and } from 'drizzle-orm';
 import { db } from './db';
@@ -4896,7 +4897,7 @@ Respond with a JSON object containing your recommendations.`;
     console.log(`🔍 calculateEligibility called for ${vehicle?.make} ${vehicle?.model} to ${destination}`);
     
     try {
-      // Query customs regulations from database for the specific destination
+      // Query customs duties from database for the specific destination
       const regulations = await db.select()
         .from(customsRegulations)
         .where(eq(customsRegulations.destinationCountry, destination))
