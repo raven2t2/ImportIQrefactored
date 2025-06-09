@@ -176,7 +176,12 @@ export default function ImportJourneyIntelligence() {
           }
         };
 
-        return { journey };
+        return { 
+          journey,
+          businesses: businessesData.businesses || [],
+          total: businessesData.total || 0,
+          metadata: businessesData.metadata || {}
+        };
       } catch (error) {
         console.error('Failed to fetch journey data:', error);
         return null;
@@ -484,19 +489,25 @@ export default function ImportJourneyIntelligence() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {journey.locationIntelligence?.businesses && journey.locationIntelligence.businesses.length > 0 ? (
+                  {journeyData?.businesses && journeyData.businesses.length > 0 ? (
                     <div className="grid gap-4">
-                      {journey.locationIntelligence.businesses.map((business, index) => (
+                      <div className="text-sm text-muted-foreground mb-2">
+                        Found {journeyData.total} businesses in {journeyData.metadata?.country || 'your area'} • {journeyData.metadata?.region || 'Global'}
+                      </div>
+                      {journeyData.businesses.map((business, index) => (
                         <div key={index} className="border rounded-lg p-4">
                           <div className="flex justify-between items-start mb-2">
                             <div>
                               <h4 className="font-semibold flex items-center gap-2">
-                                {business.name}
+                                {business.name || business.business_name}
                                 <Badge variant="outline" className="text-xs">Google Verified</Badge>
                               </h4>
                               <p className="text-sm text-muted-foreground">{business.address}</p>
                               {business.phone && (
                                 <p className="text-sm text-blue-600">{business.phone}</p>
+                              )}
+                              {business.searchTerm && (
+                                <p className="text-xs text-green-600">Found via: {business.searchTerm}</p>
                               )}
                             </div>
                             <div className="text-right">
