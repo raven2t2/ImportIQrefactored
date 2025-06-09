@@ -3241,6 +3241,46 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
+  // Enhanced scraping system endpoints
+  app.get("/api/scraping/stats", async (req, res) => {
+    try {
+      const PostgreSQLScrapingIntegration = (await import('./postgresql-scraping-integration')).default;
+      const stats = await PostgreSQLScrapingIntegration.getDatabaseStats();
+      
+      res.json({
+        success: true,
+        stats,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        success: false, 
+        error: "Failed to get scraping statistics",
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
+  app.post("/api/scraping/scale", async (req, res) => {
+    try {
+      const PostgreSQLScrapingIntegration = (await import('./postgresql-scraping-integration')).default;
+      const results = await PostgreSQLScrapingIntegration.runComprehensiveScaling();
+      
+      res.json({
+        success: true,
+        results,
+        message: `Scaling completed: ${results.totalNewRecords} new records added`,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        success: false, 
+        error: "Failed to run comprehensive scaling",
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
   // Compliance Roadmap Generator API
   app.post("/api/compliance-roadmap", async (req, res) => {
     try {
