@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
-import { Calculator, Ship, Crown, FileText, ArrowRight } from "lucide-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { Calculator, Ship, Crown, FileText, ArrowRight, ExternalLink, Building2 } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

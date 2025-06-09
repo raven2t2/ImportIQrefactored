@@ -3996,6 +3996,70 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
+  // Global Vehicle Import Compliance Forms API
+  app.get('/api/compliance-forms/:countryCode', async (req, res) => {
+    try {
+      const { countryCode } = req.params;
+      const { vehicleType } = req.query;
+      
+      if (!countryCode) {
+        return res.status(400).json({ error: 'Country code is required' });
+      }
+
+      const { db } = await import('./db');
+      const { countries, complianceForms } = await import('../shared/schema');
+      const { eq, and, arrayContains } = await import('drizzle-orm');
+
+      // Get country information
+      const [country] = await db.select().from(countries).where(eq(countries.countryCode, countryCode.toUpperCase()));
+      
+      if (!country) {
+        return res.status(404).json({ error: 'Country not found' });
+      }
+
+      // Get compliance forms for the country
+      let formsQuery = db.select().from(complianceForms).where(eq(complianceForms.countryId, country.id));
+      
+      // Filter by vehicle type if provided
+      if (vehicleType) {
+        formsQuery = formsQuery.where(arrayContains(complianceForms.requiredFor, [vehicleType as string]));
+      }
+
+      const forms = await formsQuery;
+
+      // Calculate statistics
+      const total = forms.length;
+      const mandatory = forms.filter(form => form.mandatory).length;
+      const optional = total - mandatory;
+
+      res.json({
+        country,
+        forms,
+        total,
+        mandatory,
+        optional
+      });
+    } catch (error) {
+      console.error('Failed to get compliance forms:', error);
+      res.status(500).json({ error: 'Failed to retrieve compliance forms' });
+    }
+  });
+
+  app.get('/api/compliance-forms', async (req, res) => {
+    try {
+      const { db } = await import('./db');
+      const { countries } = await import('../shared/schema');
+
+      // Get all available countries with import compliance data
+      const availableCountries = await db.select().from(countries);
+
+      res.json({ countries: availableCountries });
+    } catch (error) {
+      console.error('Failed to get available countries:', error);
+      res.status(500).json({ error: 'Failed to retrieve countries' });
+    }
+  });
+
   app.get('/api/memory/personalized-recommendations', async (req, res) => {
     try {
       const { sessionToken } = req.query;

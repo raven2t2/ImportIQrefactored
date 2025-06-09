@@ -613,6 +613,39 @@ export const scrapingMetrics = pgTable('scraping_metrics', {
   createdAt: timestamp('created_at').defaultNow(),
 });
 
+// Global Vehicle Import Compliance Forms Database
+export const countries = pgTable('countries', {
+  id: serial('id').primaryKey(),
+  countryCode: varchar('country_code', { length: 3 }).notNull().unique(), // ISO 3166-1 alpha-3
+  countryName: varchar('country_name', { length: 100 }).notNull(),
+  currency: varchar('currency', { length: 3 }).notNull(),
+  importAgencyName: varchar('import_agency_name', { length: 200 }).notNull(),
+  agencyWebsite: varchar('agency_website', { length: 500 }).notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+export const complianceForms = pgTable('compliance_forms', {
+  id: serial('id').primaryKey(),
+  countryId: integer('country_id').references(() => countries.id).notNull(),
+  formCode: varchar('form_code', { length: 50 }).notNull(),
+  formName: varchar('form_name', { length: 200 }).notNull(),
+  formDescription: text('form_description').notNull(),
+  formUrl: varchar('form_url', { length: 500 }).notNull(),
+  pdfUrl: varchar('pdf_url', { length: 500 }),
+  requiredFor: text('required_for').array().notNull(), // ['passenger_cars', 'commercial', 'motorcycles', 'classic']
+  mandatory: boolean('mandatory').default(true),
+  processingTimeDays: integer('processing_time_days'),
+  fees: jsonb('fees'), // { amount: number, currency: string, description: string }
+  lastVerified: varchar('last_verified', { length: 10 }), // YYYY-MM-DD format
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+}, (table) => ({
+  countryIdx: index('compliance_forms_country_idx').on(table.countryId),
+  formCodeIdx: index('compliance_forms_form_code_idx').on(table.formCode),
+  mandatoryIdx: index('compliance_forms_mandatory_idx').on(table.mandatory),
+}));
+
 export const journeyEvents = pgTable("journey_events", {
   id: serial("id").primaryKey(),
   sessionId: text("session_id").notNull(),
