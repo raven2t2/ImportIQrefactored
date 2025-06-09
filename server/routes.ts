@@ -3594,52 +3594,19 @@ Respond with a JSON object containing your recommendations.`;
         });
       }
 
-      // Query authentic mod shop database for location-filtered businesses
-      const locationStr = location as string;
-      const businesses = await db.select().from(modShops).where(
-        sql`${modShops.country} = ${getCountryFromLocation(locationStr)} OR ${modShops.city} ILIKE ${`%${getCityFromLocation(locationStr)}%`}`
-      );
+      console.log(`🌍 Global business search: ${type} near ${location}`);
       
-      // Transform database results to match Google Maps format
-      const formattedBusinesses = businesses.slice(0, 5).map(shop => ({
-        place_id: `mod_shop_${shop.id}`,
-        name: shop.name,
-        business_name: shop.name,
-        address: `${shop.address}, ${shop.city}, ${shop.state || shop.province}, ${shop.country}`,
-        rating: shop.rating || 4.5,
-        user_ratings_total: shop.reviewCount || 25,
-        phone: shop.phone,
-        website: shop.website,
-        types: ['car_repair', 'automotive_service', 'performance_shop'],
-        geometry: {
-          location: {
-            lat: shop.latitude,
-            lng: shop.longitude
-          }
-        }
-      }));
-
-      function getCountryFromLocation(loc: string): string {
-        const locLower = loc.toLowerCase();
-        if (locLower.includes('australia') || locLower.includes('sydney')) return 'Australia';
-        if (locLower.includes('canada') || locLower.includes('toronto')) return 'Canada';
-        if (locLower.includes('usa') || locLower.includes('angeles')) return 'United States';
-        if (locLower.includes('uk') || locLower.includes('london')) return 'United Kingdom';
-        return 'Australia'; // default
-      }
-
-      function getCityFromLocation(loc: string): string {
-        const locLower = loc.toLowerCase();
-        if (locLower.includes('sydney')) return 'Sydney';
-        if (locLower.includes('toronto')) return 'Toronto';
-        if (locLower.includes('angeles')) return 'Los Angeles';
-        if (locLower.includes('london')) return 'London';
-        return 'Sydney'; // default
-      }
+      // Use authentic Google Maps API through our service
+      const businesses = await googleMapsService.findNearbyShops(
+        location as string,
+        type === 'performance' ? 'performance' : type as string,
+        50, // 50km radius
+        5   // limit to 5 results
+      );
       
       res.json({
         success: true,
-        businessesData: { businesses: formattedBusinesses },
+        businessesData: { businesses },
         location,
         type,
         timestamp: new Date().toISOString()
