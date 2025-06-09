@@ -291,14 +291,14 @@ export default function ImportJourneyIntelligence() {
                 <div className="flex items-center gap-3">
                   <Clock className="h-8 w-8 text-blue-600" />
                   <div>
-                    <p className="text-2xl font-bold">{journey.summary.estimatedTimeframe}</p>
+                    <p className="text-2xl font-bold">{journeyData.journey.summary.estimatedTimeframe}</p>
                     <p className="text-sm text-muted-foreground">Total Timeline</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <Ship className="h-8 w-8 text-purple-600" />
                   <div>
-                    <p className="text-lg font-bold">{journey.summary.recommendedPort}</p>
+                    <p className="text-lg font-bold">{journeyData.journey.summary.recommendedPort}</p>
                     <p className="text-sm text-muted-foreground">Recommended Port</p>
                   </div>
                 </div>
@@ -317,7 +317,7 @@ export default function ImportJourneyIntelligence() {
             {/* Port Recommendations */}
             <TabsContent value="ports" className="space-y-4">
               <div className="grid gap-4">
-                {journey.recommendations.ports.map((port, index) => (
+                {journeyData.journey.recommendations.ports.map((port, index) => (
                   <Card key={port.portCode} className={index === 0 ? 'border-blue-500 bg-blue-50/50' : ''}>
                     <CardHeader>
                       <div className="flex items-start justify-between">
@@ -369,7 +369,7 @@ export default function ImportJourneyIntelligence() {
             {/* Shipping Routes */}
             <TabsContent value="shipping" className="space-y-4">
               <div className="grid gap-4">
-                {journey.recommendations.shipping.map((route, index) => (
+                {journeyData.journey.recommendations.shipping.map((route, index) => (
                   <Card key={index}>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
@@ -417,11 +417,11 @@ export default function ImportJourneyIntelligence() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <FileText className="h-5 w-5" />
-                    {journey.recommendations.compliance.region} Requirements
+                    {journeyData.journey.recommendations.compliance.region} Requirements
                   </CardTitle>
                   <CardDescription>
-                    Estimated timeframe: {journey.recommendations.compliance.estimatedTimeframe} | 
-                    Total cost: ${journey.recommendations.compliance.totalCost}
+                    Estimated timeframe: {journeyData.journey.recommendations.compliance.estimatedTimeframe} | 
+                    Total cost: ${journeyData.journey.recommendations.compliance.totalCost}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
