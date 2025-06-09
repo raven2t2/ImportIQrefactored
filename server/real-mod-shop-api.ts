@@ -36,31 +36,22 @@ router.get('/specialty/:specialty', async (req, res) => {
       })
       .from(modShopPartners);
 
-    // Filter by specialty
+    // Filter by specialty using the actual database column
     if (specialty.toLowerCase() === 'jdm') {
-      query = query.where(sql`${modShopPartners.specialties}::jsonb ? 'jdm_vehicles'`);
+      query = query.where(ilike(modShopPartners.specialty, '%JDM%'));
     } else if (specialty.toLowerCase() === 'european') {
-      query = query.where(sql`${modShopPartners.specialties}::jsonb ? 'european_cars'`);
+      query = query.where(ilike(modShopPartners.specialty, '%European%'));
     } else if (specialty.toLowerCase() === 'performance') {
-      query = query.where(
-        or(
-          sql`${modShopPartners.specialties}::jsonb ? 'performance_cars'`,
-          sql`${modShopPartners.specialties}::jsonb ? 'supercars'`
-        )
-      );
+      query = query.where(ilike(modShopPartners.specialty, '%Performance%'));
     }
 
-    // Add geographic filters
+    // Add geographic filters using location field
     if (state) {
-      query = query.where(eq(modShopPartners.stateProvince, state.toString().toUpperCase()));
+      query = query.where(ilike(modShopPartners.location, `%${state}%`));
     }
     
     if (city) {
-      query = query.where(ilike(modShopPartners.city, `%${city}%`));
-    }
-    
-    if (postalCode) {
-      query = query.where(eq(modShopPartners.postalCode, postalCode.toString()));
+      query = query.where(ilike(modShopPartners.location, `%${city}%`));
     }
 
     // Apply limit
