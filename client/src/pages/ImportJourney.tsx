@@ -130,20 +130,23 @@ export default function ImportJourney() {
       // Parse URL parameters first
       const urlParams = SessionManager.parseUrlParams();
       console.log('Parsing URL params:', urlParams);
+      console.log('Current URL:', window.location.href);
       
       // Always set vehicle data from URL parameters
-      setVehicleData({
+      const newVehicleData = {
         make: urlParams.make || '',
         model: urlParams.model || '',
         chassis: urlParams.chassis || '',
         year: urlParams.year || ''
-      });
+      };
+      console.log('Setting vehicle data:', newVehicleData);
+      setVehicleData(newVehicleData);
       setDestination(urlParams.destination || 'australia');
       
       // Try to get or create session token
       let token = SessionManager.getSessionToken();
       
-      if (!token && (urlParams.make || urlParams.model)) {
+      if (!token && (newVehicleData.make || newVehicleData.model)) {
         try {
           const reconstructed = await SessionManager.reconstructSession(urlParams);
           if (reconstructed) {
@@ -248,6 +251,28 @@ export default function ImportJourney() {
           <p className="text-gray-600">API Error: {error?.message || 'Unknown error'}</p>
           <p className="text-gray-500 mt-2">Vehicle: {vehicleData.make} {vehicleData.model}</p>
           <p className="text-gray-500">Destination: {destination}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!importIntelligence && !isLoading && (!vehicleData.make || !vehicleData.model)) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <Car className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold mb-4 text-gray-900">Start Your Import Journey</h2>
+          <p className="text-gray-600 mb-6">
+            Search for your dream vehicle on the homepage to get comprehensive import intelligence, 
+            real auction pricing, and complete cost breakdowns.
+          </p>
+          <Button 
+            onClick={() => window.location.href = '/'}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            <ArrowRight className="h-4 w-4 mr-2" />
+            Search Vehicles
+          </Button>
         </div>
       </div>
     );
