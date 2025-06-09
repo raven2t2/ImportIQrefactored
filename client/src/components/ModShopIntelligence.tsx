@@ -11,10 +11,19 @@ interface ModShop {
   id: number;
   name: string;
   business_name: string;
+  contact_person: string;
+  email: string;
+  phone: string;
   description: string;
   website: string;
   location: string;
+  country: string;
+  postal_code: string;
   specialty: string;
+  services_offered: string;
+  years_in_business: number;
+  certifications: string;
+  average_rating: number;
   is_active: boolean;
 }
 
@@ -174,26 +183,99 @@ export function ModShopIntelligence({ vehicleMake, vehicleModel, destination }: 
           {shopsToShow.map((shop: any) => (
             <div key={shop.id} className="bg-white rounded-lg p-4 border border-gray-200 hover:border-purple-300 transition-colors">
               <div className="flex justify-between items-start mb-2">
-                <div>
+                <div className="flex-1">
                   <h4 className="font-semibold text-gray-900">{shop.name}</h4>
                   <p className="text-sm text-gray-600">{shop.business_name}</p>
+                  {shop.contact_person && (
+                    <p className="text-xs text-gray-500">Contact: {shop.contact_person}</p>
+                  )}
                 </div>
-                <Badge 
-                  variant="outline" 
-                  className={shop.specialty?.toLowerCase().includes('jdm') ? 'border-blue-300 text-blue-700' : 
-                             shop.specialty?.toLowerCase().includes('european') ? 'border-green-300 text-green-700' : 
-                             'border-orange-300 text-orange-700'}
-                >
-                  {shop.specialty}
-                </Badge>
+                <div className="flex flex-col items-end gap-1">
+                  <Badge 
+                    variant="outline" 
+                    className={shop.specialty?.toLowerCase().includes('jdm') ? 'border-blue-300 text-blue-700' : 
+                               shop.specialty?.toLowerCase().includes('european') ? 'border-green-300 text-green-700' : 
+                               'border-orange-300 text-orange-700'}
+                  >
+                    {shop.specialty}
+                  </Badge>
+                  {shop.average_rating && (
+                    <div className="flex items-center gap-1">
+                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                      <span className="text-xs text-gray-600">{shop.average_rating}</span>
+                    </div>
+                  )}
+                </div>
               </div>
               
               <p className="text-sm text-gray-700 mb-3">{shop.description}</p>
               
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1 text-sm text-gray-600">
-                  <MapPin className="w-4 h-4" />
+              {/* Business Details */}
+              <div className="grid grid-cols-2 gap-4 mb-3 text-xs text-gray-600">
+                <div className="flex items-center gap-1">
+                  <MapPin className="w-3 h-3" />
                   {shop.location}
+                  {shop.country && shop.country !== 'United States' && (
+                    <Badge variant="secondary" className="ml-1 text-xs">
+                      {shop.country}
+                    </Badge>
+                  )}
+                </div>
+                {shop.years_in_business && (
+                  <div className="text-xs text-gray-500">
+                    {shop.years_in_business} years experience
+                  </div>
+                )}
+              </div>
+
+              {/* Services and Certifications */}
+              {(shop.services_offered || shop.certifications) && (
+                <div className="mb-3 space-y-1">
+                  {shop.services_offered && (
+                    <div className="text-xs text-gray-600">
+                      <span className="font-medium">Services:</span> {
+                        typeof shop.services_offered === 'string' 
+                          ? JSON.parse(shop.services_offered).slice(0, 3).join(', ')
+                          : shop.services_offered.slice(0, 3).join(', ')
+                      }
+                    </div>
+                  )}
+                  {shop.certifications && (
+                    <div className="text-xs text-gray-600">
+                      <span className="font-medium">Certified:</span> {
+                        typeof shop.certifications === 'string' 
+                          ? JSON.parse(shop.certifications).join(', ')
+                          : shop.certifications.join(', ')
+                      }
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {shop.phone && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => window.open(`tel:${shop.phone}`, '_self')}
+                      className="flex items-center gap-1 text-xs"
+                    >
+                      <Phone className="w-3 h-3" />
+                      Call
+                    </Button>
+                  )}
+                  {shop.email && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => window.open(`mailto:${shop.email}`, '_self')}
+                      className="flex items-center gap-1 text-xs"
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                      Email
+                    </Button>
+                  )}
                 </div>
                 
                 <div className="flex items-center gap-2">
@@ -205,7 +287,7 @@ export function ModShopIntelligence({ vehicleMake, vehicleModel, destination }: 
                       className="flex items-center gap-1"
                     >
                       <Globe className="w-3 h-3" />
-                      Visit
+                      Website
                     </Button>
                   )}
                 </div>
