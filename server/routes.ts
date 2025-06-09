@@ -10445,43 +10445,6 @@ async function getMarketPricingData(filters: {
     }
   });
 
-  return server;
-}
-
-// Helper function to extract vehicle details from title
-function extractVehicleDetails(title: string): { make?: string; model?: string; year?: number } {
-  const makes = ['toyota', 'nissan', 'honda', 'mazda', 'subaru', 'mitsubishi', 'ford', 'chevrolet', 'dodge', 'bmw', 'mercedes', 'audi', 'volkswagen'];
-  const yearMatch = title.match(/\b(19|20)\d{2}\b/);
-  
-  let make: string | undefined;
-  let model: string | undefined;
-  let year: number | undefined;
-
-  // Extract year
-  if (yearMatch) {
-    year = parseInt(yearMatch[0]);
-  }
-
-  // Extract make
-  for (const m of makes) {
-    if (title.toLowerCase().includes(m)) {
-      make = m.charAt(0).toUpperCase() + m.slice(1);
-      break;
-    }
-  }
-
-  // Extract model (simplified - would need more sophisticated logic for real use)
-  if (make) {
-    const titleParts = title.toLowerCase().split(' ');
-    const makeIndex = titleParts.findIndex(part => part.includes(make.toLowerCase()));
-    if (makeIndex !== -1 && makeIndex + 1 < titleParts.length) {
-      model = titleParts[makeIndex + 1].charAt(0).toUpperCase() + titleParts[makeIndex + 1].slice(1);
-    }
-  }
-
-  return { make, model, year };
-}
-
   // Project Inquiry submission endpoint
   app.post('/api/project-inquiries', async (req, res) => {
     try {
@@ -10538,4 +10501,38 @@ function extractVehicleDetails(title: string): { make?: string; model?: string; 
   });
 
   return server;
+}
+
+// Helper function to extract vehicle details from title
+function extractVehicleDetails(title: string): { make?: string; model?: string; year?: number } {
+  const makes = ['toyota', 'nissan', 'honda', 'mazda', 'subaru', 'mitsubishi', 'ford', 'chevrolet', 'dodge', 'bmw', 'mercedes', 'audi', 'volkswagen'];
+  const yearMatch = title.match(/\b(19|20)\d{2}\b/);
+  
+  let make: string | undefined;
+  let model: string | undefined;
+  let year: number | undefined;
+
+  // Extract year
+  if (yearMatch) {
+    year = parseInt(yearMatch[0]);
+  }
+
+  // Extract make
+  for (const m of makes) {
+    if (title.toLowerCase().includes(m)) {
+      make = m.charAt(0).toUpperCase() + m.slice(1);
+      break;
+    }
+  }
+
+  // Extract model (simplified - would need more sophisticated logic for real use)
+  if (make) {
+    const titleParts = title.toLowerCase().split(' ');
+    const makeIndex = titleParts.findIndex(part => part.includes(make.toLowerCase()));
+    if (makeIndex !== -1 && makeIndex + 1 < titleParts.length) {
+      model = titleParts[makeIndex + 1].charAt(0).toUpperCase() + titleParts[makeIndex + 1].slice(1);
+    }
+  }
+
+  return { make, model, year };
 }
