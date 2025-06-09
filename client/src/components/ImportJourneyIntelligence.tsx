@@ -5,7 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { MapPin, Ship, Clock, DollarSign, Star, Phone, ExternalLink, Zap, Target, TrendingUp, Shield, Award, CheckCircle2 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { MapPin, Ship, Clock, DollarSign, Star, Phone, ExternalLink, Zap, Target, TrendingUp, Shield, Award, CheckCircle2, Search } from 'lucide-react';
 
 interface ImportJourneyIntelligenceProps {
   destination?: string;
@@ -14,6 +15,8 @@ interface ImportJourneyIntelligenceProps {
 export default function ImportJourneyIntelligence({ destination }: ImportJourneyIntelligenceProps) {
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [currentStep, setCurrentStep] = useState('Initializing...');
+  const [userLocation, setUserLocation] = useState('');
+  const [locationInput, setLocationInput] = useState('');
 
   const destinationToLocation = (dest: string) => {
     const mapping: Record<string, string> = {
@@ -26,7 +29,14 @@ export default function ImportJourneyIntelligence({ destination }: ImportJourney
     return mapping[dest] || dest;
   };
 
-  const userLocation = destination ? destinationToLocation(destination) : '';
+  // Initialize location from props or allow user input
+  useEffect(() => {
+    if (destination) {
+      const mappedLocation = destinationToLocation(destination);
+      setUserLocation(mappedLocation);
+      setLocationInput(mappedLocation);
+    }
+  }, [destination]);
 
   // Simulate intelligent analysis progress
   useEffect(() => {
@@ -58,6 +68,12 @@ export default function ImportJourneyIntelligence({ destination }: ImportJourney
 
     return () => clearInterval(interval);
   }, [userLocation]);
+
+  const handleLocationSearch = () => {
+    if (locationInput.trim()) {
+      setUserLocation(locationInput.trim());
+    }
+  };
 
   // Fetch authentic Google Maps data
   const { data: journeyData, isLoading } = useQuery({
@@ -115,6 +131,41 @@ export default function ImportJourneyIntelligence({ destination }: ImportJourney
               <span>Analyzing global networks...</span>
               <span>{analysisProgress}%</span>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!userLocation) {
+    return (
+      <Card className="bg-gradient-to-br from-blue-50 to-purple-50 border-blue-200">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MapPin className="h-5 w-5 text-blue-600" />
+            Destination Intelligence Required
+          </CardTitle>
+          <CardDescription>
+            Enter your location to discover verified service providers and optimal shipping routes
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-2">
+            <Input
+              placeholder="Enter your city, state/country (e.g., Sydney, Australia)"
+              value={locationInput}
+              onChange={(e) => setLocationInput(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleLocationSearch()}
+              className="flex-1"
+            />
+            <Button 
+              onClick={handleLocationSearch}
+              disabled={!locationInput.trim()}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              <Search className="h-4 w-4 mr-2" />
+              Search
+            </Button>
           </div>
         </CardContent>
       </Card>
