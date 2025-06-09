@@ -147,7 +147,7 @@ export class ComplianceFormsSeeder {
     ];
     
     for (const form of usaForms) {
-      await db.insert(complianceForms).values(form).onConflictDoNothing();
+      await db.insert(complianceForms).values([form]).onConflictDoNothing();
     }
   }
   
@@ -198,7 +198,7 @@ export class ComplianceFormsSeeder {
     ];
     
     for (const form of canadaForms) {
-      await db.insert(complianceForms).values(form).onConflictDoNothing();
+      await db.insert(complianceForms).values([form]).onConflictDoNothing();
     }
   }
   
@@ -249,7 +249,7 @@ export class ComplianceFormsSeeder {
     ];
     
     for (const form of ukForms) {
-      await db.insert(complianceForms).values(form).onConflictDoNothing();
+      await db.insert(complianceForms).values([form]).onConflictDoNothing();
     }
   }
   
