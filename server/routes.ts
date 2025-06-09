@@ -4921,18 +4921,17 @@ Respond with a JSON object containing your recommendations.`;
     try {
       console.log(`🔍 Querying auction data for ${vehicle?.make} ${vehicle?.model}...`);
       
-      // Query for real auction pricing data from vehicle_auctions table
-      const auctionData = await db.select()
-        .from(vehicleAuctions)
-        .where(
-          and(
-            eq(vehicleAuctions.make, vehicle?.make || ''),
-            eq(vehicleAuctions.model, vehicle?.model || ''),
-            sql`${vehicleAuctions.price} IS NOT NULL AND ${vehicleAuctions.price} > 0`
-          )
-        )
-        .orderBy(vehicleAuctions.last_updated)
-        .limit(5);
+      // Direct SQL query to bypass complex Drizzle syntax issues
+      const auctionResults = await db.execute(sql`
+        SELECT make, model, price, source, last_updated 
+        FROM vehicle_auctions 
+        WHERE make = ${vehicle?.make || ''} 
+        AND model = ${vehicle?.model || ''}
+        AND price IS NOT NULL 
+        AND price > 0
+      `);
+      
+      const auctionData = auctionResults.rows || [];
       
       console.log(`🔍 Found ${auctionData.length} auction records for ${vehicle?.make} ${vehicle?.model}`);
       
@@ -4994,12 +4993,9 @@ Respond with a JSON object containing your recommendations.`;
         .where(
           and(
             eq(vehicleAuctions.make, vehicle.make || ''),
-            eq(vehicleAuctions.model, vehicle.model || ''),
-            sql`${vehicleAuctions.price} IS NOT NULL AND ${vehicleAuctions.price} > 0`
+            eq(vehicleAuctions.model, vehicle.model || '')
           )
-        )
-        .orderBy(vehicleAuctions.last_updated)
-        .limit(5);
+        );
       
       console.log(`🔍 Found ${auctionData.length} auction records for ${vehicle.make} ${vehicle.model}`);
       
