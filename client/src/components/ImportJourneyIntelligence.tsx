@@ -467,7 +467,7 @@ export default function ImportJourneyIntelligence({ destination }: ImportJourney
                         <div>
                           <p className="text-sm font-medium mb-2">Specializations:</p>
                           <div className="flex flex-wrap gap-1">
-                            {port.specializations.map((spec) => (
+                            {port.specializations?.map((spec) => (
                               <Badge key={spec} variant="secondary">{spec}</Badge>
                             ))}
                           </div>
@@ -475,7 +475,7 @@ export default function ImportJourneyIntelligence({ destination }: ImportJourney
                         <div>
                           <p className="text-sm font-medium mb-2">Key Advantages:</p>
                           <ul className="text-sm space-y-1">
-                            {port.advantages.map((advantage, i) => (
+                            {port.advantages?.map((advantage, i) => (
                               <li key={i} className="flex items-center gap-2">
                                 <CheckCircle className="h-3 w-3 text-green-600" />
                                 {advantage}
