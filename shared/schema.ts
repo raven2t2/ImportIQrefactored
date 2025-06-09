@@ -113,6 +113,22 @@ export const customsRegulations = pgTable("customs_regulations", {
   lastUpdated: timestamp("last_updated").defaultNow().notNull(),
 });
 
+export const customsDuties = pgTable("customs_duties", {
+  id: serial("id").primaryKey(),
+  originCountry: text("origin_country").notNull(),
+  destinationCountry: text("destination_country").notNull(),
+  vehicleAgeCategory: text("vehicle_age_category").notNull(),
+  dutyRatePercent: decimal("duty_rate_percent", { precision: 5, scale: 3 }).notNull(),
+  additionalTaxes: jsonb("additional_taxes"),
+  tradeAgreement: text("trade_agreement"),
+  effectiveDate: date("effective_date"),
+  expiryDate: date("expiry_date"),
+  confidenceScore: integer("confidence_score"),
+  sourceAttribution: text("source_attribution"),
+  regulationReference: text("regulation_reference"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const tradeStatistics = pgTable("trade_statistics", {
   id: serial("id").primaryKey(),
   statisticId: text("statistic_id").unique().notNull(),

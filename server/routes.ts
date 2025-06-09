@@ -39,8 +39,8 @@ import {
   portInformation,
   auctionListings,
   customsRegulations,
-  automotiveNews,
-  vehicleRegistrations
+  customsDuties,
+  automotiveNews
 } from '@shared/schema';
 import { eq, desc, lt, sql, and } from 'drizzle-orm';
 import { db } from './db';
@@ -4899,8 +4899,8 @@ Respond with a JSON object containing your recommendations.`;
     try {
       // Query customs duties from database for the specific destination
       const regulations = await db.select()
-        .from(customsRegulations)
-        .where(eq(customsRegulations.destinationCountry, destination))
+        .from(customsDuties)
+        .where(eq(customsDuties.destinationCountry, destination))
         .limit(1);
 
       const currentYear = new Date().getFullYear();
@@ -5144,10 +5144,10 @@ Respond with a JSON object containing your recommendations.`;
     console.log(`🔍 generateImportTimeline called for ${vehicle?.make} ${vehicle?.model} to ${destination}`);
     
     try {
-      // Query customs regulations for destination-specific timelines
+      // Query customs duties for destination-specific timelines
       const regulations = await db.select()
-        .from(customsRegulations)
-        .where(eq(customsRegulations.destinationCountry, destination))
+        .from(customsDuties)
+        .where(eq(customsDuties.destinationCountry, destination))
         .limit(1);
 
       let processingTime = '3-6 months';
