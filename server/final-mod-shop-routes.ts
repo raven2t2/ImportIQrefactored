@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { db } from './db';
 import { sql } from 'drizzle-orm';
+import { seedRealGeographicModShops } from './real-geographic-mod-shop-seeder';
 
 const router = Router();
 
@@ -156,6 +157,27 @@ router.get('/all', async (req: Request, res: Response) => {
 
   } catch (error) {
     console.error('Error getting all shops:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Internal server error' 
+    });
+  }
+});
+
+/**
+ * Seed geographic mod shop data
+ * POST /api/mod-shops/seed-geographic
+ */
+router.post('/seed-geographic', async (req: Request, res: Response) => {
+  try {
+    const result = await seedRealGeographicModShops();
+    res.json({
+      success: true,
+      message: 'Geographic mod shop data seeded successfully',
+      ...result
+    });
+  } catch (error) {
+    console.error('Error seeding geographic mod shops:', error);
     res.status(500).json({ 
       success: false, 
       error: error instanceof Error ? error.message : 'Internal server error' 

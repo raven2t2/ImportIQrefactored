@@ -39,27 +39,60 @@ export function ModShopIntelligence({ vehicleMake, vehicleModel, destination }: 
 
   const specialty = getVehicleSpecialty(vehicleMake);
 
-  // Fetch recommended mod shops based on vehicle specialty
+  // Fetch recommended mod shops based on vehicle specialty and location
   const { data: recommendedShops, isLoading: loadingRecommended } = useQuery({
-    queryKey: ['/api/mod-shops/specialty', specialty],
+    queryKey: ['/api/mod-shops/specialty', specialty, locationSearch],
     queryFn: async () => {
-      const response = await fetch(`/api/mod-shops/specialty/${specialty}?limit=3`);
+      let url = `/api/mod-shops/specialty/${specialty}?limit=3`;
+      if (locationSearch) {
+        // Parse location input (postal code, city, or state)
+        const isPostalCode = /^\d{5}(-\d{4})?$/.test(locationSearch.trim());
+        const isStateCode = /^[A-Z]{2}$/i.test(locationSearch.trim());
+        
+        if (isPostalCode) {
+          url += `&postalCode=${encodeURIComponent(locationSearch.trim())}`;
+        } else if (isStateCode) {
+          url += `&state=${encodeURIComponent(locationSearch.trim().toUpperCase())}`;
+        } else {
+          url += `&city=${encodeURIComponent(locationSearch.trim())}`;
+        }
+      }
+      const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch specialty shops');
       return response.json();
     }
   });
 
-  // Fetch all available shops for fallback
+  // Fetch all available shops for fallback with location filter
   const { data: allShops, isLoading: loadingAll } = useQuery({
-    queryKey: ['/api/mod-shops/search'],
+    queryKey: ['/api/mod-shops/search', locationSearch],
     queryFn: async () => {
-      const response = await fetch('/api/mod-shops/search?limit=6');
+      let url = '/api/mod-shops/search?limit=6';
+      if (locationSearch) {
+        const isPostalCode = /^\d{5}(-\d{4})?$/.test(locationSearch.trim());
+        const isStateCode = /^[A-Z]{2}$/i.test(locationSearch.trim());
+        
+        if (isPostalCode) {
+          url += `&postalCode=${encodeURIComponent(locationSearch.trim())}`;
+        } else if (isStateCode) {
+          url += `&state=${encodeURIComponent(locationSearch.trim().toUpperCase())}`;
+        } else {
+          url += `&city=${encodeURIComponent(locationSearch.trim())}`;
+        }
+      }
+      const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch shops');
       return response.json();
     }
   });
 
+  const handleLocationSearch = () => {
+    setLocationSearch(userLocation);
+  };
+
   const [showAll, setShowAll] = useState(false);
+  const [userLocation, setUserLocation] = useState('');
+  const [locationSearch, setLocationSearch] = useState('');
 
   if (loadingRecommended || loadingAll) {
     return (
