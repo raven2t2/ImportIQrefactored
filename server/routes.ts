@@ -10481,3 +10481,61 @@ function extractVehicleDetails(title: string): { make?: string; model?: string; 
 
   return { make, model, year };
 }
+
+  // Project Inquiry submission endpoint
+  app.post('/api/project-inquiries', async (req, res) => {
+    try {
+      const { 
+        name, 
+        email, 
+        phone, 
+        urgency, 
+        serviceType, 
+        budget, 
+        timeline, 
+        message, 
+        preferredContact,
+        vehicleInfo,
+        destination,
+        submittedAt 
+      } = req.body;
+
+      // Validate required fields
+      if (!name || !email || !urgency || !serviceType || !message || !preferredContact || !destination || !submittedAt) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+
+      // Insert into database using raw SQL
+      const { Pool } = await import('@neondatabase/serverless');
+      const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+      
+      const result = await pool.query(`
+        INSERT INTO project_inquiries (
+          name, email, phone, urgency, service_type, budget, timeline, 
+          message, preferred_contact, vehicle_info, destination, 
+          submitted_at, status, created_at
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 'new', NOW()
+        ) RETURNING id
+      `, [
+        name, email, phone, urgency, serviceType, budget, timeline,
+        message, preferredContact, JSON.stringify(vehicleInfo), destination,
+        submittedAt
+      ]);
+
+      console.log('Project inquiry submitted:', { name, email, destination, urgency });
+
+      res.json({ 
+        success: true, 
+        inquiryId: result.rows[0]?.id,
+        message: 'Inquiry submitted successfully'
+      });
+
+    } catch (error) {
+      console.error('Failed to submit project inquiry:', error);
+      res.status(500).json({ error: 'Failed to submit inquiry' });
+    }
+  });
+
+  return server;
+}
