@@ -10599,6 +10599,7 @@ async function getMarketPricingData(filters: {
 
   // Vehicle Technical Intelligence API - Preserves hardcoded data with PostgreSQL persistence
   app.get("/api/vehicle-technical-intelligence", async (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
     try {
       const { make, model } = req.query;
       

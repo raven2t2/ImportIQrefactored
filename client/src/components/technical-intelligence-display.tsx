@@ -37,11 +37,26 @@ export function TechnicalIntelligenceDisplay({ make, model }: TechnicalIntellige
   const { data: technicalData, isLoading, error } = useQuery({
     queryKey: ['/api/vehicle-technical-intelligence', make, model],
     queryFn: async () => {
-      const response = await fetch(`/api/vehicle-technical-intelligence?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`);
+      const response = await fetch(`/api/vehicle-technical-intelligence?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      });
       if (!response.ok) {
-        throw new Error('Failed to fetch technical intelligence');
+        console.error('Technical intelligence API error:', response.status, response.statusText);
+        throw new Error(`Failed to fetch technical intelligence: ${response.status}`);
       }
-      return response.json();
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('Expected JSON response but got:', contentType);
+        const text = await response.text();
+        console.error('Response body:', text.substring(0, 200));
+        throw new Error('Server returned HTML instead of JSON');
+      }
+      const data = await response.json();
+      console.log('Technical intelligence data received:', data);
+      return data;
     },
     enabled: Boolean(make && model)
   });
@@ -61,7 +76,17 @@ export function TechnicalIntelligenceDisplay({ make, model }: TechnicalIntellige
     );
   }
 
-  if (error || !technicalData?.technicalIntelligence) {
+  if (error) {
+    console.error('Technical intelligence error:', error);
+    return (
+      <div className="space-y-4 text-center py-8">
+        <p className="text-red-600">Error loading technical intelligence</p>
+        <p className="text-sm text-red-500">{error.message}</p>
+      </div>
+    );
+  }
+
+  if (!technicalData?.technicalIntelligence) {
     return (
       <div className="space-y-4 text-center py-8">
         <p className="text-gray-600">Technical intelligence loading...</p>
