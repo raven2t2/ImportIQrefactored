@@ -3575,6 +3575,30 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
+  // Google Maps Data Injection endpoint
+  app.post("/api/inject-google-maps-data", async (req: any, res) => {
+    try {
+      const { GoogleMapsDataInjector } = await import('./execute-google-maps-injection');
+      
+      const businessesAdded = await GoogleMapsDataInjector.injectAuthenticData();
+      
+      res.json({
+        success: true,
+        message: `Successfully injected ${businessesAdded} authentic businesses into database`,
+        businessesAdded,
+        timestamp: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error("Google Maps data injection error:", error);
+      res.status(500).json({ 
+        success: false,
+        error: "Failed to inject Google Maps data",
+        details: error.message 
+      });
+    }
+  });
+
   // Smart input parsing endpoint
   app.post("/api/smart-parse", async (req: any, res) => {
     try {
