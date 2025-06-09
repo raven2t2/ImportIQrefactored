@@ -10910,4 +10910,29 @@ function extractVehicleDetails(title: string): { make?: string; model?: string; 
   return { make, model, year };
 }
 
+export function registerModShopRoutes(app: Express): void {
+  // Register mod shop partner API routes
+  app.use('/api/mod-shops', modShopRoutes);
+
+  // Initialize mod shop geodata scraping endpoint
+  app.get('/api/admin/initialize-mod-shop-scraping', async (req, res) => {
+    try {
+      console.log('🚀 Initializing comprehensive mod shop geodata scraping');
+      await initializeModShopScraping();
+      res.json({ 
+        success: true, 
+        message: 'Mod shop geodata scraping initialized successfully',
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Failed to initialize mod shop scraping:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to initialize mod shop scraping',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+}
+
 
