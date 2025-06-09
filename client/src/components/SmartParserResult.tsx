@@ -14,6 +14,8 @@ interface SmartParserResultProps {
 }
 
 export function SmartParserResult({ result, onAddToWatchlist, onSuggestPattern }: SmartParserResultProps) {
+  const [, setLocation] = useLocation();
+  
   const getConfidenceColor = (score: number) => {
     if (score >= 90) return "text-green-600 bg-green-50";
     if (score >= 75) return "text-blue-600 bg-blue-50";
@@ -355,6 +357,44 @@ export function SmartParserResult({ result, onAddToWatchlist, onSuggestPattern }
                   <ArrowRight className="w-4 h-4 text-gray-400" />
                 </div>
               ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Mod Shop Integration - Seamless Customer Journey */}
+      {result.data && result.data.make && result.data.model && (
+        <Card className="border-blue-200 bg-blue-50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Wrench className="w-5 h-5 text-blue-600" />
+              Find Local Import Specialists
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <p className="text-blue-800 text-sm">
+                Connect with verified mod shops and import specialists near you who can handle {result.data.make} {result.data.model} modifications and compliance requirements.
+              </p>
+              
+              <div className="flex gap-3">
+                <Button 
+                  onClick={() => setLocation(`/shop-locator?vehicle=${encodeURIComponent(result.data.make + ' ' + result.data.model)}`)}
+                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+                >
+                  <MapPin className="w-4 h-4" />
+                  Find Nearby Shops
+                </Button>
+                
+                <Button 
+                  variant="outline"
+                  onClick={() => setLocation(`/shop-locator?services=import-compliance&vehicle=${encodeURIComponent(result.data.make + ' ' + result.data.model)}`)}
+                  className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-100"
+                >
+                  <Shield className="w-4 h-4" />
+                  Import Compliance
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
