@@ -702,9 +702,9 @@ class PostgreSQLSmartParser {
   }
 
   /**
-   * Generate contextual next steps based on vehicle type and origin country
+   * Generate contextual next steps based on vehicle type, year, and origin country
    */
-  private generateVehicleNextSteps(make: string, model: string, year: number, originCountry: string): NextStepRecommendation[] {
+  private generateVehicleNextSteps(make: string, model: string, year: number, originCountry: string, vehicleData?: any): NextStepRecommendation[] {
     const steps: NextStepRecommendation[] = [];
     
     // Validate inputs to prevent errors
@@ -712,17 +712,68 @@ class PostgreSQLSmartParser {
     const safeModel = model || '';
     const safeYear = year || new Date().getFullYear();
     const safeOrigin = originCountry || 'unknown';
+    const currentYear = new Date().getFullYear();
+    
+    // Handle year-specific import eligibility
+    if (vehicleData?.availableYears && !vehicleData?.yearSpecified) {
+      const importEligibleYears = vehicleData.importEligibleYears || [];
+      const futureEligibleYears = vehicleData.futureEligibleYears || [];
+      
+      if (importEligibleYears.length > 0) {
+        steps.push({
+          title: 'Select Import-Eligible Year',
+          description: `${importEligibleYears.length} model years currently eligible for import: ${importEligibleYears.join(', ')}. Choose specific year for accurate compliance and pricing.`,
+          priority: 'high',
+          category: 'year_selection',
+          estimatedTime: '1 minute'
+        });
+      }
+      
+      if (futureEligibleYears.length > 0) {
+        const nextEligible = futureEligibleYears[0];
+        steps.push({
+          title: 'Future Import Eligibility',
+          description: `${futureEligibleYears.length} newer model years will become eligible. Next: ${nextEligible.year} model becomes eligible in ${nextEligible.eligibleDate}.`,
+          priority: 'medium',
+          category: 'future_planning',
+          estimatedTime: '2 minutes'
+        });
+      }
+      
+      if (importEligibleYears.length === 0 && futureEligibleYears.length === 0) {
+        steps.push({
+          title: 'Check Alternative Import Methods',
+          description: 'No standard 25-year rule eligibility found. Explore manufacturer letter, show/display, or racing exemptions.',
+          priority: 'high',
+          category: 'alternative_compliance',
+          estimatedTime: '20 minutes'
+        });
+      }
+    } else {
+      // Year was specified - check specific eligibility
+      const vehicleAge = currentYear - safeYear;
+      if (vehicleAge < 25) {
+        const eligibleYear = safeYear + 25;
+        steps.push({
+          title: '25-Year Rule Not Met',
+          description: `${safeYear} model will become eligible for import in ${eligibleYear} (${25 - vehicleAge} years remaining). Consider alternative import methods.`,
+          priority: 'high',
+          category: 'compliance_timing',
+          estimatedTime: '5 minutes'
+        });
+      } else {
+        steps.push({
+          title: 'Confirm 25-Year Eligibility',
+          description: `${safeYear} model meets 25-year rule. Verify exact manufacturing date and compliance requirements.`,
+          priority: 'high',
+          category: 'compliance',
+          estimatedTime: '5 minutes'
+        });
+      }
+    }
     
     // JDM vehicles to Australia/New Zealand - specific guidance
     if (safeOrigin === 'japan') {
-      steps.push({
-        title: 'Check 25-Year Import Eligibility',
-        description: 'Verify if this Japanese vehicle meets the 25-year import rule for your destination country',
-        priority: 'high',
-        category: 'compliance',
-        estimatedTime: '2 minutes'
-      });
-      
       if (safeMake.toLowerCase() === 'nissan' && safeModel.toLowerCase().includes('skyline')) {
         steps.push({
           title: 'GT-R Specialist Compliance Check',
@@ -952,14 +1003,18 @@ class PostgreSQLSmartParser {
   }
 
   /**
-   * Search auction database for vehicle matches
+   * Search auction database for vehicle matches with year-aware import eligibility
    */
   private async searchAuctionDatabase(query: string): Promise<any> {
     try {
       const normalizedQuery = query.toLowerCase().trim();
       
+      // Extract year from query if present
+      const yearMatch = query.match(/\b(19|20)\d{2}\b/);
+      const extractedYear = yearMatch ? parseInt(yearMatch[0]) : null;
+      
       // Search auction database with flexible matching
-      const auctionMatches = await db
+      let auctionQuery = db
         .select()
         .from(vehicleAuctions)
         .where(
@@ -968,25 +1023,51 @@ class PostgreSQLSmartParser {
             ilike(vehicleAuctions.model, `%${normalizedQuery}%`),
             ilike(vehicleAuctions.description, `%${normalizedQuery}%`)
           )
-        )
+        );
+
+      // If year specified, filter by year
+      if (extractedYear) {
+        auctionQuery = auctionQuery.where(eq(vehicleAuctions.year, extractedYear));
+      }
+
+      const auctionMatches = await auctionQuery
         .orderBy(desc(vehicleAuctions.fetchedAt))
-        .limit(5);
+        .limit(20); // Get more results for year analysis
 
       if (auctionMatches.length > 0) {
         const bestMatch = auctionMatches[0];
         
+        // Calculate import eligibility for all available years
+        const currentYear = new Date().getFullYear();
+        const availableYears = [...new Set(auctionMatches.map(m => m.year))].sort();
+        const importEligibleYears = availableYears.filter(year => 
+          year && (currentYear - year >= 25)
+        );
+        const futureEligibleYears = availableYears.filter(year =>
+          year && (currentYear - year < 25)
+        ).map(year => ({
+          year,
+          eligibleDate: new Date(year + 25, 0, 1).getFullYear()
+        }));
+        
         return {
           make: bestMatch.make || 'Unknown',
           model: bestMatch.model || 'Unknown',
-          year: bestMatch.year,
+          year: extractedYear || bestMatch.year,
           chassisCode: bestMatch.chassisCode,
           sourceAttribution: `Live Auction Database (${bestMatch.source})`,
-          confidenceScore: 85,
-          auctionData: auctionMatches.map(match => ({
+          confidenceScore: extractedYear ? 95 : 75, // Higher confidence if year specified
+          availableYears: availableYears,
+          importEligibleYears: importEligibleYears,
+          futureEligibleYears: futureEligibleYears,
+          yearSpecified: !!extractedYear,
+          auctionData: auctionMatches.slice(0, 5).map(match => ({
+            year: match.year,
             price: match.price,
             location: match.location,
             source: match.source,
-            fetchedAt: match.fetchedAt
+            fetchedAt: match.fetchedAt,
+            importEligible: match.year && (currentYear - match.year >= 25)
           }))
         };
       }
@@ -1367,9 +1448,27 @@ class PostgreSQLSmartParser {
   }
 
   /**
-   * Build standardized response object
+   * Build standardized response object with year-aware import guidance
    */
   private buildResponse(vehicleData: any, confidence: number, source: string): SmartParserResponse {
+    const currentYear = new Date().getFullYear();
+    
+    // Enhanced response for year-aware import guidance
+    let whyThisResult = `Pattern matched ${vehicleData.make} ${vehicleData.model} with ${confidence}% confidence.`;
+    
+    if (vehicleData.availableYears && !vehicleData.yearSpecified) {
+      const eligibleCount = vehicleData.importEligibleYears?.length || 0;
+      const futureCount = vehicleData.futureEligibleYears?.length || 0;
+      whyThisResult += ` Found ${vehicleData.availableYears.length} model years in database. ${eligibleCount} currently import-eligible, ${futureCount} will become eligible in future.`;
+    } else if (vehicleData.year) {
+      const vehicleAge = currentYear - vehicleData.year;
+      if (vehicleAge >= 25) {
+        whyThisResult += ` ${vehicleData.year} model meets 25-year import rule.`;
+      } else {
+        whyThisResult += ` ${vehicleData.year} model will become eligible in ${vehicleData.year + 25}.`;
+      }
+    }
+
     return {
       data: vehicleData,
       confidenceScore: confidence,
@@ -1380,8 +1479,14 @@ class PostgreSQLSmartParser {
         confidence: confidence,
         lastVerified: new Date().toISOString().split('T')[0]
       }],
-      whyThisResult: `Pattern matched ${vehicleData.make} ${vehicleData.model} with ${confidence}% confidence. This vehicle is recognized in our database.`,
-      nextSteps: this.generateVehicleNextSteps(vehicleData.make, vehicleData.model, vehicleData.year || 2000, 'japan'),
+      whyThisResult,
+      nextSteps: this.generateVehicleNextSteps(
+        vehicleData.make, 
+        vehicleData.model, 
+        vehicleData.year || currentYear, 
+        'japan', // Default origin for most imports
+        vehicleData
+      ),
       importRiskIndex: { score: 15, riskLevel: 'low', factors: [], explanation: 'Standard import process expected.' },
       strategicRecommendations: [],
       lastUpdated: new Date().toISOString(),
