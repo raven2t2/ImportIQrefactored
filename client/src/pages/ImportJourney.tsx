@@ -445,6 +445,190 @@ export default function ImportJourney() {
         {/* Local Service Providers */}
 
 
+        {/* Comprehensive Import Intelligence Display */}
+        {importIntelligence && (
+          <div className="space-y-6 mb-6">
+            {/* Cost Breakdown */}
+            <Card className="bg-white">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <DollarSign className="h-5 w-5 text-blue-600" />
+                  Complete Cost Analysis
+                </CardTitle>
+                <CardDescription>
+                  Authentic market pricing with real auction data
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <div className="text-center p-4 bg-blue-50 rounded-lg">
+                    <p className="text-sm text-gray-600">Total Import Cost</p>
+                    <p className="text-3xl font-bold text-blue-600">
+                      ${importIntelligence.costs.total.toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <p className="text-sm text-gray-600">Vehicle Cost</p>
+                    <p className="text-2xl font-bold text-green-600">
+                      ${importIntelligence.costs.vehicle.toLocaleString()}
+                    </p>
+                    <p className="text-xs text-gray-500">From auction data</p>
+                  </div>
+                  <div className="text-center p-4 bg-orange-50 rounded-lg">
+                    <p className="text-sm text-gray-600">Import Fees</p>
+                    <p className="text-2xl font-bold text-orange-600">
+                      ${(importIntelligence.costs.total - importIntelligence.costs.vehicle).toLocaleString()}
+                    </p>
+                    <p className="text-xs text-gray-500">Shipping, duties, compliance</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  {importIntelligence.costs.breakdown.map((item, index) => (
+                    <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="font-medium text-gray-900">{item.category}</p>
+                        <p className="text-sm text-gray-600">{item.description}</p>
+                      </div>
+                      <p className="text-lg font-bold text-gray-900">
+                        ${item.amount.toLocaleString()}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Eligibility Status */}
+            <Card className="bg-white">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-green-600" />
+                  Import Eligibility Assessment
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-4 mb-4">
+                  <Badge 
+                    variant={importIntelligence.eligibility.status === 'eligible' ? 'default' : 'secondary'}
+                    className="text-lg px-4 py-2"
+                  >
+                    {importIntelligence.eligibility.status.toUpperCase()}
+                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <div className="w-full bg-gray-200 rounded-full h-3 min-w-[100px]">
+                      <div 
+                        className="bg-green-600 h-3 rounded-full" 
+                        style={{ width: `${importIntelligence.eligibility.confidence}%` }}
+                      ></div>
+                    </div>
+                    <span className="text-sm font-medium">{importIntelligence.eligibility.confidence}% confidence</span>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-600 mb-2">Expected Timeline</p>
+                    <p className="text-lg font-semibold text-gray-900">
+                      {importIntelligence.eligibility.timeline}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600 mb-2">Key Factors</p>
+                    <ul className="space-y-1">
+                      {importIntelligence.eligibility.keyFactors.map((factor, index) => (
+                        <li key={index} className="flex items-center gap-2 text-sm text-gray-700">
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          {factor}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Import Timeline */}
+            {importIntelligence.timeline && importIntelligence.timeline.length > 0 && (
+              <Card className="bg-white">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Calendar className="h-5 w-5 text-purple-600" />
+                    Complete Import Timeline
+                  </CardTitle>
+                  <CardDescription>
+                    Step-by-step process from purchase to delivery
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {importIntelligence.timeline.map((phase, index) => (
+                      <div key={index} className="relative pl-8 pb-4">
+                        <div className="absolute left-0 top-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                          <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
+                        </div>
+                        {index < importIntelligence.timeline.length - 1 && (
+                          <div className="absolute left-3 top-6 w-0.5 h-full bg-gray-200"></div>
+                        )}
+                        <div className="ml-2">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h4 className="font-semibold text-gray-900">{phase.phase}</h4>
+                            <Badge variant="outline" className="text-xs">
+                              {phase.duration}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-gray-600 mb-2">{phase.description}</p>
+                          {phase.requirements && (
+                            <ul className="space-y-1">
+                              {phase.requirements.map((req, reqIndex) => (
+                                <li key={reqIndex} className="flex items-center gap-2 text-xs text-gray-500">
+                                  <div className="w-1.5 h-1.5 bg-gray-400 rounded-full"></div>
+                                  {req}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Next Steps */}
+            {importIntelligence.nextSteps && importIntelligence.nextSteps.length > 0 && (
+              <Card className="bg-white">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ArrowRight className="h-5 w-5 text-indigo-600" />
+                    Recommended Next Steps
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {importIntelligence.nextSteps.map((step, index) => (
+                      <div key={index} className="p-4 border rounded-lg">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge 
+                            variant={step.priority === 'high' ? 'default' : 'secondary'}
+                            className="text-xs"
+                          >
+                            {step.priority.toUpperCase()}
+                          </Badge>
+                          <span className="text-xs text-gray-500">{step.timeline}</span>
+                        </div>
+                        <h4 className="font-semibold text-gray-900 mb-2">{step.action}</h4>
+                        <p className="text-sm text-gray-600">{step.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )}
+
         {/* Import Process Timeline */}
         <Card className="bg-white mb-6">
           <CardHeader>
