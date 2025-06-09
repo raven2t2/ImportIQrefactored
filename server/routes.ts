@@ -10909,3 +10909,5 @@ function extractVehicleDetails(title: string): { make?: string; model?: string; 
 
   return { make, model, year };
 }
+
+
