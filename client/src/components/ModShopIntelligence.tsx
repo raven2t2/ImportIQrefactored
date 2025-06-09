@@ -17,15 +17,19 @@ interface ModShop {
   description: string;
   website: string;
   location: string;
+  address: string;
   country: string;
-  postal_code: string;
   specialty: string;
-  services_offered: string;
+  services_offered: string[];
   years_in_business: number;
-  certifications: string;
+  certifications: string[];
   average_rating: number;
   distance_km?: number;
   is_active: boolean;
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
 }
 
 interface ModShopIntelligenceProps {
@@ -52,44 +56,39 @@ export function ModShopIntelligence({ vehicleMake, vehicleModel, destination }: 
 
   const specialty = getVehicleSpecialty(vehicleMake);
 
-  // Fetch recommended mod shops using Google Maps location-based search
+  // Fetch recommended mod shops using authentic business data with Google Maps integration
   const { data: recommendedShops, isLoading: loadingRecommended } = useQuery({
-    queryKey: ['/api/maps/nearby', specialty, locationSearch],
+    queryKey: ['/api/authentic-shops/nearby', specialty, locationSearch],
     queryFn: async () => {
       if (!locationSearch) {
-        // Fallback to basic specialty search if no location
-        const response = await fetch(`/api/mod-shops/specialty/${specialty}?limit=3`);
-        if (!response.ok) throw new Error('Failed to fetch shops');
+        // Get all authentic shops and filter by specialty
+        const response = await fetch(`/api/authentic-shops/all?specialty=${specialty}&limit=3`);
+        if (!response.ok) throw new Error('Failed to fetch authentic shops');
         return response.json();
       }
       
-      // Use Google Maps API for precise location-based search
-      const url = `/api/maps/nearby?location=${encodeURIComponent(locationSearch)}&specialty=${specialty}&radius=100&limit=3`;
+      // Use Google Maps API for precise location-based search with authentic businesses
+      const url = `/api/authentic-shops/nearby?location=${encodeURIComponent(locationSearch)}&specialty=${specialty}&radius=200&limit=5`;
       const response = await fetch(url);
-      if (!response.ok) throw new Error('Failed to fetch nearby shops');
+      if (!response.ok) throw new Error('Failed to fetch nearby authentic shops');
       return response.json();
     }
   });
 
-  // Fetch all available shops for fallback with location filter
+  // Fetch all authentic shops for comprehensive listing
   const { data: allShops, isLoading: loadingAll } = useQuery({
-    queryKey: ['/api/mod-shops/search', locationSearch],
+    queryKey: ['/api/authentic-shops/all', locationSearch],
     queryFn: async () => {
-      let url = '/api/mod-shops/search?limit=6';
+      let url = '/api/authentic-shops/all?limit=10';
       if (locationSearch) {
-        const isPostalCode = /^\d{5}(-\d{4})?$/.test(locationSearch.trim());
-        const isStateCode = /^[A-Z]{2}$/i.test(locationSearch.trim());
-        
-        if (isPostalCode) {
-          url += `&postalCode=${encodeURIComponent(locationSearch.trim())}`;
-        } else if (isStateCode) {
-          url += `&state=${encodeURIComponent(locationSearch.trim().toUpperCase())}`;
-        } else {
-          url += `&city=${encodeURIComponent(locationSearch.trim())}`;
-        }
+        // For authentic shops, we filter by location using Google Maps geocoding
+        const nearbyUrl = `/api/authentic-shops/nearby?location=${encodeURIComponent(locationSearch)}&radius=500&limit=10`;
+        const response = await fetch(nearbyUrl);
+        if (!response.ok) throw new Error('Failed to fetch authentic shops');
+        return response.json();
       }
       const response = await fetch(url);
-      if (!response.ok) throw new Error('Failed to fetch shops');
+      if (!response.ok) throw new Error('Failed to fetch authentic shops');
       return response.json();
     }
   });
@@ -232,22 +231,14 @@ export function ModShopIntelligence({ vehicleMake, vehicleModel, destination }: 
               {/* Services and Certifications */}
               {(shop.services_offered || shop.certifications) && (
                 <div className="mb-3 space-y-1">
-                  {shop.services_offered && (
+                  {shop.services_offered && shop.services_offered.length > 0 && (
                     <div className="text-xs text-gray-600">
-                      <span className="font-medium">Services:</span> {
-                        typeof shop.services_offered === 'string' 
-                          ? JSON.parse(shop.services_offered).slice(0, 3).join(', ')
-                          : shop.services_offered.slice(0, 3).join(', ')
-                      }
+                      <span className="font-medium">Services:</span> {shop.services_offered.slice(0, 3).join(', ')}
                     </div>
                   )}
-                  {shop.certifications && (
+                  {shop.certifications && shop.certifications.length > 0 && (
                     <div className="text-xs text-gray-600">
-                      <span className="font-medium">Certified:</span> {
-                        typeof shop.certifications === 'string' 
-                          ? JSON.parse(shop.certifications).join(', ')
-                          : shop.certifications.join(', ')
-                      }
+                      <span className="font-medium">Certified:</span> {shop.certifications.join(', ')}
                     </div>
                   )}
                 </div>
