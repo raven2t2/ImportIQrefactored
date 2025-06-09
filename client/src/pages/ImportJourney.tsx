@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle, Clock, DollarSign, FileText, AlertCircle, ArrowRight, Calendar, MapPin, Truck, Shield } from 'lucide-react';
+import { CheckCircle, Clock, DollarSign, FileText, AlertCircle, ArrowRight, Calendar, MapPin, Truck, Shield, ExternalLink, MessageCircle, Calculator } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 import { apiRequest } from "@/lib/queryClient";
 import SessionManager from "@/lib/session-manager";
@@ -68,6 +69,35 @@ export default function ImportJourney() {
   const [destination, setDestination] = useState('');
   const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const { toast } = useToast();
+
+  // Button handlers
+  const handleStartImportProcess = () => {
+    toast({
+      title: "Import Process Started",
+      description: `Beginning import process for ${vehicleData.make} ${vehicleData.model} to ${destInfo.name}`,
+    });
+    // Navigate to import calculator with pre-filled data
+    window.location.href = `/import-calculator?make=${vehicleData.make}&model=${vehicleData.model}&destination=${destination}&cost=${importIntelligence?.costs?.total || 0}`;
+  };
+
+  const handleGetProfessionalQuote = () => {
+    toast({
+      title: "Professional Quote Request",
+      description: "Connecting you with our import specialists for a detailed quote",
+    });
+    // Navigate to contact with vehicle details
+    window.location.href = `/contact?vehicle=${vehicleData.make} ${vehicleData.model}&service=professional-quote&cost=${importIntelligence?.costs?.total || 0}`;
+  };
+
+  const handleConnectWithSpecialist = () => {
+    toast({
+      title: "Specialist Connection",
+      description: "Opening direct communication channel with import experts",
+    });
+    // Navigate to specialist booking with vehicle context
+    window.location.href = `/booking-calendar?vehicle=${vehicleData.make} ${vehicleData.model}&destination=${destination}&urgency=consultation`;
+  };
 
   // Initialize session and handle URL parameters
   useEffect(() => {
@@ -293,10 +323,15 @@ export default function ImportJourney() {
                   <Shield className="h-6 w-6 text-purple-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Compliance</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {importIntelligence.eligibility?.status === 'eligible' ? '25-year rule' : 'Required'}
+                  <p className="text-sm text-gray-600">Import Eligible Years</p>
+                  <p className="text-lg font-bold text-gray-900">
+                    {(() => {
+                      const currentYear = new Date().getFullYear();
+                      const eligibleYear = currentYear - 25;
+                      return `${eligibleYear} and older`;
+                    })()}
                   </p>
+                  <p className="text-xs text-gray-500 mt-1">25-year rule applies</p>
                 </div>
               </div>
             </CardContent>
