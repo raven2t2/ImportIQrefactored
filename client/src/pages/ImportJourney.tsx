@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle, Clock, DollarSign, FileText, AlertCircle, ArrowRight, Calendar, MapPin, Truck, Shield, ExternalLink, MessageCircle, Calculator, Ship, AlertTriangle, Anchor, TrendingUp, Building2 } from 'lucide-react';
+import { CheckCircle, Clock, DollarSign, FileText, AlertCircle, ArrowRight, Calendar, MapPin, Truck, Shield, ExternalLink, MessageCircle, Calculator, Ship, AlertTriangle, Anchor, TrendingUp, Building2, Car } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 import { apiRequest } from "@/lib/queryClient";
