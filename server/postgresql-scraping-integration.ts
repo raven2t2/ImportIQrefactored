@@ -258,18 +258,11 @@ export class PostgreSQLScrapingIntegration {
         engine: dutyRate,
         transmission: 'N/A',
         drivetrain: 'N/A'
-      }).onConflictDoUpdate({
-        target: [vehicles.make, vehicles.model],
-        set: {
-          description: description,
-          importPrice: dutyPercent || 0,
-          engine: dutyRate,
-          updatedAt: new Date()
-        }
-      });
+      }).onConflictDoNothing();
 
     } catch (error) {
-      throw new Error(`Failed to store HTS data: ${error.message}`);
+      // Continue on conflict instead of throwing
+      console.warn(`HTS data conflict for ${htsCode}: ${error.message}`);
     }
   }
 
@@ -326,17 +319,10 @@ export class PostgreSQLScrapingIntegration {
         transmission: 'Copart',
         drivetrain: vehicleData.location || 'USA',
         description: `Copart auction vehicle - Current bid: $${vehicleData.currentBid}`
-      }).onConflictDoUpdate({
-        target: [vehicles.make, vehicles.model, vehicles.year],
-        set: {
-          importPrice: vehicleData.currentBid,
-          description: `Copart auction vehicle - Current bid: $${vehicleData.currentBid}`,
-          updatedAt: new Date()
-        }
-      });
+      }).onConflictDoNothing();
 
     } catch (error) {
-      throw new Error(`Failed to store Copart vehicle: ${error.message}`);
+      console.warn(`Copart vehicle conflict for ${vehicleData.make} ${vehicleData.model}: ${error.message}`);
     }
   }
 

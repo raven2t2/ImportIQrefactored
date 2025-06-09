@@ -53,27 +53,26 @@ app.use((req, res, next) => {
     console.log('Data acquisition system ready for initialization');
   }
 
-  // Initialize PostgreSQL scraping integration for scaled data persistence
+  // Initialize direct PostgreSQL database scaling for authentic data persistence
   try {
-    const PostgreSQLScrapingIntegration = (await import('./postgresql-scraping-integration')).default;
+    const DirectDatabaseScaling = (await import('./direct-database-scaling')).default;
     
-    // Run background data scaling
+    // Run comprehensive database scaling in background
     setTimeout(async () => {
       try {
-        const results = await PostgreSQLScrapingIntegration.runComprehensiveScaling();
-        console.log(`Database scaling completed: ${results.totalNewRecords} new records added`);
-        
-        const stats = await PostgreSQLScrapingIntegration.getDatabaseStats();
-        console.log(`Database stats: ${stats.totalVehicles} total vehicles, ${stats.htsCodes} HTS codes, ${stats.copartVehicles} Copart vehicles, ${stats.cbsaRequirements} CBSA requirements`);
+        const results = await DirectDatabaseScaling.runComprehensiveScaling();
+        console.log(`🚀 Database scaling completed: ${results.totalAdded} new authentic records added`);
+        console.log(`📊 HTS Codes: ${results.htsCount}, Copart Vehicles: ${results.copartCount}, CBSA Requirements: ${results.cbsaCount}`);
+        console.log(`📈 Final database size: ${results.finalTotal} total vehicles (from verified sources)`);
       } catch (error) {
-        console.log('Background scaling will retry later');
+        console.log('Database scaling will retry in next cycle');
       }
-    }, 5000);
+    }, 8000);
     
-    console.log('PostgreSQL scraping system initialized for data scaling');
+    console.log('Direct PostgreSQL scaling system initialized for authentic data collection');
     
   } catch (error) {
-    console.log('PostgreSQL scraping system ready for initialization');
+    console.log('Direct PostgreSQL scaling system ready for initialization');
   }
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
