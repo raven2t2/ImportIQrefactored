@@ -206,7 +206,7 @@ export const forumInsights = pgTable("forum_insights", {
   topic: text("topic").notNull(),
   postDate: timestamp("post_date").notNull(),
   postContent: text("post_content").notNull(),
-  sentimentScore: decimal("sentiment_score", { precision: 3, scale: 2 }),
+  sentimentScore: decimal("sentiment_score", { precision: 5, scale: 2 }),
   sourceForum: text("source_forum"),
   reliability: text("reliability").default("unverified"),
   upvotes: integer("upvotes").default(0),
@@ -225,7 +225,7 @@ export const automotiveNews = pgTable("automotive_news", {
   summaryText: text("summary_text"),
   fullTextContent: text("full_text_content"),
   category: text("category"), // recall, market_trend, review, regulation
-  relevanceScore: decimal("relevance_score", { precision: 3, scale: 2 }),
+  relevanceScore: decimal("relevance_score", { precision: 5, scale: 2 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
