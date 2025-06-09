@@ -389,13 +389,27 @@ export default function ImportJourney() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
+                <Button 
+                  onClick={handleStartImportProcess}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white flex items-center gap-2"
+                >
+                  <Calculator className="h-4 w-4" />
                   Start Import Process
                 </Button>
-                <Button variant="outline" className="w-full">
+                <Button 
+                  onClick={handleGetProfessionalQuote}
+                  variant="outline" 
+                  className="w-full flex items-center gap-2"
+                >
+                  <FileText className="h-4 w-4" />
                   Get Professional Quote
                 </Button>
-                <Button variant="ghost" className="w-full text-purple-600">
+                <Button 
+                  onClick={handleConnectWithSpecialist}
+                  variant="ghost" 
+                  className="w-full text-purple-600 flex items-center gap-2"
+                >
+                  <MessageCircle className="h-4 w-4" />
                   Connect with Specialist
                 </Button>
               </div>
