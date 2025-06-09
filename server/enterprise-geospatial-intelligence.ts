@@ -46,10 +46,21 @@ interface ProximityResult {
 class EnterpriseGeospatialIntelligence {
   private googleMapsKey: string;
   private postgisEnabled: boolean = false;
+  private static instance: EnterpriseGeospatialIntelligence;
 
   constructor() {
     this.googleMapsKey = process.env.GOOGLE_MAPS_API_KEY || '';
     this.initializePostGIS();
+  }
+
+  /**
+   * Get singleton instance
+   */
+  static getInstance(): EnterpriseGeospatialIntelligence {
+    if (!EnterpriseGeospatialIntelligence.instance) {
+      EnterpriseGeospatialIntelligence.instance = new EnterpriseGeospatialIntelligence();
+    }
+    return EnterpriseGeospatialIntelligence.instance;
   }
 
   /**

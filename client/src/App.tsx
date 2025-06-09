@@ -48,6 +48,7 @@ import AdminLogin from "@/pages/admin-login";
 import AdminUserManagement from "@/pages/admin-user-management";
 import AdminProfile from "@/pages/admin-profile";
 import Contact from "@/pages/contact";
+import EnterpriseGeospatial from "@/pages/EnterpriseGeospatial";
 import ComplianceChecker from "@/pages/compliance-checker";
 import LegalAdvisory from "@/pages/legal-advisory";
 import ShippingCalculator from "@/pages/shipping-calculator";
@@ -145,6 +146,8 @@ function Router() {
       <Route path="/shop-locator" component={ShopLocator} />
       <Route path="/mod-shops" component={ShopLocator} />
       <Route path="/find-shops" component={ShopLocator} />
+      <Route path="/enterprise-geospatial" component={EnterpriseGeospatial} />
+      <Route path="/geospatial-intelligence" component={EnterpriseGeospatial} />
       <Route component={NotFound} />
     </Switch>
   );
