@@ -29,11 +29,10 @@ export default function ImportJourneyIntelligence({ destination }: ImportJourney
     return mapping[dest] || dest;
   };
 
-  // Initialize location from props or allow user input
+  // Initialize location input from props but don't auto-set userLocation
   useEffect(() => {
     if (destination) {
       const mappedLocation = destinationToLocation(destination);
-      setUserLocation(mappedLocation);
       setLocationInput(mappedLocation);
     }
   }, [destination]);
