@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, decimal, jsonb, varchar, index, numeric } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, decimal, jsonb, varchar, index, numeric, date, real } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -451,6 +451,151 @@ export const vehicleWatchlist = pgTable("vehicle_watchlist", {
   watchTypeIdx: index("vehicle_watchlist_watch_type_idx").on(table.watchType),
   isActiveIdx: index("vehicle_watchlist_is_active_idx").on(table.isActive),
 }));
+
+// Enhanced scraping tables for comprehensive data persistence
+export const htsTariffCodes = pgTable('hts_tariff_codes', {
+  id: serial('id').primaryKey(),
+  htsCode: varchar('hts_code', { length: 12 }).unique().notNull(),
+  description: text('description').notNull(),
+  dutyRatePercent: decimal('duty_rate_percent', { precision: 5, scale: 2 }),
+  dutyRateSpecific: varchar('duty_rate_specific', { length: 100 }),
+  effectiveDate: date('effective_date'),
+  countryExceptions: jsonb('country_exceptions'),
+  vehicleCategory: varchar('vehicle_category', { length: 50 }),
+  engineSizeCategory: varchar('engine_size_category', { length: 30 }),
+  valueThreshold: decimal('value_threshold', { precision: 12, scale: 2 }),
+  additionalFees: jsonb('additional_fees'),
+  notes: text('notes'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+export const vehicleHtsMapping = pgTable('vehicle_hts_mapping', {
+  id: serial('id').primaryKey(),
+  vehicleMake: varchar('vehicle_make', { length: 50 }).notNull(),
+  vehicleModel: varchar('vehicle_model', { length: 100 }).notNull(),
+  engineSizeCc: integer('engine_size_cc'),
+  yearMin: integer('year_min'),
+  yearMax: integer('year_max'),
+  htsCode: varchar('hts_code', { length: 12 }).references(() => htsTariffCodes.htsCode),
+  mappingConfidence: real('mapping_confidence').default(1.0),
+  notes: text('notes'),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const copartVehicles = pgTable('copart_vehicles', {
+  id: serial('id').primaryKey(),
+  lotNumber: varchar('lot_number', { length: 20 }).unique().notNull(),
+  vin: varchar('vin', { length: 17 }),
+  make: varchar('make', { length: 50 }).notNull(),
+  model: varchar('model', { length: 100 }).notNull(),
+  year: integer('year').notNull(),
+  engineSize: varchar('engine_size', { length: 20 }),
+  transmission: varchar('transmission', { length: 20 }),
+  driveType: varchar('drive_type', { length: 10 }),
+  fuelType: varchar('fuel_type', { length: 20 }),
+  mileage: integer('mileage'),
+  damageDescription: text('damage_description'),
+  damageSeverity: varchar('damage_severity', { length: 20 }),
+  currentBid: decimal('current_bid', { precision: 10, scale: 2 }),
+  buyItNowPrice: decimal('buy_it_now_price', { precision: 10, scale: 2 }),
+  estimatedValue: decimal('estimated_value', { precision: 10, scale: 2 }),
+  saleDate: date('sale_date'),
+  location: varchar('location', { length: 100 }),
+  seller: varchar('seller', { length: 50 }),
+  titleType: varchar('title_type', { length: 30 }),
+  auctionStatus: varchar('auction_status', { length: 20 }),
+  reserveMet: boolean('reserve_met').default(false),
+  importEligibilityScore: integer('import_eligibility_score'),
+  conditionReport: jsonb('condition_report'),
+  images: jsonb('images'),
+  scrapedAt: timestamp('scraped_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+export const copartPriceHistory = pgTable('copart_price_history', {
+  id: serial('id').primaryKey(),
+  vehicleId: integer('vehicle_id').references(() => copartVehicles.id),
+  lotNumber: varchar('lot_number', { length: 20 }).references(() => copartVehicles.lotNumber),
+  price: decimal('price', { precision: 10, scale: 2 }).notNull(),
+  bidCount: integer('bid_count').default(0),
+  saleStatus: varchar('sale_status', { length: 20 }).notNull(),
+  timeRemaining: varchar('time_remaining', { length: 50 }),
+  recordedAt: timestamp('recorded_at').defaultNow(),
+});
+
+export const cbsaImportRequirements = pgTable('cbsa_import_requirements', {
+  id: serial('id').primaryKey(),
+  vehicleCategory: varchar('vehicle_category', { length: 100 }).notNull(),
+  make: varchar('make', { length: 50 }),
+  model: varchar('model', { length: 100 }),
+  yearMin: integer('year_min'),
+  yearMax: integer('year_max'),
+  rivEligible: boolean('riv_eligible').default(false),
+  rivCategory: varchar('riv_category', { length: 20 }),
+  requiredDocuments: jsonb('required_documents').notNull(),
+  modificationRequirements: jsonb('modification_requirements'),
+  inspectionRequirements: text('inspection_requirements'),
+  dutyRate: decimal('duty_rate', { precision: 5, scale: 2 }).notNull(),
+  gstRate: decimal('gst_rate', { precision: 5, scale: 2 }).notNull(),
+  additionalFees: jsonb('additional_fees'),
+  estimatedCostCad: decimal('estimated_cost_cad', { precision: 10, scale: 2 }),
+  processingTimeDays: integer('processing_time_days').default(30),
+  provincialRequirements: jsonb('provincial_requirements'),
+  recallClearanceRequired: boolean('recall_clearance_required').default(true),
+  emissionsCompliance: varchar('emissions_compliance', { length: 100 }),
+  safetyStandards: jsonb('safety_standards'),
+  notes: text('notes'),
+  sourceUrl: varchar('source_url', { length: 500 }),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+export const vehicleImportEligibility = pgTable('vehicle_import_eligibility', {
+  id: serial('id').primaryKey(),
+  vin: varchar('vin', { length: 17 }),
+  make: varchar('make', { length: 50 }).notNull(),
+  model: varchar('model', { length: 100 }).notNull(),
+  year: integer('year').notNull(),
+  usaEligible: boolean('usa_eligible').default(false),
+  canadaEligible: boolean('canada_eligible').default(false),
+  usaWaitUntil: date('usa_wait_until'),
+  canadaRequirementsId: integer('canada_requirements_id').references(() => cbsaImportRequirements.id),
+  htsCode: varchar('hts_code', { length: 12 }).references(() => htsTariffCodes.htsCode),
+  calculatedDutyUsd: decimal('calculated_duty_usd', { precision: 10, scale: 2 }),
+  calculatedDutyCad: decimal('calculated_duty_cad', { precision: 10, scale: 2 }),
+  totalImportCostUsd: decimal('total_import_cost_usd', { precision: 10, scale: 2 }),
+  totalImportCostCad: decimal('total_import_cost_cad', { precision: 10, scale: 2 }),
+  confidenceScore: real('confidence_score').default(0.0),
+  dataQualityScore: real('data_quality_score').default(0.0),
+  lastCalculated: timestamp('last_calculated').defaultNow(),
+  lastUpdated: timestamp('last_updated').defaultNow(),
+});
+
+export const scrapingData = pgTable('scraping_data', {
+  id: serial('id').primaryKey(),
+  source: varchar('source', { length: 100 }).notNull(),
+  dataType: varchar('data_type', { length: 50 }).notNull(),
+  rawData: jsonb('raw_data').notNull(),
+  processedData: jsonb('processed_data'),
+  qualityScore: real('quality_score'),
+  isValid: boolean('is_valid').default(true),
+  createdAt: timestamp('created_at').defaultNow(),
+  lastValidated: timestamp('last_validated'),
+});
+
+export const scrapingMetrics = pgTable('scraping_metrics', {
+  id: serial('id').primaryKey(),
+  source: varchar('source', { length: 100 }).notNull(),
+  recordsFound: integer('records_found').default(0),
+  recordsProcessed: integer('records_processed').default(0),
+  successRate: real('success_rate'),
+  averageQualityScore: real('average_quality_score'),
+  executionTime: real('execution_time'),
+  errors: jsonb('errors'),
+  runDate: date('run_date').defaultNow(),
+  createdAt: timestamp('created_at').defaultNow(),
+});
 
 export const journeyEvents = pgTable("journey_events", {
   id: serial("id").primaryKey(),
