@@ -1,30 +1,31 @@
 import { Router, Request, Response } from 'express';
 import { db } from './db';
-import { modShopPartners } from '@shared/schema';
-import { eq, and, or, sql, desc, asc, like } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 
 const router = Router();
 
 /**
- * Search mod shops by location and services
+ * Search mod shops with direct SQL for immediate functionality
  * GET /api/mod-shops/search
  */
 router.get('/search', async (req: Request, res: Response) => {
   try {
     const { location, radius = 100, limit = 20, services, vehicle } = req.query;
     
-    // Basic search query with existing schema
-    let baseQuery = db
-      .select()
-      .from(modShopPartners);
-
-    // Execute query with limit (simplified for now)
-    const shops = await baseQuery.limit(Number(limit));
+    // Direct SQL query to get mod shop data
+    const shops = await db.execute(sql`
+      SELECT id, business_name, contact_person, email, phone, website,
+             street_address, city, state_province, postal_code, country,
+             services_offered, specialties, customer_rating, review_count,
+             average_cost_range, typical_turnaround_days
+      FROM mod_shop_partners 
+      LIMIT ${Number(limit)}
+    `);
 
     res.json({
       success: true,
-      shops,
-      total: shops.length,
+      shops: shops.rows,
+      total: shops.rows.length,
       searchParams: { location, radius, services, vehicle }
     });
 
@@ -45,19 +46,19 @@ router.get('/:id', async (req: Request, res: Response) => {
   try {
     const shopId = parseInt(req.params.id);
     
-    const shop = await db
-      .select()
-      .from(modShopPartners)
-      .where(eq(modShopPartners.id, shopId))
-      .limit(1);
+    const shop = await db.execute(sql`
+      SELECT * FROM mod_shop_partners 
+      WHERE id = ${shopId}
+      LIMIT 1
+    `);
 
-    if (shop.length === 0) {
+    if (shop.rows.length === 0) {
       return res.status(404).json({ success: false, error: 'Shop not found' });
     }
 
     res.json({
       success: true,
-      shop: shop[0]
+      shop: shop.rows[0]
     });
 
   } catch (error) {
@@ -70,7 +71,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 });
 
 /**
- * Get shops by specialty
+ * Get shops by specialties
  * GET /api/mod-shops/specialty/:type
  */
 router.get('/specialty/:type', async (req: Request, res: Response) => {
@@ -78,20 +79,19 @@ router.get('/specialty/:type', async (req: Request, res: Response) => {
     const { type } = req.params;
     const { limit = 10 } = req.query;
 
-    const shops = await db
-      .select()
-      .from(modShopPartners)
-      .where(and(
-        eq(modShopPartners.isActive, true),
-        like(modShopPartners.specialty, `%${type}%`)
-      ))
-      .limit(Number(limit));
+    const shops = await db.execute(sql`
+      SELECT id, business_name, contact_person, email, phone, website,
+             city, state_province, specialties, customer_rating, review_count
+      FROM mod_shop_partners 
+      WHERE specialties::text ILIKE ${`%${type}%`}
+      LIMIT ${Number(limit)}
+    `);
 
     res.json({
       success: true,
-      shops,
+      shops: shops.rows,
       specialty: type,
-      total: shops.length
+      total: shops.rows.length
     });
 
   } catch (error) {
@@ -111,17 +111,18 @@ router.get('/all', async (req: Request, res: Response) => {
   try {
     const { limit = 50 } = req.query;
 
-    const shops = await db
-      .select()
-      .from(modShopPartners)
-      .where(eq(modShopPartners.isActive, true))
-      .orderBy(asc(modShopPartners.name))
-      .limit(Number(limit));
+    const shops = await db.execute(sql`
+      SELECT id, business_name, contact_person, email, phone, website,
+             city, state_province, country, specialties, customer_rating
+      FROM mod_shop_partners 
+      ORDER BY business_name ASC
+      LIMIT ${Number(limit)}
+    `);
 
     res.json({
       success: true,
-      shops,
-      total: shops.length
+      shops: shops.rows,
+      total: shops.rows.length
     });
 
   } catch (error) {
@@ -133,4 +134,4 @@ router.get('/all', async (req: Request, res: Response) => {
   }
 });
 
-export { router as streamlinedModShopRoutes };
+export { router as workingModShopRoutes };
