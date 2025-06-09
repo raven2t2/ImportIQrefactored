@@ -1,5 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
+import { configureDashboardRoutes } from "./dashboard-routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeDataRefreshScheduler } from "./auction-data-manager";
 import { initializeLiveMarketDataMonitoring } from "./live-market-data";
@@ -42,6 +43,7 @@ app.use((req, res, next) => {
 
 (async () => {
   const server = await registerRoutes(app);
+  configureDashboardRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
