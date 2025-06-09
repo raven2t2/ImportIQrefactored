@@ -89,7 +89,8 @@ function LocationBasedBusinesses({ destination, userLocation }: { destination: s
   const targetCountry = countryMapping[destination] || '';
 
   const { data: businessData, isLoading } = useQuery({
-    queryKey: ['/api/mod-shops/country', targetCountry],
+    queryKey: ['/api/authentic-shops/all', { country: targetCountry }],
+    queryFn: () => fetch(`/api/authentic-shops/all?country=${encodeURIComponent(targetCountry)}`).then(res => res.json()),
     enabled: !!targetCountry
   });
 
@@ -106,7 +107,7 @@ function LocationBasedBusinesses({ destination, userLocation }: { destination: s
     );
   }
 
-  if (!businessData?.businesses || businessData.businesses.length === 0) {
+  if (!businessData?.shops || businessData.shops.length === 0) {
     return (
       <div className="text-center py-8">
         <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -123,9 +124,9 @@ function LocationBasedBusinesses({ destination, userLocation }: { destination: s
   return (
     <div className="space-y-4">
       <div className="text-sm text-muted-foreground mb-4">
-        Found {businessData.businesses.length} verified service providers in {targetCountry}
+        Found {businessData.shops.length} verified service providers in {targetCountry}
       </div>
-      {businessData.businesses.map((business: any, index: number) => (
+      {businessData.shops.map((business: any, index: number) => (
         <div key={index} className="border rounded-lg p-4">
           <div className="flex justify-between items-start mb-2">
             <div>
@@ -440,7 +441,7 @@ export default function ImportJourneyIntelligence({ destination }: ImportJourney
             {/* Port Recommendations */}
             <TabsContent value="ports" className="space-y-4">
               <div className="grid gap-4">
-                {journeyData.journey.recommendations.ports.map((port, index) => (
+                {journeyData?.journey?.recommendations?.ports?.map((port, index) => (
                   <Card key={port.portCode} className={index === 0 ? 'border-blue-500 bg-blue-50/50' : ''}>
                     <CardHeader>
                       <div className="flex items-start justify-between">
