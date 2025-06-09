@@ -225,6 +225,10 @@ app.use((req, res, next) => {
   const locationIntelligenceRoutes = await import('./location-intelligence-routes');
   app.use('/api/location', locationIntelligenceRoutes.default);
   
+  // Authentic mod shop API with verified Google Maps locations
+  const authenticModShopAPI = await import('./authentic-mod-shop-api');
+  app.use('/api/authentic-shops', authenticModShopAPI.default);
+  
   configureDashboardRoutes(app);
   
   // Initialize authentic mod shop database
