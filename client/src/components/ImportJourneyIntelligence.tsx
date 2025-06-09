@@ -76,23 +76,7 @@ interface ImportJourneyIntelligenceProps {
   destination?: string;
 }
 
-// Location-based businesses component for destination-aware filtering
-function LocationBasedBusinesses({ destination, userLocation }: { destination: string; userLocation: string }) {
-  const countryMapping: Record<string, string> = {
-    'australia': 'Australia',
-    'canada': 'Canada', 
-    'usa': 'United States',
-    'uk': 'United Kingdom',
-    'new-zealand': 'New Zealand'
-  };
 
-  const targetCountry = countryMapping[destination] || '';
-
-  const { data: businessData, isLoading } = useQuery({
-    queryKey: ['/api/authentic-shops/all', { country: targetCountry }],
-    queryFn: () => fetch(`/api/authentic-shops/all?country=${encodeURIComponent(targetCountry)}`).then(res => res.json()),
-    enabled: !!targetCountry
-  });
 
   if (isLoading) {
     return (
