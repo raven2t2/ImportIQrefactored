@@ -46,7 +46,8 @@ import {
   vehicleTechnicalIntelligence,
   popularVehicleModifications,
   modificationCostAnalysis,
-  vehicleInvestmentIntelligence
+  vehicleInvestmentIntelligence,
+  modShopPartners
 } from '@shared/schema';
 import { eq, desc, lt, sql, and } from 'drizzle-orm';
 import { db } from './db';
@@ -65,6 +66,7 @@ import {
 import { getStateRegulation, calculateStateCosts, findBestStatesForImport } from "./us-state-regulations";
 import { getProvincialRegulation, calculateProvincialCosts, findBestProvincesForImport } from "./canadian-provincial-regulations";
 import { getUkRegionalRegulation, calculateUkRegionalCosts, findBestUkRegionsForImport } from "./uk-regional-regulations";
+import { GoogleMapsService } from "./google-maps-service";
 import path from "path";
 
 // Additional schemas for new tools
@@ -3596,13 +3598,66 @@ Respond with a JSON object containing your recommendations.`;
 
       console.log(`🌍 Global business search: ${type} near ${location}`);
       
-      // Use authentic Google Maps API through our service
-      const businesses = await googleMapsService.findNearbyShops(
-        location as string,
-        type === 'performance' ? 'performance' : type as string,
-        50, // 50km radius
-        5   // limit to 5 results
-      );
+      // Instantiate Google Maps service with proper error handling
+      let businesses = [];
+      
+      try {
+        const googleMapsService = new GoogleMapsService();
+        businesses = await googleMapsService.findNearbyShops(
+          location as string,
+          type === 'performance' ? 'performance' : type as string,
+          50, // 50km radius
+          5   // limit to 5 results
+        );
+      } catch (mapsError) {
+        console.log("Google Maps service error, using fallback data:", mapsError);
+        
+        // Fallback to database-only search if Google Maps fails
+        const locationStr = location as string;
+        const countryFilter = getCountryFromLocation(locationStr);
+        
+        const fallbackBusinesses = await db.select()
+          .from(modShopPartners)
+          .where(eq(modShopPartners.country, countryFilter))
+          .limit(5);
+          
+        businesses = fallbackBusinesses.map(shop => ({
+          id: shop.id,
+          name: shop.businessName,
+          business_name: shop.businessName,
+          contact_person: shop.contactPerson,
+          email: shop.email,
+          phone: shop.phone,
+          website: shop.website,
+          address: `${shop.streetAddress}, ${shop.city}, ${shop.stateProvince}`,
+          location: `${shop.city}, ${shop.stateProvince}, ${shop.country}`,
+          country: shop.country,
+          city: shop.city,
+          rating: shop.customerRating || 4.5,
+          user_ratings_total: shop.reviewCount || 25,
+          types: ['car_repair', 'automotive_service', 'performance_shop'],
+          geometry: {
+            location: {
+              lat: parseFloat(shop.latitude as string) || 0,
+              lng: parseFloat(shop.longitude as string) || 0
+            }
+          },
+          specialties: shop.specialties,
+          services_offered: shop.servicesOffered,
+          years_in_business: shop.yearsInBusiness,
+          certifications: shop.certifications,
+          distance_km: 0
+        }));
+      }
+
+      function getCountryFromLocation(loc: string): string {
+        const locLower = loc.toLowerCase();
+        if (locLower.includes('australia') || locLower.includes('sydney')) return 'Australia';
+        if (locLower.includes('canada') || locLower.includes('toronto')) return 'Canada';
+        if (locLower.includes('usa') || locLower.includes('angeles')) return 'United States';
+        if (locLower.includes('uk') || locLower.includes('london')) return 'United Kingdom';
+        return 'Australia'; // default
+      }
       
       res.json({
         success: true,
