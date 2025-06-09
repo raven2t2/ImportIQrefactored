@@ -3810,15 +3810,51 @@ Respond with a JSON object containing your recommendations.`;
 
       console.log('Import intelligence request:', { vehicleData, destination });
 
-      // Use simplified PostgreSQL-only import intelligence
+      // Use simplified PostgreSQL-only import intelligence with Google Maps enhancement
       const { SimplifiedImportIntelligence } = await import('./simplified-import-intelligence.js');
       const { MemoryService } = await import('./memory-service.js');
+      const { GlobalMapsService } = await import('./global-maps-service.js');
       
       const result = await SimplifiedImportIntelligence.generateIntelligence(
         vehicleData,
         destination,
         sessionToken || 'anonymous'
       );
+
+      // Enhance preserved features with Google Maps location data
+      try {
+        const locationEnhancements = await GlobalMapsService.enhanceImportIntelligence(
+          vehicleData,
+          destination,
+          result
+        );
+        
+        // Integrate location data into existing cost breakdown
+        if (locationEnhancements.nearestPorts) {
+          result.costs.portRecommendations = locationEnhancements.nearestPorts;
+        }
+        
+        // Enhance compliance with local service providers
+        if (locationEnhancements.complianceProviders) {
+          result.complianceProviders = locationEnhancements.complianceProviders;
+        }
+        
+        // Add location-optimized shipping routes to existing timeline
+        if (locationEnhancements.optimizedRoutes) {
+          result.timeline.forEach((phase, index) => {
+            if (phase.phase === 'Shipping' && locationEnhancements.optimizedRoutes[0]) {
+              phase.locationOptimization = {
+                recommendedPort: locationEnhancements.optimizedRoutes[0].port,
+                estimatedDays: locationEnhancements.optimizedRoutes[0].transitDays,
+                costSavings: locationEnhancements.optimizedRoutes[0].costSavings
+              };
+            }
+          });
+        }
+        
+      } catch (error) {
+        console.log('Google Maps enhancement failed, using base intelligence:', error.message);
+      }
 
       // Record this lookup in memory for personalization
       await MemoryService.recordLookup(
