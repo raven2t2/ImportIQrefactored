@@ -1269,23 +1269,22 @@ export default function ImportJourney() {
           </CardContent>
         </Card>
 
-        {/* Google Maps Business Discovery */}
-        <div className="mt-8">
-          <Card className="bg-white">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-blue-600" />
-                Local Service Provider Discovery
-              </CardTitle>
-              <CardDescription>
-                Find verified automotive professionals near your location using Google Maps integration
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ImportJourneyIntelligence />
-            </CardContent>
-          </Card>
-        </div>
+        {/* Local Service Providers - Enhanced Integration */}
+        <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-blue-900">
+              <MapPin className="h-5 w-5" />
+              Local Service Providers for {importIntelligence.vehicle.make} {importIntelligence.vehicle.model}
+            </CardTitle>
+            <CardDescription className="text-blue-700">
+              Connect with verified professionals in {importIntelligence.destination.name} for compliance, inspections, and modifications
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ImportJourneyIntelligence />
+          </CardContent>
+        </Card>
+
       </div>
     </div>
   );
