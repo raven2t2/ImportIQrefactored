@@ -816,6 +816,28 @@ export const marketIntelligenceAnalytics = pgTable('market_intelligence_analytic
   createdAt: timestamp('created_at').defaultNow()
 });
 
+// Project Inquiries - Customer import project requests
+export const projectInquiries = pgTable('project_inquiries', {
+  id: serial('id').primaryKey(),
+  name: text('name').notNull(),
+  email: text('email').notNull(),
+  phone: text('phone'),
+  urgency: varchar('urgency').notNull(), // low, medium, high, urgent
+  serviceType: varchar('service_type').notNull(), // quote, consultation, full-service, compliance-only
+  budget: text('budget'),
+  timeline: text('timeline'),
+  message: text('message').notNull(),
+  preferredContact: varchar('preferred_contact').notNull(), // email, phone, either
+  vehicleInfo: jsonb('vehicle_info'), // make, model, chassis, year
+  destination: text('destination').notNull(),
+  status: varchar('status').default('new'), // new, contacted, in-progress, completed, closed
+  assignedTo: text('assigned_to'),
+  responseNotes: text('response_notes'),
+  submittedAt: timestamp('submitted_at').notNull(),
+  respondedAt: timestamp('responded_at'),
+  createdAt: timestamp('created_at').defaultNow()
+});
+
 // Vehicle Sourcing Intelligence - Best procurement strategies
 export const vehicleSourcingIntelligence = pgTable('vehicle_sourcing_intelligence', {
   id: serial('id').primaryKey(),

@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from "@/lib/queryClient";
 import SessionManager from "@/lib/session-manager";
 import { AuctionIntelligenceDisplay } from "@/components/auction-intelligence-display";
+import { ProjectInquiryForm } from "@/components/project-inquiry-form";
 
 interface ImportIntelligence {
   vehicle: {
@@ -376,43 +377,19 @@ export default function ImportJourney() {
             </CardContent>
           </Card>
 
-          {/* Next Steps */}
+          {/* Project Inquiry Form */}
           <Card className="bg-white">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <ArrowRight className="h-5 w-5 text-green-600" />
-                Your Next Steps
+                <MessageCircle className="h-5 w-5 text-blue-600" />
+                Tell Us About Your Import Project
               </CardTitle>
               <CardDescription>
-                Ready to make this import happen?
+                Get personalized assistance from our import specialists
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                <Button 
-                  onClick={handleStartImportProcess}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white flex items-center gap-2"
-                >
-                  <Calculator className="h-4 w-4" />
-                  Start Import Process
-                </Button>
-                <Button 
-                  onClick={handleGetProfessionalQuote}
-                  variant="outline" 
-                  className="w-full flex items-center gap-2"
-                >
-                  <FileText className="h-4 w-4" />
-                  Get Professional Quote
-                </Button>
-                <Button 
-                  onClick={handleConnectWithSpecialist}
-                  variant="ghost" 
-                  className="w-full text-purple-600 flex items-center gap-2"
-                >
-                  <MessageCircle className="h-4 w-4" />
-                  Connect with Specialist
-                </Button>
-              </div>
+              <ProjectInquiryForm vehicleData={vehicleData} destination={destination} />
             </CardContent>
           </Card>
         </div>
