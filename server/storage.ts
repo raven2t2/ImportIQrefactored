@@ -14,6 +14,23 @@ export interface IStorage {
   upsertUser(user: any): Promise<User>;
   createSubmission(submission: Omit<Submission, 'id' | 'createdAt'>): Promise<Submission>;
   getAllSubmissions(): Promise<Submission[]>;
+  
+  // Enhanced submission management with sessions
+  createUserSubmission(submission: InsertUserSubmission): Promise<UserSubmission>;
+  getUserSubmissions(sessionId?: string): Promise<UserSubmission[]>;
+  
+  // Session management
+  createSession(session: InsertUserSession): Promise<UserSession>;
+  getSession(sessionId: string): Promise<UserSession | undefined>;
+  updateSessionActivity(sessionId: string): Promise<void>;
+  cleanupExpiredSessions(): Promise<number>;
+  
+  // Auction data persistence
+  saveAuctionListings(listings: InsertAuctionListing[]): Promise<void>;
+  getAuctionListings(limit?: number): Promise<AuctionListing[]>;
+  getAuctionListingsByMakeModel(make: string, model: string): Promise<AuctionListing[]>;
+  markAuctionListingsInactive(refreshBatch: string): Promise<void>;
+  getActiveAuctionCount(): Promise<number>;
   createAIRecommendation(recommendation: Omit<any, 'id' | 'createdAt'>): Promise<any>;
   getAllAIRecommendations(): Promise<any[]>;
   checkEmailExists(email: string): Promise<boolean>;

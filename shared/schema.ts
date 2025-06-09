@@ -42,6 +42,31 @@ export const adminSessions = pgTable("admin_sessions", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const userSubmissions = pgTable("user_submissions", {
+  id: serial("id").primaryKey(),
+  fullName: text("full_name"),
+  email: text("email"),
+  vehiclePrice: decimal("vehicle_price", { precision: 10, scale: 2 }).notNull(),
+  shippingOrigin: text("shipping_origin").notNull(),
+  shipping: decimal("shipping", { precision: 10, scale: 2 }).notNull(),
+  customsDuty: decimal("customs_duty", { precision: 10, scale: 2 }).notNull(),
+  gst: decimal("gst", { precision: 10, scale: 2 }).notNull(),
+  lct: decimal("lct", { precision: 10, scale: 2 }).notNull(),
+  inspection: decimal("inspection", { precision: 10, scale: 2 }).notNull(),
+  serviceFee: decimal("service_fee", { precision: 10, scale: 2 }).notNull(),
+  totalCost: decimal("total_cost", { precision: 10, scale: 2 }).notNull(),
+  serviceTier: text("service_tier").notNull(),
+  zipCode: text("zip_code"),
+  vehicleMake: text("vehicle_make"),
+  vehicleModel: text("vehicle_model"),
+  vehicleYear: integer("vehicle_year"),
+  sessionId: text("session_id"),
+  userAgent: text("user_agent"),
+  ipAddress: text("ip_address"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Keep original submissions table for backward compatibility
 export const submissions = pgTable("submissions", {
   id: serial("id").primaryKey(),
   fullName: text("full_name"),
@@ -62,6 +87,26 @@ export const submissions = pgTable("submissions", {
   vehicleYear: integer("vehicle_year"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+// User sessions for tracking anonymous and authenticated users
+export const userSessions = pgTable("user_sessions", {
+  id: serial("id").primaryKey(),
+  sessionId: text("session_id").notNull().unique(),
+  userId: integer("user_id").references(() => users.id),
+  isAnonymous: boolean("is_anonymous").default(true),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  country: text("country"),
+  city: text("city"),
+  lastActivity: timestamp("last_activity").defaultNow().notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  sessionData: jsonb("session_data"), // Store temporary session data
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  sessionIdIdx: index("session_id_idx").on(table.sessionId),
+  userIdIdx: index("user_id_idx").on(table.userId),
+  lastActivityIdx: index("last_activity_idx").on(table.lastActivity),
+}));
 
 export const aiRecommendations = pgTable("ai_recommendations", {
   id: serial("id").primaryKey(),
@@ -1670,8 +1715,15 @@ export const insertSubmissionSchema = createInsertSchema(submissions).pick({
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
+
 export type InsertSubmission = z.infer<typeof insertSubmissionSchema>;
 export type Submission = typeof submissions.$inferSelect;
+
+export type InsertUserSubmission = typeof userSubmissions.$inferInsert;
+export type UserSubmission = typeof userSubmissions.$inferSelect;
+
+export type InsertUserSession = typeof userSessions.$inferInsert;
+export type UserSession = typeof userSessions.$inferSelect;
 export type Booking = typeof bookings.$inferSelect;
 export type InsertBooking = typeof bookings.$inferInsert;
 
