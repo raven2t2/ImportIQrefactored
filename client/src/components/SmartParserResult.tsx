@@ -3,8 +3,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle, AlertTriangle, Info, Clock, ArrowRight, Shield, TrendingUp, Target } from "lucide-react";
+import { CheckCircle, AlertTriangle, Info, Clock, ArrowRight, Shield, TrendingUp, Target, MapPin, Wrench } from "lucide-react";
 import { SmartParserResponse } from "@shared/types";
+import { useLocation } from "wouter";
 
 interface SmartParserResultProps {
   result: SmartParserResponse;
