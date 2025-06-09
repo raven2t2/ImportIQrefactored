@@ -40,7 +40,11 @@ import {
   auctionListings,
   customsRegulations,
   customsDuties,
-  automotiveNews
+  automotiveNews,
+  vehicleTechnicalIntelligence,
+  popularVehicleModifications,
+  modificationCostAnalysis,
+  vehicleInvestmentIntelligence
 } from '@shared/schema';
 import { eq, desc, lt, sql, and } from 'drizzle-orm';
 import { db } from './db';

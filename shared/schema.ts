@@ -891,6 +891,90 @@ export const importRiskAssessment = pgTable('import_risk_assessment', {
   createdAt: timestamp('created_at').defaultNow()
 });
 
+// Vehicle Technical Intelligence - Comprehensive engine and modification data
+export const vehicleTechnicalIntelligence = pgTable('vehicle_technical_intelligence', {
+  id: serial('id').primaryKey(),
+  make: text('make').notNull(),
+  model: text('model').notNull(),
+  chassisCode: text('chassis_code'),
+  year: integer('year'),
+  engineCode: text('engine_code').notNull(),
+  engineType: text('engine_type').notNull(),
+  displacement: text('displacement').notNull(),
+  power: text('power').notNull(),
+  torque: text('torque').notNull(),
+  compression: text('compression'),
+  configuration: text('configuration'),
+  drivetrainType: text('drivetrain_type').notNull(),
+  transmission: text('transmission').notNull(),
+  differential: text('differential'),
+  rarityFactor: text('rarity_factor'),
+  collectibilityScore: integer('collectibility_score'),
+  productionNumbers: integer('production_numbers'),
+  appreciationRate: decimal('appreciation_rate', { precision: 5, scale: 2 }),
+  marketSegment: text('market_segment'),
+  technicalNotes: text('technical_notes'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
+// Popular Vehicle Modifications - Community-driven modification database
+export const popularVehicleModifications = pgTable('popular_vehicle_modifications', {
+  id: serial('id').primaryKey(),
+  vehicleTechId: integer('vehicle_tech_id').references(() => vehicleTechnicalIntelligence.id),
+  modificationName: text('modification_name').notNull(),
+  category: text('category').notNull(), // engine, suspension, exhaust, intake, turbo, etc
+  estimatedCost: decimal('estimated_cost', { precision: 10, scale: 2 }),
+  powerGain: text('power_gain'),
+  torqueGain: text('torque_gain'),
+  difficultyLevel: text('difficulty_level'), // easy, moderate, advanced, professional
+  popularityRank: integer('popularity_rank'),
+  compatibleYears: text('compatible_years'),
+  brandName: text('brand_name'),
+  partNumber: text('part_number'),
+  installationTime: text('installation_time'),
+  description: text('description'),
+  warningNotes: text('warning_notes'),
+  createdAt: timestamp('created_at').defaultNow()
+});
+
+// Modification Cost Analysis - Real market pricing for upgrades
+export const modificationCostAnalysis = pgTable('modification_cost_analysis', {
+  id: serial('id').primaryKey(),
+  vehicleTechId: integer('vehicle_tech_id').references(() => vehicleTechnicalIntelligence.id),
+  modificationStage: text('modification_stage').notNull(), // stage1, stage2, stage3, full_build
+  stageName: text('stage_name').notNull(),
+  totalCost: decimal('total_cost', { precision: 10, scale: 2 }).notNull(),
+  powerOutput: text('power_output').notNull(),
+  torqueOutput: text('torque_output'),
+  expectedReliability: text('expected_reliability'),
+  timeToComplete: text('time_to_complete'),
+  recommendedParts: jsonb('recommended_parts'),
+  laborCosts: decimal('labor_costs', { precision: 8, scale: 2 }),
+  partsCosts: decimal('parts_costs', { precision: 8, scale: 2 }),
+  miscCosts: decimal('misc_costs', { precision: 8, scale: 2 }),
+  roi: text('roi'), // return on investment for performance/dollar
+  createdAt: timestamp('created_at').defaultNow()
+});
+
+// Vehicle Investment Intelligence - Market appreciation and collectibility data
+export const vehicleInvestmentIntelligence = pgTable('vehicle_investment_intelligence', {
+  id: serial('id').primaryKey(),
+  vehicleTechId: integer('vehicle_tech_id').references(() => vehicleTechnicalIntelligence.id),
+  currentMarketValue: decimal('current_market_value', { precision: 12, scale: 2 }),
+  fiveYearAppreciation: decimal('five_year_appreciation', { precision: 5, scale: 2 }),
+  tenYearAppreciation: decimal('ten_year_appreciation', { precision: 5, scale: 2 }),
+  collectibilityRating: text('collectibility_rating'), // blue_chip, strong, moderate, speculative
+  liquidityRating: text('liquidity_rating'), // high, medium, low
+  marketFactors: jsonb('market_factors'),
+  riskFactors: jsonb('risk_factors'),
+  investmentGrade: text('investment_grade'), // A+, A, B+, B, C
+  holdingRecommendation: text('holding_recommendation'),
+  sellingStrategy: text('selling_strategy'),
+  lastMarketAnalysis: timestamp('last_market_analysis').defaultNow(),
+  createdAt: timestamp('created_at').defaultNow()
+});
+
 // Vehicle Monitoring Alerts - User tracking and notifications
 export const vehicleMonitoringAlerts = pgTable('vehicle_monitoring_alerts', {
   id: serial('id').primaryKey(),
