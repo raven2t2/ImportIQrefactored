@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -76,6 +76,102 @@ interface ImportJourneyIntelligenceProps {
   destination?: string;
 }
 
+// Location-based businesses component for destination-aware filtering
+function LocationBasedBusinesses({ destination, userLocation }: { destination: string; userLocation: string }) {
+  const countryMapping: Record<string, string> = {
+    'australia': 'Australia',
+    'canada': 'Canada', 
+    'usa': 'United States',
+    'uk': 'United Kingdom',
+    'new-zealand': 'New Zealand'
+  };
+
+  const targetCountry = countryMapping[destination] || '';
+
+  const { data: businessData, isLoading } = useQuery({
+    queryKey: ['/api/mod-shops/country', targetCountry],
+    enabled: !!targetCountry
+  });
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        {[1, 2, 3].map(i => (
+          <div key={i} className="border rounded-lg p-4 animate-pulse">
+            <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+            <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (!businessData?.businesses || businessData.businesses.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+        <p className="text-muted-foreground">
+          No verified service providers found in {targetCountry}
+        </p>
+        <p className="text-sm text-muted-foreground mt-2">
+          Try searching in a nearby region or check back later
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="text-sm text-muted-foreground mb-4">
+        Found {businessData.businesses.length} verified service providers in {targetCountry}
+      </div>
+      {businessData.businesses.map((business: any, index: number) => (
+        <div key={index} className="border rounded-lg p-4">
+          <div className="flex justify-between items-start mb-2">
+            <div>
+              <h4 className="font-semibold flex items-center gap-2">
+                {business.business_name || business.name}
+                <Badge variant="outline" className="text-xs">Verified Partner</Badge>
+              </h4>
+              <p className="text-sm text-muted-foreground">{business.address}</p>
+              {business.phone && (
+                <p className="text-sm text-blue-600">{business.phone}</p>
+              )}
+            </div>
+            <div className="text-right">
+              {business.rating && (
+                <div className="flex items-center gap-1">
+                  <span className="font-semibold">{business.rating}</span>
+                  <span className="text-yellow-500">★</span>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+            <div>
+              <p className="text-sm"><strong>Services:</strong> {business.services?.join(', ') || 'Performance & Compliance'}</p>
+              {business.website && (
+                <p className="text-sm">
+                  <strong>Website:</strong> 
+                  <a href={business.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 ml-1">
+                    {business.website.replace(/^https?:\/\//, '')}
+                  </a>
+                </p>
+              )}
+            </div>
+            <div>
+              <p className="text-sm"><strong>Location:</strong> {business.city}, {business.country}</p>
+              {business.verified_partner && (
+                <Badge variant="default" className="mt-1">ImportIQ Verified</Badge>
+              )}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function ImportJourneyIntelligence({ destination }: ImportJourneyIntelligenceProps) {
   const [userLocation, setUserLocation] = useState('');
   const [vehicleDetails, setVehicleDetails] = useState({
@@ -85,6 +181,29 @@ export default function ImportJourneyIntelligence({ destination }: ImportJourney
     origin: 'Japan'
   });
   const [searchTriggered, setSearchTriggered] = useState(false);
+
+  // Set user location based on destination if provided
+  const destinationToLocation = (dest: string) => {
+    const mapping: Record<string, string> = {
+      'australia': 'Sydney, Australia',
+      'canada': 'Toronto, Canada', 
+      'usa': 'Los Angeles, USA',
+      'uk': 'London, UK',
+      'new-zealand': 'Auckland, New Zealand'
+    };
+    return mapping[dest] || '';
+  };
+
+  // Auto-set location from destination prop
+  React.useEffect(() => {
+    if (destination && !userLocation) {
+      const autoLocation = destinationToLocation(destination);
+      if (autoLocation) {
+        setUserLocation(autoLocation);
+        setSearchTriggered(true);
+      }
+    }
+  }, [destination, userLocation]);
 
   // Enhanced Google Maps integration for comprehensive journey planning
   const { data: journeyData, isLoading } = useQuery({
@@ -480,96 +599,29 @@ export default function ImportJourneyIntelligence({ destination }: ImportJourney
               </div>
             </TabsContent>
 
-            {/* Local Partners - Google Maps Business Discovery */}
+            {/* Destination-Aware Local Partners */}
             <TabsContent value="businesses" className="space-y-4">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <MapPin className="h-5 w-5" />
-                    Verified Local Partners (Google Maps Discovery)
+                    Local Service Providers
                   </CardTitle>
                   <CardDescription>
-                    Real businesses discovered using Google Places API with verified contact details and ratings
+                    {destination ? 
+                      `Verified professionals in ${destinationToLocation(destination)} for compliance and modifications` :
+                      'Enter location to find verified local service providers'
+                    }
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {journeyData?.businesses && journeyData.businesses.length > 0 ? (
-                    <div className="grid gap-4">
-                      <div className="text-sm text-muted-foreground mb-2">
-                        Found {journeyData.total} businesses in {journeyData.metadata?.country || 'your area'} • {journeyData.metadata?.region || 'Global'}
-                      </div>
-                      {journeyData.businesses.map((business, index) => (
-                        <div key={index} className="border rounded-lg p-4">
-                          <div className="flex justify-between items-start mb-2">
-                            <div>
-                              <h4 className="font-semibold flex items-center gap-2">
-                                {business.name || business.business_name}
-                                <Badge variant="outline" className="text-xs">Google Verified</Badge>
-                              </h4>
-                              <p className="text-sm text-muted-foreground">{business.address}</p>
-                              {business.phone && (
-                                <p className="text-sm text-blue-600">{business.phone}</p>
-                              )}
-                              {business.searchTerm && (
-                                <p className="text-xs text-green-600">Found via: {business.searchTerm}</p>
-                              )}
-                            </div>
-                            <div className="text-right">
-                              {business.rating && (
-                                <div className="flex items-center gap-1">
-                                  <span className="font-semibold">{business.rating}</span>
-                                  <span className="text-yellow-500">★</span>
-                                </div>
-                              )}
-                              {business.distance && (
-                                <p className="text-sm text-muted-foreground">{business.distance}km away</p>
-                              )}
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
-                            <div>
-                              <p className="text-sm"><strong>Type:</strong> {business.type}</p>
-                              {business.website && (
-                                <p className="text-sm">
-                                  <strong>Website:</strong> 
-                                  <a href={business.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 ml-1">
-                                    {business.website.replace(/^https?:\/\//, '')}
-                                  </a>
-                                </p>
-                              )}
-                            </div>
-                            <div>
-                              {business.openNow !== undefined && (
-                                <p className="text-sm">
-                                  <strong>Status:</strong> 
-                                  <Badge variant={business.openNow ? "default" : "secondary"} className="ml-1">
-                                    {business.openNow ? "Open Now" : "Closed"}
-                                  </Badge>
-                                </p>
-                              )}
-                              {business.priceLevel && (
-                                <p className="text-sm"><strong>Price Level:</strong> {"$".repeat(business.priceLevel)}</p>
-                              )}
-                            </div>
-                          </div>
-                          {business.types && business.types.length > 0 && (
-                            <div className="mt-3">
-                              <p className="text-sm font-medium">Services:</p>
-                              <div className="flex flex-wrap gap-1 mt-1">
-                                {business.types.map((type, i) => (
-                                  <Badge key={i} variant="secondary" className="text-xs">{type}</Badge>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
+                  {destination && userLocation ? (
+                    <LocationBasedBusinesses destination={destination} userLocation={userLocation} />
                   ) : (
                     <div className="text-center py-8">
                       <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                       <p className="text-muted-foreground">
-                        Enter your location above to discover verified local automotive businesses and compliance partners
+                        Location data needed to show relevant service providers for your import destination
                       </p>
                     </div>
                   )}
