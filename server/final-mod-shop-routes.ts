@@ -33,13 +33,15 @@ router.get('/search', async (req: Request, res: Response) => {
       query = sql`${query} AND location ILIKE ${'%' + city + '%'}`;
     }
 
-    // Add service filtering
+    // Add service filtering using specialty field
     if (services) {
       const serviceArray = String(services).split(',');
-      query = sql`${query} AND services_offered ?& ${serviceArray}`;
+      for (const service of serviceArray) {
+        query = sql`${query} AND specialty ILIKE ${'%' + service.trim() + '%'}`;
+      }
     }
 
-    query = sql`${query} ORDER BY customer_rating DESC, review_count DESC LIMIT ${searchLimit}`;
+    query = sql`${query} ORDER BY name ASC LIMIT ${searchLimit}`;
 
     const shops = await db.execute(query);
 

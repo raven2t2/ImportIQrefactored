@@ -5,27 +5,49 @@ import { sql } from 'drizzle-orm';
 const router = Router();
 
 /**
- * Search mod shops with direct SQL for immediate functionality
+ * Search mod shops with geographic targeting
  * GET /api/mod-shops/search
  */
 router.get('/search', async (req: Request, res: Response) => {
   try {
-    const { location, radius = 100, limit = 20, services, vehicle } = req.query;
+    const { location, radius, limit, services, vehicle, postalCode, city, state } = req.query;
+    const searchLimit = limit ? parseInt(String(limit)) : 20;
     
-    // Direct SQL query to get mod shop data
-    const shops = await db.execute(sql`
+    let query = sql`
       SELECT id, name, business_name, contact_person, description, website,
              location, specialty, is_active, created_at
       FROM mod_shop_partners 
       WHERE is_active = true
-      LIMIT ${Number(limit)}
-    `);
+    `;
+
+    // Add location-based filtering
+    if (postalCode) {
+      query = sql`${query} AND location ILIKE ${'%' + postalCode + '%'}`;
+    } else if (city && state) {
+      query = sql`${query} AND (location ILIKE ${'%' + city + '%'} AND location ILIKE ${'%' + state + '%'})`;
+    } else if (state) {
+      query = sql`${query} AND location ILIKE ${'%' + state + '%'}`;
+    } else if (city) {
+      query = sql`${query} AND location ILIKE ${'%' + city + '%'}`;
+    }
+
+    // Add service filtering using specialty field
+    if (services) {
+      const serviceArray = String(services).split(',');
+      for (const service of serviceArray) {
+        query = sql`${query} AND specialty ILIKE ${'%' + service.trim() + '%'}`;
+      }
+    }
+
+    query = sql`${query} ORDER BY name ASC LIMIT ${searchLimit}`;
+
+    const shops = await db.execute(query);
 
     res.json({
       success: true,
       shops: shops.rows,
       total: shops.rows.length,
-      searchParams: { location, radius, services, vehicle }
+      searchParams: { location, radius, services, vehicle, postalCode, city, state }
     });
 
   } catch (error) {
@@ -45,9 +67,13 @@ router.get('/:id', async (req: Request, res: Response) => {
   try {
     const shopId = parseInt(req.params.id);
     
+    if (isNaN(shopId)) {
+      return res.status(400).json({ success: false, error: 'Invalid shop ID' });
+    }
+    
     const shop = await db.execute(sql`
       SELECT * FROM mod_shop_partners 
-      WHERE id = ${shopId}
+      WHERE id = ${shopId} AND is_active = true
       LIMIT 1
     `);
 
@@ -70,27 +96,29 @@ router.get('/:id', async (req: Request, res: Response) => {
 });
 
 /**
- * Get shops by specialties
+ * Get shops by specialty for vehicle matching
  * GET /api/mod-shops/specialty/:type
  */
 router.get('/specialty/:type', async (req: Request, res: Response) => {
   try {
     const { type } = req.params;
-    const { limit = 10 } = req.query;
+    const { limit } = req.query;
+    const searchLimit = limit ? parseInt(String(limit)) : 10;
 
     const shops = await db.execute(sql`
       SELECT id, name, business_name, contact_person, description, website,
              location, specialty, is_active
       FROM mod_shop_partners 
-      WHERE specialty ILIKE ${`%${type}%`} AND is_active = true
-      LIMIT ${Number(limit)}
+      WHERE specialty ILIKE ${'%' + type + '%'} AND is_active = true
+      ORDER BY name ASC
+      LIMIT ${searchLimit}
     `);
 
     res.json({
       success: true,
       shops: shops.rows,
-      specialty: type,
-      total: shops.rows.length
+      total: shops.rows.length,
+      specialty: type
     });
 
   } catch (error) {
@@ -108,15 +136,16 @@ router.get('/specialty/:type', async (req: Request, res: Response) => {
  */
 router.get('/all', async (req: Request, res: Response) => {
   try {
-    const { limit = 50 } = req.query;
+    const { limit } = req.query;
+    const searchLimit = limit ? parseInt(String(limit)) : 50;
 
     const shops = await db.execute(sql`
       SELECT id, name, business_name, contact_person, description, website,
-             location, specialty, is_active
+             location, specialty, is_active, created_at
       FROM mod_shop_partners 
       WHERE is_active = true
       ORDER BY name ASC
-      LIMIT ${Number(limit)}
+      LIMIT ${searchLimit}
     `);
 
     res.json({
@@ -134,4 +163,4 @@ router.get('/all', async (req: Request, res: Response) => {
   }
 });
 
-export { router as workingModShopRoutes };
+export default router;
