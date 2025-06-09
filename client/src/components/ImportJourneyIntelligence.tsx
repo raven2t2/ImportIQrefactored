@@ -269,14 +269,14 @@ export default function ImportJourneyIntelligence() {
       </Card>
 
       {/* Results */}
-      {journey && (
+      {journeyData?.journey && (
         <div className="space-y-6">
           {/* Summary Overview */}
           <Card>
             <CardHeader>
               <CardTitle>Import Journey Summary</CardTitle>
               <CardDescription>
-                {journey.vehicle.make} {journey.vehicle.model} ({journey.vehicle.year}) from {journey.vehicle.origin} to {journey.destination.location}
+                {journeyData.journey.vehicle.make} {journeyData.journey.vehicle.model} ({journeyData.journey.vehicle.year}) from {journeyData.journey.vehicle.origin} to {journeyData.journey.destination.location}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -284,7 +284,7 @@ export default function ImportJourneyIntelligence() {
                 <div className="flex items-center gap-3">
                   <DollarSign className="h-8 w-8 text-green-600" />
                   <div>
-                    <p className="text-2xl font-bold">${journey.summary.estimatedTotalCost?.toLocaleString()}</p>
+                    <p className="text-2xl font-bold">${journeyData.journey.summary.totalCost?.toLocaleString()}</p>
                     <p className="text-sm text-muted-foreground">Total Estimated Cost</p>
                   </div>
                 </div>
