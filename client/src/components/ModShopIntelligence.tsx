@@ -64,21 +64,25 @@ export function ModShopIntelligence({ vehicleMake, vehicleModel, destination }: 
   const [showAll, setShowAll] = useState(false);
 
   // Add console logging for debugging
-  console.log('ModShopIntelligence Debug:', {
-    vehicleMake,
-    vehicleModel,
-    specialty,
-    loadingRecommended,
-    loadingAll,
-    recommendedShops,
-    allShops,
-    errorRecommended,
-    errorAll
-  });
+  console.log('ModShopIntelligence rendering for:', vehicleMake, vehicleModel, specialty);
+  console.log('API responses:', { recommendedShops, allShops, loadingRecommended, loadingAll });
 
   // Handle errors
   if (errorRecommended || errorAll) {
     console.error('Mod shop API errors:', { errorRecommended, errorAll });
+    return (
+      <Card className="border-red-200 bg-red-50">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg flex items-center gap-2 text-red-700">
+            <Wrench className="w-5 h-5" />
+            Local Service Providers (Error)
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-red-600">Unable to load service providers. Please try again later.</p>
+        </CardContent>
+      </Card>
+    );
   }
 
   if (loadingRecommended || loadingAll) {

@@ -402,11 +402,11 @@ export function SmartParserResult({ result, onAddToWatchlist, onSuggestPattern }
       )}
 
       {/* Local Service Providers Intelligence */}
-      {result.data && (
+      {result.data && result.data.make && (
         <ModShopIntelligence 
           vehicleMake={result.data.make}
-          vehicleModel={result.data.model}
-          destination={result.data.destination || 'UK'}
+          vehicleModel={result.data.model || ''}
+          destination="australia"
         />
       )}
 
