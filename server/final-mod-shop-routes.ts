@@ -10,25 +10,44 @@ const router = Router();
  */
 router.get('/search', async (req: Request, res: Response) => {
   try {
-    const { location, radius, limit, services, vehicle } = req.query;
+    const { location, radius, limit, services, vehicle, postalCode, city, state } = req.query;
     const searchLimit = limit ? parseInt(String(limit)) : 20;
+    const searchRadius = radius ? parseInt(String(radius)) : 50; // miles
     
-    // Get active mod shop partners from PostgreSQL
-    const shops = await db.execute(sql`
-      SELECT id, name, business_name, contact_person, description, website,
-             location, specialty, is_active, created_at,
-             primary_contact, secondary_contact, logo_url, discount_code, discount_percent
+    let query = sql`
+      SELECT id, business_name, contact_person, email, phone, website,
+             street_address, city, state_province, postal_code, country,
+             latitude, longitude, services_offered, specialties, certifications,
+             years_in_business, customer_rating, review_count, average_cost_range,
+             typical_turnaround_days, is_active, created_at
       FROM mod_shop_partners 
       WHERE is_active = true
-      ORDER BY name ASC
-      LIMIT ${searchLimit}
-    `);
+    `;
+
+    // Add location-based filtering if postal code or city provided
+    if (postalCode) {
+      query = sql`${query} AND postal_code = ${postalCode}`;
+    } else if (city && state) {
+      query = sql`${query} AND LOWER(city) = LOWER(${city}) AND LOWER(state_province) = LOWER(${state})`;
+    } else if (state) {
+      query = sql`${query} AND LOWER(state_province) = LOWER(${state})`;
+    }
+
+    // Add service filtering
+    if (services) {
+      const serviceArray = String(services).split(',');
+      query = sql`${query} AND services_offered ?& ${serviceArray}`;
+    }
+
+    query = sql`${query} ORDER BY customer_rating DESC, review_count DESC LIMIT ${searchLimit}`;
+
+    const shops = await db.execute(query);
 
     res.json({
       success: true,
       shops: shops.rows,
       total: shops.rows.length,
-      searchParams: { location, radius, services, vehicle }
+      searchParams: { location, radius, services, vehicle, postalCode, city, state }
     });
 
   } catch (error) {
