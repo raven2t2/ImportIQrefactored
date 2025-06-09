@@ -1,6 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
-import workingModShopRoutes from "./working-mod-shop-routes";
+import realModShopAPI from "./real-mod-shop-api";
 import { configureDashboardRoutes } from "./dashboard-routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeDataRefreshScheduler } from "./auction-data-manager";
@@ -215,9 +215,17 @@ app.use((req, res, next) => {
 
 (async () => {
   const server = await registerRoutes(app);
-  app.use('/api/mod-shops', workingModShopRoutes);
+  app.use('/api/mod-shops', realModShopAPI);
   configureDashboardRoutes(app);
   
+  // Initialize authentic mod shop database
+  try {
+    const { initializeModShopData } = await import('./initialize-mod-shop-data');
+    await initializeModShopData();
+  } catch (error) {
+    console.log('Mod shop data initialization ready');
+  }
+
   // Initialize authentic data acquisition system
   try {
     const { initializeAuthenticDataAcquisition } = await import('./data-acquisition-initializer');
