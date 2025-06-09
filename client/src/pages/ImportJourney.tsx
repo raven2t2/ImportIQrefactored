@@ -1281,7 +1281,7 @@ export default function ImportJourney() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ImportJourneyIntelligence />
+            <ImportJourneyIntelligence destination={destination} />
           </CardContent>
         </Card>
 

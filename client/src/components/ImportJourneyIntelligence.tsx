@@ -72,7 +72,11 @@ interface ImportJourney {
   };
 }
 
-export default function ImportJourneyIntelligence() {
+interface ImportJourneyIntelligenceProps {
+  destination?: string;
+}
+
+export default function ImportJourneyIntelligence({ destination }: ImportJourneyIntelligenceProps) {
   const [userLocation, setUserLocation] = useState('');
   const [vehicleDetails, setVehicleDetails] = useState({
     make: 'Toyota',
