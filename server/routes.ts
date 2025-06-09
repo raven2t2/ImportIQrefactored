@@ -4769,7 +4769,8 @@ Respond with a JSON object containing your recommendations.`;
   // Import Intelligence API with Session Persistence
   app.post("/api/import-intelligence", async (req, res) => {
     try {
-      const { vehicle, destination, sessionToken } = req.body;
+      const { vehicleData, destination, sessionToken } = req.body;
+      const vehicle = vehicleData; // Map vehicleData to vehicle for compatibility
       
       if (!vehicle || !destination) {
         return res.status(400).json({ error: "Vehicle data and destination required" });
@@ -4816,7 +4817,7 @@ Respond with a JSON object containing your recommendations.`;
           name: getDestinationName(destination)
         },
         eligibility: calculateEligibility(vehicle, destination),
-        costs: await calculateImportCosts(vehicle, destination),
+        costs: await require('./comprehensive-vehicle-database').ComprehensiveVehicleDatabase.calculateImportCosts(vehicle, destination),
         timeline: generateImportTimeline(vehicle, destination),
         nextSteps: generateNextSteps(vehicle, destination),
         alternatives: generateAlternatives(vehicle, destination)
@@ -4917,10 +4918,16 @@ Respond with a JSON object containing your recommendations.`;
   }
 
   async function calculateImportCosts(vehicle: any, destination: string) {
+    console.log(`🔍 FUNCTION CALLED: calculateImportCosts for ${JSON.stringify(vehicle)} to ${destination}`);
+    
     // Get real auction market price from PostgreSQL
     let vehiclePrice = 25000; // Fallback only
     
+    console.log(`🔍 Calculating import costs for ${vehicle.make} ${vehicle.model} to ${destination}`);
+    
     try {
+      console.log(`🔍 Querying auction data for ${vehicle.make} ${vehicle.model}...`);
+      
       // Query for real auction pricing data from vehicle_auctions table
       const auctionData = await db.select()
         .from(vehicleAuctions)
@@ -4934,19 +4941,25 @@ Respond with a JSON object containing your recommendations.`;
         .orderBy(desc(vehicleAuctions.lastUpdated))
         .limit(5);
       
+      console.log(`🔍 Found ${auctionData.length} auction records for ${vehicle.make} ${vehicle.model}`);
+      
       if (auctionData.length > 0) {
+        console.log(`🔍 Raw auction data:`, auctionData.map(item => ({ make: item.make, model: item.model, price: item.price })));
+        
         // Calculate average price from recent auction listings with valid prices
         const validPrices = auctionData.filter(listing => listing.price && Number(listing.price) > 0);
+        console.log(`🔍 Valid prices found: ${validPrices.length}`);
+        
         if (validPrices.length > 0) {
           const avgPrice = validPrices.reduce((sum, listing) => sum + Number(listing.price), 0) / validPrices.length;
           vehiclePrice = Math.round(avgPrice);
-          console.log(`Using real auction price for ${vehicle.make} ${vehicle.model}: $${vehiclePrice.toLocaleString()} (from ${validPrices.length} listings)`);
+          console.log(`✅ Using real auction price for ${vehicle.make} ${vehicle.model}: $${vehiclePrice.toLocaleString()} (from ${validPrices.length} listings)`);
         }
       } else {
-        console.log(`No auction data with valid prices found for ${vehicle.make} ${vehicle.model}, using fallback price: $${vehiclePrice.toLocaleString()}`);
+        console.log(`❌ No auction data with valid prices found for ${vehicle.make} ${vehicle.model}, using fallback price: $${vehiclePrice.toLocaleString()}`);
       }
     } catch (error) {
-      console.error('Error fetching auction price:', error);
+      console.error('❌ Error fetching auction price:', error);
     }
 
     let shipping = 4500;
