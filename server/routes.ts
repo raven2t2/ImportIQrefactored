@@ -3598,19 +3598,25 @@ Respond with a JSON object containing your recommendations.`;
 
       console.log(`🌍 Global business search: ${type} near ${location}`);
       
-      // Instantiate Google Maps service with proper error handling
+      // Use authentic Google Maps Places API data
       let businesses = [];
       
       try {
-        const googleMapsService = new GoogleMapsService();
-        businesses = await googleMapsService.findNearbyShops(
+        // Import and use the enhanced Google Maps service for authentic data
+        const { GoogleMapsEnhancedService } = await import('./google-maps-enhanced-integration');
+        const enhancedService = new GoogleMapsEnhancedService();
+        
+        console.log(`🔍 Searching for real ${type} businesses near ${location}`);
+        businesses = await enhancedService.findAutomotiveBusinesses(
           location as string,
-          type === 'performance' ? 'performance' : type as string,
-          50, // 50km radius
-          5   // limit to 5 results
+          type as string,
+          50000 // 50km radius
         );
+        
+        console.log(`✅ Found ${businesses.length} authentic businesses from Google Places API`);
+        
       } catch (mapsError) {
-        console.log("Google Maps service error, using fallback data:", mapsError);
+        console.error("Google Maps Places API error:", mapsError);
         
         // Fallback to database-only search if Google Maps fails
         const locationStr = location as string;

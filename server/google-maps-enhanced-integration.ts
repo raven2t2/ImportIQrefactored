@@ -265,6 +265,9 @@ class GoogleMapsEnhancedService {
 
 const enhancedGoogleMaps = new GoogleMapsEnhancedService();
 
+// Export the class for use in other modules
+export { GoogleMapsEnhancedService };
+
 // API Routes for enhanced Google Maps integration
 
 // Find real automotive businesses using global search
