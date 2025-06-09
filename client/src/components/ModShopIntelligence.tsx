@@ -38,56 +38,30 @@ export function ModShopIntelligence({ vehicleMake, vehicleModel, destination }: 
   const specialty = getVehicleSpecialty(vehicleMake);
 
   // Fetch recommended mod shops based on vehicle specialty
-  const { data: recommendedShops, isLoading: loadingRecommended, error: errorRecommended } = useQuery({
+  const { data: recommendedShops, isLoading: loadingRecommended } = useQuery({
     queryKey: ['/api/mod-shops/specialty', specialty],
     queryFn: async () => {
       const response = await fetch(`/api/mod-shops/specialty/${specialty}?limit=3`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch specialty shops');
-      }
+      if (!response.ok) throw new Error('Failed to fetch specialty shops');
       return response.json();
     }
   });
 
-  // Fetch all available shops
-  const { data: allShops, isLoading: loadingAll, error: errorAll } = useQuery({
+  // Fetch all available shops for fallback
+  const { data: allShops, isLoading: loadingAll } = useQuery({
     queryKey: ['/api/mod-shops/search'],
     queryFn: async () => {
       const response = await fetch('/api/mod-shops/search?limit=6');
-      if (!response.ok) {
-        throw new Error('Failed to fetch shops');
-      }
+      if (!response.ok) throw new Error('Failed to fetch shops');
       return response.json();
     }
   });
 
   const [showAll, setShowAll] = useState(false);
 
-  // Add console logging for debugging
-  console.log('ModShopIntelligence rendering for:', vehicleMake, vehicleModel, specialty);
-  console.log('API responses:', { recommendedShops, allShops, loadingRecommended, loadingAll });
-
-  // Handle errors
-  if (errorRecommended || errorAll) {
-    console.error('Mod shop API errors:', { errorRecommended, errorAll });
-    return (
-      <Card className="border-red-200 bg-red-50">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center gap-2 text-red-700">
-            <Wrench className="w-5 h-5" />
-            Local Service Providers (Error)
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-red-600">Unable to load service providers. Please try again later.</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
   if (loadingRecommended || loadingAll) {
     return (
-      <Card className="border-purple-200 bg-purple-50">
+      <Card className="border-purple-200 bg-purple-50 mb-4">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <Wrench className="w-5 h-5 text-purple-600" />
@@ -95,9 +69,9 @@ export function ModShopIntelligence({ vehicleMake, vehicleModel, destination }: 
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-            <span className="ml-2 text-sm text-purple-600">Loading service providers...</span>
+          <div className="flex items-center justify-center py-6">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600 mr-2"></div>
+            <span className="text-sm text-purple-600">Loading service providers...</span>
           </div>
         </CardContent>
       </Card>
@@ -105,12 +79,9 @@ export function ModShopIntelligence({ vehicleMake, vehicleModel, destination }: 
   }
 
   const shopsToShow = showAll ? allShops?.shops || [] : recommendedShops?.shops || [];
-  
-  // Always show the component even if no shops loaded initially
-  console.log('Shops to show:', shopsToShow);
 
   return (
-    <Card className="border-purple-200 bg-purple-50">
+    <Card className="border-purple-200 bg-purple-50 mb-4">
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center gap-2">
           <Wrench className="w-5 h-5 text-purple-600" />
@@ -158,11 +129,9 @@ export function ModShopIntelligence({ vehicleMake, vehicleModel, destination }: 
               <p className="text-sm text-gray-700 mb-3">{shop.description}</p>
               
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4 text-sm text-gray-600">
-                  <div className="flex items-center gap-1">
-                    <MapPin className="w-4 h-4" />
-                    {shop.location}
-                  </div>
+                <div className="flex items-center gap-1 text-sm text-gray-600">
+                  <MapPin className="w-4 h-4" />
+                  {shop.location}
                 </div>
                 
                 <div className="flex items-center gap-2">
@@ -173,60 +142,33 @@ export function ModShopIntelligence({ vehicleMake, vehicleModel, destination }: 
                       onClick={() => window.open(shop.website, '_blank')}
                       className="flex items-center gap-1"
                     >
-                      <ExternalLink className="w-3 h-3" />
+                      <Globe className="w-3 h-3" />
                       Visit
                     </Button>
                   )}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => window.location.href = `/shop-locator?shop=${shop.id}`}
-                    className="flex items-center gap-1"
-                  >
-                    <Wrench className="w-3 h-3" />
-                    Details
-                  </Button>
                 </div>
               </div>
             </div>
           ))}
         </div>
 
-        {/* View More / Less Toggle */}
-        <div className="flex justify-center pt-2">
-          <Button
-            variant="outline"
-            onClick={() => setShowAll(!showAll)}
-            className="border-purple-300 text-purple-700 hover:bg-purple-100"
-          >
-            {showAll ? 'Show Recommended Only' : 'View All Service Providers'}
-          </Button>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="grid grid-cols-2 gap-3 pt-2">
-          <Button
-            variant="outline"
-            onClick={() => window.location.href = `/shop-locator?services=import-compliance&vehicle=${encodeURIComponent(vehicleMake + ' ' + vehicleModel)}`}
-            className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-100"
-          >
-            <Wrench className="w-4 h-4" />
-            Import Compliance
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => window.location.href = `/shop-locator?services=performance-tuning&vehicle=${encodeURIComponent(vehicleMake + ' ' + vehicleModel)}`}
-            className="flex items-center gap-2 border-green-300 text-green-700 hover:bg-green-100"
-          >
-            <Star className="w-4 h-4" />
-            Performance Tuning
-          </Button>
-        </div>
+        {/* View More Toggle */}
+        {!showAll && allShops?.shops?.length > 3 && (
+          <div className="flex justify-center pt-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowAll(true)}
+              className="border-purple-300 text-purple-700 hover:bg-purple-100"
+            >
+              View All Service Providers ({allShops.total})
+            </Button>
+          </div>
+        )}
 
         {/* Provider Network Summary */}
         <div className="bg-gray-50 rounded-lg p-3 text-center">
           <p className="text-sm text-gray-600">
-            <span className="font-medium">{allShops?.total || 0}</span> verified service providers in our network
+            <span className="font-medium">{allShops?.total || recommendedShops?.total || 0}</span> verified service providers in our network
           </p>
           <p className="text-xs text-gray-500 mt-1">
             All partners verified for import compliance and vehicle modifications
