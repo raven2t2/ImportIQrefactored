@@ -216,6 +216,11 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
   app.use('/api/mod-shops', realModShopAPI);
+  
+  // Google Maps integration for location-based search
+  const googleMapsRoutes = await import('./google-maps-routes');
+  app.use('/api/maps', googleMapsRoutes.default);
+  
   configureDashboardRoutes(app);
   
   // Initialize authentic mod shop database

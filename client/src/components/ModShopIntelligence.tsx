@@ -24,6 +24,7 @@ interface ModShop {
   years_in_business: number;
   certifications: string;
   average_rating: number;
+  distance_km?: number;
   is_active: boolean;
 }
 
@@ -51,26 +52,21 @@ export function ModShopIntelligence({ vehicleMake, vehicleModel, destination }: 
 
   const specialty = getVehicleSpecialty(vehicleMake);
 
-  // Fetch recommended mod shops based on vehicle specialty and location
+  // Fetch recommended mod shops using Google Maps location-based search
   const { data: recommendedShops, isLoading: loadingRecommended } = useQuery({
-    queryKey: ['/api/mod-shops/specialty', specialty, locationSearch],
+    queryKey: ['/api/maps/nearby', specialty, locationSearch],
     queryFn: async () => {
-      let url = `/api/mod-shops/specialty/${specialty}?limit=3`;
-      if (locationSearch) {
-        // Parse location input (postal code, city, or state)
-        const isPostalCode = /^\d{5}(-\d{4})?$/.test(locationSearch.trim());
-        const isStateCode = /^[A-Z]{2}$/i.test(locationSearch.trim());
-        
-        if (isPostalCode) {
-          url += `&postalCode=${encodeURIComponent(locationSearch.trim())}`;
-        } else if (isStateCode) {
-          url += `&state=${encodeURIComponent(locationSearch.trim().toUpperCase())}`;
-        } else {
-          url += `&city=${encodeURIComponent(locationSearch.trim())}`;
-        }
+      if (!locationSearch) {
+        // Fallback to basic specialty search if no location
+        const response = await fetch(`/api/mod-shops/specialty/${specialty}?limit=3`);
+        if (!response.ok) throw new Error('Failed to fetch shops');
+        return response.json();
       }
+      
+      // Use Google Maps API for precise location-based search
+      const url = `/api/maps/nearby?location=${encodeURIComponent(locationSearch)}&specialty=${specialty}&radius=100&limit=3`;
       const response = await fetch(url);
-      if (!response.ok) throw new Error('Failed to fetch specialty shops');
+      if (!response.ok) throw new Error('Failed to fetch nearby shops');
       return response.json();
     }
   });
