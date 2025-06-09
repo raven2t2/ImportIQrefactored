@@ -1741,3 +1741,6 @@ export interface CalculationResult {
     region: string;
   };
 }
+
+// Export compliance forms schema
+export * from "./compliance-forms-schema";
