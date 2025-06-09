@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { googleMapsService } from './google-maps-service';
+import { globalMapsService } from './global-maps-service';
 
 const router = Router();
 
@@ -266,7 +267,7 @@ const enhancedGoogleMaps = new GoogleMapsEnhancedService();
 
 // API Routes for enhanced Google Maps integration
 
-// Find real automotive businesses using Google Places
+// Find real automotive businesses using global search
 router.get('/businesses/search', async (req, res) => {
   try {
     const { location, type = 'performance', radius = 50000 } = req.query;
@@ -278,7 +279,9 @@ router.get('/businesses/search', async (req, res) => {
       });
     }
 
-    const businesses = await enhancedGoogleMaps.findAutomotiveBusinesses(
+    console.log(`🌍 Global business search: ${type} near ${location}`);
+    
+    const searchResult = await globalMapsService.searchGlobalBusinesses(
       location.toString(),
       type.toString(),
       parseInt(radius.toString())
@@ -286,16 +289,17 @@ router.get('/businesses/search', async (req, res) => {
 
     res.json({
       success: true,
-      businesses,
-      total: businesses.length,
+      businesses: searchResult.businesses,
+      total: searchResult.businesses.length,
+      metadata: searchResult.searchMetadata,
       searchParams: { location, type, radius }
     });
 
   } catch (error) {
-    console.error('❌ Business search error:', error);
+    console.error('❌ Global business search error:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to search businesses'
+      error: 'Failed to search businesses globally'
     });
   }
 });
@@ -375,15 +379,19 @@ router.get('/compliance/facilities', async (req, res) => {
       });
     }
 
-    const facilities = await enhancedGoogleMaps.findComplianceFacilities(
-      location.toString(),
-      type.toString()
+    console.log(`🏛️ Global compliance search: ${type} near ${location}`);
+    
+    const complianceData = await globalMapsService.getComplianceInformation(
+      location.toString()
     );
 
     res.json({
       success: true,
-      facilities,
-      total: facilities.length
+      facilities: complianceData.facilities,
+      requirements: complianceData.requirements,
+      estimatedCosts: complianceData.estimatedCosts,
+      region: complianceData.region,
+      total: complianceData.facilities.length
     });
 
   } catch (error) {
