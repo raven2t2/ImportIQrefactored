@@ -218,6 +218,15 @@ export class SessionService {
       const validUntil = new Date();
       validUntil.setHours(validUntil.getHours() + 12); // Cache for 12 hours
 
+      // Use DELETE + INSERT to avoid constraint conflicts
+      await db.delete(importIntelligenceCache)
+        .where(
+          and(
+            eq(importIntelligenceCache.vehicleHash, vehicleHash),
+            eq(importIntelligenceCache.destination, destination)
+          )
+        );
+
       await db.insert(importIntelligenceCache).values({
         vehicleHash,
         destination,

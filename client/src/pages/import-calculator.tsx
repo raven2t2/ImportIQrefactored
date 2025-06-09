@@ -72,7 +72,7 @@ export default function ImportCalculator() {
     },
   });
 
-  // Extract URL parameters for vehicle data
+  // Extract URL parameters for vehicle data and destination
   const getUrlParams = () => {
     const urlParams = new URLSearchParams(window.location.search);
     return {
@@ -80,10 +80,35 @@ export default function ImportCalculator() {
       year: urlParams.get('year') ? parseInt(urlParams.get('year')!) : 2020,
       make: urlParams.get('make') || '',
       model: urlParams.get('model') || '',
+      destination: urlParams.get('destination') || 'AUS',
     };
   };
 
   const urlParams = getUrlParams();
+
+  // Update destination when URL params change
+  useEffect(() => {
+    if (urlParams.destination) {
+      const dest = urlParams.destination.toLowerCase();
+      let countryCode = 'AUS'; // Default
+      
+      if (dest === 'usa' || dest === 'united states' || dest === 'us') {
+        countryCode = 'USA';
+      } else if (dest === 'canada' || dest === 'can' || dest === 'ca') {
+        countryCode = 'CAN';
+      } else if (dest === 'uk' || dest === 'united kingdom' || dest === 'gb' || dest === 'gbr') {
+        countryCode = 'GBR';
+      } else if (dest === 'australia' || dest === 'aus' || dest === 'au') {
+        countryCode = 'AUS';
+      } else if (dest === 'new zealand' || dest === 'nzl' || dest === 'nz') {
+        countryCode = 'NZL';
+      } else if (dest === 'singapore' || dest === 'sgp' || dest === 'sg') {
+        countryCode = 'SGP';
+      }
+      
+      setSelectedDestination(countryCode);
+    }
+  }, [urlParams.destination]);
 
   const form = useForm<FormData>({
     resolver: zodResolver(insertSubmissionSchema),
