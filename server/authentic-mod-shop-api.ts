@@ -1,5 +1,8 @@
 import { Router } from 'express';
 import { googleMapsService } from './google-maps-service';
+import { db } from './db';
+import { modShopPartners } from '@shared/schema';
+import { sql, eq } from 'drizzle-orm';
 
 const router = Router();
 
@@ -154,10 +157,10 @@ const authenticModShops = [
   }
 ];
 
-// Get nearby authentic mod shops with Google Maps distance calculations
+// Get nearby authentic mod shops with Google Maps distance calculations from PostgreSQL
 router.get('/nearby', async (req, res) => {
   try {
-    const { location, specialty, radius = 100, limit = 10 } = req.query;
+    const { location, specialty, radius = 200, limit = 10 } = req.query;
     
     if (!location) {
       return res.status(400).json({
@@ -175,45 +178,78 @@ router.get('/nearby', async (req, res) => {
         success: true,
         shops: [],
         total: 0,
-        message: 'Unable to geocode location - showing all available shops',
-        allShops: authenticModShops.slice(0, parseInt(limit.toString()))
+        message: 'Unable to geocode location'
       });
     }
 
-    // Calculate distances to all authentic shops
-    const shopsWithDistance = [];
-    for (const shop of authenticModShops) {
+    console.log(`✅ Geocoded "${location}" -> ${userCoords.lat}, ${userCoords.lng} (${userCoords.address})`);
+
+    // Query PostgreSQL database for nearby shops using Haversine formula
+    const radiusKm = parseInt(radius.toString());
+    const earthRadiusKm = 6371;
+    
+    const nearbyShops = await db.select().from(modShopPartners).where(
+      sql`(
+        ${earthRadiusKm} * acos(
+          cos(radians(${userCoords.lat})) *
+          cos(radians(CAST(${modShopPartners.latitude} AS DECIMAL))) *
+          cos(radians(CAST(${modShopPartners.longitude} AS DECIMAL)) - radians(${userCoords.lng})) +
+          sin(radians(${userCoords.lat})) *
+          sin(radians(CAST(${modShopPartners.latitude} AS DECIMAL)))
+        )
+      ) <= ${radiusKm}`
+    ).limit(parseInt(limit.toString()));
+
+    const shopsWithDistance = nearbyShops.map(shop => {
       const distance = googleMapsService.calculateDistance(
         userCoords.lat, userCoords.lng,
-        shop.coordinates.lat, shop.coordinates.lng
+        parseFloat(shop.latitude || '0'), parseFloat(shop.longitude || '0')
       );
-
-      // Apply specialty filter if specified
-      if (specialty && !shop.specialty.toLowerCase().includes(specialty.toString().toLowerCase())) {
-        continue;
-      }
-
-      if (distance <= parseInt(radius.toString())) {
-        shopsWithDistance.push({
-          ...shop,
-          distance_km: Math.round(distance)
-        });
-      }
-    }
+      
+      return {
+        id: shop.id,
+        name: shop.businessName,
+        business_name: shop.businessName,
+        contact_person: shop.contactPerson,
+        email: shop.email,
+        phone: shop.phone,
+        website: shop.website,
+        address: shop.streetAddress,
+        city: shop.city,
+        state_province: shop.stateProvince,
+        country: shop.country,
+        description: `${shop.specialties?.join(', ')} specialist with ${shop.reviewCount} reviews`,
+        services_offered: shop.servicesOffered,
+        specialties: shop.specialties,
+        certifications: shop.certifications,
+        years_in_business: shop.yearsInBusiness,
+        average_rating: shop.customerRating,
+        customer_rating: shop.customerRating,
+        review_count: shop.reviewCount,
+        average_cost_range: shop.averageCostRange,
+        typical_turnaround_days: shop.typicalTurnaroundDays,
+        distance_km: Math.round(distance),
+        is_active: true,
+        coordinates: {
+          lat: parseFloat(shop.latitude || '0'),
+          lng: parseFloat(shop.longitude || '0')
+        }
+      };
+    });
 
     // Sort by distance
     shopsWithDistance.sort((a, b) => a.distance_km - b.distance_km);
 
-    console.log(`✅ Found ${shopsWithDistance.length} authentic shops within ${radius}km`);
+    console.log(`✅ Found ${shopsWithDistance.length} authentic shops within ${radiusKm}km`);
 
     res.json({
       success: true,
-      shops: shopsWithDistance.slice(0, parseInt(limit.toString())),
+      shops: shopsWithDistance,
       total: shopsWithDistance.length,
       searchParams: {
         location: location.toString(),
         specialty: specialty?.toString() || 'all',
-        radius: parseInt(radius.toString()),
+        radius: radiusKm,
         limit: parseInt(limit.toString())
       }
     });
@@ -228,29 +264,51 @@ router.get('/nearby', async (req, res) => {
   }
 });
 
-// Get all authentic mod shops
+// Get all authentic mod shops from PostgreSQL database
 router.get('/all', async (req, res) => {
   try {
     const { specialty, country } = req.query;
     
-    let filteredShops = authenticModShops;
-    
-    if (specialty) {
-      filteredShops = filteredShops.filter(shop => 
-        shop.specialty.toLowerCase().includes(specialty.toString().toLowerCase())
-      );
-    }
+    let query = db.select().from(modShopPartners);
     
     if (country) {
-      filteredShops = filteredShops.filter(shop => 
-        shop.country.toLowerCase().includes(country.toString().toLowerCase())
-      );
+      query = query.where(eq(modShopPartners.country, country.toString()));
     }
     
+    const shops = await query.limit(50);
+
     res.json({
       success: true,
-      shops: filteredShops,
-      total: filteredShops.length
+      shops: shops.map(shop => ({
+        id: shop.id,
+        name: shop.businessName,
+        business_name: shop.businessName,
+        contact_person: shop.contactPerson,
+        email: shop.email,
+        phone: shop.phone,
+        website: shop.website,
+        description: `${shop.specialties?.join(', ')} specialist with ${shop.reviewCount} reviews`,
+        location: `${shop.city}, ${shop.stateProvince}`,
+        address: shop.streetAddress,
+        city: shop.city,
+        state_province: shop.stateProvince,
+        country: shop.country,
+        services_offered: shop.servicesOffered,
+        specialties: shop.specialties,
+        certifications: shop.certifications,
+        years_in_business: shop.yearsInBusiness,
+        average_rating: shop.customerRating,
+        customer_rating: shop.customerRating,
+        review_count: shop.reviewCount,
+        average_cost_range: shop.averageCostRange,
+        typical_turnaround_days: shop.typicalTurnaroundDays,
+        is_active: true,
+        coordinates: {
+          lat: parseFloat(shop.latitude || '0'),
+          lng: parseFloat(shop.longitude || '0')
+        }
+      })),
+      total: shops.length
     });
     
   } catch (error) {
