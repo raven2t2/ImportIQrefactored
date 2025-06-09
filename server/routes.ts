@@ -4919,21 +4919,21 @@ Respond with a JSON object containing your recommendations.`;
     let vehiclePrice = 25000; // Fallback only
     
     try {
-      // Query for real auction pricing data
+      // Query for real auction pricing data from vehicle_auctions table
       const auctionData = await db.select()
-        .from(auctionListings)
+        .from(vehicleAuctions)
         .where(
           and(
-            eq(auctionListings.make, vehicle.make?.toLowerCase() || ''),
-            eq(auctionListings.model, vehicle.model?.toLowerCase() || '')
+            eq(vehicleAuctions.make, vehicle.make || ''),
+            eq(vehicleAuctions.model, vehicle.model || '')
           )
         )
-        .orderBy(desc(auctionListings.createdAt))
+        .orderBy(desc(vehicleAuctions.lastUpdated))
         .limit(5);
       
       if (auctionData.length > 0) {
         // Calculate average price from recent auction listings
-        const avgPrice = auctionData.reduce((sum, listing) => sum + listing.priceAud, 0) / auctionData.length;
+        const avgPrice = auctionData.reduce((sum, listing) => sum + listing.price, 0) / auctionData.length;
         vehiclePrice = Math.round(avgPrice);
         console.log(`Using real auction price for ${vehicle.make} ${vehicle.model}: $${vehiclePrice.toLocaleString()}`);
       } else {
