@@ -16,7 +16,8 @@ router.get('/search', async (req: Request, res: Response) => {
     // Get active mod shop partners from PostgreSQL
     const shops = await db.execute(sql`
       SELECT id, name, business_name, contact_person, description, website,
-             location, specialty, is_active, created_at
+             location, specialty, is_active, created_at,
+             primary_contact, secondary_contact, logo_url, discount_code, discount_percent
       FROM mod_shop_partners 
       WHERE is_active = true
       ORDER BY name ASC

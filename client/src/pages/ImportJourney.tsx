@@ -12,6 +12,7 @@ import { apiRequest } from "@/lib/queryClient";
 import SessionManager from "@/lib/session-manager";
 import { AuctionIntelligenceDisplay } from "@/components/auction-intelligence-display";
 import { TechnicalIntelligenceDisplay } from "@/components/technical-intelligence-display";
+import { ModShopIntelligence } from "@/components/ModShopIntelligence";
 
 interface ImportIntelligence {
   vehicle: {
@@ -439,6 +440,13 @@ export default function ImportJourney() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Local Service Providers */}
+        <ModShopIntelligence 
+          vehicleMake={vehicleData.make || ''} 
+          vehicleModel={vehicleData.model || ''} 
+          destination={destination || 'australia'}
+        />
 
         {/* Import Process Timeline */}
         <Card className="bg-white mb-6">
