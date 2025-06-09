@@ -12,6 +12,13 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Ensure all API routes return JSON with proper headers
+app.use('/api/*', (req, res, next) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Cache-Control', 'no-cache');
+  next();
+});
+
 // Technical Intelligence API Interceptor - Direct JSON response
 app.use("/api/vehicle-technical-intelligence", (req, res) => {
   res.setHeader('Content-Type', 'application/json');
@@ -238,6 +245,15 @@ app.use((req, res, next) => {
   } catch (error) {
     console.log('Direct PostgreSQL scaling system ready for initialization');
   }
+
+  // API error handler - ensures JSON responses for API routes
+  app.use('/api/*', (err: any, req: Request, res: Response, next: NextFunction) => {
+    const status = err.status || err.statusCode || 500;
+    const message = err.message || "Internal Server Error";
+    
+    res.setHeader('Content-Type', 'application/json');
+    res.status(status).json({ error: message, success: false });
+  });
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
