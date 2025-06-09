@@ -6,6 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { CheckCircle, AlertTriangle, Info, Clock, ArrowRight, Shield, TrendingUp, Target, MapPin, Wrench } from "lucide-react";
 import { SmartParserResponse } from "@shared/types";
 import { useLocation } from "wouter";
+import { ModShopIntelligence } from "./ModShopIntelligence";
 
 interface SmartParserResultProps {
   result: SmartParserResponse;
@@ -398,6 +399,15 @@ export function SmartParserResult({ result, onAddToWatchlist, onSuggestPattern }
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Local Service Providers Intelligence */}
+      {result.data && (
+        <ModShopIntelligence 
+          vehicleMake={result.data.make}
+          vehicleModel={result.data.model}
+          destination={result.data.destination || 'UK'}
+        />
       )}
 
       {/* Action Buttons */}
