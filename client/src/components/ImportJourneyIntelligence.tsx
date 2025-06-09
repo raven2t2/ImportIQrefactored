@@ -391,6 +391,97 @@ export default function ImportJourneyIntelligence() {
                 ))}
               </div>
             </TabsContent>
+
+            {/* Local Partners - Google Maps Business Discovery */}
+            <TabsContent value="businesses" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MapPin className="h-5 w-5" />
+                    Verified Local Partners (Google Maps Discovery)
+                  </CardTitle>
+                  <CardDescription>
+                    Real businesses discovered using Google Places API with verified contact details and ratings
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {journey.locationIntelligence?.businesses && journey.locationIntelligence.businesses.length > 0 ? (
+                    <div className="grid gap-4">
+                      {journey.locationIntelligence.businesses.map((business, index) => (
+                        <div key={index} className="border rounded-lg p-4">
+                          <div className="flex justify-between items-start mb-2">
+                            <div>
+                              <h4 className="font-semibold flex items-center gap-2">
+                                {business.name}
+                                <Badge variant="outline" className="text-xs">Google Verified</Badge>
+                              </h4>
+                              <p className="text-sm text-muted-foreground">{business.address}</p>
+                              {business.phone && (
+                                <p className="text-sm text-blue-600">{business.phone}</p>
+                              )}
+                            </div>
+                            <div className="text-right">
+                              {business.rating && (
+                                <div className="flex items-center gap-1">
+                                  <span className="font-semibold">{business.rating}</span>
+                                  <span className="text-yellow-500">★</span>
+                                </div>
+                              )}
+                              {business.distance && (
+                                <p className="text-sm text-muted-foreground">{business.distance}km away</p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                            <div>
+                              <p className="text-sm"><strong>Type:</strong> {business.type}</p>
+                              {business.website && (
+                                <p className="text-sm">
+                                  <strong>Website:</strong> 
+                                  <a href={business.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 ml-1">
+                                    {business.website.replace(/^https?:\/\//, '')}
+                                  </a>
+                                </p>
+                              )}
+                            </div>
+                            <div>
+                              {business.openNow !== undefined && (
+                                <p className="text-sm">
+                                  <strong>Status:</strong> 
+                                  <Badge variant={business.openNow ? "default" : "secondary"} className="ml-1">
+                                    {business.openNow ? "Open Now" : "Closed"}
+                                  </Badge>
+                                </p>
+                              )}
+                              {business.priceLevel && (
+                                <p className="text-sm"><strong>Price Level:</strong> {"$".repeat(business.priceLevel)}</p>
+                              )}
+                            </div>
+                          </div>
+                          {business.types && business.types.length > 0 && (
+                            <div className="mt-3">
+                              <p className="text-sm font-medium">Services:</p>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {business.types.map((type, i) => (
+                                  <Badge key={i} variant="secondary" className="text-xs">{type}</Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-muted-foreground">
+                        Enter your location above to discover verified local automotive businesses and compliance partners
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
           </Tabs>
         </div>
       )}
