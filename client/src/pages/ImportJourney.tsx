@@ -179,20 +179,15 @@ export default function ImportJourney() {
         sessionToken
       });
 
-      const response = await fetch('/api/complete-journey', {
+      const response = await fetch('/api/import-intelligence', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          make: vehicleData.make,
-          model: vehicleData.model,
-          year: vehicleData.year || '2010',
-          vehicleOrigin: vehicleData.origin || 'Japan',
-          userLocation: destination,
-          priority: 'cost',
-          vehicleType: 'JDM',
-          budget: 50000
+          vehicleData,
+          destination,
+          sessionToken
         })
       });
 
