@@ -14,11 +14,10 @@ router.get('/search', async (req: Request, res: Response) => {
     
     // Direct SQL query to get mod shop data
     const shops = await db.execute(sql`
-      SELECT id, business_name, contact_person, email, phone, website,
-             street_address, city, state_province, postal_code, country,
-             services_offered, specialties, customer_rating, review_count,
-             average_cost_range, typical_turnaround_days
+      SELECT id, name, business_name, contact_person, description, website,
+             location, specialty, is_active, created_at
       FROM mod_shop_partners 
+      WHERE is_active = true
       LIMIT ${Number(limit)}
     `);
 
@@ -80,10 +79,10 @@ router.get('/specialty/:type', async (req: Request, res: Response) => {
     const { limit = 10 } = req.query;
 
     const shops = await db.execute(sql`
-      SELECT id, business_name, contact_person, email, phone, website,
-             city, state_province, specialties, customer_rating, review_count
+      SELECT id, name, business_name, contact_person, description, website,
+             location, specialty, is_active
       FROM mod_shop_partners 
-      WHERE specialties::text ILIKE ${`%${type}%`}
+      WHERE specialty ILIKE ${`%${type}%`} AND is_active = true
       LIMIT ${Number(limit)}
     `);
 
@@ -112,10 +111,11 @@ router.get('/all', async (req: Request, res: Response) => {
     const { limit = 50 } = req.query;
 
     const shops = await db.execute(sql`
-      SELECT id, business_name, contact_person, email, phone, website,
-             city, state_province, country, specialties, customer_rating
+      SELECT id, name, business_name, contact_person, description, website,
+             location, specialty, is_active
       FROM mod_shop_partners 
-      ORDER BY business_name ASC
+      WHERE is_active = true
+      ORDER BY name ASC
       LIMIT ${Number(limit)}
     `);
 
