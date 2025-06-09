@@ -4897,10 +4897,15 @@ Respond with a JSON object containing your recommendations.`;
     console.log(`🔍 calculateEligibility called for ${vehicle?.make} ${vehicle?.model} to ${destination}`);
     
     try {
-      // Query customs duties from database for the specific destination
+      // Query customs duties from database for Japan to destination (most common import scenario)
       const regulations = await db.select()
         .from(customsDuties)
-        .where(eq(customsDuties.destinationCountry, destination))
+        .where(
+          and(
+            eq(customsDuties.originCountry, 'japan'),
+            eq(customsDuties.destinationCountry, destination)
+          )
+        )
         .limit(1);
 
       const currentYear = new Date().getFullYear();

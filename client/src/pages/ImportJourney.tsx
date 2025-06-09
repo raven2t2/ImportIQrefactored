@@ -328,11 +328,32 @@ export default function ImportJourney() {
                   <p className="text-lg font-bold text-gray-900">
                     {(() => {
                       const currentYear = new Date().getFullYear();
-                      const eligibleYear = currentYear - 25;
+                      let eligibleYear, ruleText;
+                      
+                      if (destination === 'canada') {
+                        eligibleYear = currentYear - 15;
+                        ruleText = '15-year rule applies';
+                      } else if (destination === 'usa' || destination === 'australia') {
+                        eligibleYear = currentYear - 25;
+                        ruleText = '25-year rule applies';
+                      } else if (destination === 'uk') {
+                        return 'Various ages eligible';
+                      } else {
+                        eligibleYear = currentYear - 25;
+                        ruleText = '25-year rule applies';
+                      }
+                      
                       return `${eligibleYear} and older`;
                     })()}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">25-year rule applies</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {(() => {
+                      if (destination === 'canada') return '15-year rule applies';
+                      if (destination === 'usa' || destination === 'australia') return '25-year rule applies';
+                      if (destination === 'uk') return 'EU/UK standards apply';
+                      return '25-year rule applies';
+                    })()}
+                  </p>
                 </div>
               </div>
             </CardContent>
