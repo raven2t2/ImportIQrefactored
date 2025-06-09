@@ -63,7 +63,7 @@ import LiveMarketData from "@/pages/live-market-data";
 import ImportVolumeDashboard from "@/pages/import-volume-dashboard";
 import ImportFlow from "@/pages/import-flow";
 import EligibilityCheck from "@/pages/EligibilityCheck";
-import ImportJourney from "@/pages/ImportJourney";
+import ImportJourneySimple from "@/pages/ImportJourneySimple";
 import GlobalCompliance from "@/pages/GlobalCompliance";
 import ShopLocator from "@/pages/ShopLocator";
 
@@ -140,7 +140,7 @@ function Router() {
       <Route path="/live-market-data" component={LiveMarketData} />
 
       <Route path="/eligibility-check" component={EligibilityCheck} />
-      <Route path="/import-journey" component={ImportJourney} />
+      <Route path="/import-journey" component={ImportJourneySimple} />
       <Route path="/global-compliance" component={GlobalCompliance} />
       <Route path="/shop-locator" component={ShopLocator} />
       <Route path="/mod-shops" component={ShopLocator} />
