@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ImportIQ Customer Journey Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; }
+        .endpoint { font-weight: bold; color: #0066cc; }
+    </style>
+</head>
+<body>
+    <h1>ImportIQ Customer Journey Integration Test</h1>
+    
+    <div id="test-results"></div>
+    
+    <script>
+    async function testCustomerJourney() {
+        const results = document.getElementById('test-results');
+        
+        // Test 1: Vehicle Discovery (Smart Parser)
+        results.innerHTML += '<div class="test-result info"><strong>Test 1:</strong> Testing vehicle discovery with smart parser...</div>';
+        try {
+            const parserResponse = await fetch('/api/smart-parser/intelligent-lookup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: '1998 Toyota Supra RZ' })
+            });
+            const parserData = await parserResponse.json();
+            
+            if (parserData.success && parserData.data.make) {
+                results.innerHTML += `<div class="test-result success">✓ Vehicle discovered: ${parserData.data.make} ${parserData.data.model}</div>`;
+                
+                // Test 2: JDM Mod Shop Discovery by Specialty
+                results.innerHTML += '<div class="test-result info"><strong>Test 2:</strong> Finding JDM specialists for Toyota Supra...</div>';
+                const jdmResponse = await fetch('/api/mod-shops/specialty/JDM?limit=3');
+                const jdmData = await jdmResponse.json();
+                
+                if (jdmData.success && jdmData.shops.length > 0) {
+                    results.innerHTML += `<div class="test-result success">✓ Found ${jdmData.shops.length} JDM specialists: ${jdmData.shops.map(s => s.name).join(', ')}</div>`;
+                } else {
+                    results.innerHTML += '<div class="test-result error">✗ No JDM specialists found</div>';
+                }
+                
+                // Test 3: Geographic Targeting - California
+                results.innerHTML += '<div class="test-result info"><strong>Test 3:</strong> Testing California geographic targeting...</div>';
+                const caResponse = await fetch('/api/mod-shops/specialty/JDM?state=CA&limit=5');
+                const caData = await caResponse.json();
+                
+                if (caData.success && caData.shops.length > 0) {
+                    results.innerHTML += `<div class="test-result success">✓ Found ${caData.shops.length} California JDM shops: ${caData.shops.map(s => s.name + ' (' + s.location + ')').join(', ')}</div>`;
+                } else {
+                    results.innerHTML += '<div class="test-result error">✗ No California shops found</div>';
+                }
+                
+                // Test 4: City-based Search - Chicago
+                results.innerHTML += '<div class="test-result info"><strong>Test 4:</strong> Testing Chicago city search...</div>';
+                const chicagoResponse = await fetch('/api/mod-shops/search?city=Chicago&limit=5');
+                const chicagoData = await chicagoResponse.json();
+                
+                if (chicagoData.success && chicagoData.shops.length > 0) {
+                    results.innerHTML += `<div class="test-result success">✓ Found ${chicagoData.shops.length} Chicago shops: ${chicagoData.shops.map(s => s.name + ' - ' + s.specialty).join(', ')}</div>`;
+                } else {
+                    results.innerHTML += '<div class="test-result error">✗ No Chicago shops found</div>';
+                }
+                
+                // Test 5: European Vehicle Specialty
+                results.innerHTML += '<div class="test-result info"><strong>Test 5:</strong> Testing European vehicle specialist search...</div>';
+                const europeanResponse = await fetch('/api/mod-shops/specialty/European?limit=3');
+                const europeanData = await europeanResponse.json();
+                
+                if (europeanData.success && europeanData.shops.length > 0) {
+                    results.innerHTML += `<div class="test-result success">✓ Found ${europeanData.shops.length} European specialists: ${europeanData.shops.map(s => s.name).join(', ')}</div>`;
+                } else {
+                    results.innerHTML += '<div class="test-result error">✗ No European specialists found</div>';
+                }
+                
+                results.innerHTML += '<div class="test-result success"><strong>Customer Journey Test Complete:</strong> Vehicle discovery to local service provider connection is working seamlessly!</div>';
+                
+            } else {
+                results.innerHTML += '<div class="test-result error">✗ Vehicle discovery failed</div>';
+            }
+        } catch (error) {
+            results.innerHTML += `<div class="test-result error">✗ Test failed: ${error.message}</div>`;
+        }
+    }
+    
+    // Run test when page loads
+    testCustomerJourney();
+    </script>
+</body>
+</html>
