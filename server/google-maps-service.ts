@@ -122,8 +122,8 @@ export class GoogleMapsService {
       // Geocode user location
       const userCoords = await this.geocodeLocation(userLocation);
       if (!userCoords) {
-        console.log('❌ Could not geocode user location');
-        return [];
+        console.log('⚠️ Google Maps API unavailable, using fallback location search');
+        return await this.fallbackLocationSearch(userLocation, specialty, limit);
       }
       
       // Get all mod shops from database
@@ -192,6 +192,77 @@ export class GoogleMapsService {
       
     } catch (error) {
       console.error('❌ Error finding nearby shops:', error);
+      return [];
+    }
+  }
+
+  async fallbackLocationSearch(
+    userLocation: string,
+    specialty?: string,
+    limit: number = 10
+  ): Promise<ModShopWithDistance[]> {
+    try {
+      console.log(`📍 Using fallback location search for: "${userLocation}"`);
+      
+      // Parse location input
+      const location = userLocation.toLowerCase().trim();
+      let whereConditions = ['is_active = true'];
+      
+      // Add specialty filter
+      if (specialty) {
+        if (specialty.toLowerCase() === 'jdm') {
+          whereConditions.push("(specialty ILIKE '%JDM%' OR name ILIKE '%JDM%')");
+        } else if (specialty.toLowerCase() === 'european') {
+          whereConditions.push("(specialty ILIKE '%European%' OR name ILIKE '%European%')");
+        } else if (specialty.toLowerCase() === 'performance') {
+          whereConditions.push("(specialty ILIKE '%Performance%' OR name ILIKE '%Performance%')");
+        }
+      }
+      
+      // Location-based filtering using text matching
+      const locationConditions = [];
+      
+      // Check for postal codes
+      if (/^\d{5}(-\d{4})?$/.test(location)) {
+        locationConditions.push(`postal_code ILIKE '%${location}%'`);
+      }
+      
+      // Check for state/province codes
+      if (/^[a-z]{2}$/.test(location)) {
+        locationConditions.push(`location ILIKE '%${location.toUpperCase()}%'`);
+      }
+      
+      // Check for city names and countries
+      const locationParts = location.split(/[,\s]+/);
+      for (const part of locationParts) {
+        if (part.length > 2) {
+          locationConditions.push(`(location ILIKE '%${part}%' OR country ILIKE '%${part}%')`);
+        }
+      }
+      
+      if (locationConditions.length > 0) {
+        whereConditions.push(`(${locationConditions.join(' OR ')})`);
+      }
+      
+      const sqlQuery = `
+        SELECT id, name, business_name, contact_person, email, phone, description, 
+               website, location, country, specialty, services_offered, 
+               years_in_business, certifications, average_rating, is_active
+        FROM mod_shop_partners 
+        WHERE ${whereConditions.join(' AND ')}
+        ORDER BY average_rating DESC, name
+        LIMIT ${limit}
+      `;
+      
+      const result = await db.execute(sqlQuery);
+      const shops = result.rows as ModShopWithDistance[];
+      
+      console.log(`✅ Fallback search found ${shops.length} shops matching "${userLocation}"`);
+      
+      return shops;
+      
+    } catch (error) {
+      console.error('❌ Error in fallback location search:', error);
       return [];
     }
   }

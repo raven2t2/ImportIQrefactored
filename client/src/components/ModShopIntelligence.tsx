@@ -211,6 +211,11 @@ export function ModShopIntelligence({ vehicleMake, vehicleModel, destination }: 
                 <div className="flex items-center gap-1">
                   <MapPin className="w-3 h-3" />
                   {shop.location}
+                  {shop.distance_km && (
+                    <Badge variant="outline" className="ml-1 text-xs bg-blue-50 text-blue-700">
+                      {shop.distance_km}km away
+                    </Badge>
+                  )}
                   {shop.country && shop.country !== 'United States' && (
                     <Badge variant="secondary" className="ml-1 text-xs">
                       {shop.country}
