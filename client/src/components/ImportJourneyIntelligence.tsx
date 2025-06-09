@@ -493,7 +493,7 @@ export default function ImportJourneyIntelligence({ destination }: ImportJourney
             {/* Shipping Routes */}
             <TabsContent value="shipping" className="space-y-4">
               <div className="grid gap-4">
-                {journeyData.journey.recommendations.shipping.map((route, index) => (
+                {journeyData?.journey?.recommendations?.shipping?.map((route, index) => (
                   <Card key={index}>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
@@ -523,7 +523,7 @@ export default function ImportJourneyIntelligence({ destination }: ImportJourney
                         <div>
                           <p className="text-sm font-medium">Shipping Lines</p>
                           <div className="flex flex-wrap gap-1">
-                            {route.shippingLines.map((line) => (
+                            {route.shippingLines?.map((line) => (
                               <Badge key={line} variant="outline" className="text-xs">{line}</Badge>
                             ))}
                           </div>
@@ -541,11 +541,11 @@ export default function ImportJourneyIntelligence({ destination }: ImportJourney
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <FileText className="h-5 w-5" />
-                    {journeyData.journey.recommendations.compliance.region} Requirements
+                    {journeyData?.journey?.recommendations?.compliance?.region || 'Import'} Requirements
                   </CardTitle>
                   <CardDescription>
-                    Estimated timeframe: {journeyData.journey.recommendations.compliance.estimatedTimeframe} | 
-                    Total cost: ${journeyData.journey.recommendations.compliance.totalCost}
+                    Estimated timeframe: {journeyData?.journey?.recommendations?.compliance?.estimatedTimeframe || '4-6 weeks'} | 
+                    Total cost: ${journeyData?.journey?.recommendations?.compliance?.totalCost || 8500}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -553,7 +553,7 @@ export default function ImportJourneyIntelligence({ destination }: ImportJourney
                     <div>
                       <p className="font-medium mb-3">Required Documentation & Steps:</p>
                       <div className="space-y-2">
-                        {journeyData.journey.recommendations.compliance.requirements.map((req, index) => (
+                        {journeyData?.journey?.recommendations?.compliance?.requirements?.map((req, index) => (
                           <div key={index} className="flex items-start gap-2">
                             <AlertCircle className="h-4 w-4 text-orange-500 mt-0.5" />
                             <span className="text-sm">{req}</span>
@@ -568,7 +568,7 @@ export default function ImportJourneyIntelligence({ destination }: ImportJourney
               {/* Local Service Providers */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Recommended Local Agents</h3>
-                {journeyData.journey.recommendations.compliance.localAgents.map((agent, index) => (
+                {journeyData?.journey?.recommendations?.compliance?.localAgents?.map((agent, index) => (
                   <Card key={index}>
                     <CardHeader>
                       <div className="flex items-start justify-between">
@@ -589,7 +589,7 @@ export default function ImportJourneyIntelligence({ destination }: ImportJourney
                       <div>
                         <p className="text-sm font-medium mb-2">Services Offered:</p>
                         <div className="flex flex-wrap gap-1">
-                          {agent.services.map((service) => (
+                          {agent.services?.map((service) => (
                             <Badge key={service} variant="outline">{service}</Badge>
                           ))}
                         </div>
