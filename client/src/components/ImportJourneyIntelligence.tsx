@@ -223,10 +223,11 @@ export default function ImportJourneyIntelligence() {
           </Card>
 
           <Tabs defaultValue="ports" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="ports">Port Recommendations</TabsTrigger>
               <TabsTrigger value="shipping">Shipping Routes</TabsTrigger>
               <TabsTrigger value="compliance">Compliance & Agents</TabsTrigger>
+              <TabsTrigger value="businesses">Local Partners</TabsTrigger>
             </TabsList>
 
             {/* Port Recommendations */}
@@ -326,7 +327,7 @@ export default function ImportJourneyIntelligence() {
               </div>
             </TabsContent>
 
-            {/* Compliance & Local Agents */}
+            {/* Compliance & Local Agents with Google Maps Business Discovery */}
             <TabsContent value="compliance" className="space-y-4">
               <Card>
                 <CardHeader>
