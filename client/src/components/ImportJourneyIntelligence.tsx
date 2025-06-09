@@ -113,29 +113,7 @@ export default function ImportJourneyIntelligence({ destination }: ImportJourney
     return Math.round(15 + Math.random() * 10); // 15-25% time reduction
   };
 
-  if (isLoading || analysisProgress < 100) {
-    return (
-      <Card className="bg-gradient-to-br from-blue-50 to-purple-50 border-blue-200">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Zap className="h-5 w-5 text-blue-600 animate-pulse" />
-            AI Import Intelligence Analysis
-          </CardTitle>
-          <CardDescription>{currentStep}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <Progress value={analysisProgress} className="h-2" />
-            <div className="flex justify-between text-sm text-muted-foreground">
-              <span>Analyzing global networks...</span>
-              <span>{analysisProgress}%</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
+  // Always show location input form first
   if (!userLocation) {
     return (
       <Card className="bg-gradient-to-br from-blue-50 to-purple-50 border-blue-200">
@@ -184,6 +162,30 @@ export default function ImportJourneyIntelligence({ destination }: ImportJourney
                 <li>• Real business data from Google Maps integration</li>
                 <li>• Location-optimized cost calculations and recommendations</li>
               </ul>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Show loading state when user has entered location but data is loading
+  if (userLocation && (isLoading || analysisProgress < 100)) {
+    return (
+      <Card className="bg-gradient-to-br from-blue-50 to-purple-50 border-blue-200">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Zap className="h-5 w-5 text-blue-600 animate-pulse" />
+            AI Import Intelligence Analysis
+          </CardTitle>
+          <CardDescription>{currentStep}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <Progress value={analysisProgress} className="h-2" />
+            <div className="flex justify-between text-sm text-muted-foreground">
+              <span>Analyzing global networks...</span>
+              <span>{analysisProgress}%</span>
             </div>
           </div>
         </CardContent>
