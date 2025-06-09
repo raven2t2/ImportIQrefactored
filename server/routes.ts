@@ -4000,7 +4000,7 @@ Respond with a JSON object containing your recommendations.`;
   app.get('/api/compliance-forms/:countryCode', async (req, res) => {
     try {
       const { countryCode } = req.params;
-      const { vehicleType } = req.query;
+      const { vehicleType, make, model } = req.query;
       
       if (!countryCode) {
         return res.status(400).json({ error: 'Country code is required' });
@@ -4008,7 +4008,7 @@ Respond with a JSON object containing your recommendations.`;
 
       const { db } = await import('./db');
       const { countries, complianceForms } = await import('../shared/schema');
-      const { eq, and, arrayContains } = await import('drizzle-orm');
+      const { eq, and, arrayContains, sql } = await import('drizzle-orm');
 
       // Get country information
       const [country] = await db.select().from(countries).where(eq(countries.countryCode, countryCode.toUpperCase()));
@@ -4017,15 +4017,62 @@ Respond with a JSON object containing your recommendations.`;
         return res.status(404).json({ error: 'Country not found' });
       }
 
-      // Get compliance forms for the country
-      let formsQuery = db.select().from(complianceForms).where(eq(complianceForms.countryId, country.id));
+      // Get all compliance forms for the country first
+      const allForms = await db.select().from(complianceForms).where(eq(complianceForms.countryId, country.id));
       
-      // Filter by vehicle type if provided
+      // Filter for vehicle-specific forms only
+      const vehicleKeywords = [
+        'vehicle', 'motor', 'car', 'automotive', 'import declaration', 
+        'customs entry', 'quarantine', 'biosecurity', 'compliance plate',
+        'modification', 'registration', 'roadworthy', 'safety certificate',
+        'emissions', 'adr', 'dot', 'transport', 'entry permit'
+      ];
+
+      const vehicleRelevantForms = allForms.filter(form => {
+        const formName = form.formName.toLowerCase();
+        const formDesc = (form.formDescription || '').toLowerCase();
+        const formCode = form.formCode.toLowerCase();
+        
+        // Check if form is relevant to vehicles
+        const isVehicleRelevant = 
+          vehicleKeywords.some(keyword => 
+            formName.includes(keyword) || 
+            formDesc.includes(keyword) || 
+            formCode.includes(keyword)
+          ) ||
+          (form.requiredFor && form.requiredFor.includes('passenger_cars')) ||
+          form.mandatory; // Include all mandatory forms
+        
+        // Exclude clearly non-vehicle forms
+        const nonVehicleKeywords = ['food', 'plant', 'animal', 'chemical', 'textile', 'electronics', 'machinery'];
+        const isNonVehicle = nonVehicleKeywords.some(keyword => 
+          formName.includes(keyword) || formDesc.includes(keyword)
+        );
+        
+        return isVehicleRelevant && !isNonVehicle;
+      });
+
+      // Further filter by vehicle type if provided
+      let forms = vehicleRelevantForms;
       if (vehicleType) {
-        formsQuery = formsQuery.where(arrayContains(complianceForms.requiredFor, [vehicleType as string]));
+        forms = vehicleRelevantForms.filter(form => 
+          !form.requiredFor || form.requiredFor.includes(vehicleType as string) || form.mandatory
+        );
       }
 
-      const forms = await formsQuery;
+      // Sort by relevance - mandatory first, then by vehicle specificity
+      forms.sort((a, b) => {
+        if (a.mandatory && !b.mandatory) return -1;
+        if (!a.mandatory && b.mandatory) return 1;
+        
+        // Prioritize forms with vehicle-specific keywords in name
+        const aVehicleScore = vehicleKeywords.reduce((score, keyword) => 
+          score + (a.formName.toLowerCase().includes(keyword) ? 1 : 0), 0);
+        const bVehicleScore = vehicleKeywords.reduce((score, keyword) => 
+          score + (b.formName.toLowerCase().includes(keyword) ? 1 : 0), 0);
+        
+        return bVehicleScore - aVehicleScore;
+      });
 
       // Calculate statistics
       const total = forms.length;
