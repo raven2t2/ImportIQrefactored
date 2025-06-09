@@ -4931,7 +4931,7 @@ Respond with a JSON object containing your recommendations.`;
             sql`${vehicleAuctions.price} IS NOT NULL AND ${vehicleAuctions.price} > 0`
           )
         )
-        .orderBy(desc(vehicleAuctions.last_updated))
+        .orderBy(sql`${vehicleAuctions.last_updated} DESC`)
         .limit(5);
       
       console.log(`🔍 Found ${auctionData.length} auction records for ${vehicle?.make} ${vehicle?.model}`);
@@ -4955,10 +4955,10 @@ Respond with a JSON object containing your recommendations.`;
       console.error('❌ Error fetching auction price:', error);
     }
     
-    const shipping = costs.baseShippingCost || 4200;
-    const duties = Math.round(basePrice * (costs.dutyRate || 0.05));
-    const gst = Math.round((basePrice + shipping + duties) * (costs.gstRate || 0.10));
-    const compliance = costs.complianceFee || 8500;
+    const shipping = Number(costs.baseShippingCost) || 4200;
+    const duties = Math.round(basePrice * (Number(costs.dutyRate) || 0.05));
+    const gst = Math.round((basePrice + shipping + duties) * (Number(costs.gstRate) || 0.10));
+    const compliance = Number(costs.complianceFee) || 8500;
     const total = basePrice + shipping + duties + gst + compliance;
     
     return {
