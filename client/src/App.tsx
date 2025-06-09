@@ -99,7 +99,7 @@ function Router() {
       <Route path="/registration-stats" component={RegistrationStats} />
       <Route path="/import-volume-dashboard" component={PortIntelligence} />
       <Route path="/auction-sample-explorer" component={AuctionSampleExplorer} />
-      <Route path="/dashboard" component={ModularDashboard} />
+      <Route path="/dashboard" component={Dashboard} />
       <Route path="/modular-dashboard" component={ModularDashboard} />
       <Route path="/user-dashboard" component={UserDashboard} />
       <Route path="/garage" component={UserDashboard} />
