@@ -4778,30 +4778,8 @@ Respond with a JSON object containing your recommendations.`;
 
       const { SessionService } = require('./session-service');
       
-      // Check cache first
-      const cachedIntelligence = await SessionService.getCachedImportIntelligence(vehicle, destination);
-      if (cachedIntelligence) {
-        // Update session with cached data
-        if (sessionToken) {
-          await SessionService.updateSessionDestination(sessionToken, destination, cachedIntelligence);
-        }
-        
-        return res.json({
-          ...cachedIntelligence,
-          vehicle: {
-            make: vehicle.make || 'Unknown',
-            model: vehicle.model || 'Unknown',
-            chassis: vehicle.chassis || '',
-            year: vehicle.year || ''
-          },
-          destination: {
-            country: destination,
-            flag: getDestinationFlag(destination),
-            name: getDestinationName(destination)
-          },
-          fromCache: true
-        });
-      }
+      // Skip cache for now to ensure fresh auction data is used
+      console.log('⚠️  Bypassing cache to ensure fresh auction pricing data is used');
 
       // Calculate comprehensive import intelligence
       const intelligence = {

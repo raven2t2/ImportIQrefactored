@@ -11,8 +11,10 @@ import {
   importCostStructure,
   portInformation,
   documentRequirements,
-  taxRates
+  taxRates,
+  vehicleAuctions
 } from '@shared/schema';
+import { eq, desc, sql, and } from 'drizzle-orm';
 
 export class ComprehensiveVehicleDatabase {
   
@@ -915,6 +917,8 @@ export class ComprehensiveVehicleDatabase {
    * Get comprehensive cost calculation
    */
   static async calculateImportCosts(vehicleData: any, destination: string) {
+    console.log(`🔍 ComprehensiveVehicleDatabase.calculateImportCosts called for ${vehicleData?.make} ${vehicleData?.model} to ${destination}`);
+    
     const costStructure = await db.select()
       .from(importCostStructure)
       .where(sql`origin_country = 'japan' AND destination_country = ${destination} AND is_active = true`)
@@ -925,7 +929,46 @@ export class ComprehensiveVehicleDatabase {
     }
     
     const costs = costStructure[0];
-    const basePrice = vehicleData?.marketValue || 45000;
+    
+    // Get real auction market price from PostgreSQL
+    let basePrice = 45000; // Fallback only
+    
+    try {
+      console.log(`🔍 Querying auction data for ${vehicleData?.make} ${vehicleData?.model}...`);
+      
+      // Query for real auction pricing data from vehicle_auctions table
+      const auctionData = await db.select()
+        .from(vehicleAuctions)
+        .where(
+          and(
+            eq(vehicleAuctions.make, vehicleData?.make || ''),
+            eq(vehicleAuctions.model, vehicleData?.model || ''),
+            sql`${vehicleAuctions.price} IS NOT NULL AND ${vehicleAuctions.price} > 0`
+          )
+        )
+        .orderBy(desc(vehicleAuctions.lastUpdated))
+        .limit(5);
+      
+      console.log(`🔍 Found ${auctionData.length} auction records for ${vehicleData?.make} ${vehicleData?.model}`);
+      
+      if (auctionData.length > 0) {
+        console.log(`🔍 Raw auction data:`, auctionData.map(item => ({ make: item.make, model: item.model, price: item.price })));
+        
+        // Calculate average price from recent auction listings with valid prices
+        const validPrices = auctionData.filter(listing => listing.price && Number(listing.price) > 0);
+        console.log(`🔍 Valid prices found: ${validPrices.length}`);
+        
+        if (validPrices.length > 0) {
+          const avgPrice = validPrices.reduce((sum, listing) => sum + Number(listing.price), 0) / validPrices.length;
+          basePrice = Math.round(avgPrice);
+          console.log(`✅ Using real auction price for ${vehicleData?.make} ${vehicleData?.model}: $${basePrice.toLocaleString()} (from ${validPrices.length} listings)`);
+        }
+      } else {
+        console.log(`❌ No auction data found for ${vehicleData?.make} ${vehicleData?.model}, using fallback price: $${basePrice.toLocaleString()}`);
+      }
+    } catch (error) {
+      console.error('❌ Error fetching auction price:', error);
+    }
     
     const shipping = costs.baseShippingCost;
     const duties = Math.round(basePrice * costs.dutyRate);
