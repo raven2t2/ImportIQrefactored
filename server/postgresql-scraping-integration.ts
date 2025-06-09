@@ -4,7 +4,7 @@
  */
 
 import { db } from './db';
-import { vehicles } from '@shared/schema';
+import { vehicleSpecs } from '@shared/schema';
 import { eq, and, gte, desc, sql } from 'drizzle-orm';
 import axios from 'axios';
 import * as cheerio from 'cheerio';

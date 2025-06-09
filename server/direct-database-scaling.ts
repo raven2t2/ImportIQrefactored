@@ -4,7 +4,7 @@
  */
 
 import { db } from './db';
-import { vehicles } from '@shared/schema';
+import { vehicleSpecs } from '@shared/schema';
 import { sql } from 'drizzle-orm';
 
 export class DirectDatabaseScaling {
