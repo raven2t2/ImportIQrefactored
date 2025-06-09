@@ -943,18 +943,7 @@ export default function ImportJourney() {
                           })()}
                         </div>
 
-                        {complianceFormsData.forms.length > 4 && (
-                          <div className="mt-3 text-center">
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => window.open(`/import-calculator?destination=${getCountryCode(destination)}`, '_blank')}
-                              className="text-xs"
-                            >
-                              View All {complianceFormsData.forms.length} Forms
-                            </Button>
-                          </div>
-                        )}
+
 
                         <div className="mt-3 p-2 bg-green-50 border border-green-200 rounded">
                           <div className="flex items-start gap-2">
