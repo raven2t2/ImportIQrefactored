@@ -25,6 +25,9 @@ interface ModShopIntelligenceProps {
 }
 
 export function ModShopIntelligence({ vehicleMake, vehicleModel, destination }: ModShopIntelligenceProps) {
+  const [userLocation, setUserLocation] = useState('');
+  const [locationSearch, setLocationSearch] = useState('');
+
   // Determine specialty based on vehicle make
   const getVehicleSpecialty = (make: string) => {
     const makeLower = make.toLowerCase();
@@ -87,8 +90,6 @@ export function ModShopIntelligence({ vehicleMake, vehicleModel, destination }: 
   });
 
   const [showAll, setShowAll] = useState(false);
-  const [userLocation, setUserLocation] = useState('');
-  const [locationSearch, setLocationSearch] = useState('');
 
   const handleLocationSearch = () => {
     setLocationSearch(userLocation);
