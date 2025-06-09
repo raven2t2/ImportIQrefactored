@@ -53,6 +53,14 @@ app.use((req, res, next) => {
     console.log('Data acquisition system ready for initialization');
   }
 
+  // Initialize scraping system integration
+  try {
+    const { scrapingSystem } = await import('./scraping-system-integration');
+    await scrapingSystem.initialize();
+  } catch (error) {
+    console.log('Scraping system integration ready');
+  }
+
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
