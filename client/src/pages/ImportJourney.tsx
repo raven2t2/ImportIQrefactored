@@ -200,54 +200,67 @@ export default function ImportJourney() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      <div className="container mx-auto px-4 py-8">
-        {/* Hero Section */}
-        <div className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-2xl p-8 mb-8 border border-blue-700/30">
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-6 max-w-7xl">
+        {/* Clean Hero Section */}
+        <div className="bg-white rounded-xl shadow-sm border p-8 mb-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-4xl font-bold mb-2">
-                {vehicleData.make} {vehicleData.model} Import Journey
+              <h1 className="text-3xl font-bold text-gray-900 mb-3">
+                {vehicleData.make} {vehicleData.model}
               </h1>
-              <div className="flex items-center gap-4 text-blue-300">
-                <span className="flex items-center gap-2">
+              <div className="flex items-center gap-4 text-gray-600">
+                <span className="flex items-center gap-2 text-lg">
                   <span className="text-2xl">{destInfo.flag}</span>
-                  <span>to {destInfo.name}</span>
+                  <span>Import to {destInfo.name}</span>
                 </span>
                 {vehicleData.chassis && (
-                  <Badge variant="outline" className="border-blue-600 text-blue-300">
+                  <Badge variant="secondary" className="text-sm">
                     {vehicleData.chassis}
+                  </Badge>
+                )}
+                {vehicleData.year && (
+                  <Badge variant="outline" className="text-sm">
+                    {vehicleData.year}
                   </Badge>
                 )}
               </div>
             </div>
             <div className="text-right">
-              <Badge className={getStatusColor(importIntelligence.eligibility?.status || 'unknown')}>
+              <Badge 
+                variant={importIntelligence.eligibility?.status === 'eligible' ? 'default' : 'secondary'}
+                className="text-base px-4 py-2 mb-2"
+              >
                 {importIntelligence.eligibility?.status?.toUpperCase() || 'CHECKING'}
               </Badge>
-              <div className="text-sm text-gray-400 mt-2">
+              <div className="text-sm text-gray-500">
                 {importIntelligence.eligibility?.confidence}% confidence
               </div>
             </div>
           </div>
 
           {/* Live Market Intelligence */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <AuctionIntelligenceDisplay 
-              make={vehicleData.make} 
-              model={vehicleData.model}
-              year={vehicleData.year ? parseInt(vehicleData.year) : undefined}
-            />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-gray-50 rounded-lg p-6 border">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <DollarSign className="h-5 w-5 text-blue-600" />
+                Live Auction Intelligence
+              </h3>
+              <AuctionIntelligenceDisplay 
+                make={vehicleData.make} 
+                model={vehicleData.model}
+                year={vehicleData.year ? parseInt(vehicleData.year) : undefined}
+              />
+            </div>
             
-            {/* Advanced Market Analytics */}
-            <Card className="bg-gray-900/50 border-gray-700">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <DollarSign className="h-5 w-5" />
-                  Market Analytics
-                </CardTitle>
-                <CardDescription>
-                  Real-time insights from global auction networks
+            {/* Market Analytics */}
+            <div className="bg-gray-50 rounded-lg p-6 border">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <DollarSign className="h-5 w-5 text-green-600" />
+                Market Analytics
+              </h3>
+              <div className="text-sm text-gray-600 mb-4">
+                Real-time insights from global auction networks
                 </CardDescription>
               </CardHeader>
               <CardContent>
