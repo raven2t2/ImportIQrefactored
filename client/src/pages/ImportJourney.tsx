@@ -88,9 +88,9 @@ export default function ImportJourney() {
 
   // Fetch compliance forms for destination country
   const { data: complianceFormsData } = useQuery({
-    queryKey: ['/api/compliance-forms', getCountryCode(destination)],
-    queryFn: () => fetch(`/api/compliance-forms/${getCountryCode(destination)}?vehicleType=passenger_cars`).then(res => res.json()),
-    enabled: !!destination,
+    queryKey: ['/api/compliance-forms', getCountryCode(destination), vehicleData.make, vehicleData.model],
+    queryFn: () => fetch(`/api/compliance-forms/${getCountryCode(destination)}?vehicleType=passenger_cars&make=${vehicleData.make}&model=${vehicleData.model}`).then(res => res.json()),
+    enabled: !!(destination && vehicleData.make),
   });
   const { toast } = useToast();
 
@@ -848,56 +848,99 @@ export default function ImportJourney() {
                           <Building2 className="h-5 w-5 text-blue-600" />
                           <div>
                             <h4 className="font-semibold text-blue-900">
-                              Official Import Forms for {complianceFormsData.country?.countryName || destination}
+                              Vehicle Import Forms - {complianceFormsData.country?.countryName || destination}
                             </h4>
                             <p className="text-sm text-blue-700">
-                              {complianceFormsData.mandatory} mandatory • {complianceFormsData.optional} optional forms
+                              Required documentation for {vehicleData.make} {vehicleData.model} import
                             </p>
                           </div>
                         </div>
 
                         <div className="grid gap-3 max-h-80 overflow-y-auto">
-                          {complianceFormsData.forms.slice(0, 4).map((form: any) => (
-                            <div key={form.id} className={`p-3 border rounded-lg ${form.mandatory ? 'border-red-300 bg-red-50' : 'border-blue-300 bg-blue-50'}`}>
-                              <div className="flex items-start justify-between">
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <h5 className="font-medium text-gray-900 text-sm">{form.formName}</h5>
-                                    <span className={`text-xs px-2 py-0.5 rounded ${form.mandatory ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}`}>
-                                      {form.mandatory ? 'MANDATORY' : 'OPTIONAL'}
-                                    </span>
+                          {(() => {
+                            // Filter and prioritize forms for passenger car imports
+                            const relevantForms = complianceFormsData.forms
+                              .filter((form: any) => {
+                                const formName = form.formName.toLowerCase();
+                                const formDesc = form.formDescription.toLowerCase();
+                                
+                                // Priority forms for vehicle imports
+                                const isVehicleRelevant = 
+                                  formName.includes('vehicle') ||
+                                  formName.includes('motor') ||
+                                  formName.includes('car') ||
+                                  formName.includes('import') ||
+                                  formName.includes('customs') ||
+                                  formName.includes('entry') ||
+                                  formName.includes('declaration') ||
+                                  formName.includes('conformity') ||
+                                  formName.includes('compliance') ||
+                                  formDesc.includes('vehicle') ||
+                                  formDesc.includes('motor') ||
+                                  formDesc.includes('automotive') ||
+                                  form.mandatory;
+                                
+                                return isVehicleRelevant;
+                              })
+                              .sort((a: any, b: any) => {
+                                // Sort by mandatory first, then by relevance
+                                if (a.mandatory && !b.mandatory) return -1;
+                                if (!a.mandatory && b.mandatory) return 1;
+                                return 0;
+                              })
+                              .slice(0, 4);
+
+                            return relevantForms.map((form: any) => (
+                              <div key={form.id} className={`p-3 border rounded-lg ${form.mandatory ? 'border-red-300 bg-red-50' : 'border-blue-300 bg-blue-50'}`}>
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <h5 className="font-medium text-gray-900 text-sm">{form.formName}</h5>
+                                      <span className={`text-xs px-2 py-0.5 rounded ${form.mandatory ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}`}>
+                                        {form.mandatory ? 'MANDATORY' : 'OPTIONAL'}
+                                      </span>
+                                    </div>
+                                    <p className="text-xs text-gray-600 mb-2">{form.formDescription}</p>
+                                    <div className="flex items-center gap-3 text-xs text-gray-500">
+                                      <span>Code: {form.formCode}</span>
+                                      <span>Processing: {form.processingTimeDays} days</span>
+                                      <span>Fee: {form.fees?.currency || 'AUD'} {form.fees?.amount || '0'}</span>
+                                    </div>
                                   </div>
-                                  <p className="text-xs text-gray-600 mb-2">{form.formDescription}</p>
-                                  <div className="flex items-center gap-3 text-xs text-gray-500">
-                                    <span>Code: {form.formCode}</span>
-                                    <span>Processing: {form.processingTimeDays} days</span>
-                                    <span>Fee: {form.fees.currency} {form.fees.amount}</span>
+                                  <div className="flex gap-1 ml-3">
+                                    {form.formUrl && (
+                                      <Button 
+                                        size="sm" 
+                                        variant="outline"
+                                        onClick={() => {
+                                          // Ensure proper URL format
+                                          const url = form.formUrl.startsWith('http') ? form.formUrl : `https://${form.formUrl}`;
+                                          window.open(url, '_blank', 'noopener,noreferrer');
+                                        }}
+                                        className="text-xs px-2 py-1 h-7"
+                                      >
+                                        <ExternalLink className="h-3 w-3 mr-1" />
+                                        View
+                                      </Button>
+                                    )}
+                                    {form.pdfUrl && (
+                                      <Button 
+                                        size="sm" 
+                                        variant="outline"
+                                        onClick={() => {
+                                          const url = form.pdfUrl.startsWith('http') ? form.pdfUrl : `https://${form.pdfUrl}`;
+                                          window.open(url, '_blank', 'noopener,noreferrer');
+                                        }}
+                                        className="text-xs px-2 py-1 h-7"
+                                      >
+                                        <FileText className="h-3 w-3" />
+                                      </Button>
+                                    )}
                                   </div>
-                                </div>
-                                <div className="flex gap-1 ml-3">
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline"
-                                    onClick={() => window.open(form.formUrl, '_blank')}
-                                    className="text-xs px-2 py-1 h-7"
-                                  >
-                                    <ExternalLink className="h-3 w-3 mr-1" />
-                                    View
-                                  </Button>
-                                  {form.pdfUrl && (
-                                    <Button 
-                                      size="sm" 
-                                      variant="outline"
-                                      onClick={() => window.open(form.pdfUrl, '_blank')}
-                                      className="text-xs px-2 py-1 h-7"
-                                    >
-                                      <FileText className="h-3 w-3" />
-                                    </Button>
-                                  )}
                                 </div>
                               </div>
-                            </div>
-                          ))}
+                            ));
+                          })()}
                         </div>
 
                         {complianceFormsData.forms.length > 4 && (
