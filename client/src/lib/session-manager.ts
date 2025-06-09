@@ -128,7 +128,7 @@ class SessionManager {
       model: urlParams.get('model') || undefined,
       chassis: urlParams.get('chassis') || undefined,
       year: urlParams.get('year') || undefined,
-      destination: urlParams.get('dest') || undefined
+      destination: urlParams.get('destination') || undefined
     };
   }
   
@@ -140,7 +140,7 @@ class SessionManager {
     if (vehicle.model) url.searchParams.set('model', vehicle.model);
     if (vehicle.chassis) url.searchParams.set('chassis', vehicle.chassis);
     if (vehicle.year) url.searchParams.set('year', vehicle.year.toString());
-    if (destination) url.searchParams.set('dest', destination);
+    if (destination) url.searchParams.set('destination', destination);
     
     // Update URL without triggering page reload
     window.history.replaceState({}, '', url.toString());
