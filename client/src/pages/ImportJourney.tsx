@@ -457,6 +457,146 @@ export default function ImportJourney() {
           </CardContent>
         </Card>
 
+        {/* Regional Port Intelligence */}
+        <Card className="bg-white mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-blue-600" />
+              Recommended Import Ports
+            </CardTitle>
+            <CardDescription>
+              Strategic port selection for {importIntelligence.destination?.name || destination}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {(() => {
+                const getPortRecommendations = (destination: string) => {
+                  switch(destination.toLowerCase()) {
+                    case 'australia':
+                      return [
+                        {
+                          name: "Port Botany (Sydney)",
+                          region: "NSW",
+                          cost: "$1,800",
+                          processing: "7 days",
+                          advantages: ["24/7 operations", "High-value vehicle handling"],
+                          challenges: ["High congestion", "Premium costs"]
+                        },
+                        {
+                          name: "Port of Melbourne",
+                          region: "VIC", 
+                          cost: "$1,500",
+                          processing: "8 days",
+                          advantages: ["Cost-effective", "Victorian registration"],
+                          challenges: ["Limited weekend operations"]
+                        }
+                      ];
+                    case 'canada':
+                      return [
+                        {
+                          name: "Port of Vancouver",
+                          region: "BC",
+                          cost: "$1,200",
+                          processing: "5 days", 
+                          advantages: ["Pacific gateway", "Western Canada access"],
+                          challenges: ["Weather delays in winter"]
+                        },
+                        {
+                          name: "Port of Halifax",
+                          region: "NS",
+                          cost: "$1,400",
+                          processing: "7 days",
+                          advantages: ["Atlantic access", "Lower congestion"],
+                          challenges: ["Limited Pacific routes"]
+                        }
+                      ];
+                    case 'usa':
+                      return [
+                        {
+                          name: "Port of Los Angeles",
+                          region: "CA",
+                          cost: "$2,800",
+                          processing: "10 days",
+                          advantages: ["Largest capacity", "West Coast access"],
+                          challenges: ["Critical congestion", "High costs"]
+                        },
+                        {
+                          name: "Port of Seattle",
+                          region: "WA", 
+                          cost: "$2,200",
+                          processing: "8 days",
+                          advantages: ["Pacific Northwest", "Lower congestion"],
+                          challenges: ["Weather dependent"]
+                        }
+                      ];
+                    case 'uk':
+                      return [
+                        {
+                          name: "Port of Southampton",
+                          region: "ENG",
+                          cost: "£1,600",
+                          processing: "6 days",
+                          advantages: ["Major gateway", "Central location"],
+                          challenges: ["Brexit documentation"]
+                        },
+                        {
+                          name: "Port of Felixstowe",
+                          region: "ENG",
+                          cost: "£1,400", 
+                          processing: "7 days",
+                          advantages: ["Cost-effective", "Container specialist"],
+                          challenges: ["Limited vehicle facilities"]
+                        }
+                      ];
+                    default:
+                      return [];
+                  }
+                };
+                
+                return getPortRecommendations(destination).map((port, index) => (
+                  <div key={index} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h4 className="font-semibold text-gray-900">{port.name}</h4>
+                        <p className="text-sm text-gray-600">{port.region} Region</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-gray-900">{port.cost}</p>
+                        <p className="text-sm text-gray-600">{port.processing}</p>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div>
+                        <p className="text-xs font-medium text-green-700 mb-1">Advantages</p>
+                        <ul className="text-xs text-gray-600 space-y-1">
+                          {port.advantages.map((advantage, i) => (
+                            <li key={i} className="flex items-center gap-1">
+                              <CheckCircle className="h-3 w-3 text-green-500" />
+                              {advantage}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium text-orange-700 mb-1">Considerations</p>
+                        <ul className="text-xs text-gray-600 space-y-1">
+                          {port.challenges.map((challenge, i) => (
+                            <li key={i} className="flex items-center gap-1">
+                              <AlertCircle className="h-3 w-3 text-orange-500" />
+                              {challenge}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                ));
+              })()}
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Cost Breakdown */}
         <Card className="bg-white">
           <CardHeader>
