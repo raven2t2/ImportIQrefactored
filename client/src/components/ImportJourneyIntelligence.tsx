@@ -616,8 +616,68 @@ export default function ImportJourneyIntelligence({ destination }: ImportJourney
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {destination && userLocation ? (
-                    <LocationBasedBusinesses destination={destination} userLocation={userLocation} />
+                  {journeyData?.businesses && journeyData.businesses.length > 0 ? (
+                    <div className="space-y-4">
+                      <div className="text-sm text-muted-foreground mb-4">
+                        Found {journeyData.businesses.length} verified service providers near {userLocation}
+                      </div>
+                      {journeyData.businesses.map((business: any, index: number) => (
+                        <div key={business.place_id || index} className="border rounded-lg p-4">
+                          <div className="flex justify-between items-start mb-2">
+                            <div>
+                              <h4 className="font-semibold flex items-center gap-2">
+                                {business.business_name || business.name}
+                                <Badge variant="outline" className="text-xs">Google Maps Verified</Badge>
+                              </h4>
+                              <p className="text-sm text-muted-foreground">{business.address}</p>
+                              {business.phone && (
+                                <p className="text-sm text-blue-600">{business.phone}</p>
+                              )}
+                            </div>
+                            <div className="text-right">
+                              {business.rating && (
+                                <div className="flex items-center gap-1">
+                                  <span className="font-semibold">{business.rating}</span>
+                                  <span className="text-yellow-500">★</span>
+                                  {business.user_ratings_total && (
+                                    <span className="text-xs text-muted-foreground">({business.user_ratings_total})</span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {business.types?.slice(0, 3).map((type: string) => (
+                              <Badge key={type} variant="secondary" className="text-xs">
+                                {type.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
+                              </Badge>
+                            ))}
+                          </div>
+                          {business.website && (
+                            <div className="mt-2">
+                              <a 
+                                href={business.website} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-sm text-blue-600 hover:underline"
+                              >
+                                Visit Website
+                              </a>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : journeyData?.businesses && journeyData.businesses.length === 0 ? (
+                    <div className="text-center py-8">
+                      <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-muted-foreground">
+                        No service providers found near {userLocation}
+                      </p>
+                      <p className="text-sm text-muted-foreground mt-2">
+                        Try searching in a nearby region or check back later
+                      </p>
+                    </div>
                   ) : (
                     <div className="text-center py-8">
                       <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
