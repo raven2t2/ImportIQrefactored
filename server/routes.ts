@@ -476,8 +476,7 @@ function getAuctionDataForVehicle(make: string, model: string) {
 
 function calculateImportCosts(vehiclePrice: number, shippingOrigin: string, zipCode?: string): CalculationResult {
   // Import the authentic regional calculation functions
-  const { calculateShippingCost } = require('./shipping-calculator');
-  const { calculateImportDuty, calculateGST, calculateLuxuryCarTax } = require('./public-data-sources');
+  // Removed require statements - using direct calculations in calculateRealAuctionBasedCosts function
   
   // Determine Australian state from postal code for accurate calculations
   let state = 'NSW'; // Default
@@ -4780,7 +4779,7 @@ Respond with a JSON object containing your recommendations.`;
         return res.status(400).json({ error: "Vehicle data and destination required" });
       }
 
-      const { SessionService } = require('./session-service');
+      const { SessionService } = await import('./session-service.js');
       
       // Skip cache for now to ensure fresh auction data is used
       console.log('⚠️  Bypassing cache to ensure fresh auction pricing data is used');
