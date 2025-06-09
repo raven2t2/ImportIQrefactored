@@ -221,6 +221,10 @@ app.use((req, res, next) => {
   const googleMapsRoutes = await import('./google-maps-routes');
   app.use('/api/maps', googleMapsRoutes.default);
   
+  // Enhanced location intelligence for import journey optimization
+  const locationIntelligenceRoutes = await import('./location-intelligence-routes');
+  app.use('/api/location', locationIntelligenceRoutes.default);
+  
   configureDashboardRoutes(app);
   
   // Initialize authentic mod shop database
