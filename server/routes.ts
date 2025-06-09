@@ -4931,7 +4931,7 @@ Respond with a JSON object containing your recommendations.`;
             sql`${vehicleAuctions.price} IS NOT NULL AND ${vehicleAuctions.price} > 0`
           )
         )
-        .orderBy(desc(vehicleAuctions.lastUpdated))
+        .orderBy(desc(vehicleAuctions.last_updated))
         .limit(5);
       
       console.log(`🔍 Found ${auctionData.length} auction records for ${vehicle?.make} ${vehicle?.model}`);
@@ -4998,7 +4998,7 @@ Respond with a JSON object containing your recommendations.`;
             sql`${vehicleAuctions.price} IS NOT NULL AND ${vehicleAuctions.price} > 0`
           )
         )
-        .orderBy(desc(vehicleAuctions.lastUpdated))
+        .orderBy(desc(vehicleAuctions.last_updated))
         .limit(5);
       
       console.log(`🔍 Found ${auctionData.length} auction records for ${vehicle.make} ${vehicle.model}`);
