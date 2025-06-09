@@ -3750,8 +3750,9 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
-  // Import Intelligence endpoint for the ImportJourney page
-  app.post('/api/import-intelligence', async (req, res) => {
+  // DISABLED: Import Intelligence endpoint using simplified service (replaced with auction-based version below)
+  /*
+  app.post('/api/import-intelligence-old', async (req, res) => {
     try {
       const { vehicleData, destination, sessionToken } = req.body;
       
@@ -3831,6 +3832,7 @@ Respond with a JSON object containing your recommendations.`;
       });
     }
   });
+  */
 
   // Memory-powered personalization endpoints
   app.get('/api/memory/recent-lookups', async (req, res) => {
