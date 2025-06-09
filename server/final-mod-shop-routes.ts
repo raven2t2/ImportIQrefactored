@@ -16,22 +16,21 @@ router.get('/search', async (req: Request, res: Response) => {
     const searchRadius = radius ? parseInt(String(radius)) : 50; // miles
     
     let query = sql`
-      SELECT id, business_name, contact_person, phone, website,
-             street_address, city, state_province, postal_code, country,
-             latitude, longitude, services_offered, specialties, certifications,
-             years_in_business, customer_rating, review_count, average_cost_range,
-             typical_turnaround_days, is_active, created_at
+      SELECT id, name, business_name, contact_person, description, website,
+             location, specialty, is_active, created_at
       FROM mod_shop_partners 
       WHERE is_active = true
     `;
 
-    // Add location-based filtering if postal code or city provided
+    // Add location-based filtering using the location field
     if (postalCode) {
-      query = sql`${query} AND postal_code = ${postalCode}`;
+      query = sql`${query} AND location ILIKE ${'%' + postalCode + '%'}`;
     } else if (city && state) {
-      query = sql`${query} AND LOWER(city) = LOWER(${city}) AND LOWER(state_province) = LOWER(${state})`;
+      query = sql`${query} AND (location ILIKE ${'%' + city + '%'} AND location ILIKE ${'%' + state + '%'})`;
     } else if (state) {
-      query = sql`${query} AND LOWER(state_province) = LOWER(${state})`;
+      query = sql`${query} AND location ILIKE ${'%' + state + '%'}`;
+    } else if (city) {
+      query = sql`${query} AND location ILIKE ${'%' + city + '%'}`;
     }
 
     // Add service filtering
@@ -107,11 +106,12 @@ router.get('/specialty/:type', async (req: Request, res: Response) => {
     const searchLimit = limit ? parseInt(String(limit)) : 10;
 
     const shops = await db.execute(sql`
-      SELECT id, name, business_name, contact_person, description, website,
-             location, specialty, is_active
+      SELECT id, business_name, contact_person, website,
+             street_address, city, state_province, postal_code, 
+             specialties, services_offered, is_active
       FROM mod_shop_partners 
-      WHERE specialty ILIKE ${'%' + type + '%'} AND is_active = true
-      ORDER BY name ASC
+      WHERE specialties @> ${[type]} AND is_active = true
+      ORDER BY business_name ASC
       LIMIT ${searchLimit}
     `);
 
