@@ -429,7 +429,7 @@ export default function ImportJourneyIntelligence() {
                     <div>
                       <p className="font-medium mb-3">Required Documentation & Steps:</p>
                       <div className="space-y-2">
-                        {journey.recommendations.compliance.requirements.map((req, index) => (
+                        {journeyData.journey.recommendations.compliance.requirements.map((req, index) => (
                           <div key={index} className="flex items-start gap-2">
                             <AlertCircle className="h-4 w-4 text-orange-500 mt-0.5" />
                             <span className="text-sm">{req}</span>
@@ -444,7 +444,7 @@ export default function ImportJourneyIntelligence() {
               {/* Local Service Providers */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Recommended Local Agents</h3>
-                {journey.recommendations.compliance.localAgents.map((agent, index) => (
+                {journeyData.journey.recommendations.compliance.localAgents.map((agent, index) => (
                   <Card key={index}>
                     <CardHeader>
                       <div className="flex items-start justify-between">
