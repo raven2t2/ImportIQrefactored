@@ -35,7 +35,9 @@ import {
   globalComplianceRules,
   vehicleSpecifications,
   importCostStructure,
-  portInformation
+  portInformation,
+  vehicleAuctions,
+  auctionListings
 } from '@shared/schema';
 import { eq, desc, lt, sql } from 'drizzle-orm';
 import { db } from './db';
@@ -4925,19 +4927,23 @@ Respond with a JSON object containing your recommendations.`;
         .where(
           and(
             eq(vehicleAuctions.make, vehicle.make || ''),
-            eq(vehicleAuctions.model, vehicle.model || '')
+            eq(vehicleAuctions.model, vehicle.model || ''),
+            sql`${vehicleAuctions.price} IS NOT NULL AND ${vehicleAuctions.price} > 0`
           )
         )
         .orderBy(desc(vehicleAuctions.lastUpdated))
         .limit(5);
       
       if (auctionData.length > 0) {
-        // Calculate average price from recent auction listings
-        const avgPrice = auctionData.reduce((sum, listing) => sum + listing.price, 0) / auctionData.length;
-        vehiclePrice = Math.round(avgPrice);
-        console.log(`Using real auction price for ${vehicle.make} ${vehicle.model}: $${vehiclePrice.toLocaleString()}`);
+        // Calculate average price from recent auction listings with valid prices
+        const validPrices = auctionData.filter(listing => listing.price && listing.price > 0);
+        if (validPrices.length > 0) {
+          const avgPrice = validPrices.reduce((sum, listing) => sum + listing.price, 0) / validPrices.length;
+          vehiclePrice = Math.round(avgPrice);
+          console.log(`Using real auction price for ${vehicle.make} ${vehicle.model}: $${vehiclePrice.toLocaleString()} (from ${validPrices.length} listings)`);
+        }
       } else {
-        console.log(`No auction data found for ${vehicle.make} ${vehicle.model}, using fallback price: $${vehiclePrice.toLocaleString()}`);
+        console.log(`No auction data with valid prices found for ${vehicle.make} ${vehicle.model}, using fallback price: $${vehiclePrice.toLocaleString()}`);
       }
     } catch (error) {
       console.error('Error fetching auction price:', error);
