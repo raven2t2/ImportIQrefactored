@@ -13,6 +13,7 @@ import SessionManager from "@/lib/session-manager";
 import { AuctionIntelligenceDisplay } from "@/components/auction-intelligence-display";
 import { TechnicalIntelligenceDisplay } from "@/components/technical-intelligence-display";
 import { ModShopIntelligence } from "@/components/ModShopIntelligence";
+import ImportJourneyIntelligence from "@/components/ImportJourneyIntelligence";
 
 interface ImportIntelligence {
   vehicle: {
@@ -178,15 +179,20 @@ export default function ImportJourney() {
         sessionToken
       });
 
-      const response = await fetch('/api/import-intelligence', {
+      const response = await fetch('/api/complete-journey', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          vehicleData,
-          destination,
-          sessionToken
+          make: vehicleData.make,
+          model: vehicleData.model,
+          year: vehicleData.year || '2010',
+          vehicleOrigin: vehicleData.origin || 'Japan',
+          userLocation: destination,
+          priority: 'cost',
+          vehicleType: 'JDM',
+          budget: 50000
         })
       });
 
@@ -1267,6 +1273,24 @@ export default function ImportJourney() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Google Maps Business Discovery */}
+        <div className="mt-8">
+          <Card className="bg-white">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-blue-600" />
+                Local Service Provider Discovery
+              </CardTitle>
+              <CardDescription>
+                Find verified automotive professionals near your location using Google Maps integration
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ImportJourneyIntelligence />
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
