@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import realModShopAPI from "./real-mod-shop-api";
 import { configureDashboardRoutes } from "./dashboard-routes";
+import enterpriseGeospatialRoutes from "./enterprise-geospatial-routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeDataRefreshScheduler } from "./auction-data-manager";
 import { initializeLiveMarketDataMonitoring } from "./live-market-data";
@@ -232,6 +233,9 @@ app.use((req, res, next) => {
   // Authentic mod shop API with verified Google Maps locations
   const authenticModShopAPI = await import('./authentic-mod-shop-api');
   app.use('/api/authentic-shops', authenticModShopAPI.default);
+  
+  // Enterprise Geospatial Intelligence with PostGIS and advanced Google Maps APIs
+  app.use('/api/geospatial', enterpriseGeospatialRoutes);
   
   configureDashboardRoutes(app);
   

@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, decimal, jsonb, varchar, index, numeric, date, real } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, decimal, jsonb, varchar, index, numeric, date, real, geometry } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -893,6 +893,183 @@ export const lookupAnalytics = pgTable("lookup_analytics", {
   suggestedImprovements: text("suggested_improvements").array(),
   dateAnalyzed: timestamp("date_analyzed").defaultNow(),
 });
+
+// Enterprise Geospatial Intelligence Tables for Advanced Google Maps Integration
+
+// Optimal Routes - Predictive routing engine with Google Roads API integration
+export const optimalRoutes = pgTable("optimal_routes", {
+  id: serial("id").primaryKey(),
+  customerZip: varchar("customer_zip", { length: 10 }).notNull(),
+  customerLocation: text("customer_location"), // PostGIS POINT geometry as text
+  vehicleType: varchar("vehicle_type", { length: 50 }).notNull(),
+  requiredServices: jsonb("required_services").notNull(),
+  recommendedShopId: integer("recommended_shop_id").notNull(),
+  totalDriveTimeMinutes: integer("total_drive_time_minutes").notNull(),
+  totalEstimatedCost: decimal("total_estimated_cost", { precision: 10, scale: 2 }).notNull(),
+  confidenceScore: decimal("confidence_score", { precision: 3, scale: 2 }).notNull(),
+  routePolyline: text("route_polyline"), // Google Maps encoded polyline
+  trafficConditions: jsonb("traffic_conditions"), // Real-time traffic data
+  alternativeRoutes: jsonb("alternative_routes"), // Backup routing options
+  roadQuality: varchar("road_quality", { length: 20 }), // excellent, good, fair, poor
+  weatherImpact: jsonb("weather_impact"), // Weather-based routing adjustments
+  lastCalculated: timestamp("last_calculated").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  customerZipIdx: index("optimal_routes_customer_zip_idx").on(table.customerZip),
+  vehicleTypeIdx: index("optimal_routes_vehicle_type_idx").on(table.vehicleType),
+  shopIdx: index("optimal_routes_shop_idx").on(table.recommendedShopId),
+  confidenceIdx: index("optimal_routes_confidence_idx").on(table.confidenceScore),
+}));
+
+// Geographic Analytics - Market intelligence by region
+export const geographicAnalytics = pgTable("geographic_analytics", {
+  id: serial("id").primaryKey(),
+  regionName: varchar("region_name", { length: 100 }).notNull(),
+  regionType: varchar("region_type", { length: 20 }).notNull(), // city, state, metro, custom
+  centerPoint: text("center_point"), // PostGIS POINT geometry as text
+  boundaryPolygon: text("boundary_polygon"), // PostGIS POLYGON geometry as text
+  totalShops: integer("total_shops").notNull(),
+  averageRating: decimal("average_rating", { precision: 3, scale: 2 }),
+  averageCostPerService: decimal("average_cost_per_service", { precision: 10, scale: 2 }),
+  competitionDensity: decimal("competition_density", { precision: 5, scale: 2 }),
+  customerDemandScore: integer("customer_demand_score"),
+  marketOpportunityScore: integer("market_opportunity_score"),
+  populationDensity: integer("population_density"),
+  averageIncomeLevel: integer("average_income_level"),
+  targetDemographics: jsonb("target_demographics"),
+  seasonalTrends: jsonb("seasonal_trends"),
+  growthProjection: decimal("growth_projection", { precision: 5, scale: 2 }),
+  lastAnalyzed: timestamp("last_analyzed").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  regionNameIdx: index("geographic_analytics_region_name_idx").on(table.regionName),
+  regionTypeIdx: index("geographic_analytics_region_type_idx").on(table.regionType),
+  opportunityIdx: index("geographic_analytics_opportunity_idx").on(table.marketOpportunityScore),
+  demandIdx: index("geographic_analytics_demand_idx").on(table.customerDemandScore),
+}));
+
+// Market Clusters - Geospatial clustering for market analysis
+export const marketClusters = pgTable("market_clusters", {
+  id: serial("id").primaryKey(),
+  clusterName: varchar("cluster_name", { length: 100 }).notNull(),
+  clusterType: varchar("cluster_type", { length: 30 }).notNull(), // urban, suburban, rural, highway
+  centerPoint: text("center_point"), // PostGIS POINT geometry as text
+  coverageArea: text("coverage_area"), // PostGIS POLYGON geometry as text
+  radiusKm: decimal("radius_km", { precision: 6, scale: 2 }),
+  shopCount: integer("shop_count").notNull(),
+  averageDriveTimeMinutes: integer("average_drive_time_minutes"),
+  marketSaturationScore: decimal("market_saturation_score", { precision: 3, scale: 2 }),
+  serviceGaps: jsonb("service_gaps"), // Underserved service types
+  expansionOpportunities: jsonb("expansion_opportunities"),
+  competitorAnalysis: jsonb("competitor_analysis"),
+  accessibilityScore: integer("accessibility_score"), // 1-100 based on road access
+  economicViability: decimal("economic_viability", { precision: 3, scale: 2 }),
+  partnerRecruitmentPriority: varchar("partner_recruitment_priority", { length: 20 }), // high, medium, low
+  lastAnalyzed: timestamp("last_analyzed").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  clusterNameIdx: index("market_clusters_cluster_name_idx").on(table.clusterName),
+  clusterTypeIdx: index("market_clusters_cluster_type_idx").on(table.clusterType),
+  saturationIdx: index("market_clusters_saturation_idx").on(table.marketSaturationScore),
+  priorityIdx: index("market_clusters_priority_idx").on(table.partnerRecruitmentPriority),
+}));
+
+// Shop Availability - Time-based availability and capacity tracking
+export const shopAvailability = pgTable("shop_availability", {
+  id: serial("id").primaryKey(),
+  shopId: integer("shop_id").notNull(),
+  dayOfWeek: integer("day_of_week").notNull(), // 0=Sunday, 6=Saturday
+  openTime: varchar("open_time", { length: 8 }), // HH:MM:SS format
+  closeTime: varchar("close_time", { length: 8 }), // HH:MM:SS format
+  currentCapacityPercent: integer("current_capacity_percent"),
+  maxDailyCapacity: integer("max_daily_capacity"),
+  averageServiceTime: integer("average_service_time"), // minutes
+  bookingLeadTimeDays: integer("booking_lead_time_days"),
+  specialHours: jsonb("special_hours"), // Holidays, special events
+  emergencyAvailable: boolean("emergency_available").default(false),
+  rushHourImpact: jsonb("rush_hour_impact"), // Traffic impact on service times
+  seasonalAdjustments: jsonb("seasonal_adjustments"),
+  realTimeStatus: varchar("real_time_status", { length: 20 }), // open, busy, closing_soon, closed
+  lastStatusUpdate: timestamp("last_status_update").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  shopIdIdx: index("shop_availability_shop_id_idx").on(table.shopId),
+  dayOfWeekIdx: index("shop_availability_day_of_week_idx").on(table.dayOfWeek),
+  capacityIdx: index("shop_availability_capacity_idx").on(table.currentCapacityPercent),
+  statusIdx: index("shop_availability_status_idx").on(table.realTimeStatus),
+}));
+
+// Enhanced Mod Shop Partners with PostGIS geometry columns
+export const modShopPartnersEnhanced = pgTable("mod_shop_partners_enhanced", {
+  id: serial("id").primaryKey(),
+  businessName: varchar("business_name", { length: 200 }).notNull(),
+  ownerName: varchar("owner_name", { length: 100 }),
+  email: varchar("email", { length: 255 }),
+  phone: varchar("phone", { length: 50 }),
+  address: text("address").notNull(),
+  city: varchar("city", { length: 100 }).notNull(),
+  state: varchar("state", { length: 50 }).notNull(),
+  postalCode: varchar("postal_code", { length: 20 }).notNull(),
+  country: varchar("country", { length: 50 }).notNull(),
+  location: text("location"), // PostGIS POINT geometry as text
+  serviceArea: text("service_area"), // PostGIS POLYGON geometry as text
+  serviceAreaRadius: decimal("service_area_radius", { precision: 6, scale: 2 }), // km
+  specializations: text("specializations").array(),
+  certifications: jsonb("certifications"),
+  yearEstablished: integer("year_established"),
+  employeeCount: integer("employee_count"),
+  googlePlaceId: varchar("google_place_id", { length: 100 }),
+  googleRating: decimal("google_rating", { precision: 2, scale: 1 }),
+  googleReviewCount: integer("google_review_count"),
+  websiteUrl: varchar("website_url", { length: 500 }),
+  socialMediaProfiles: jsonb("social_media_profiles"),
+  operatingHours: jsonb("operating_hours"),
+  serviceCapacity: jsonb("service_capacity"),
+  averageJobDuration: jsonb("average_job_duration"),
+  pricingTier: varchar("pricing_tier", { length: 20 }), // budget, mid-range, premium, luxury
+  trustScore: decimal("trust_score", { precision: 3, scale: 2 }),
+  partnershipLevel: varchar("partnership_level", { length: 20 }), // preferred, standard, provisional
+  verificationStatus: varchar("verification_status", { length: 20 }), // verified, pending, unverified
+  lastVerification: timestamp("last_verification"),
+  competitiveAdvantages: text("competitive_advantages").array(),
+  uniqueServices: text("unique_services").array(),
+  equipmentQuality: varchar("equipment_quality", { length: 20 }), // state-of-art, modern, standard, basic
+  customerSatisfactionScore: decimal("customer_satisfaction_score", { precision: 3, scale: 2 }),
+  responseTimeMinutes: integer("response_time_minutes"),
+  emergencyServices: boolean("emergency_services").default(false),
+  mobileServices: boolean("mobile_services").default(false),
+  pickupDelivery: boolean("pickup_delivery").default(false),
+  warrantyOffered: boolean("warranty_offered").default(false),
+  insuranceCoverage: jsonb("insurance_coverage"),
+  businessLicenses: jsonb("business_licenses"),
+  paymentMethods: text("payment_methods").array(),
+  languagesSpoken: text("languages_spoken").array(),
+  accessibilityFeatures: text("accessibility_features").array(),
+  parkingAvailability: varchar("parking_availability", { length: 20 }),
+  publicTransportAccess: boolean("public_transport_access").default(false),
+  nearbyLandmarks: text("nearby_landmarks").array(),
+  marketPosition: varchar("market_position", { length: 20 }), // market_leader, strong_competitor, emerging, struggling
+  growthTrend: varchar("growth_trend", { length: 20 }), // expanding, stable, declining
+  partnershipStatus: varchar("partnership_status", { length: 20 }), // active, inactive, pending, terminated
+  isActive: boolean("is_active").default(true),
+  lastContactDate: timestamp("last_contact_date"),
+  nextReviewDate: timestamp("next_review_date"),
+  internalNotes: text("internal_notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  businessNameIdx: index("mod_shop_partners_enhanced_business_name_idx").on(table.businessName),
+  cityIdx: index("mod_shop_partners_enhanced_city_idx").on(table.city),
+  stateIdx: index("mod_shop_partners_enhanced_state_idx").on(table.state),
+  countryIdx: index("mod_shop_partners_enhanced_country_idx").on(table.country),
+  specializationsIdx: index("mod_shop_partners_enhanced_specializations_idx").on(table.specializations),
+  googlePlaceIdx: index("mod_shop_partners_enhanced_google_place_idx").on(table.googlePlaceId),
+  trustScoreIdx: index("mod_shop_partners_enhanced_trust_score_idx").on(table.trustScore),
+  partnershipLevelIdx: index("mod_shop_partners_enhanced_partnership_level_idx").on(table.partnershipLevel),
+  verificationIdx: index("mod_shop_partners_enhanced_verification_idx").on(table.verificationStatus),
+  activeIdx: index("mod_shop_partners_enhanced_active_idx").on(table.isActive),
+}));
 
 // Vehicle heads database with hero vehicles and emotional descriptions
 export const vehicleHeads = pgTable('vehicle_heads', {
