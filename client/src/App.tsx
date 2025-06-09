@@ -66,6 +66,7 @@ import EligibilityCheck from "@/pages/EligibilityCheck";
 import ImportJourney from "@/pages/ImportJourney";
 import GlobalCompliance from "@/pages/GlobalCompliance";
 import ShopLocator from "@/pages/ShopLocator";
+import GoogleMapsDashboard from "@/pages/google-maps-dashboard";
 
 
 import NotFound from "@/pages/not-found";
@@ -142,6 +143,7 @@ function Router() {
       <Route path="/import-journey" component={ImportJourney} />
       <Route path="/global-compliance" component={GlobalCompliance} />
       <Route path="/shop-locator" component={ShopLocator} />
+      <Route path="/google-maps-dashboard" component={GoogleMapsDashboard} />
       <Route path="/mod-shops" component={ShopLocator} />
       <Route path="/find-shops" component={ShopLocator} />
       <Route component={NotFound} />
