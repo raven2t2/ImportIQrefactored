@@ -137,7 +137,7 @@ function Router() {
       <Route path="/import-timeline" component={ImportTimeline} />
       <Route path="/us-market-intelligence" component={USMarketIntelligence} />
       <Route path="/live-market-data" component={LiveMarketData} />
-      <Route path="/import-flow" component={ImportFlow} />
+
       <Route path="/eligibility-check" component={EligibilityCheck} />
       <Route path="/import-journey" component={ImportJourney} />
       <Route path="/global-compliance" component={GlobalCompliance} />
