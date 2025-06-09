@@ -109,7 +109,7 @@ export function ModShopIntelligence({ vehicleMake, vehicleModel, destination }: 
 
         {/* Shop Listings */}
         <div className="space-y-3">
-          {shopsToShow.map((shop: ModShop) => (
+          {shopsToShow.map((shop: any) => (
             <div key={shop.id} className="bg-white rounded-lg p-4 border border-gray-200 hover:border-purple-300 transition-colors">
               <div className="flex justify-between items-start mb-2">
                 <div>
@@ -118,8 +118,8 @@ export function ModShopIntelligence({ vehicleMake, vehicleModel, destination }: 
                 </div>
                 <Badge 
                   variant="outline" 
-                  className={shop.specialty.toLowerCase().includes('jdm') ? 'border-blue-300 text-blue-700' : 
-                             shop.specialty.toLowerCase().includes('european') ? 'border-green-300 text-green-700' : 
+                  className={shop.specialty?.toLowerCase().includes('jdm') ? 'border-blue-300 text-blue-700' : 
+                             shop.specialty?.toLowerCase().includes('european') ? 'border-green-300 text-green-700' : 
                              'border-orange-300 text-orange-700'}
                 >
                   {shop.specialty}
