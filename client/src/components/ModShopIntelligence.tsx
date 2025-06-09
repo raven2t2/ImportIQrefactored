@@ -38,20 +38,50 @@ export function ModShopIntelligence({ vehicleMake, vehicleModel, destination }: 
   const specialty = getVehicleSpecialty(vehicleMake);
 
   // Fetch recommended mod shops based on vehicle specialty
-  const { data: recommendedShops, isLoading: loadingRecommended } = useQuery({
+  const { data: recommendedShops, isLoading: loadingRecommended, error: errorRecommended } = useQuery({
     queryKey: ['/api/mod-shops/specialty', specialty],
-    queryFn: () => fetch(`/api/mod-shops/specialty/${specialty}?limit=3`).then(res => res.json())
+    queryFn: async () => {
+      const response = await fetch(`/api/mod-shops/specialty/${specialty}?limit=3`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch specialty shops');
+      }
+      return response.json();
+    }
   });
 
   // Fetch all available shops
-  const { data: allShops, isLoading: loadingAll } = useQuery({
+  const { data: allShops, isLoading: loadingAll, error: errorAll } = useQuery({
     queryKey: ['/api/mod-shops/search'],
-    queryFn: () => fetch('/api/mod-shops/search?limit=6').then(res => res.json())
+    queryFn: async () => {
+      const response = await fetch('/api/mod-shops/search?limit=6');
+      if (!response.ok) {
+        throw new Error('Failed to fetch shops');
+      }
+      return response.json();
+    }
   });
 
   const [showAll, setShowAll] = useState(false);
 
-  if (loadingRecommended && loadingAll) {
+  // Add console logging for debugging
+  console.log('ModShopIntelligence Debug:', {
+    vehicleMake,
+    vehicleModel,
+    specialty,
+    loadingRecommended,
+    loadingAll,
+    recommendedShops,
+    allShops,
+    errorRecommended,
+    errorAll
+  });
+
+  // Handle errors
+  if (errorRecommended || errorAll) {
+    console.error('Mod shop API errors:', { errorRecommended, errorAll });
+  }
+
+  if (loadingRecommended || loadingAll) {
     return (
       <Card className="border-purple-200 bg-purple-50">
         <CardHeader className="pb-3">
@@ -63,6 +93,7 @@ export function ModShopIntelligence({ vehicleMake, vehicleModel, destination }: 
         <CardContent>
           <div className="flex items-center justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+            <span className="ml-2 text-sm text-purple-600">Loading service providers...</span>
           </div>
         </CardContent>
       </Card>
@@ -70,6 +101,9 @@ export function ModShopIntelligence({ vehicleMake, vehicleModel, destination }: 
   }
 
   const shopsToShow = showAll ? allShops?.shops || [] : recommendedShops?.shops || [];
+  
+  // Always show the component even if no shops loaded initially
+  console.log('Shops to show:', shopsToShow);
 
   return (
     <Card className="border-purple-200 bg-purple-50">
