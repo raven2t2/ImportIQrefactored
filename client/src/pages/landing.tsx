@@ -3,7 +3,8 @@ import { Link, useLocation } from 'wouter';
 import { useQuery } from "@tanstack/react-query";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Check, Zap, Menu, X, ArrowRight, Loader2, Shield, Target, Car, DollarSign, FileText } from 'lucide-react';
+import { Check, Zap, Menu, X, ArrowRight, Loader2, Shield, Target, Car, DollarSign, FileText, MapPin, Ship, Clock } from 'lucide-react';
+import ImportJourneyIntelligence from '@/components/ImportJourneyIntelligence';
 
 import { apiRequest } from "@/lib/queryClient";
 
