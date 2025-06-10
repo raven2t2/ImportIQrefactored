@@ -124,8 +124,8 @@ export default function Landing() {
               <div className="w-12 h-12 bg-amber-400/20 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <Search className="h-6 w-6 text-amber-400" />
               </div>
-              <h3 className="font-semibold mb-2">Global Coverage</h3>
-              <p className="text-sm text-gray-400">150+ countries with detailed import requirements</p>
+              <h3 className="font-semibold mb-2">Major Markets</h3>
+              <p className="text-sm text-gray-400">Australia, US, UK, Canada + 6 other key markets</p>
             </div>
           </div>
         </div>
