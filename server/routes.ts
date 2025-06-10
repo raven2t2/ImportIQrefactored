@@ -3094,7 +3094,7 @@ Respond with a JSON object containing your recommendations.`;
       const { governmentDutyAPI } = await import('./government-duty-api');
       const officialCosts = await governmentDutyAPI.calculateOfficialCosts(
         avgPrice,
-        eligibleYears[0] || currentYear - 25,
+        importEligibleYears[0] || currentYear - 25,
         destination
       );
       // Use official government costs instead of estimates

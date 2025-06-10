@@ -57,7 +57,7 @@ export class GovernmentDutyAPI {
           year,
           vehicleType: 'passenger_vehicle',
           dutyRate: parseFloat(rate.importDutyPercentage.toString()) / 100,
-          taxRate: 0.10, // GST - official 10%
+          taxRate: parseFloat(rate.gstVatPercentage?.toString() || '10') / 100,
           additionalFees: parseFloat(rate.additionalFeesFlat?.toString() || '0'),
           complianceCost: 3500, // RAWS compliance
           registrationFee: 800,
@@ -141,11 +141,11 @@ export class GovernmentDutyAPI {
     try {
       const cachedRates = await db
         .select()
-        .from(governmentDutyRates)
+        .from(customsRegulations)
         .where(
           and(
-            eq(governmentDutyRates.countryCode, 'CAN'),
-            eq(governmentDutyRates.vehicleCategory, 'passenger_vehicle')
+            eq(customsRegulations.country, 'Canada'),
+            eq(customsRegulations.vehicleTypeCategory, 'passenger_vehicle')
           )
         )
         .limit(1);
@@ -191,11 +191,11 @@ export class GovernmentDutyAPI {
     try {
       const cachedRates = await db
         .select()
-        .from(governmentDutyRates)
+        .from(customsRegulations)
         .where(
           and(
-            eq(governmentDutyRates.countryCode, 'GBR'),
-            eq(governmentDutyRates.vehicleCategory, 'passenger_vehicle')
+            eq(customsRegulations.country, 'United Kingdom'),
+            eq(customsRegulations.vehicleTypeCategory, 'passenger_vehicle')
           )
         )
         .limit(1);
