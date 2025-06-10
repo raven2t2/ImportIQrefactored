@@ -14,6 +14,8 @@ export default function Landing() {
   const [error, setError] = useState<string | null>(null);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [lastLookup, setLastLookup] = useState<any>(null);
+  const [locationDetected, setLocationDetected] = useState(false);
+  const [geoError, setGeoError] = useState<string | null>(null);
 
   const placeholders = [
     "Toyota Supra RZ",
@@ -44,6 +46,78 @@ export default function Landing() {
     }, 3000);
     return () => clearInterval(interval);
   }, []);
+
+  // Auto-detect location on component mount
+  useEffect(() => {
+    const detectLocation = async () => {
+      // Check if geolocation is supported
+      if (!navigator.geolocation) {
+        setGeoError('Location detection not supported');
+        return;
+      }
+
+      try {
+        // Get user's position
+        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            timeout: 5000,
+            enableHighAccuracy: false
+          });
+        });
+
+        // Use reverse geocoding to get country from coordinates
+        const { latitude, longitude } = position.coords;
+        const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
+        
+        if (response.ok) {
+          const data = await response.json();
+          const detectedCountry = mapCountryToCode(data.countryName);
+          
+          if (detectedCountry) {
+            setSelectedCountry(detectedCountry);
+            setLocationDetected(true);
+            
+            // Save to localStorage for future visits
+            localStorage.setItem('importiq_detected_country', detectedCountry);
+          }
+        }
+      } catch (error) {
+        // Try to use saved country from localStorage
+        const savedCountry = localStorage.getItem('importiq_detected_country');
+        if (savedCountry) {
+          setSelectedCountry(savedCountry);
+          setLocationDetected(true);
+        } else {
+          setGeoError('Location access denied - please select your country manually');
+        }
+      }
+    };
+
+    detectLocation();
+  }, []);
+
+  // Map country names to our country codes
+  const mapCountryToCode = (countryName: string): string | null => {
+    const mapping: Record<string, string> = {
+      'Australia': 'australia',
+      'United States': 'usa',
+      'United States of America': 'usa',
+      'Canada': 'canada',
+      'United Kingdom': 'uk',
+      'Great Britain': 'uk',
+      'Japan': 'japan',
+      'Germany': 'germany',
+      'France': 'france',
+      'Netherlands': 'netherlands',
+      'Belgium': 'belgium',
+      'Norway': 'norway',
+      'Sweden': 'sweden',
+      'Finland': 'finland',
+      'New Zealand': 'newzealand'
+    };
+    
+    return mapping[countryName] || null;
+  };
 
   // Check for previous lookups on component mount
   useEffect(() => {
@@ -155,6 +229,43 @@ export default function Landing() {
 
           {/* Smart Search Input */}
           <div className="max-w-2xl mx-auto mb-12">
+            {/* Country/Location Selector */}
+            <div className="mb-4">
+              <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+                <SelectTrigger className="w-full h-14 px-4 bg-gray-900/50 border-gray-700 rounded-xl text-gray-300">
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-2">
+                      <Globe className="h-5 w-5 text-amber-400" />
+                      <SelectValue placeholder="🌍 Select your destination country" />
+                    </div>
+                    {locationDetected && (
+                      <div className="flex items-center gap-1 text-xs text-green-400">
+                        <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                        Auto-detected
+                      </div>
+                    )}
+                  </div>
+                </SelectTrigger>
+                <SelectContent className="bg-gray-900 border-gray-700">
+                  {countries.map((country) => (
+                    <SelectItem key={country.code} value={country.code} className="text-gray-300 hover:bg-gray-800">
+                      <div className="flex items-center gap-2">
+                        <span>{country.flag}</span>
+                        <span>{country.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              {geoError && !selectedCountry && (
+                <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                  <X className="h-3 w-3" />
+                  {geoError}
+                </p>
+              )}
+            </div>
+
             <div className="relative">
               <Input
                 value={query}
@@ -165,8 +276,8 @@ export default function Landing() {
               />
               <Button
                 onClick={handleSearch}
-                disabled={isLoading || !query.trim()}
-                className="absolute right-2 top-2 h-12 px-6 bg-amber-400 hover:bg-amber-500 text-black font-semibold"
+                disabled={isLoading || !query.trim() || !selectedCountry}
+                className="absolute right-2 top-2 h-12 px-6 bg-amber-400 hover:bg-amber-500 text-black font-semibold disabled:opacity-50"
               >
                 {isLoading ? (
                   <Loader2 className="h-5 w-5 animate-spin" />

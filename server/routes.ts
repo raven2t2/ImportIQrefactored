@@ -2794,9 +2794,12 @@ Respond with a JSON object containing your recommendations.`;
   // Smart lookup endpoint for homepage analysis
   app.post("/api/smart-lookup", async (req, res) => {
     try {
-      const { query } = req.body;
+      const { query, destination } = req.body;
       if (!query || typeof query !== 'string') {
         return res.status(400).json({ error: "Query string required" });
+      }
+      if (!destination || typeof destination !== 'string') {
+        return res.status(400).json({ error: "Destination country required" });
       }
 
       const userAgent = req.get('User-Agent');
@@ -2806,6 +2809,20 @@ Respond with a JSON object containing your recommendations.`;
       const result = await smartParser.intelligentVehicleLookup(query.trim());
       
       if (result.data) {
+        // Get compliance data for the selected destination
+        let complianceData = null;
+        try {
+          const complianceService = new PostgreSQLComplianceService();
+          complianceData = await complianceService.getComplianceForDestination(
+            result.data.make,
+            result.data.model,
+            result.data.year,
+            destination
+          );
+        } catch (complianceError) {
+          console.log('Compliance lookup warning:', complianceError.message);
+        }
+
         // Transform the smart parser response into homepage format
         const response = {
           vehicle: {
@@ -2816,12 +2833,13 @@ Respond with a JSON object containing your recommendations.`;
           eligibility: {
             status: result.confidenceScore > 70 ? 'eligible' : 'needs_review',
             confidence: result.confidenceScore,
-            notes: result.whyThisResult
+            notes: result.whyThisResult,
+            complianceInfo: complianceData
           },
           costs: result.data.estimatedCosts || null,
           nextSteps: result.nextSteps || [],
           sourceAttribution: result.sourceAttribution,
-          destination: 'Australia'
+          destination: destination
         };
         
         res.json(response);
