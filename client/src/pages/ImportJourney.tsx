@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle, Clock, DollarSign, FileText, AlertCircle, ArrowRight, Calendar, MapPin, Truck, Shield, ExternalLink, MessageCircle, Calculator, Ship, AlertTriangle, Anchor, TrendingUp, Building2, Car } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { CheckCircle, Clock, DollarSign, FileText, AlertCircle, ArrowRight, Calendar, MapPin, Truck, Shield, ExternalLink, MessageCircle, Calculator, Ship, AlertTriangle, Anchor, TrendingUp, Building2, Car, Edit3 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 import { apiRequest } from "@/lib/queryClient";
@@ -72,6 +73,8 @@ export default function ImportJourney() {
   const [destination, setDestination] = useState('');
   const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [customVehiclePrice, setCustomVehiclePrice] = useState<number | null>(null);
+  const [isEditingPrice, setIsEditingPrice] = useState(false);
 
   // Get destination country code for compliance forms
   const getCountryCode = (dest: string) => {
@@ -531,15 +534,48 @@ export default function ImportJourney() {
                   <div className="text-center p-4 bg-blue-50 rounded-lg">
                     <p className="text-sm text-gray-600">Total Import Cost</p>
                     <p className="text-3xl font-bold text-blue-600">
-                      {importIntelligence.costs?.total ? `$${importIntelligence.costs.total.toLocaleString()}` : 'Calculating...'}
+                      {(() => {
+                        const vehiclePrice = customVehiclePrice || importIntelligence.costs?.vehicle || 0;
+                        const importFees = importIntelligence.costs?.total && importIntelligence.costs?.vehicle 
+                          ? importIntelligence.costs.total - importIntelligence.costs.vehicle 
+                          : 0;
+                        const totalCost = vehiclePrice + importFees;
+                        return totalCost ? `$${totalCost.toLocaleString()}` : 'Calculating...';
+                      })()}
                     </p>
                   </div>
                   <div className="text-center p-4 bg-green-50 rounded-lg">
                     <p className="text-sm text-gray-600">Vehicle Cost</p>
-                    <p className="text-2xl font-bold text-green-600">
-                      {importIntelligence.costs?.vehicle ? `$${importIntelligence.costs.vehicle.toLocaleString()}` : 'Analyzing...'}
+                    {isEditingPrice ? (
+                      <div className="flex items-center justify-center gap-2 mt-2">
+                        <span className="text-2xl font-bold text-green-600">$</span>
+                        <Input
+                          type="number"
+                          value={customVehiclePrice || importIntelligence.costs?.vehicle || ''}
+                          onChange={(e) => setCustomVehiclePrice(Number(e.target.value))}
+                          className="w-32 text-center text-xl font-bold border-green-300 focus:border-green-500"
+                          onBlur={() => setIsEditingPrice(false)}
+                          onKeyDown={(e) => e.key === 'Enter' && setIsEditingPrice(false)}
+                          autoFocus
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center gap-2">
+                        <p className="text-2xl font-bold text-green-600">
+                          ${(customVehiclePrice || importIntelligence.costs?.vehicle)?.toLocaleString() || 'Analyzing...'}
+                        </p>
+                        <button 
+                          onClick={() => setIsEditingPrice(true)}
+                          className="p-1 text-green-600 hover:bg-green-100 rounded"
+                          title="Edit vehicle price"
+                        >
+                          <Edit3 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    )}
+                    <p className="text-xs text-gray-500">
+                      {customVehiclePrice ? 'Custom price' : 'From auction data'}
                     </p>
-                    <p className="text-xs text-gray-500">From auction data</p>
                   </div>
                   <div className="text-center p-4 bg-orange-50 rounded-lg">
                     <p className="text-sm text-gray-600">Import Fees</p>
