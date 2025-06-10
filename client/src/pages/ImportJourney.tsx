@@ -132,16 +132,53 @@ export default function ImportJourney() {
       console.log('Parsing URL params:', urlParams);
       console.log('Current URL:', window.location.href);
       
-      // Always set vehicle data from URL parameters
-      const newVehicleData = {
-        make: urlParams.make || '',
-        model: urlParams.model || '',
-        chassis: urlParams.chassis || '',
-        year: urlParams.year || ''
-      };
-      console.log('Setting vehicle data:', newVehicleData);
-      setVehicleData(newVehicleData);
-      setDestination(urlParams.destination || 'australia');
+      // Check for stored search result data first
+      const storedSearchResult = localStorage.getItem('importiq_search_result');
+      if (storedSearchResult) {
+        try {
+          const searchData = JSON.parse(storedSearchResult);
+          console.log('Found stored search result:', searchData);
+          
+          // Use the rich data from the search result
+          const newVehicleData = {
+            make: searchData.vehicle?.make || urlParams.make || '',
+            model: searchData.vehicle?.model || urlParams.model || '',
+            chassis: searchData.vehicle?.chassisCode || urlParams.chassis || '',
+            year: searchData.vehicle?.year || urlParams.year || '',
+            // Store the full search result for later use
+            searchResult: searchData
+          };
+          console.log('Setting vehicle data from search result:', newVehicleData);
+          setVehicleData(newVehicleData);
+          setDestination(searchData.destination || urlParams.destination || 'australia');
+          
+          // Clear the stored result after using it
+          localStorage.removeItem('importiq_search_result');
+        } catch (error) {
+          console.error('Failed to parse stored search result:', error);
+          // Fallback to URL parameters
+          const newVehicleData = {
+            make: urlParams.make || '',
+            model: urlParams.model || '',
+            chassis: urlParams.chassis || '',
+            year: urlParams.year || ''
+          };
+          console.log('Setting vehicle data from URL params:', newVehicleData);
+          setVehicleData(newVehicleData);
+          setDestination(urlParams.destination || 'australia');
+        }
+      } else {
+        // Fallback to URL parameters
+        const newVehicleData = {
+          make: urlParams.make || '',
+          model: urlParams.model || '',
+          chassis: urlParams.chassis || '',
+          year: urlParams.year || ''
+        };
+        console.log('Setting vehicle data from URL params:', newVehicleData);
+        setVehicleData(newVehicleData);
+        setDestination(urlParams.destination || 'australia');
+      }
       
       // Try to get or create session token
       let token = SessionManager.getSessionToken();

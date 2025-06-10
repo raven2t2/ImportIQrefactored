@@ -170,8 +170,18 @@ export default function Landing() {
         localStorage.setItem('importiq_last_search', JSON.stringify(lookupData));
         setLastLookup(lookupData);
         
-        // Automatically redirect to Import Journey - no friction
-        setLocation('/import-journey');
+        // Store the full search result data in localStorage for Import Journey page
+        localStorage.setItem('importiq_search_result', JSON.stringify(data));
+        
+        // Automatically redirect to Import Journey with vehicle data as URL parameters
+        const params = new URLSearchParams({
+          make: data.vehicle.make || '',
+          model: data.vehicle.model || '',
+          year: typeof data.vehicle.year === 'string' ? data.vehicle.year : (data.vehicle.year?.toString() || ''),
+          chassis: data.vehicle.chassisCode || '',
+          destination: selectedCountry
+        });
+        setLocation(`/import-journey?${params.toString()}`);
         return;
       }
       
