@@ -580,9 +580,12 @@ export default function ImportJourney() {
                   <div className="text-center p-4 bg-orange-50 rounded-lg">
                     <p className="text-sm text-gray-600">Import Fees</p>
                     <p className="text-2xl font-bold text-orange-600">
-                      {importIntelligence.costs?.total && importIntelligence.costs?.vehicle 
-                        ? `$${(importIntelligence.costs.total - importIntelligence.costs.vehicle).toLocaleString()}`
-                        : 'Calculating...'}
+                      {(() => {
+                        const importFees = importIntelligence.costs?.total && importIntelligence.costs?.vehicle 
+                          ? importIntelligence.costs.total - importIntelligence.costs.vehicle 
+                          : 0;
+                        return importFees ? `$${importFees.toLocaleString()}` : 'Calculating...';
+                      })()}
                     </p>
                     <p className="text-xs text-gray-500">Shipping, duties, compliance</p>
                   </div>
