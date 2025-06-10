@@ -375,7 +375,14 @@ export default function ImportJourney() {
                 <div>
                   <p className="text-sm text-gray-600">Total Cost</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    ${importIntelligence.costs?.total?.toLocaleString() || 'N/A'}
+                    {(() => {
+                      const vehiclePrice = customVehiclePrice || importIntelligence.costs?.vehicle || 0;
+                      const importFees = importIntelligence.costs?.total && importIntelligence.costs?.vehicle 
+                        ? importIntelligence.costs.total - importIntelligence.costs.vehicle 
+                        : 0;
+                      const totalCost = vehiclePrice + importFees;
+                      return totalCost ? `$${totalCost.toLocaleString()}` : 'N/A';
+                    })()}
                   </p>
                 </div>
               </div>
@@ -391,7 +398,15 @@ export default function ImportJourney() {
                 <div>
                   <p className="text-sm text-gray-600">Timeline</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {importIntelligence.eligibility?.timeline || 'N/A'}
+                    {(() => {
+                      // Generate timeline estimate based on destination
+                      const dest = destination.toLowerCase();
+                      if (dest === 'australia') return '6-8 weeks';
+                      if (dest === 'usa') return '8-12 weeks';
+                      if (dest === 'canada') return '6-10 weeks';
+                      if (dest === 'uk') return '4-6 weeks';
+                      return '6-8 weeks';
+                    })()}
                   </p>
                 </div>
               </div>
