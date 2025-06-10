@@ -132,6 +132,11 @@ export function setupUserRoutes(app: Express) {
                           req.query.session as string || 
                           req.cookies?.user_session;
 
+      console.log("Debug - Auth header:", authHeader);
+      console.log("Debug - Query session:", req.query.session);
+      console.log("Debug - Cookies:", req.cookies);
+      console.log("Debug - Session token:", sessionToken);
+
       if (!sessionToken) {
         return res.status(401).json({ message: "Not authenticated" });
       }

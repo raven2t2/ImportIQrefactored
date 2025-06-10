@@ -618,17 +618,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Simple auth endpoint that checks session/trial status
-  app.get('/api/auth/user', async (req, res) => {
-    try {
-      // For now, return null to indicate no authenticated user
-      // This will be updated when proper auth is configured
-      res.status(401).json({ message: "Not authenticated" });
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
+  // Register user authentication routes
+  setupUserRoutes(app);
 
   // Professional compliance analysis endpoint
   app.post('/api/professional-compliance-analysis', async (req, res) => {
