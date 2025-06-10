@@ -2,10 +2,27 @@ import { pgTable, text, serial, integer, boolean, timestamp, decimal, jsonb, var
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// User accounts for dashboard access
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
+  email: text("email").notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  fullName: text("full_name").notNull(),
+  isActive: boolean("is_active").default(true),
+  lastLogin: timestamp("last_login"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// User sessions for authenticated users
+export const userAuthSessions = pgTable("user_auth_sessions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  sessionToken: text("session_token").notNull().unique(),
+  expiresAt: timestamp("expires_at").notNull(),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 // Admin users table for secure admin access
@@ -2103,6 +2120,16 @@ export const insertServiceAreaSchema = createInsertSchema(serviceAreas);
 export const insertShopReviewSchema = createInsertSchema(shopReviews);
 export const insertImportServiceSchema = createInsertSchema(importServices);
 export const insertShopServiceCapabilitySchema = createInsertSchema(shopServiceCapabilities);
+
+// User Authentication Types
+export type User = typeof users.$inferSelect;
+export type InsertUser = typeof users.$inferInsert;
+export type UserAuthSession = typeof userAuthSessions.$inferSelect;
+export type InsertUserAuthSession = typeof userAuthSessions.$inferInsert;
+
+// User authentication schemas
+export const insertUserAccountSchema = createInsertSchema(users);
+export const insertUserAuthSessionSchema = createInsertSchema(userAuthSessions);
 
 // Export compliance forms schema
 export * from "./compliance-forms-schema";
