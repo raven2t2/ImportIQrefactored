@@ -1754,8 +1754,7 @@ export type InsertAdminSession = typeof adminSessions.$inferInsert;
 export type VehicleBuild = typeof vehicleBuilds.$inferSelect;
 export type InsertVehicleBuild = typeof vehicleBuilds.$inferInsert;
 
-export type ModShopPartner = typeof modShopPartners.$inferSelect;
-export type InsertModShopPartner = typeof modShopPartners.$inferInsert;
+// ModShopPartner types defined below to avoid duplicates
 
 export type ModShopDeal = typeof modShopDeals.$inferSelect;
 export type InsertModShopDeal = typeof modShopDeals.$inferInsert;

@@ -28,32 +28,7 @@ export class AuctionPersistenceService {
             dataSource: listing.dataSource || 'auction_scraper',
             isActive: true
           })
-          .onConflictDoUpdate({
-            target: [auctionListings.sourceSite, auctionListings.auctionId],
-            set: {
-              title: listing.title,
-              price: listing.price,
-              mileage: listing.mileage,
-              location: listing.location,
-              imageUrl: listing.imageUrl,
-              listingUrl: listing.listingUrl,
-              make: listing.make,
-              model: listing.model,
-              year: listing.year,
-              condition: listing.condition,
-              bodyType: listing.bodyType,
-              transmission: listing.transmission,
-              fuelType: listing.fuelType,
-              engineSize: listing.engineSize,
-              lotNumber: listing.lotNumber,
-              auctionDate: listing.auctionDate,
-              auctionGrade: listing.auctionGrade,
-              saleStatus: listing.saleStatus,
-              refreshedAt: new Date(),
-              isActive: true,
-              lastUpdated: new Date()
-            }
-          });
+          .onConflictDoNothing();
       } catch (error) {
         console.error(`Failed to persist auction listing: ${listing.title}`, error);
       }
