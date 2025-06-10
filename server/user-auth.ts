@@ -137,7 +137,7 @@ export class UserAuthService {
 
   static async logout(sessionToken: string): Promise<boolean> {
     try {
-      await storage.deleteUserSession(sessionToken);
+      await storage.deleteUserAuthSession(sessionToken);
       return true;
     } catch (error) {
       console.error("Logout error:", error);

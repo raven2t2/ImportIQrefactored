@@ -128,7 +128,9 @@ export function setupUserRoutes(app: Express) {
   app.get("/api/auth/user", async (req, res) => {
     try {
       const authHeader = req.get('Authorization');
-      const sessionToken = authHeader?.replace('Bearer ', '') || req.query.session as string;
+      const sessionToken = authHeader?.replace('Bearer ', '') || 
+                          req.query.session as string || 
+                          req.cookies?.user_session;
 
       if (!sessionToken) {
         return res.status(401).json({ message: "Not authenticated" });

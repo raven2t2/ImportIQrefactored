@@ -1,4 +1,5 @@
 import express, { type Request, Response, NextFunction } from "express";
+import cookieParser from "cookie-parser";
 import { registerRoutes } from "./routes";
 import realModShopAPI from "./real-mod-shop-api";
 import { configureDashboardRoutes } from "./dashboard-routes";
@@ -14,6 +15,7 @@ import { ComplianceFormsSeeder } from "./compliance-forms-seeder";
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
 
 // Ensure all API routes return JSON with proper headers
 app.use('/api/*', (req, res, next) => {
