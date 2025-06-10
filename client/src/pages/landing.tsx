@@ -198,98 +198,98 @@ export default function Landing() {
             Paste any car listing, VIN, or description to check instant eligibility, compliance, and real costs.
           </p>
 
-          {/* Previous Search Indicator */}
-          {lastLookup && (
-            <div className="max-w-2xl mx-auto mb-6">
-              <div className="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-lg p-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <RotateCcw className="h-5 w-5 text-amber-400" />
-                  <div>
-                    <p className="text-sm text-gray-300">
-                      🔁 Last vehicle checked: <span className="text-white font-medium">
-                        {typeof lastLookup.vehicle === 'string' 
-                          ? lastLookup.vehicle 
-                          : `${lastLookup.vehicle?.make || ''} ${lastLookup.vehicle?.model || ''}`.trim()
-                        }
-                      </span> to {lastLookup.destination}
-                    </p>
-                  </div>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="border-amber-400/50 text-amber-400 hover:bg-amber-400/10"
-                  onClick={() => setLocation('/user-dashboard')}
-                >
-                  View Import Journey
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* Smart Search Input */}
-          <div className="max-w-2xl mx-auto mb-12">
-            {/* Country/Location Selector */}
-            <div className="mb-4">
-              <Select value={selectedCountry} onValueChange={setSelectedCountry}>
-                <SelectTrigger className="w-full h-14 px-4 bg-gray-900/50 border-gray-700 rounded-xl text-gray-300">
-                  <div className="flex items-center justify-between w-full">
-                    <div className="flex items-center gap-2">
-                      <Globe className="h-5 w-5 text-amber-400" />
-                      <SelectValue placeholder="🌍 Select your destination country" />
-                    </div>
-                    {locationDetected && (
-                      <div className="flex items-center gap-1 text-xs text-green-400">
-                        <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                        Auto-detected
-                      </div>
-                    )}
-                  </div>
-                </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-700">
-                  {countries.map((country) => (
-                    <SelectItem key={country.code} value={country.code} className="text-gray-300 hover:bg-gray-800">
-                      <div className="flex items-center gap-2">
-                        <span>{country.flag}</span>
-                        <span>{country.name}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              
-              {geoError && !selectedCountry && (
-                <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
-                  <X className="h-3 w-3" />
-                  {geoError}
-                </p>
-              )}
-            </div>
-
+          {/* Smart Search Input - Primary Focus */}
+          <div className="max-w-2xl mx-auto mb-8">
             <div className="relative">
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder={placeholders[placeholderIndex]}
-                className="w-full h-16 px-6 pr-32 text-lg bg-gray-900/50 border-gray-700 rounded-xl placeholder:text-gray-500 focus:border-amber-400 transition-all"
+                className="w-full h-20 px-6 pr-32 text-xl bg-gray-900/50 border-gray-700 rounded-xl placeholder:text-gray-500 focus:border-amber-400 transition-all shadow-2xl"
               />
               <Button
                 onClick={handleSearch}
                 disabled={isLoading || !query.trim() || !selectedCountry}
-                className="absolute right-2 top-2 h-12 px-6 bg-amber-400 hover:bg-amber-500 text-black font-semibold disabled:opacity-50"
+                className="absolute right-2 top-2 h-16 px-8 bg-amber-400 hover:bg-amber-500 text-black font-bold text-lg disabled:opacity-50 rounded-lg"
               >
                 {isLoading ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <Loader2 className="h-6 w-6 animate-spin" />
                 ) : (
                   <>
-                    <Search className="h-5 w-5 mr-2" />
+                    <Search className="h-6 w-6 mr-2" />
                     Analyze
                   </>
                 )}
               </Button>
             </div>
           </div>
+
+          {/* Country/Location Selector - Secondary */}
+          <div className="max-w-xl mx-auto mb-4">
+            <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+              <SelectTrigger className="w-full h-12 px-4 bg-gray-900/30 border-gray-700/50 rounded-lg text-gray-300 text-sm">
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center gap-2">
+                    <Globe className="h-4 w-4 text-amber-400" />
+                    <SelectValue placeholder="🌍 Select destination country" />
+                  </div>
+                  {locationDetected && (
+                    <div className="flex items-center gap-1 text-xs text-green-400">
+                      <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
+                      Auto-detected
+                    </div>
+                  )}
+                </div>
+              </SelectTrigger>
+              <SelectContent className="bg-gray-900 border-gray-700">
+                {countries.map((country) => (
+                  <SelectItem key={country.code} value={country.code} className="text-gray-300 hover:bg-gray-800">
+                    <div className="flex items-center gap-2">
+                      <span>{country.flag}</span>
+                      <span>{country.name}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
+            {geoError && !selectedCountry && (
+              <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                <X className="h-3 w-3" />
+                {geoError}
+              </p>
+            )}
+          </div>
+
+          {/* Previous Search Indicator - Tertiary */}
+          {lastLookup && (
+            <div className="max-w-xl mx-auto mb-8">
+              <div className="bg-gray-800/30 backdrop-blur border border-gray-700/50 rounded-lg p-3 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <RotateCcw className="h-4 w-4 text-amber-400" />
+                  <div>
+                    <p className="text-xs text-gray-400">
+                      Last checked: <span className="text-white font-medium">
+                        {typeof lastLookup.vehicle === 'string' 
+                          ? lastLookup.vehicle 
+                          : `${lastLookup.vehicle?.make || ''} ${lastLookup.vehicle?.model || ''}`.trim()
+                        }
+                      </span> → {lastLookup.destination}
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-amber-400/50 text-amber-400 hover:bg-amber-400/10 text-xs h-8 px-3"
+                  onClick={() => setLocation('/user-dashboard')}
+                >
+                  View Journey
+                </Button>
+              </div>
+            </div>
+          )}
 
           {/* Trust Indicators */}
           <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto mb-16">
