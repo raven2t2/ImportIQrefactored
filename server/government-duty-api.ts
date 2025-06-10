@@ -103,17 +103,17 @@ export class GovernmentDutyAPI {
       if (cachedRates.length > 0) {
         const rate = cachedRates[0];
         return {
-          country: 'USA',
+          country: 'United States',
           vehiclePrice,
           year,
           vehicleType: 'passenger_vehicle',
-          dutyRate: parseFloat(rate.dutyRate),
-          taxRate: 0, // No federal sales tax
-          additionalFees: parseFloat(rate.additionalFees || '0'),
+          dutyRate: parseFloat(rate.importDutyPercentage.toString()) / 100,
+          taxRate: parseFloat(rate.gstVatPercentage?.toString() || '0') / 100,
+          additionalFees: parseFloat(rate.additionalFeesFlat?.toString() || '0'),
           complianceCost: 5000, // DOT/EPA compliance
           registrationFee: 500,
           source: rate.sourceUrl || 'US Customs and Border Protection',
-          lastUpdated: rate.updatedAt.toISOString()
+          lastUpdated: rate.lastUpdated?.toISOString() || new Date().toISOString()
         };
       }
 
@@ -157,13 +157,13 @@ export class GovernmentDutyAPI {
           vehiclePrice,
           year,
           vehicleType: 'passenger_vehicle',
-          dutyRate: parseFloat(rate.dutyRate),
-          taxRate: 0.05, // GST 5%
-          additionalFees: parseFloat(rate.additionalFees || '0'),
+          dutyRate: parseFloat(rate.importDutyPercentage.toString()) / 100,
+          taxRate: parseFloat(rate.gstVatPercentage?.toString() || '5') / 100,
+          additionalFees: parseFloat(rate.additionalFeesFlat?.toString() || '0'),
           complianceCost: 4000, // RIV compliance
           registrationFee: 600,
           source: rate.sourceUrl || 'Canada Border Services Agency',
-          lastUpdated: rate.updatedAt.toISOString()
+          lastUpdated: rate.lastUpdated?.toISOString() || new Date().toISOString()
         };
       }
 
@@ -207,13 +207,13 @@ export class GovernmentDutyAPI {
           vehiclePrice,
           year,
           vehicleType: 'passenger_vehicle',
-          dutyRate: parseFloat(rate.dutyRate),
-          taxRate: 0.20, // VAT 20%
-          additionalFees: parseFloat(rate.additionalFees || '0'),
+          dutyRate: parseFloat(rate.importDutyPercentage.toString()) / 100,
+          taxRate: parseFloat(rate.gstVatPercentage?.toString() || '20') / 100,
+          additionalFees: parseFloat(rate.additionalFeesFlat?.toString() || '0'),
           complianceCost: 2500, // UK compliance
           registrationFee: 400,
           source: rate.sourceUrl || 'HM Revenue & Customs',
-          lastUpdated: rate.updatedAt.toISOString()
+          lastUpdated: rate.lastUpdated?.toISOString() || new Date().toISOString()
         };
       }
 
