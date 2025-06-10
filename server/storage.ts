@@ -1175,6 +1175,117 @@ export class MemStorage implements IStorage {
   async getAllSubmissions(): Promise<Submission[]> {
     return Array.from(this.submissions.values());
   }
+  // Enhanced submission management with sessions
+  async createUserSubmission(submission: any): Promise<any> {
+    const [created] = await db.insert(userSubmissions).values(submission).returning();
+    return created;
+  }
+
+  async getUserSubmissions(sessionId?: string): Promise<any[]> {
+    if (sessionId) {
+      return await db.select().from(userSubmissions)
+        .where(eq(userSubmissions.sessionId, sessionId))
+        .orderBy(desc(userSubmissions.createdAt));
+    }
+    return await db.select().from(userSubmissions)
+      .orderBy(desc(userSubmissions.createdAt))
+      .limit(100);
+  }
+
+  // Session management
+  async createSession(session: any): Promise<any> {
+    const [created] = await db.insert(userSessions).values(session).returning();
+    return created;
+  }
+
+  async getSession(sessionId: string): Promise<any | undefined> {
+    const [session] = await db.select().from(userSessions)
+      .where(eq(userSessions.sessionId, sessionId));
+    return session;
+  }
+
+  async updateSessionActivity(sessionId: string): Promise<void> {
+    await db.update(userSessions)
+      .set({ lastActivity: new Date() })
+      .where(eq(userSessions.sessionId, sessionId));
+  }
+
+  async cleanupExpiredSessions(): Promise<number> {
+    const result = await db.delete(userSessions)
+      .where(lt(userSessions.expiresAt, new Date()));
+    return result.rowCount || 0;
+  }
+
+  // Auction data persistence
+  async saveAuctionListings(listings: any[]): Promise<void> {
+    if (listings.length === 0) return;
+    
+    // Use upsert to handle duplicates based on sourceSite + auctionId
+    for (const listing of listings) {
+      await db.insert(auctionListings)
+        .values(listing)
+        .onConflictDoUpdate({
+          target: [auctionListings.sourceSite, auctionListings.auctionId],
+          set: {
+            title: listing.title,
+            price: listing.price,
+            mileage: listing.mileage,
+            location: listing.location,
+            imageUrl: listing.imageUrl,
+            listingUrl: listing.listingUrl,
+            make: listing.make,
+            model: listing.model,
+            year: listing.year,
+            condition: listing.condition,
+            bodyType: listing.bodyType,
+            transmission: listing.transmission,
+            fuelType: listing.fuelType,
+            engineSize: listing.engineSize,
+            lotNumber: listing.lotNumber,
+            auctionDate: listing.auctionDate,
+            auctionGrade: listing.auctionGrade,
+            saleStatus: listing.saleStatus,
+            refreshBatch: listing.refreshBatch,
+            refreshedAt: listing.refreshedAt,
+            isActive: true,
+            lastUpdated: new Date()
+          }
+        });
+    }
+  }
+
+  async getAuctionListings(limit: number = 100): Promise<any[]> {
+    return await db.select().from(auctionListings)
+      .where(eq(auctionListings.isActive, true))
+      .orderBy(desc(auctionListings.refreshedAt))
+      .limit(limit);
+  }
+
+  async getAuctionListingsByMakeModel(make: string, model: string): Promise<any[]> {
+    return await db.select().from(auctionListings)
+      .where(and(
+        eq(auctionListings.isActive, true),
+        ilike(auctionListings.make, `%${make}%`),
+        ilike(auctionListings.model, `%${model}%`)
+      ))
+      .orderBy(desc(auctionListings.price));
+  }
+
+  async markAuctionListingsInactive(refreshBatch: string): Promise<void> {
+    await db.update(auctionListings)
+      .set({ isActive: false })
+      .where(and(
+        eq(auctionListings.isActive, true),
+        eq(auctionListings.refreshBatch, refreshBatch)
+      ));
+  }
+
+  async getActiveAuctionCount(): Promise<number> {
+    const [result] = await db.select({ count: sql<number>`count(*)` })
+      .from(auctionListings)
+      .where(eq(auctionListings.isActive, true));
+    return result?.count || 0;
+  }
 }
 
 export const storage = new DatabaseStorage();

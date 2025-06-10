@@ -6,6 +6,7 @@
 
 import { getAuthenticJapaneseListings } from './legitimate-japanese-data';
 import { scrapeAllUSAuctions } from './us-auction-scraper';
+import { auctionPersistence } from './auction-persistence-service';
 
 interface DataRefreshResult {
   success: boolean;
@@ -23,8 +24,8 @@ interface CachedAuctionData {
   expiresAt: string;
 }
 
-// In-memory cache for auction data
-let auctionDataCache: CachedAuctionData | null = null;
+// PostgreSQL-based auction data persistence
+// Cache replaced with database storage for reliability and persistence
 
 // Popular makes to refresh data for (optimized for performance)
 const POPULAR_MAKES = [
@@ -79,12 +80,39 @@ export async function performDailyDataRefresh(): Promise<DataRefreshResult> {
     const now = new Date();
     const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours
     
-    auctionDataCache = {
-      japaneseAuctions: japaneseResults,
-      usAuctions: usResults,
-      lastUpdated: now.toISOString(),
-      expiresAt: expiresAt.toISOString()
-    };
+    // Persist auction data to PostgreSQL
+    const allListings = [...japaneseResults, ...usResults];
+    const refreshBatch = `batch_${Date.now()}`;
+    
+    // Format listings for database insertion
+    const formattedListings = allListings.map(listing => ({
+      title: listing.title || 'Unknown Vehicle',
+      price: listing.price?.toString() || '0',
+      currency: listing.currency || 'USD',
+      mileage: listing.mileage?.toString() || null,
+      location: listing.location || 'Unknown',
+      imageUrl: listing.imageUrl || null,
+      listingUrl: listing.listingUrl || listing.url || '#',
+      sourceSite: listing.sourceSite || 'auction_site',
+      make: listing.make || null,
+      model: listing.model || null,
+      year: listing.year || null,
+      condition: listing.condition || null,
+      bodyType: listing.bodyType || null,
+      transmission: listing.transmission || null,
+      fuelType: listing.fuelType || null,
+      engineSize: listing.engineSize || null,
+      auctionId: listing.auctionId || listing.id || `auto_${Date.now()}_${Math.random()}`,
+      lotNumber: listing.lotNumber || null,
+      auctionDate: listing.auctionDate ? new Date(listing.auctionDate) : null,
+      auctionGrade: listing.auctionGrade || null,
+      saleStatus: listing.saleStatus || 'current',
+      refreshBatch,
+      dataSource: 'auction_scraper'
+    }));
+    
+    // Save to PostgreSQL
+    await auctionPersistence.saveAuctionListings(formattedListings);
 
     const nextRefresh = new Date(now.getTime() + 24 * 60 * 60 * 1000);
     
