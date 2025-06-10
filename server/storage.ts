@@ -8,9 +8,16 @@ import path from 'path';
 // you might need
 
 export interface IStorage {
+  // User authentication methods
   getUser(id: number): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>): Promise<User>;
+  updateUserLastLogin(id: number): Promise<void>;
+  
+  // User session methods
+  createUserSession(session: Omit<any, 'id' | 'createdAt'>): Promise<any>;
+  getUserSession(sessionToken: string): Promise<any | undefined>;
+  deleteUserSession(sessionToken: string): Promise<void>;
   upsertUser(user: any): Promise<User>;
   createSubmission(submission: Omit<Submission, 'id' | 'createdAt'>): Promise<Submission>;
   getAllSubmissions(): Promise<Submission[]>;

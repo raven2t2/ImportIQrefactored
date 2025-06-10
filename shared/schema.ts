@@ -1711,11 +1711,6 @@ export const dataIngestionLogs = pgTable("data_ingestion_logs", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
-});
-
 export const insertSubmissionSchema = createInsertSchema(submissions).pick({
   vehiclePrice: true,
   shippingOrigin: true,
@@ -1729,9 +1724,6 @@ export const insertSubmissionSchema = createInsertSchema(submissions).pick({
   vehicleModel: z.string().min(1, "Vehicle model is required"),
   vehicleYear: z.coerce.number().min(1950).max(new Date().getFullYear() + 1),
 });
-
-export type InsertUser = z.infer<typeof insertUserSchema>;
-export type User = typeof users.$inferSelect;
 
 export type InsertSubmission = z.infer<typeof insertSubmissionSchema>;
 export type Submission = typeof submissions.$inferSelect;

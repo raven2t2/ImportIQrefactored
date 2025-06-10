@@ -23,6 +23,7 @@ import bcrypt from "bcrypt";
 import fs from "fs";
 import { smartParser } from './smart-parser';
 import { JourneyToolsService } from './journey-tools-service';
+import { setupUserRoutes } from './user-routes';
 import { 
   adminQueryReviews, 
   patternStaging, 
