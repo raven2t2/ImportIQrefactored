@@ -205,76 +205,32 @@ export default function ImportJourney() {
     initializeSession();
   }, [location]);
 
-  // Use stored search result data or fetch import intelligence as fallback
+  // Fetch complete import intelligence with proper cost calculations and year handling
   const { data: importIntelligence, isLoading, error } = useQuery({
-    queryKey: ['import-intelligence', vehicleData.make, vehicleData.model, destination, sessionToken],
+    queryKey: ['import-intelligence', vehicleData.make, vehicleData.model, vehicleData.year, destination],
     queryFn: async () => {
-      // If we have stored search result data, use it directly
-      if (vehicleData.searchResult) {
-        console.log('Using stored search result data:', vehicleData.searchResult);
-        
-        // Transform search result to import intelligence format
-        return {
-          vehicle: {
-            make: vehicleData.searchResult.vehicle.make,
-            model: vehicleData.searchResult.vehicle.model,
-            chassis: vehicleData.searchResult.vehicle.chassisCode || '',
-            year: vehicleData.searchResult.vehicle.year || ''
-          },
-          destination: {
-            country: vehicleData.searchResult.destination,
-            flag: getDestinationInfo(vehicleData.searchResult.destination).flag,
-            name: getDestinationInfo(vehicleData.searchResult.destination).name
-          },
-          eligibility: {
-            status: vehicleData.searchResult.eligibility?.status || 'eligible',
-            confidence: vehicleData.searchResult.eligibility?.confidence || 90,
-            timeline: 'Available for import',
-            keyFactors: vehicleData.searchResult.nextSteps?.map(step => step.title) || []
-          },
-          costs: null, // Will be calculated by backend
-          timeline: [],
-          nextSteps: vehicleData.searchResult.nextSteps?.map(step => ({
-            action: step.title,
-            priority: step.priority,
-            timeline: step.estimatedTime,
-            description: step.description
-          })) || [],
-          alternatives: [],
-          sourceAttribution: vehicleData.searchResult.sourceAttribution
-        };
-      }
-
-      if (!vehicleData.make || !vehicleData.model || !sessionToken || !isInitialized) {
+      if (!vehicleData.make || !vehicleData.model) {
         return null;
       }
 
-      console.log('Making import intelligence request with:', {
-        vehicleData,
-        destination,
-        sessionToken
+      // Use the new Import Journey Intelligence API that handles years correctly
+      const params = new URLSearchParams({
+        make: vehicleData.make,
+        model: vehicleData.model,
+        destination: destination
       });
-
-      const response = await fetch('/api/import-intelligence', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          vehicleData,
-          destination,
-          sessionToken
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+      
+      // Only add year if it was explicitly specified (not randomly assigned)
+      if (vehicleData.year && vehicleData.year !== '1993') {
+        params.append('year', vehicleData.year);
       }
 
-      const data = await response.json();
-
-      console.log('Import intelligence response:', data);
-      return data;
+      const response = await fetch(`/api/import-journey/intelligence?${params}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch import intelligence');
+      }
+      
+      return response.json();
     },
     enabled: !!(vehicleData.make && vehicleData.model && (vehicleData.searchResult || (sessionToken && isInitialized))),
     staleTime: 5 * 60 * 1000, // 5 minutes

@@ -3016,6 +3016,242 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
+  // Import Journey Intelligence API - Complete vehicle import analysis
+  app.get("/api/import-journey/intelligence", async (req, res) => {
+    try {
+      const { make, model, year, destination = 'australia', sessionToken } = req.query;
+      
+      if (!make || !model || !destination) {
+        return res.status(400).json({ 
+          error: "Missing required parameters: make, model, destination" 
+        });
+      }
+
+      console.log(`🎯 Import Journey Intelligence: ${make} ${model} to ${destination}`);
+      
+      // Get auction pricing data
+      const auctionData = await db.select()
+        .from(auctionListings)
+        .where(
+          and(
+            ilike(auctionListings.make, `%${make}%`),
+            ilike(auctionListings.model, `%${model}%`)
+          )
+        )
+        .orderBy(desc(auctionListings.createdAt))
+        .limit(50);
+
+      // Calculate current year and vehicle eligibility
+      const currentYear = new Date().getFullYear();
+      const specifiedYear = year ? parseInt(year.toString()) : null;
+      
+      // Get all available years from auction data
+      const availableYears = [...new Set(auctionData.map(item => item.year))].filter(Boolean).sort();
+      const importEligibleYears = availableYears.filter(year => currentYear - year >= 25);
+      const futureEligibleYears = availableYears.filter(year => currentYear - year < 25)
+        .map(year => ({
+          year,
+          eligibleDate: `${year + 25}`
+        }));
+
+      // Calculate average pricing
+      const eligiblePricing = auctionData.filter(item => 
+        item.year && currentYear - item.year >= 25
+      );
+      
+      const avgPrice = eligiblePricing.length > 0 
+        ? eligiblePricing.reduce((sum, item) => sum + parseFloat(item.price || '0'), 0) / eligiblePricing.length
+        : 35000;
+
+      // Calculate comprehensive import costs
+      const vehiclePrice = avgPrice;
+      const shippingCost = vehiclePrice * 0.12; // 12% shipping from Japan/US
+      const customsDuty = vehiclePrice * 0.05; // 5% customs duty
+      const gst = (vehiclePrice + shippingCost + customsDuty) * 0.10; // 10% GST
+      const complianceCost = 3500; // Compliance certification
+      const registrationCost = 800; // Registration and plates
+      const totalCost = vehiclePrice + shippingCost + customsDuty + gst + complianceCost + registrationCost;
+
+      // Cost breakdown structure
+      const costBreakdown = [
+        {
+          category: "Vehicle Purchase",
+          amount: Math.round(vehiclePrice),
+          description: `Average auction price from ${eligiblePricing.length} listings`
+        },
+        {
+          category: "Shipping",
+          amount: Math.round(shippingCost),
+          description: "Door-to-door shipping and logistics"
+        },
+        {
+          category: "Customs Duty",
+          amount: Math.round(customsDuty),
+          description: "Import duties and border processing"
+        },
+        {
+          category: "GST",
+          amount: Math.round(gst),
+          description: "Goods and Services Tax"
+        },
+        {
+          category: "Compliance",
+          amount: complianceCost,
+          description: "RAWS certification and modifications"
+        },
+        {
+          category: "Registration",
+          amount: registrationCost,
+          description: "State registration and number plates"
+        }
+      ];
+
+      // Timeline phases
+      const timeline = [
+        {
+          phase: "Vehicle Purchase",
+          duration: "1-2 weeks",
+          status: specifiedYear ? "current" : "upcoming",
+          description: "Find and purchase vehicle from auction or dealer",
+          requirements: ["Secure financing", "Arrange inspection", "Complete purchase"]
+        },
+        {
+          phase: "Export Documentation",
+          duration: "1 week",
+          status: "upcoming",
+          description: "Prepare export documentation and shipping",
+          requirements: ["Export certificate", "De-registration", "Shipping booking"]
+        },
+        {
+          phase: "Ocean Freight",
+          duration: "3-4 weeks",
+          status: "upcoming",
+          description: "Vehicle shipped to destination port",
+          requirements: ["Container loading", "Ocean transit", "Port arrival"]
+        },
+        {
+          phase: "Customs Clearance",
+          duration: "3-5 days",
+          status: "upcoming",
+          description: "Customs processing and duty payment",
+          requirements: ["Import permit", "Duty payment", "Quarantine inspection"]
+        },
+        {
+          phase: "Compliance Certification",
+          duration: "2-4 weeks",
+          status: "upcoming",
+          description: "RAWS workshop compliance modifications",
+          requirements: ["RAWS assessment", "Required modifications", "Compliance plate"]
+        },
+        {
+          phase: "Registration",
+          duration: "1 week",
+          status: "upcoming",
+          description: "State registration and roadworthy certificate",
+          requirements: ["Roadworthy inspection", "Registration application", "Number plates"]
+        }
+      ];
+
+      // Next steps based on year selection
+      const nextSteps = [];
+      
+      if (!specifiedYear && importEligibleYears.length > 0) {
+        nextSteps.push({
+          action: "Select Import-Eligible Year",
+          priority: "high",
+          timeline: "1 minute",
+          description: `${importEligibleYears.length} model years currently eligible: ${importEligibleYears.join(', ')}`
+        });
+      }
+      
+      if (specifiedYear && currentYear - specifiedYear < 25) {
+        const eligibleYear = specifiedYear + 25;
+        nextSteps.push({
+          action: "25-Year Rule Not Met",
+          priority: "high", 
+          timeline: `${25 - (currentYear - specifiedYear)} years`,
+          description: `${specifiedYear} model becomes eligible in ${eligibleYear}`
+        });
+      }
+
+      nextSteps.push(
+        {
+          action: "Get Shipping Quote",
+          priority: "medium",
+          timeline: "5 minutes",
+          description: "Calculate accurate shipping costs from origin to your location"
+        },
+        {
+          action: "Find RAWS Workshop",
+          priority: "medium", 
+          timeline: "15 minutes",
+          description: "Locate certified compliance workshop in your area"
+        },
+        {
+          action: "Secure Financing",
+          priority: "low",
+          timeline: "1-2 days",
+          description: "Arrange import financing if required"
+        }
+      );
+
+      // Destination info
+      const destinationInfo = {
+        australia: { flag: "🇦🇺", name: "Australia" },
+        usa: { flag: "🇺🇸", name: "United States" },
+        canada: { flag: "🇨🇦", name: "Canada" },
+        uk: { flag: "🇬🇧", name: "United Kingdom" }
+      };
+
+      const destInfo = destinationInfo[destination.toLowerCase()] || 
+        { flag: "🌍", name: destination };
+
+      const response = {
+        vehicle: {
+          make: make.toString(),
+          model: model.toString(),
+          chassis: "",
+          year: specifiedYear ? specifiedYear.toString() : ""
+        },
+        destination: {
+          country: destination.toString(),
+          flag: destInfo.flag,
+          name: destInfo.name
+        },
+        eligibility: {
+          status: specifiedYear ? 
+            (currentYear - specifiedYear >= 25 ? "eligible" : "conditional") : 
+            (importEligibleYears.length > 0 ? "eligible" : "conditional"),
+          confidence: eligiblePricing.length > 10 ? 95 : 80,
+          timeline: importEligibleYears.length > 0 ? "Available for import" : "Future eligibility",
+          keyFactors: specifiedYear ? 
+            [`Vehicle age: ${currentYear - specifiedYear} years`] :
+            [`${importEligibleYears.length} eligible years available`]
+        },
+        costs: {
+          vehicle: Math.round(vehiclePrice),
+          shipping: Math.round(shippingCost),
+          duties: Math.round(customsDuty + gst),
+          compliance: complianceCost + registrationCost,
+          total: Math.round(totalCost),
+          breakdown: costBreakdown
+        },
+        timeline,
+        nextSteps,
+        alternatives: []
+      };
+
+      res.json(response);
+
+    } catch (error) {
+      console.error('Import Journey Intelligence error:', error);
+      res.status(500).json({ 
+        error: "Failed to generate import intelligence",
+        details: error.message 
+      });
+    }
+  });
+
   // Comprehensive calculator backends with regional intelligence
   app.post("/api/calculate-us", async (req, res) => {
     try {
