@@ -592,21 +592,47 @@ export default function ImportJourney() {
                 </div>
                 
                 <div className="space-y-3">
-                  {importIntelligence.costs?.breakdown?.map((item, index) => (
-                    <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                      <div>
-                        <p className="font-medium text-gray-900">{item.category}</p>
-                        <p className="text-sm text-gray-600">{item.description}</p>
+                  {importIntelligence.costs?.breakdown?.map((item, index) => {
+                    // Adjust vehicle cost if it's the vehicle purchase line item
+                    const adjustedAmount = item.category.toLowerCase().includes('vehicle') || 
+                                         item.category.toLowerCase().includes('purchase') ||
+                                         item.category.toLowerCase().includes('car')
+                      ? (customVehiclePrice || item.amount)
+                      : item.amount;
+                    
+                    return (
+                      <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <div>
+                          <p className="font-medium text-gray-900">{item.category}</p>
+                          <p className="text-sm text-gray-600">{item.description}</p>
+                        </div>
+                        <p className="text-lg font-bold text-gray-900">
+                          ${adjustedAmount.toLocaleString()}
+                        </p>
                       </div>
-                      <p className="text-lg font-bold text-gray-900">
-                        ${item.amount.toLocaleString()}
-                      </p>
-                    </div>
-                  )) || (
+                    );
+                  }) || (
                     <div className="text-center p-6 bg-gray-50 rounded-lg">
                       <p className="text-gray-600">Cost breakdown being calculated...</p>
                     </div>
                   )}
+                  
+                  {/* Total row */}
+                  <div className="border-t pt-4">
+                    <div className="flex justify-between items-center">
+                      <p className="text-lg font-bold text-gray-900">Total Import Cost</p>
+                      <p className="text-2xl font-bold text-green-600">
+                        {(() => {
+                          const vehiclePrice = customVehiclePrice || importIntelligence.costs?.vehicle || 0;
+                          const importFees = importIntelligence.costs?.total && importIntelligence.costs?.vehicle 
+                            ? importIntelligence.costs.total - importIntelligence.costs.vehicle 
+                            : 0;
+                          const totalCost = vehiclePrice + importFees;
+                          return totalCost ? `$${totalCost.toLocaleString()}` : 'Calculating...';
+                        })()}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -1540,20 +1566,36 @@ export default function ImportJourney() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {importIntelligence.costs?.breakdown?.map((cost: any, index: number) => (
-                <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="font-medium text-gray-900">{cost.category}</p>
-                    <p className="text-sm text-gray-600">{cost.description}</p>
+              {importIntelligence.costs?.breakdown?.map((cost: any, index: number) => {
+                // Adjust vehicle cost if it's the vehicle purchase line item
+                const adjustedAmount = cost.category.toLowerCase().includes('vehicle') || 
+                                     cost.category.toLowerCase().includes('purchase') ||
+                                     cost.category.toLowerCase().includes('car')
+                  ? (customVehiclePrice || cost.amount)
+                  : cost.amount;
+                
+                return (
+                  <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <div>
+                      <p className="font-medium text-gray-900">{cost.category}</p>
+                      <p className="text-sm text-gray-600">{cost.description}</p>
+                    </div>
+                    <p className="font-bold text-gray-900">${adjustedAmount?.toLocaleString()}</p>
                   </div>
-                  <p className="font-bold text-gray-900">${cost.amount?.toLocaleString()}</p>
-                </div>
-              ))}
+                );
+              })}
               <div className="border-t pt-4">
                 <div className="flex justify-between items-center">
                   <p className="text-lg font-bold text-gray-900">Total Import Cost</p>
                   <p className="text-2xl font-bold text-green-600">
-                    ${importIntelligence.costs?.total?.toLocaleString()}
+                    {(() => {
+                      const vehiclePrice = customVehiclePrice || importIntelligence.costs?.vehicle || 0;
+                      const importFees = importIntelligence.costs?.total && importIntelligence.costs?.vehicle 
+                        ? importIntelligence.costs.total - importIntelligence.costs.vehicle 
+                        : 0;
+                      const totalCost = vehiclePrice + importFees;
+                      return totalCost ? `$${totalCost.toLocaleString()}` : `$${importIntelligence.costs?.total?.toLocaleString()}`;
+                    })()}
                   </p>
                 </div>
               </div>
