@@ -4,7 +4,7 @@
  */
 
 import { db } from './db';
-import { governmentDutyRates, customsRegulations } from '@shared/schema';
+import { customsRegulations } from '@shared/schema';
 import { eq, and } from 'drizzle-orm';
 
 interface GovernmentDutyData {
@@ -40,11 +40,11 @@ export class GovernmentDutyAPI {
       // Check database for cached official rates
       const cachedRates = await db
         .select()
-        .from(governmentDutyRates)
+        .from(customsRegulations)
         .where(
           and(
-            eq(governmentDutyRates.countryCode, 'AUS'),
-            eq(governmentDutyRates.vehicleCategory, 'passenger_vehicle')
+            eq(customsRegulations.country, 'Australia'),
+            eq(customsRegulations.vehicleTypeCategory, 'passenger_vehicle')
           )
         )
         .limit(1);
@@ -56,13 +56,13 @@ export class GovernmentDutyAPI {
           vehiclePrice,
           year,
           vehicleType: 'passenger_vehicle',
-          dutyRate: parseFloat(rate.dutyRate),
+          dutyRate: parseFloat(rate.importDutyPercentage.toString()) / 100,
           taxRate: 0.10, // GST - official 10%
-          additionalFees: parseFloat(rate.additionalFees || '0'),
+          additionalFees: parseFloat(rate.additionalFeesFlat?.toString() || '0'),
           complianceCost: 3500, // RAWS compliance
           registrationFee: 800,
           source: rate.sourceUrl || 'Australian Border Force',
-          lastUpdated: rate.updatedAt.toISOString()
+          lastUpdated: rate.lastUpdated?.toISOString() || new Date().toISOString()
         };
       }
 
@@ -91,11 +91,11 @@ export class GovernmentDutyAPI {
     try {
       const cachedRates = await db
         .select()
-        .from(governmentDutyRates)
+        .from(customsRegulations)
         .where(
           and(
-            eq(governmentDutyRates.countryCode, 'USA'),
-            eq(governmentDutyRates.vehicleCategory, 'passenger_vehicle')
+            eq(customsRegulations.country, 'United States'),
+            eq(customsRegulations.vehicleTypeCategory, 'passenger_vehicle')
           )
         )
         .limit(1);
@@ -310,42 +310,42 @@ export class GovernmentDutyAPI {
   private async seedOfficialRates(): Promise<void> {
     const officialRates = [
       {
-        countryCode: 'AUS',
-        countryName: 'Australia',
-        vehicleCategory: 'passenger_vehicle',
-        dutyRate: '0.05',
-        taxRate: '0.10',
-        additionalFees: '0',
+        regulationId: 'AUS_PASSENGER_2024',
+        country: 'Australia',
+        vehicleTypeCategory: 'passenger_vehicle',
+        importDutyPercentage: '5.00',
+        gstVatPercentage: '10.00',
+        additionalFeesFlat: '0',
         sourceUrl: 'https://www.abf.gov.au/importing-exporting-and-manufacturing/importing/how-to-import/classification-of-goods',
         lastUpdated: new Date()
       },
       {
-        countryCode: 'USA',
-        countryName: 'United States',
-        vehicleCategory: 'passenger_vehicle',
-        dutyRate: '0.025',
-        taxRate: '0',
-        additionalFees: '0',
+        regulationId: 'USA_PASSENGER_2024',
+        country: 'United States',
+        vehicleTypeCategory: 'passenger_vehicle',
+        importDutyPercentage: '2.50',
+        gstVatPercentage: '0.00',
+        additionalFeesFlat: '0',
         sourceUrl: 'https://ustr.gov/trade-agreements/free-trade-agreements',
         lastUpdated: new Date()
       },
       {
-        countryCode: 'CAN',
-        countryName: 'Canada',
-        vehicleCategory: 'passenger_vehicle',
-        dutyRate: '0.061',
-        taxRate: '0.05',
-        additionalFees: '0',
+        regulationId: 'CAN_PASSENGER_2024',
+        country: 'Canada',
+        vehicleTypeCategory: 'passenger_vehicle',
+        importDutyPercentage: '6.10',
+        gstVatPercentage: '5.00',
+        additionalFeesFlat: '0',
         sourceUrl: 'https://www.cbsa-asfc.gc.ca/trade-commerce/tariff-tarif/2024/menu-eng.html',
         lastUpdated: new Date()
       },
       {
-        countryCode: 'GBR',
-        countryName: 'United Kingdom',
-        vehicleCategory: 'passenger_vehicle',
-        dutyRate: '0.10',
-        taxRate: '0.20',
-        additionalFees: '0',
+        regulationId: 'GBR_PASSENGER_2024',
+        country: 'United Kingdom',
+        vehicleTypeCategory: 'passenger_vehicle',
+        importDutyPercentage: '10.00',
+        gstVatPercentage: '20.00',
+        additionalFeesFlat: '0',
         sourceUrl: 'https://www.gov.uk/trade-tariff',
         lastUpdated: new Date()
       }
@@ -353,7 +353,7 @@ export class GovernmentDutyAPI {
 
     for (const rate of officialRates) {
       try {
-        await db.insert(governmentDutyRates).values(rate).onConflictDoNothing();
+        await db.insert(customsRegulations).values(rate).onConflictDoNothing();
       } catch (error) {
         // Rate already exists, skip
       }
