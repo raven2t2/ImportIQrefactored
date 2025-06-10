@@ -1,18 +1,38 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useQuery } from "@tanstack/react-query";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Check, Zap, Menu, X, ArrowRight, Loader2, Shield, Target, Car, DollarSign, FileText, MapPin, Ship, Clock } from 'lucide-react';
+import { Check, Zap, Menu, X, ArrowRight, Loader2, Shield, Target, Car, DollarSign, FileText, MapPin, Ship, Clock, Globe, Database, CheckCircle } from 'lucide-react';
 import ImportJourneyIntelligence from '@/components/ImportJourneyIntelligence';
 
 import { apiRequest } from "@/lib/queryClient";
+
+const placeholderTexts = [
+  "r34 skyline",
+  "JTD123456789012345",
+  "yahoo.co.jp/auction/...",
+  "Toyota Supra 1995",
+  "BNR32",
+  "Honda NSX Type R",
+  "carview.co.jp/listing/123456",
+  "Mazda RX-7 FD3S"
+];
 
 export default function Landing() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
   const [, setLocation] = useLocation();
+
+  // Rotate placeholder text every 3 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentPlaceholder((prev) => (prev + 1) % placeholderTexts.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   const { data: result, isLoading, error } = useQuery({
     queryKey: ['/api/smart-parser/intelligent-lookup', searchQuery],
@@ -99,8 +119,8 @@ export default function Landing() {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <div className="pt-20 pb-16">
+      {/* Hero Section - Above the Fold */}
+      <div className="pt-20 pb-8">
         <div className="max-w-4xl mx-auto px-4 text-center">
           {/* Logo */}
           <div className="flex items-center justify-center mb-8">
@@ -109,56 +129,24 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* Core Promise */}
-          <div className="mb-12">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white leading-tight">
-              Find out if you can import any car in <span className="text-amber-400">30 seconds</span>
-            </h1>
-            <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
-              Get instant answers to the three questions that matter most
-            </p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-8">
-              <div className="bg-gradient-to-br from-amber-900/20 to-orange-900/20 rounded-xl p-6 border border-amber-700/30">
-                <div className="w-12 h-12 bg-amber-400/20 rounded-lg flex items-center justify-center mb-4 mx-auto">
-                  <Car className="h-6 w-6 text-amber-400" />
-                </div>
-                <h3 className="text-lg font-semibold text-white mb-2 text-center">Can I import this car?</h3>
-                <p className="text-gray-300 text-sm text-center">Real government regulations from our PostgreSQL database</p>
-              </div>
-              
-              <div className="bg-gradient-to-br from-green-900/20 to-emerald-900/20 rounded-xl p-6 border border-green-700/30">
-                <div className="w-12 h-12 bg-green-400/20 rounded-lg flex items-center justify-center mb-4 mx-auto">
-                  <DollarSign className="h-6 w-6 text-green-400" />
-                </div>
-                <h3 className="text-lg font-semibold text-white mb-2 text-center">How much will it cost?</h3>
-                <p className="text-gray-300 text-sm text-center">Complete breakdown including all fees and duties</p>
-              </div>
-              
-              <div className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 rounded-xl p-6 border border-blue-700/30">
-                <div className="w-12 h-12 bg-blue-400/20 rounded-lg flex items-center justify-center mb-4 mx-auto">
-                  <FileText className="h-6 w-6 text-blue-400" />
-                </div>
-                <h3 className="text-lg font-semibold text-white mb-2 text-center">What do I need to do?</h3>
-                <p className="text-gray-300 text-sm text-center">Step-by-step roadmap with exact timelines</p>
-              </div>
-            </div>
-          </div>
+          {/* Headline */}
+          <h1 className="text-4xl md:text-6xl font-bold mb-4 text-white leading-tight">
+            Find out if you can import any car in <span className="text-amber-400">30 seconds</span>
+          </h1>
+          
+          {/* Refined Subheadline */}
+          <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
+            Check global rules, costs, and next steps instantly — from VINs to auction URLs or just plain car names.
+          </p>
 
-          {/* Instant Input Field */}
-          <div className="max-w-lg mx-auto mb-12">
+          {/* Smart Search Input - Center Focus */}
+          <div className="max-w-lg mx-auto mb-8">
             <div className="bg-gray-900/50 rounded-xl p-8 border border-gray-700">
-              <h3 className="text-xl font-medium mb-2 text-white text-center">
-                Smart Search - Zero friction, instant intelligence
-              </h3>
-              <p className="text-gray-400 text-center mb-6 text-sm">
-                AI-powered parsing handles any format - VIN codes, auction URLs, chassis codes, or simple car names
-              </p>
-              
               <div className="space-y-4">
                 <div className="relative">
                   <Input
-                    placeholder="Try: skyline gtr, JTD123456789012345, yahoo.auctions.co.jp/b123456789, BNR32..."
+                    key={currentPlaceholder}
+                    placeholder={placeholderTexts[currentPlaceholder]}
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyDown={(e) => {
@@ -166,7 +154,7 @@ export default function Landing() {
                         handleSearch();
                       }
                     }}
-                    className="text-lg h-14 bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+                    className="text-lg h-16 bg-gray-800 border-gray-600 text-white placeholder-gray-400 transition-all duration-300"
                   />
                 </div>
                 <Button 
@@ -190,9 +178,38 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* Results Section */}
-          {result && (
-            <div className="max-w-5xl mx-auto mb-16">
+          {/* Trust Blocks - Non-clickable Visual Guides */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-12">
+            <div className="bg-gradient-to-br from-amber-900/10 to-orange-900/10 rounded-xl p-6 border border-amber-700/20">
+              <div className="w-12 h-12 bg-amber-400/20 rounded-lg flex items-center justify-center mb-4 mx-auto">
+                <CheckCircle className="h-6 w-6 text-amber-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2 text-center">✅ Can I import this car?</h3>
+              <p className="text-gray-400 text-sm text-center">We use real-time rules from 15+ governments</p>
+            </div>
+            
+            <div className="bg-gradient-to-br from-green-900/10 to-emerald-900/10 rounded-xl p-6 border border-green-700/20">
+              <div className="w-12 h-12 bg-green-400/20 rounded-lg flex items-center justify-center mb-4 mx-auto">
+                <DollarSign className="h-6 w-6 text-green-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2 text-center">💰 How much will it cost?</h3>
+              <p className="text-gray-400 text-sm text-center">Real auction pricing + compliance fees</p>
+            </div>
+            
+            <div className="bg-gradient-to-br from-blue-900/10 to-purple-900/10 rounded-xl p-6 border border-blue-700/20">
+              <div className="w-12 h-12 bg-blue-400/20 rounded-lg flex items-center justify-center mb-4 mx-auto">
+                <FileText className="h-6 w-6 text-blue-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2 text-center">📋 What do I need to do?</h3>
+              <p className="text-gray-400 text-sm text-center">A step-by-step roadmap with zero guesswork</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Results Section */}
+      {result && (
+        <div className="max-w-5xl mx-auto mb-16 px-4">
               <div className="bg-gray-900/50 rounded-xl border border-gray-700 p-8">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-12 h-12 bg-amber-400/20 rounded-lg flex items-center justify-center">
@@ -373,40 +390,92 @@ export default function Landing() {
             </div>
           )}
 
-          {/* Key Benefits */}
-          <div className="max-w-md mx-auto mb-8">
-            <div className="space-y-3 text-gray-400 text-sm">
-              <div className="flex items-center gap-3">
-                <Check className="h-4 w-4 text-amber-400" />
-                <span>Smart URL parsing extracts vehicle data automatically</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Check className="h-4 w-4 text-amber-400" />
-                <span>Advanced VIN decoding with chassis code recognition</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Check className="h-4 w-4 text-amber-400" />
-                <span>Intelligent model matching across all formats</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Check className="h-4 w-4 text-amber-400" />
-                <span>Instant eligibility and cost calculations</span>
-              </div>
-            </div>
+      {/* Most Popular Import Destinations */}
+      <div className="py-16 bg-gradient-to-b from-black to-gray-900">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">
+              🌎 Most Popular Import Destinations
+            </h2>
+            <p className="text-lg text-gray-300 max-w-2xl mx-auto">
+              We calculate all of this for you after search
+            </p>
           </div>
 
-          <p className="text-gray-500 text-sm">
-            Just type anything - our AI handles the complexity for you
-          </p>
+          <div className="grid md:grid-cols-4 gap-6 mb-12">
+            <div className="bg-gray-900/30 rounded-xl p-6 border border-gray-800">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-2xl">🇦🇺</span>
+                <div>
+                  <h3 className="text-lg font-semibold text-white">Australia</h3>
+                  <p className="text-sm text-gray-400">25-year rule</p>
+                </div>
+              </div>
+              <p className="text-xs text-gray-500">Real-time compliance + duty calculations</p>
+            </div>
+            
+            <div className="bg-gray-900/30 rounded-xl p-6 border border-gray-800">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-2xl">🇺🇸</span>
+                <div>
+                  <h3 className="text-lg font-semibold text-white">United States</h3>
+                  <p className="text-sm text-gray-400">25-year rule</p>
+                </div>
+              </div>
+              <p className="text-xs text-gray-500">DOT/EPA compliance tracking</p>
+            </div>
+            
+            <div className="bg-gray-900/30 rounded-xl p-6 border border-gray-800">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-2xl">🇬🇧</span>
+                <div>
+                  <h3 className="text-lg font-semibold text-white">United Kingdom</h3>
+                  <p className="text-sm text-gray-400">IVA testing</p>
+                </div>
+              </div>
+              <p className="text-xs text-gray-500">DVLA registration guidance</p>
+            </div>
+            
+            <div className="bg-gray-900/30 rounded-xl p-6 border border-gray-800">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-2xl">🇨🇦</span>
+                <div>
+                  <h3 className="text-lg font-semibold text-white">Canada</h3>
+                  <p className="text-sm text-gray-400">15-year rule</p>
+                </div>
+              </div>
+              <p className="text-xs text-gray-500">RIV eligibility verification</p>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Top Import Destinations */}
-      <div className="py-20 bg-gradient-to-b from-black to-gray-900">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
-              Most popular import destinations
+      {/* Bottom CTA */}
+      <div className="py-16 bg-gray-900">
+        <div className="max-w-2xl mx-auto px-4 text-center">
+          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-white">
+            Ready to start your import journey?
+          </h2>
+          <Button 
+            onClick={() => {
+              document.querySelector('input')?.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center' 
+              });
+              document.querySelector('input')?.focus();
+            }}
+            className="w-full max-w-md bg-amber-400 hover:bg-amber-500 text-black font-bold py-4 text-xl mb-4"
+          >
+            Start Your Import Check Now
+          </Button>
+          <p className="text-gray-400 text-sm">
+            🚗 Powered by real data from government sources, auction platforms, and compliance agencies
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
             </h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
               Check import eligibility and costs for the top global markets 
