@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Check, Search, Target, X, Loader2, RotateCcw } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Check, Search, Target, X, Loader2, RotateCcw, Globe } from 'lucide-react';
 
 export default function Landing() {
   const [, setLocation] = useLocation();
   const [query, setQuery] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
@@ -18,6 +20,22 @@ export default function Landing() {
     "WDBBA48D3KA093827",
     "https://yahoo.co.jp/auction/car",
     "Skyline R34 GT-R"
+  ];
+
+  const countries = [
+    { code: 'australia', name: 'Australia', flag: '🇦🇺' },
+    { code: 'usa', name: 'United States', flag: '🇺🇸' },
+    { code: 'canada', name: 'Canada', flag: '🇨🇦' },
+    { code: 'uk', name: 'United Kingdom', flag: '🇬🇧' },
+    { code: 'japan', name: 'Japan', flag: '🇯🇵' },
+    { code: 'germany', name: 'Germany', flag: '🇩🇪' },
+    { code: 'france', name: 'France', flag: '🇫🇷' },
+    { code: 'netherlands', name: 'Netherlands', flag: '🇳🇱' },
+    { code: 'belgium', name: 'Belgium', flag: '🇧🇪' },
+    { code: 'norway', name: 'Norway', flag: '🇳🇴' },
+    { code: 'sweden', name: 'Sweden', flag: '🇸🇪' },
+    { code: 'finland', name: 'Finland', flag: '🇫🇮' },
+    { code: 'newzealand', name: 'New Zealand', flag: '🇳🇿' }
   ];
 
   useEffect(() => {
@@ -42,6 +60,10 @@ export default function Landing() {
 
   const handleSearch = async () => {
     if (!query.trim()) return;
+    if (!selectedCountry) {
+      setError('Please select your destination country');
+      return;
+    }
     
     setIsLoading(true);
     setError(null);
@@ -51,7 +73,10 @@ export default function Landing() {
       const response = await fetch('/api/smart-lookup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: query.trim() })
+        body: JSON.stringify({ 
+          query: query.trim(),
+          destination: selectedCountry
+        })
       });
 
       if (!response.ok) {
@@ -66,7 +91,7 @@ export default function Landing() {
         const lookupData = {
           query: query.trim(),
           vehicle: data.vehicle,
-          destination: data.destination || 'Australia',
+          destination: selectedCountry,
           timestamp: new Date().toISOString()
         };
         localStorage.setItem('importiq_last_search', JSON.stringify(lookupData));
