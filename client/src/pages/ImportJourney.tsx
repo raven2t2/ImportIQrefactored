@@ -205,10 +205,46 @@ export default function ImportJourney() {
     initializeSession();
   }, [location]);
 
-  // Fetch import intelligence data
+  // Use stored search result data or fetch import intelligence as fallback
   const { data: importIntelligence, isLoading, error } = useQuery({
     queryKey: ['import-intelligence', vehicleData.make, vehicleData.model, destination, sessionToken],
     queryFn: async () => {
+      // If we have stored search result data, use it directly
+      if (vehicleData.searchResult) {
+        console.log('Using stored search result data:', vehicleData.searchResult);
+        
+        // Transform search result to import intelligence format
+        return {
+          vehicle: {
+            make: vehicleData.searchResult.vehicle.make,
+            model: vehicleData.searchResult.vehicle.model,
+            chassis: vehicleData.searchResult.vehicle.chassisCode || '',
+            year: vehicleData.searchResult.vehicle.year || ''
+          },
+          destination: {
+            country: vehicleData.searchResult.destination,
+            flag: getDestinationInfo(vehicleData.searchResult.destination).flag,
+            name: getDestinationInfo(vehicleData.searchResult.destination).name
+          },
+          eligibility: {
+            status: vehicleData.searchResult.eligibility?.status || 'eligible',
+            confidence: vehicleData.searchResult.eligibility?.confidence || 90,
+            timeline: 'Available for import',
+            keyFactors: vehicleData.searchResult.nextSteps?.map(step => step.title) || []
+          },
+          costs: null, // Will be calculated by backend
+          timeline: [],
+          nextSteps: vehicleData.searchResult.nextSteps?.map(step => ({
+            action: step.title,
+            priority: step.priority,
+            timeline: step.estimatedTime,
+            description: step.description
+          })) || [],
+          alternatives: [],
+          sourceAttribution: vehicleData.searchResult.sourceAttribution
+        };
+      }
+
       if (!vehicleData.make || !vehicleData.model || !sessionToken || !isInitialized) {
         return null;
       }
@@ -240,7 +276,7 @@ export default function ImportJourney() {
       console.log('Import intelligence response:', data);
       return data;
     },
-    enabled: !!(vehicleData.make && vehicleData.model && sessionToken && isInitialized),
+    enabled: !!(vehicleData.make && vehicleData.model && (vehicleData.searchResult || (sessionToken && isInitialized))),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
