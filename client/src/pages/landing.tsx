@@ -27,6 +27,19 @@ export default function Landing() {
     return () => clearInterval(interval);
   }, []);
 
+  // Check for previous lookups on component mount
+  useEffect(() => {
+    const lastSearch = localStorage.getItem('importiq_last_search');
+    if (lastSearch) {
+      try {
+        const parsedSearch = JSON.parse(lastSearch);
+        setLastLookup(parsedSearch);
+      } catch (e) {
+        // Invalid data, ignore
+      }
+    }
+  }, []);
+
   const handleSearch = async () => {
     if (!query.trim()) return;
     
@@ -47,6 +60,18 @@ export default function Landing() {
 
       const data = await response.json();
       setResult(data);
+      
+      // Save successful lookup to localStorage for smart behavior
+      if (data && data.vehicle) {
+        const lookupData = {
+          query: query.trim(),
+          vehicle: data.vehicle,
+          destination: data.destination || 'Australia',
+          timestamp: new Date().toISOString()
+        };
+        localStorage.setItem('importiq_last_search', JSON.stringify(lookupData));
+        setLastLookup(lookupData);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -73,6 +98,30 @@ export default function Landing() {
             The world's smartest vehicle import intelligence platform. 
             Paste any car listing, VIN, or description to check instant eligibility, compliance, and real costs.
           </p>
+
+          {/* Previous Search Indicator */}
+          {lastLookup && (
+            <div className="max-w-2xl mx-auto mb-6">
+              <div className="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-lg p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <RotateCcw className="h-5 w-5 text-amber-400" />
+                  <div>
+                    <p className="text-sm text-gray-300">
+                      🔁 Last vehicle checked: <span className="text-white font-medium">{lastLookup.vehicle}</span> to {lastLookup.destination}
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-amber-400/50 text-amber-400 hover:bg-amber-400/10"
+                  onClick={() => setLocation('/user-dashboard')}
+                >
+                  View Import Journey
+                </Button>
+              </div>
+            </div>
+          )}
 
           {/* Smart Search Input */}
           <div className="max-w-2xl mx-auto mb-12">
