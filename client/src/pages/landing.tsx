@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Check, Search, Target, X, Loader2 } from 'lucide-react';
+import { Check, Search, Target, X, Loader2, RotateCcw } from 'lucide-react';
 
 export default function Landing() {
   const [, setLocation] = useLocation();
@@ -11,16 +11,13 @@ export default function Landing() {
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const [lastLookup, setLastLookup] = useState<any>(null);
 
   const placeholders = [
-    "VIN: JH4NA21A1LT005797",
-    "Listing URL: https://www.carsales.com.au/...",
-    "1999 Nissan Skyline GT-R",
-    "Honda NSX Type R",
     "Toyota Supra RZ",
-    "Mazda RX-7 FD3S",
-    "Mitsubishi Lancer Evolution VI",
-    "Subaru Impreza WRX STI"
+    "WDBBA48D3KA093827",
+    "https://yahoo.co.jp/auction/car",
+    "Skyline R34 GT-R"
   ];
 
   useEffect(() => {
@@ -74,7 +71,7 @@ export default function Landing() {
           </h1>
           <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto">
             The world's smartest vehicle import intelligence platform. 
-            Paste any car listing, VIN, or description to get instant eligibility and cost analysis.
+            Paste any car listing, VIN, or description to check instant eligibility, compliance, and real costs.
           </p>
 
           {/* Smart Search Input */}
@@ -112,6 +109,7 @@ export default function Landing() {
               </div>
               <h3 className="font-semibold mb-2">Instant Analysis</h3>
               <p className="text-sm text-gray-400">AI-powered vehicle recognition from any input format</p>
+              <p className="text-xs text-gray-500 mt-2">Delivered automatically after your search</p>
             </div>
             <div className="text-center">
               <div className="w-12 h-12 bg-amber-400/20 rounded-lg flex items-center justify-center mx-auto mb-4">
@@ -119,6 +117,7 @@ export default function Landing() {
               </div>
               <h3 className="font-semibold mb-2">Real Data</h3>
               <p className="text-sm text-gray-400">Live government compliance and auction pricing</p>
+              <p className="text-xs text-gray-500 mt-2">Delivered automatically after your search</p>
             </div>
             <div className="text-center">
               <div className="w-12 h-12 bg-amber-400/20 rounded-lg flex items-center justify-center mx-auto mb-4">
@@ -126,6 +125,7 @@ export default function Landing() {
               </div>
               <h3 className="font-semibold mb-2">Major Markets</h3>
               <p className="text-sm text-gray-400">Australia, US, UK, Canada + 6 other key markets</p>
+              <p className="text-xs text-gray-500 mt-2">Delivered automatically after your search</p>
             </div>
           </div>
         </div>
@@ -216,12 +216,12 @@ export default function Landing() {
               🌎 Most Popular Import Destinations
             </h2>
             <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-              We calculate all of this for you after search
+              We'll calculate all of this for you instantly after your input.
             </p>
           </div>
 
           <div className="grid md:grid-cols-4 gap-6 mb-12">
-            <div className="bg-gray-900/30 rounded-xl p-6 border border-gray-800">
+            <div className="bg-gray-900/30 rounded-xl p-6 border border-gray-800 opacity-70">
               <div className="flex items-center gap-3 mb-4">
                 <span className="text-2xl">🇦🇺</span>
                 <div>
@@ -232,7 +232,7 @@ export default function Landing() {
               <p className="text-xs text-gray-500">Real-time compliance + duty calculations</p>
             </div>
             
-            <div className="bg-gray-900/30 rounded-xl p-6 border border-gray-800">
+            <div className="bg-gray-900/30 rounded-xl p-6 border border-gray-800 opacity-70">
               <div className="flex items-center gap-3 mb-4">
                 <span className="text-2xl">🇺🇸</span>
                 <div>
@@ -243,7 +243,7 @@ export default function Landing() {
               <p className="text-xs text-gray-500">DOT/EPA compliance tracking</p>
             </div>
             
-            <div className="bg-gray-900/30 rounded-xl p-6 border border-gray-800">
+            <div className="bg-gray-900/30 rounded-xl p-6 border border-gray-800 opacity-70">
               <div className="flex items-center gap-3 mb-4">
                 <span className="text-2xl">🇬🇧</span>
                 <div>
@@ -254,7 +254,7 @@ export default function Landing() {
               <p className="text-xs text-gray-500">DVLA registration guidance</p>
             </div>
             
-            <div className="bg-gray-900/30 rounded-xl p-6 border border-gray-800">
+            <div className="bg-gray-900/30 rounded-xl p-6 border border-gray-800 opacity-70">
               <div className="flex items-center gap-3 mb-4">
                 <span className="text-2xl">🇨🇦</span>
                 <div>
