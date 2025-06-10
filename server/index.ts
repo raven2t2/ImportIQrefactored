@@ -3,6 +3,7 @@ import { registerRoutes } from "./routes";
 import realModShopAPI from "./real-mod-shop-api";
 import { configureDashboardRoutes } from "./dashboard-routes";
 import enterpriseGeospatialRoutes from "./enterprise-geospatial-routes";
+import { auctionApiRoutes } from "./auction-api-routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeDataRefreshScheduler } from "./auction-data-manager";
 import { initializeLiveMarketDataMonitoring } from "./live-market-data";
@@ -276,6 +277,9 @@ app.use((req, res, next) => {
   } catch (error) {
     console.log('Direct PostgreSQL scaling system ready for initialization');
   }
+
+  // Register auction API routes
+  app.use("/api/auctions", auctionApiRoutes);
 
   // API error handler - ensures JSON responses for API routes
   app.use('/api/*', (err: any, req: Request, res: Response, next: NextFunction) => {

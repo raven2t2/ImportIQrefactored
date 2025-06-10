@@ -228,11 +228,9 @@ export function initializeDataRefreshScheduler() {
   
   console.log(`Next data refresh scheduled for: ${next3AM.toISOString()}`);
   
-  // Initial refresh if no data exists
-  if (!auctionDataCache) {
-    console.log('No cached data found, performing initial refresh...');
-    performDailyDataRefresh().catch(console.error);
-  }
+  // Initial refresh to populate database
+  console.log('Performing initial auction data refresh...');
+  performDailyDataRefresh().catch(console.error);
   
   // Schedule first refresh at 3 AM
   setTimeout(() => {

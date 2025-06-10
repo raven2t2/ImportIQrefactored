@@ -2084,9 +2084,7 @@ export interface CalculationResult {
   };
 }
 
-// Mod Shop Partner Types
-export type ModShopPartner = typeof modShopPartners.$inferSelect;
-export type InsertModShopPartner = typeof modShopPartners.$inferInsert;
+// Mod Shop Partner Types (Updated)
 
 export type ServiceArea = typeof serviceAreas.$inferSelect;
 export type InsertServiceArea = typeof serviceAreas.$inferInsert;
