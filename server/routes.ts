@@ -2791,6 +2791,58 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
+  // Smart lookup endpoint for homepage analysis
+  app.post("/api/smart-lookup", async (req, res) => {
+    try {
+      const { query } = req.body;
+      if (!query || typeof query !== 'string') {
+        return res.status(400).json({ error: "Query string required" });
+      }
+
+      const userAgent = req.get('User-Agent');
+      const ipAddress = req.ip;
+      
+      // Use the existing smart parser for intelligent lookup
+      const result = await smartParser.intelligentVehicleLookup(query.trim());
+      
+      if (result.data) {
+        // Transform the smart parser response into homepage format
+        const response = {
+          vehicle: {
+            make: result.data.make || 'Unknown',
+            model: result.data.model || 'Unknown', 
+            year: result.data.year || result.data.yearRange || null
+          },
+          eligibility: {
+            status: result.confidenceScore > 70 ? 'eligible' : 'needs_review',
+            confidence: result.confidenceScore,
+            notes: result.whyThisResult
+          },
+          costs: result.data.estimatedCosts || null,
+          nextSteps: result.nextSteps || [],
+          sourceAttribution: result.sourceAttribution,
+          destination: 'Australia'
+        };
+        
+        res.json(response);
+      } else {
+        // Return structured error response
+        res.json({
+          error: 'Unable to analyze input',
+          message: result.whyThisResult || 'Could not identify vehicle from input',
+          suggestions: result.nextSteps || [],
+          fallbackSuggestions: result.fallbackSuggestions || []
+        });
+      }
+    } catch (error) {
+      console.error('Smart lookup error:', error);
+      res.status(500).json({ 
+        error: 'Analysis failed',
+        message: 'Technical error during vehicle analysis'
+      });
+    }
+  });
+
   // Get location-based car events
   app.get("/api/user/local-events", async (req: any, res) => {
     try {
