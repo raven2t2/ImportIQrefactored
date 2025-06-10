@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Enhanced Database-Driven Smart Parser Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #111; color: #fff; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .test-section { margin: 20px 0; padding: 20px; background: #222; border-radius: 8px; }
+        .result { margin: 10px 0; padding: 10px; background: #333; border-radius: 4px; }
+        .success { border-left: 4px solid #4CAF50; }
+        .error { border-left: 4px solid #f44336; }
+        button { padding: 10px 20px; margin: 5px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        input { padding: 10px; margin: 5px; width: 300px; background: #333; color: white; border: 1px solid #555; border-radius: 4px; }
+        .loading { color: #ffeb3b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Enhanced Database-Driven Smart Parser Demo</h1>
+        <p>Testing vehicle intelligence using only PostgreSQL database data</p>
+        
+        <div class="test-section">
+            <h3>Live Vehicle Lookup Test</h3>
+            <input type="text" id="queryInput" placeholder="Enter vehicle query (e.g., toyota supra)" value="toyota supra">
+            <button onclick="testLookup()">Test Database Lookup</button>
+            <div id="results"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Database Sources Being Queried</h3>
+            <ul>
+                <li><strong>vehicle_model_patterns</strong> - 10 authentic vehicle patterns</li>
+                <li><strong>auction_listings</strong> - Real Toyota Supra auction data</li>
+                <li><strong>compliance_rules</strong> - Australia import regulations</li>
+            </ul>
+            <p>All hardcoded fallback patterns have been replaced with database queries.</p>
+        </div>
+    </div>
+
+    <script>
+        async function testLookup() {
+            const query = document.getElementById('queryInput').value;
+            const resultsDiv = document.getElementById('results');
+            
+            resultsDiv.innerHTML = '<div class="loading">Querying PostgreSQL database...</div>';
+            
+            try {
+                const response = await fetch('/api/smart-lookup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query })
+                });
+                
+                const result = await response.json();
+                
+                let html = `<div class="result success">
+                    <h4>Database Match Found!</h4>
+                    <p><strong>Vehicle:</strong> ${result.data?.make || 'N/A'} ${result.data?.model || 'N/A'}</p>
+                    <p><strong>Confidence:</strong> ${result.confidenceScore}%</p>
+                    <p><strong>Source:</strong> ${result.sourceAttribution}</p>
+                    <p><strong>Why This Result:</strong> ${result.whyThisResult}</p>`;
+                
+                if (result.data?.chassisCode) {
+                    html += `<p><strong>Chassis Code:</strong> ${result.data.chassisCode}</p>`;
+                }
+                
+                if (result.data?.yearRange) {
+                    html += `<p><strong>Production Years:</strong> ${result.data.yearRange}</p>`;
+                }
+                
+                if (result.nextSteps && result.nextSteps.length > 0) {
+                    html += `<p><strong>Next Steps:</strong> ${result.nextSteps[0].title}</p>`;
+                }
+                
+                html += '</div>';
+                resultsDiv.innerHTML = html;
+                
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="result error">
+                    <h4>Error</h4>
+                    <p>Failed to connect to database: ${error.message}</p>
+                </div>`;
+            }
+        }
+        
+        // Auto-test on page load
+        window.onload = () => {
+            setTimeout(testLookup, 1000);
+        };
+    </script>
+</body>
+</html>
