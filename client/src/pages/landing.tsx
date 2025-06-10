@@ -299,9 +299,18 @@ export default function Landing() {
                   variant="outline"
                   size="sm"
                   className="border-amber-400/50 text-amber-400 hover:bg-amber-400/10 text-xs h-8 px-3"
-                  onClick={() => setLocation('/user-dashboard')}
+                  onClick={() => {
+                    // Restore the previous search data and navigate to Import Journey
+                    if (lastLookup) {
+                      const vehicleData = typeof lastLookup.vehicle === 'string' 
+                        ? { searchQuery: lastLookup.vehicle, make: '', model: '', year: '' }
+                        : lastLookup.vehicle;
+                      
+                      setLocation(`/import-journey?make=${encodeURIComponent(vehicleData.make || '')}&model=${encodeURIComponent(vehicleData.model || '')}&year=${encodeURIComponent(vehicleData.year || '')}&destination=${encodeURIComponent(lastLookup.destination || 'australia')}`);
+                    }
+                  }}
                 >
-                  View Journey
+                  Continue
                 </Button>
               </div>
             </div>
