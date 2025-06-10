@@ -248,11 +248,11 @@ export const customsRegulations = pgTable("customs_regulations", {
   country: text("country").notNull(),
   vehicleTypeCategory: text("vehicle_type_category").notNull(),
   importDutyPercentage: decimal("import_duty_percentage", { precision: 5, scale: 2 }).notNull(),
-  taxPercentage: decimal("tax_percentage", { precision: 5, scale: 2 }).notNull(),
-  specificRequirements: text("specific_requirements"),
-  effectiveDate: timestamp("effective_date").notNull(),
-  sourceAuthority: text("source_authority"),
+  gstVatPercentage: decimal("gst_vat_percentage", { precision: 5, scale: 2 }),
+  additionalFeesFlat: decimal("additional_fees_flat", { precision: 10, scale: 2 }),
+  sourceUrl: text("source_url"),
   lastUpdated: timestamp("last_updated").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const customsDuties = pgTable("customs_duties", {
