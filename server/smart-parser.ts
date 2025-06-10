@@ -889,73 +889,77 @@ class PostgreSQLSmartParser {
   }
 
   /**
-   * Intelligent fallback matching for common vehicle patterns not in database
+   * Enhanced database-driven intelligent matching using fuzzy search and partial patterns
+   * Maintains the "magic" while using only authentic PostgreSQL data
    */
-  private handleIntelligentFallback(query: string): any | null {
+  private async handleIntelligentDatabaseFallback(query: string): Promise<any | null> {
     const normalizedQuery = query.toLowerCase().trim();
     
-    // Common JDM patterns
-    const jdmPatterns = [
-      // Skyline patterns
-      { pattern: /r3[234]\s*skyline|skyline\s*r3[234]/, make: 'Nissan', model: 'Skyline GT-R', 
-        chassisCode: (m: string) => m.includes('r32') ? 'BNR32' : m.includes('r33') ? 'BCNR33' : 'BNR34',
-        yearStart: (m: string) => m.includes('r32') ? 1989 : m.includes('r33') ? 1995 : 1999,
-        yearEnd: (m: string) => m.includes('r32') ? 1994 : m.includes('r33') ? 1998 : 2002,
-        confidence: 95 },
-      
-      // Supra patterns  
-      { pattern: /supra|2jz/, make: 'Toyota', model: 'Supra', chassisCode: 'JZA80', 
-        yearStart: 1993, yearEnd: 2002, confidence: 92 },
-      
-      // RX-7 patterns
-      { pattern: /rx-?7|fd3s/, make: 'Mazda', model: 'RX-7', chassisCode: 'FD3S',
-        yearStart: 1992, yearEnd: 2002, confidence: 90 },
-      
-      // NSX patterns
-      { pattern: /nsx/, make: 'Honda', model: 'NSX', chassisCode: 'NA1',
-        yearStart: 1990, yearEnd: 2005, confidence: 88 },
-      
-      // Silvia patterns
-      { pattern: /s1[345]\s*silvia|silvia\s*s1[345]/, make: 'Nissan', model: 'Silvia',
-        chassisCode: (m: string) => m.includes('s13') ? 'PS13' : m.includes('s14') ? 'S14' : 'S15',
-        yearStart: (m: string) => m.includes('s13') ? 1988 : m.includes('s14') ? 1993 : 1999,
-        yearEnd: (m: string) => m.includes('s13') ? 1994 : m.includes('s14') ? 1998 : 2002,
-        confidence: 90 },
-        
-      // Lancer Evolution patterns
-      { pattern: /evo\s*(vi{1,3}|[6-9]|x)|lancer\s*evo/, make: 'Mitsubishi', model: 'Lancer Evolution',
-        chassisCode: 'CT9A', yearStart: 1992, yearEnd: 2016, confidence: 87 },
-        
-      // WRX STI patterns
-      { pattern: /wrx\s*sti|sti/, make: 'Subaru', model: 'Impreza WRX STI',
-        chassisCode: 'GC8', yearStart: 1992, yearEnd: 2019, confidence: 85 }
-    ];
-    
-    for (const jdmPattern of jdmPatterns) {
-      if (jdmPattern.pattern.test(normalizedQuery)) {
-        const match = normalizedQuery.match(jdmPattern.pattern);
-        if (match) {
-          return {
-            make: jdmPattern.make,
-            model: jdmPattern.model,
-            chassisCode: typeof jdmPattern.chassisCode === 'function' 
-              ? jdmPattern.chassisCode(normalizedQuery) 
-              : jdmPattern.chassisCode,
-            yearStart: typeof jdmPattern.yearStart === 'function'
-              ? jdmPattern.yearStart(normalizedQuery)
-              : jdmPattern.yearStart,
-            yearEnd: typeof jdmPattern.yearEnd === 'function'
-              ? jdmPattern.yearEnd(normalizedQuery)
-              : jdmPattern.yearEnd,
-            engine: this.getEngineForModel(jdmPattern.make, jdmPattern.model),
-            bodyType: 'coupe',
-            confidence: jdmPattern.confidence
-          };
-        }
+    try {
+      // Enhanced fuzzy matching with partial term search
+      const fuzzyPatterns = await db.select()
+        .from(vehicleModelPatterns)
+        .where(
+          or(
+            // Partial word matching for common abbreviations
+            ilike(vehicleModelPatterns.searchPattern, `%${normalizedQuery.replace(/\s+/g, '%')}%`),
+            ilike(vehicleModelPatterns.canonicalMake, `%${normalizedQuery}%`),
+            ilike(vehicleModelPatterns.canonicalModel, `%${normalizedQuery}%`),
+            ilike(vehicleModelPatterns.chassisCode, `%${normalizedQuery}%`),
+            // Engine code matching (like "2jz" for Supra)
+            ilike(vehicleModelPatterns.enginePattern, `%${normalizedQuery}%`),
+            // Special notes matching for enthusiast terms
+            ilike(vehicleModelPatterns.specialNotes, `%${normalizedQuery}%`)
+          )
+        )
+        .orderBy(desc(vehicleModelPatterns.confidenceScore))
+        .limit(5);
+
+      if (fuzzyPatterns.length > 0) {
+        const bestMatch = fuzzyPatterns[0];
+        return {
+          make: bestMatch.canonicalMake,
+          model: bestMatch.canonicalModel,
+          chassisCode: bestMatch.chassisCode,
+          yearStart: bestMatch.yearRangeStart,
+          yearEnd: bestMatch.yearRangeEnd,
+          engine: bestMatch.enginePattern,
+          bodyType: bestMatch.bodyType,
+          confidence: Math.max(bestMatch.confidenceScore - 10, 70) // Slightly lower confidence for fuzzy match
+        };
       }
+
+      // Try auction database for additional intelligence
+      const auctionMatches = await db.select()
+        .from(auctionListings)
+        .where(
+          or(
+            sql`LOWER(${auctionListings.make}) SIMILAR TO ${`%${normalizedQuery}%`}`,
+            sql`LOWER(${auctionListings.model}) SIMILAR TO ${`%${normalizedQuery}%`}`,
+            sql`LOWER(${auctionListings.title}) SIMILAR TO ${`%${normalizedQuery}%`}`
+          )
+        )
+        .limit(3);
+
+      if (auctionMatches.length > 0) {
+        const auctionMatch = auctionMatches[0];
+        return {
+          make: auctionMatch.make,
+          model: auctionMatch.model,
+          chassisCode: null,
+          yearStart: auctionMatch.year,
+          yearEnd: auctionMatch.year,
+          engine: null,
+          bodyType: auctionMatch.bodyType,
+          confidence: 75
+        };
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Database fallback search error:', error);
+      return null;
     }
-    
-    return null;
   }
   
   /**
@@ -1134,10 +1138,10 @@ class PostgreSQLSmartParser {
         .orderBy(desc(vehicleModelPatterns.confidenceScore))
         .limit(10);
 
-      // If no patterns found, try intelligent fallback matching
+      // If no patterns found, try enhanced database-driven fallback matching
       if (patterns.length === 0) {
-        // Handle common variations that might not be in database
-        const fallbackMatch = this.handleIntelligentFallback(normalizedQuery);
+        // Handle common variations using database fuzzy search
+        const fallbackMatch = await this.handleIntelligentDatabaseFallback(normalizedQuery);
         if (fallbackMatch) {
           // Add the successful fallback pattern to database for future use
           try {
