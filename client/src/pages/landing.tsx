@@ -236,10 +236,18 @@ export default function Landing() {
 
                 <div className="pt-4 border-t border-gray-700">
                   <Button 
-                    onClick={() => setLocation('/user-dashboard')}
+                    onClick={() => {
+                      const vehicleParams = new URLSearchParams({
+                        make: result.vehicle.make,
+                        model: result.vehicle.model,
+                        year: result.vehicle.year?.toString() || '',
+                        destination: result.destination || 'australia'
+                      });
+                      setLocation(`/import-journey?${vehicleParams.toString()}`);
+                    }}
                     className="bg-amber-400 hover:bg-amber-500 text-black font-semibold px-6 py-2"
                   >
-                    View Full Report →
+                    Continue Import Journey →
                   </Button>
                 </div>
               </div>
