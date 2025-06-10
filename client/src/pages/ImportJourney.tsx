@@ -575,27 +575,29 @@ export default function ImportJourney() {
                   <div className="text-center p-4 bg-blue-50 rounded-lg">
                     <p className="text-sm text-gray-600">Total Import Cost</p>
                     <p className="text-3xl font-bold text-blue-600">
-                      ${importIntelligence.costs.total.toLocaleString()}
+                      {importIntelligence.costs?.total ? `$${importIntelligence.costs.total.toLocaleString()}` : 'Calculating...'}
                     </p>
                   </div>
                   <div className="text-center p-4 bg-green-50 rounded-lg">
                     <p className="text-sm text-gray-600">Vehicle Cost</p>
                     <p className="text-2xl font-bold text-green-600">
-                      ${importIntelligence.costs.vehicle.toLocaleString()}
+                      {importIntelligence.costs?.vehicle ? `$${importIntelligence.costs.vehicle.toLocaleString()}` : 'Analyzing...'}
                     </p>
                     <p className="text-xs text-gray-500">From auction data</p>
                   </div>
                   <div className="text-center p-4 bg-orange-50 rounded-lg">
                     <p className="text-sm text-gray-600">Import Fees</p>
                     <p className="text-2xl font-bold text-orange-600">
-                      ${(importIntelligence.costs.total - importIntelligence.costs.vehicle).toLocaleString()}
+                      {importIntelligence.costs?.total && importIntelligence.costs?.vehicle 
+                        ? `$${(importIntelligence.costs.total - importIntelligence.costs.vehicle).toLocaleString()}`
+                        : 'Calculating...'}
                     </p>
                     <p className="text-xs text-gray-500">Shipping, duties, compliance</p>
                   </div>
                 </div>
                 
                 <div className="space-y-3">
-                  {importIntelligence.costs.breakdown.map((item, index) => (
+                  {importIntelligence.costs?.breakdown?.map((item, index) => (
                     <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                       <div>
                         <p className="font-medium text-gray-900">{item.category}</p>
@@ -605,7 +607,11 @@ export default function ImportJourney() {
                         ${item.amount.toLocaleString()}
                       </p>
                     </div>
-                  ))}
+                  )) || (
+                    <div className="text-center p-6 bg-gray-50 rounded-lg">
+                      <p className="text-gray-600">Cost breakdown being calculated...</p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
