@@ -107,7 +107,12 @@ export default function Landing() {
                   <RotateCcw className="h-5 w-5 text-amber-400" />
                   <div>
                     <p className="text-sm text-gray-300">
-                      🔁 Last vehicle checked: <span className="text-white font-medium">{lastLookup.vehicle}</span> to {lastLookup.destination}
+                      🔁 Last vehicle checked: <span className="text-white font-medium">
+                        {typeof lastLookup.vehicle === 'string' 
+                          ? lastLookup.vehicle 
+                          : `${lastLookup.vehicle?.make || ''} ${lastLookup.vehicle?.model || ''}`.trim()
+                        }
+                      </span> to {lastLookup.destination}
                     </p>
                   </div>
                 </div>

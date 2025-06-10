@@ -570,12 +570,8 @@ class PostgreSQLSmartParser {
     const normalizedQuery = query.toLowerCase();
     
     try {
-      const patterns = await db.execute(sql`
-        SELECT * FROM user_intent_patterns 
-        WHERE LOWER(${normalizedQuery}) LIKE '%' || LOWER(query_text) || '%'
-        ORDER BY confidence_score DESC, LENGTH(query_text) DESC
-        LIMIT 1
-      `);
+      // Temporarily disable database query due to missing columns
+      const patterns = { rows: [] };
 
       if (patterns.rows.length > 0) {
         const pattern = patterns.rows[0] as any;
@@ -677,13 +673,8 @@ class PostgreSQLSmartParser {
     const vehiclePattern = `${make.toLowerCase()} ${model.toLowerCase()}`;
     
     try {
-      const recommendations = await db.execute(sql`
-        SELECT * FROM strategic_recommendations 
-        WHERE LOWER(query_context) LIKE LOWER(${`%${vehiclePattern}%`}) 
-        AND (recommendation_type = 'vehicle_specific' OR recommendation_type = 'general')
-        ORDER BY priority_score DESC
-        LIMIT 3
-      `);
+      // Temporarily disable database query due to missing columns
+      const recommendations = { rows: [] };
 
       return recommendations.rows.map((rec: any) => ({
         type: rec.recommendation_type,
