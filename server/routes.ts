@@ -8908,6 +8908,214 @@ IMPORTANT GUIDELINES:
     }
   });
 
+  // ====== USER AUTHENTICATION ROUTES ======
+  
+  // User Registration
+  app.post("/api/auth/register", async (req, res) => {
+    try {
+      const { email, password, fullName } = req.body;
+      
+      if (!email || !password || !fullName) {
+        return res.status(400).json({ 
+          success: false, 
+          error: "Email, password, and full name are required" 
+        });
+      }
+
+      const { UserAuthService } = await import('./user-auth');
+      const result = await UserAuthService.registerUser(email, password, fullName);
+
+      if (!result.success) {
+        return res.status(400).json(result);
+      }
+
+      // Set HTTP-only cookie for session
+      res.cookie('user_session', result.sessionToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+      });
+
+      res.json({
+        success: true,
+        user: result.user
+      });
+
+    } catch (error) {
+      console.error("User registration error:", error);
+      res.status(500).json({ 
+        success: false, 
+        error: "Registration failed" 
+      });
+    }
+  });
+
+  // User Login
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      
+      if (!email || !password) {
+        return res.status(400).json({ 
+          success: false, 
+          error: "Email and password are required" 
+        });
+      }
+
+      const { UserAuthService } = await import('./user-auth');
+      const result = await UserAuthService.authenticateUser(email, password);
+
+      if (!result.success) {
+        return res.status(401).json(result);
+      }
+
+      // Set HTTP-only cookie for session
+      res.cookie('user_session', result.sessionToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+      });
+
+      res.json({
+        success: true,
+        user: result.user
+      });
+
+    } catch (error) {
+      console.error("User login error:", error);
+      res.status(500).json({ 
+        success: false, 
+        error: "Login failed" 
+      });
+    }
+  });
+
+  // User Logout
+  app.post("/api/auth/logout", async (req, res) => {
+    try {
+      const sessionToken = req.cookies.user_session;
+      
+      if (sessionToken) {
+        const { UserAuthService } = await import('./user-auth');
+        await UserAuthService.logout(sessionToken);
+      }
+
+      res.clearCookie('user_session');
+      res.json({ success: true });
+
+    } catch (error) {
+      console.error("User logout error:", error);
+      res.status(500).json({ 
+        success: false, 
+        error: "Logout failed" 
+      });
+    }
+  });
+
+  // Get Current User
+  app.get("/api/auth/user", async (req, res) => {
+    try {
+      const sessionToken = req.cookies.user_session;
+      
+      if (!sessionToken) {
+        return res.status(401).json({ 
+          success: false, 
+          message: "Not authenticated" 
+        });
+      }
+
+      const { UserAuthService } = await import('./user-auth');
+      const result = await UserAuthService.validateSession(sessionToken);
+
+      if (!result.success) {
+        res.clearCookie('user_session');
+        return res.status(401).json({ 
+          success: false, 
+          message: "Invalid session" 
+        });
+      }
+
+      res.json({
+        success: true,
+        user: result.user
+      });
+
+    } catch (error) {
+      console.error("User session validation error:", error);
+      res.status(500).json({ 
+        success: false, 
+        error: "Session validation failed" 
+      });
+    }
+  });
+
+  // User middleware for protected routes
+  const requireUserAuth = async (req: any, res: any, next: any) => {
+    try {
+      const sessionToken = req.cookies.user_session;
+      
+      if (!sessionToken) {
+        return res.status(401).json({ 
+          success: false, 
+          message: "Authentication required" 
+        });
+      }
+
+      const { UserAuthService } = await import('./user-auth');
+      const result = await UserAuthService.validateSession(sessionToken);
+      
+      if (!result.success) {
+        res.clearCookie('user_session');
+        return res.status(401).json({ 
+          success: false, 
+          message: "Invalid session" 
+        });
+      }
+
+      req.user = result.user;
+      next();
+
+    } catch (error) {
+      console.error("User auth middleware error:", error);
+      res.status(500).json({ 
+        success: false, 
+        error: "Authentication failed" 
+      });
+    }
+  };
+
+  // Protected user dashboard routes
+  app.get("/api/user/dashboard", requireUserAuth, async (req: any, res) => {
+    try {
+      // Get user's saved vehicles, calculations, etc.
+      const dashboardData = {
+        user: req.user,
+        savedVehicles: [],
+        recentCalculations: [],
+        journeyHistory: [],
+        stats: {
+          totalCalculations: 0,
+          savedVehicles: 0,
+          toolsUsed: 0
+        }
+      };
+
+      res.json({
+        success: true,
+        data: dashboardData
+      });
+
+    } catch (error) {
+      console.error("Dashboard data error:", error);
+      res.status(500).json({ 
+        success: false, 
+        error: "Failed to load dashboard" 
+      });
+    }
+  });
+
   // Authentic Data API - Real Government Data
   app.get("/api/authentic-data", async (req, res) => {
     try {

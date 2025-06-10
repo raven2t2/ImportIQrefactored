@@ -1,4 +1,4 @@
-import { users, submissions, aiRecommendations, emailCache, trials, userProjects, userAchievements, carEvents, reports, bookings, affiliates, influencerProfiles, referralClicks, referralSignups, payoutRequests, vehicleBuilds, modShopPartners, modShopDeals, partsWatchlist, adminUsers, adminSessions, deposits, chatInteractions, chatProfiles, auctionListings, dataIngestionLogs, type User, type InsertUser, type Submission, type InsertSubmission, type Booking, type InsertBooking, type Affiliate, type InsertAffiliate, type InfluencerProfile, type InsertInfluencerProfile, type ReferralClick, type InsertReferralClick, type ReferralSignup, type InsertReferralSignup, type PayoutRequest, type InsertPayoutRequest, type VehicleBuild, type InsertVehicleBuild, type ModShopPartner, type InsertModShopPartner, type ModShopDeal, type InsertModShopDeal, type PartsWatchlistItem, type InsertPartsWatchlistItem, type AdminUser, type InsertAdminUser, type AdminSession, type InsertAdminSession, type Deposit, type InsertDeposit, type ChatInteraction, type InsertChatInteraction, type ChatProfile, type InsertChatProfile, type AuctionListing, type InsertAuctionListing, type DataIngestionLog, type InsertDataIngestionLog } from "@shared/schema";
+import { users, userAuthSessions, submissions, aiRecommendations, emailCache, trials, userProjects, userAchievements, carEvents, reports, bookings, affiliates, influencerProfiles, referralClicks, referralSignups, payoutRequests, vehicleBuilds, modShopPartners, modShopDeals, partsWatchlist, adminUsers, adminSessions, deposits, chatInteractions, chatProfiles, auctionListings, dataIngestionLogs, type User, type InsertUser, type UserAuthSession, type InsertUserAuthSession, type Submission, type InsertSubmission, type Booking, type InsertBooking, type Affiliate, type InsertAffiliate, type InfluencerProfile, type InsertInfluencerProfile, type ReferralClick, type InsertReferralClick, type ReferralSignup, type InsertReferralSignup, type PayoutRequest, type InsertPayoutRequest, type VehicleBuild, type InsertVehicleBuild, type ModShopDeal, type InsertModShopDeal, type PartsWatchlistItem, type InsertPartsWatchlistItem, type AdminUser, type InsertAdminUser, type AdminSession, type InsertAdminSession, type Deposit, type InsertDeposit, type ChatInteraction, type InsertChatInteraction, type ChatProfile, type InsertChatProfile, type AuctionListing, type InsertAuctionListing, type DataIngestionLog, type InsertDataIngestionLog } from "@shared/schema";
 import { db } from "./db";
 import { eq, lt, desc, and, gte, lte, ilike, or } from "drizzle-orm";
 import fs from 'fs';
@@ -15,9 +15,9 @@ export interface IStorage {
   updateUserLastLogin(id: number): Promise<void>;
   
   // User session methods
-  createUserSession(session: Omit<any, 'id' | 'createdAt'>): Promise<any>;
-  getUserSession(sessionToken: string): Promise<any | undefined>;
-  deleteUserSession(sessionToken: string): Promise<void>;
+  createUserAuthSession(session: Omit<UserAuthSession, 'id' | 'createdAt'>): Promise<UserAuthSession>;
+  getUserAuthSession(sessionToken: string): Promise<UserAuthSession | undefined>;
+  deleteUserAuthSession(sessionToken: string): Promise<void>;
   upsertUser(user: any): Promise<User>;
   createSubmission(submission: Omit<Submission, 'id' | 'createdAt'>): Promise<Submission>;
   getAllSubmissions(): Promise<Submission[]>;
@@ -162,9 +162,38 @@ export class DatabaseStorage implements IStorage {
     return user || undefined;
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
     return user || undefined;
+  }
+
+  async updateUserLastLogin(id: number): Promise<void> {
+    await db
+      .update(users)
+      .set({ updatedAt: new Date() })
+      .where(eq(users.id, id));
+  }
+
+  async createUserAuthSession(session: Omit<UserAuthSession, 'id' | 'createdAt'>): Promise<UserAuthSession> {
+    const [authSession] = await db
+      .insert(userAuthSessions)
+      .values(session)
+      .returning();
+    return authSession;
+  }
+
+  async getUserAuthSession(sessionToken: string): Promise<UserAuthSession | undefined> {
+    const [session] = await db
+      .select()
+      .from(userAuthSessions)
+      .where(eq(userAuthSessions.sessionToken, sessionToken));
+    return session || undefined;
+  }
+
+  async deleteUserAuthSession(sessionToken: string): Promise<void> {
+    await db
+      .delete(userAuthSessions)
+      .where(eq(userAuthSessions.sessionToken, sessionToken));
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
