@@ -38,10 +38,10 @@ export class UserAuthService {
 
       // Create user
       const user = await storage.createUser({
+        username: email, // Use email as username for compatibility
         email,
-        passwordHash,
+        password: passwordHash,
         fullName,
-        isActive: true,
       });
 
       // Create session
