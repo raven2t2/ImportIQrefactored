@@ -934,9 +934,9 @@ class PostgreSQLSmartParser {
         .from(auctionListings)
         .where(
           or(
-            sql`LOWER(${auctionListings.make}) SIMILAR TO ${`%${normalizedQuery}%`}`,
-            sql`LOWER(${auctionListings.model}) SIMILAR TO ${`%${normalizedQuery}%`}`,
-            sql`LOWER(${auctionListings.title}) SIMILAR TO ${`%${normalizedQuery}%`}`
+            ilike(auctionListings.make, `%${normalizedQuery}%`),
+            ilike(auctionListings.model, `%${normalizedQuery}%`),
+            ilike(auctionListings.title, `%${normalizedQuery}%`)
           )
         )
         .limit(3);
