@@ -50,7 +50,7 @@ import {
   vehicleInvestmentIntelligence,
   modShopPartners
 } from '@shared/schema';
-import { eq, desc, lt, sql, and } from 'drizzle-orm';
+import { eq, desc, lt, sql, and, ilike } from 'drizzle-orm';
 import { db } from './db';
 import { dataSeeder } from './data-seeder';
 import { getLiveMarketData, updateCachedVehicle, removeCachedVehicle } from "./live-market-data";
