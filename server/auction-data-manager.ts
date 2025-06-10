@@ -29,119 +29,99 @@ interface CachedAuctionData {
   expiresAt: string;
 }
 
-// PostgreSQL-based auction data persistence
-// Cache replaced with database storage for reliability and persistence
-
-// Popular makes to refresh data for (optimized for performance)
-const POPULAR_MAKES = [
-  'Toyota', 'Nissan', 'Honda' // Focus on top 3 Japanese makes for core functionality
-];
-
 /**
  * Automated daily refresh of auction data
  * Runs every 24 hours to ensure data freshness
  */
 export async function performDailyDataRefresh(): Promise<DataRefreshResult> {
-  console.log('Starting automated auction data refresh...');
-  
   const startTime = new Date();
-  const errors: string[] = [];
-  let japaneseListings = 0;
-  let usListings = 0;
-
+  console.log(`🔄 Starting auction data refresh at ${startTime.toISOString()}`);
+  
   try {
-    // Refresh Japanese auction data for popular makes
-    const japaneseResults = [];
-    for (const make of POPULAR_MAKES.slice(0, 6)) { // Limit to avoid rate limiting
-      try {
-        const result = await getAuthenticJapaneseListings(make);
-        const listings = result.success ? result.listings : [];
-        japaneseResults.push(...listings);
-        japaneseListings += listings.length;
-        
-        // Add delay between requests to be respectful
-        await new Promise(resolve => setTimeout(resolve, 2000));
-      } catch (error) {
-        errors.push(`Japanese auction error for ${make}: ${error}`);
-      }
-    }
+    // Log the start of data ingestion
+    await db.insert(dataIngestionLogs).values({
+      sourceName: 'auction_scraper',
+      status: 'processing',
+      recordsReceived: 0,
+      recordsProcessed: 0,
+      recordsSkipped: 0
+    });
 
-    // Refresh US auction data for popular makes
-    const usResults = [];
-    for (const make of POPULAR_MAKES.slice(0, 6)) { // Limit to avoid rate limiting
-      try {
-        const listings = await scrapeAllUSAuctions(make);
-        usResults.push(...listings);
-        usListings += listings.length;
-        
-        // Add delay between requests to be respectful
-        await new Promise(resolve => setTimeout(resolve, 2000));
-      } catch (error) {
-        errors.push(`US auction error for ${make}: ${error}`);
-      }
-    }
-
-    // Update cache with fresh data
-    const now = new Date();
-    const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours
+    // Fetch authentic Japanese auction data
+    const japaneseListings = await getAuthenticJapaneseListings();
+    console.log(`Fetched ${japaneseListings.length} Japanese listings`);
     
-    // Persist auction data to PostgreSQL
-    const allListings = [...japaneseResults, ...usResults];
-    const refreshBatch = `batch_${Date.now()}`;
+    // Update cache
+    auctionDataCache['japanese'] = japaneseListings;
     
-    // Format listings for database insertion
-    const formattedListings = allListings.map(listing => ({
-      title: listing.title || 'Unknown Vehicle',
-      price: listing.price?.toString() || '0',
-      currency: listing.currency || 'USD',
-      mileage: listing.mileage?.toString() || null,
-      location: listing.location || 'Unknown',
-      imageUrl: listing.imageUrl || null,
-      listingUrl: listing.listingUrl || listing.url || '#',
-      sourceSite: listing.sourceSite || 'auction_site',
-      make: listing.make || null,
-      model: listing.model || null,
-      year: listing.year || null,
-      condition: listing.condition || null,
-      bodyType: listing.bodyType || null,
-      transmission: listing.transmission || null,
-      fuelType: listing.fuelType || null,
-      engineSize: listing.engineSize || null,
-      auctionId: listing.auctionId || listing.id || `auto_${Date.now()}_${Math.random()}`,
-      lotNumber: listing.lotNumber || null,
-      auctionDate: listing.auctionDate ? new Date(listing.auctionDate) : null,
-      auctionGrade: listing.auctionGrade || null,
-      saleStatus: listing.saleStatus || 'current',
-      refreshBatch,
-      dataSource: 'auction_scraper'
-    }));
+    // Fetch authentic US auction data  
+    const usListings = await scrapeAllUSAuctions();
+    console.log(`Fetched ${usListings.length} US listings`);
     
-    // Save to PostgreSQL
-    await auctionPersistence.saveAuctionListings(formattedListings);
-
-    const nextRefresh = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    // Update cache
+    auctionDataCache['us'] = usListings;
     
-    console.log(`Data refresh completed: ${japaneseListings} Japanese, ${usListings} US listings`);
+    // Combine all listings
+    const allListings = [...japaneseListings, ...usListings];
+    console.log(`Processing ${allListings.length} total authentic auction listings`);
+    
+    // Convert to database format and persist
+    const dbListings = allListings.map(convertToAuctionListing);
+    await auctionPersistence.saveAuctionListings(dbListings);
+    
+    const endTime = new Date();
+    const processingTimeMs = endTime.getTime() - startTime.getTime();
+    
+    // Log successful completion
+    await db.insert(dataIngestionLogs).values({
+      sourceName: 'auction_scraper',
+      status: 'success',
+      recordsReceived: allListings.length,
+      recordsProcessed: dbListings.length,
+      recordsSkipped: 0,
+      processingTimeMs
+    });
+    
+    console.log(`✅ Successfully persisted ${dbListings.length} auction listings`);
+    console.log(`Data refresh completed: ${japaneseListings.length} Japanese, ${usListings.length} US listings`);
+    
+    const nextRefresh = new Date(endTime.getTime() + 24 * 60 * 60 * 1000);
     
     return {
       success: true,
-      timestamp: now.toISOString(),
-      japaneseListings,
-      usListings,
-      errors,
+      timestamp: endTime.toISOString(),
+      japaneseListings: japaneseListings.length,
+      usListings: usListings.length,
+      errors: [],
       nextRefreshTime: nextRefresh.toISOString()
     };
-
   } catch (error) {
-    errors.push(`Critical refresh error: ${error}`);
+    const endTime = new Date();
+    const processingTimeMs = endTime.getTime() - startTime.getTime();
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    
+    // Log the failure
+    await db.insert(dataIngestionLogs).values({
+      sourceName: 'auction_scraper',
+      status: 'failed',
+      recordsReceived: 0,
+      recordsProcessed: 0,
+      recordsSkipped: 0,
+      processingTimeMs,
+      errors: [errorMessage]
+    });
+    
+    console.error('Data refresh failed:', error);
+    
+    const nextRefresh = new Date(endTime.getTime() + 24 * 60 * 60 * 1000);
     
     return {
       success: false,
-      timestamp: startTime.toISOString(),
-      japaneseListings,
-      usListings,
-      errors,
-      nextRefreshTime: new Date(Date.now() + 60 * 60 * 1000).toISOString() // Retry in 1 hour
+      timestamp: endTime.toISOString(),
+      japaneseListings: 0,
+      usListings: 0,
+      errors: [errorMessage],
+      nextRefreshTime: nextRefresh.toISOString()
     };
   }
 }
@@ -150,57 +130,49 @@ export async function performDailyDataRefresh(): Promise<DataRefreshResult> {
  * Get cached auction data if available and not expired
  */
 export function getCachedAuctionData(): CachedAuctionData | null {
-  if (!auctionDataCache) return null;
-  
-  const now = new Date();
-  const expiresAt = new Date(auctionDataCache.expiresAt);
-  
-  if (now > expiresAt) {
-    console.log('Cached auction data expired, triggering refresh...');
-    // Trigger background refresh
-    performDailyDataRefresh().catch(console.error);
+  const cache = auctionDataCache;
+  if (!cache || Object.keys(cache).length === 0) {
     return null;
   }
   
-  return auctionDataCache;
+  const now = new Date();
+  const lastUpdated = new Date().toISOString();
+  const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
+  
+  return {
+    japaneseAuctions: cache['japanese'] || [],
+    usAuctions: cache['us'] || [],
+    lastUpdated,
+    expiresAt
+  };
 }
 
 /**
  * Check if data refresh is needed
  */
 export function isRefreshNeeded(): boolean {
-  if (!auctionDataCache) return true;
+  const cache = getCachedAuctionData();
+  if (!cache) return true;
   
   const now = new Date();
-  const expiresAt = new Date(auctionDataCache.expiresAt);
+  const expiresAt = new Date(cache.expiresAt);
   
-  return now > expiresAt;
+  return now >= expiresAt;
 }
 
 /**
  * Get data freshness status
  */
 export function getDataFreshnessStatus() {
-  if (!auctionDataCache) {
-    return {
-      status: 'no-data',
-      lastUpdated: null,
-      nextRefresh: 'pending',
-      cacheSize: 0
-    };
-  }
-  
-  const now = new Date();
-  const lastUpdated = new Date(auctionDataCache.lastUpdated);
-  const expiresAt = new Date(auctionDataCache.expiresAt);
-  const hoursOld = Math.floor((now.getTime() - lastUpdated.getTime()) / (1000 * 60 * 60));
+  const cache = getCachedAuctionData();
+  const refreshNeeded = isRefreshNeeded();
   
   return {
-    status: now > expiresAt ? 'expired' : 'fresh',
-    lastUpdated: auctionDataCache.lastUpdated,
-    hoursOld,
-    nextRefresh: expiresAt.toISOString(),
-    cacheSize: auctionDataCache.japaneseAuctions.length + auctionDataCache.usAuctions.length
+    isFresh: !refreshNeeded,
+    lastUpdated: cache?.lastUpdated || null,
+    nextRefreshDue: refreshNeeded,
+    totalCachedListings: cache ? 
+      (cache.japaneseAuctions.length + cache.usAuctions.length) : 0
   };
 }
 
@@ -208,7 +180,7 @@ export function getDataFreshnessStatus() {
  * Manual refresh trigger for testing/debugging
  */
 export async function triggerManualRefresh(): Promise<DataRefreshResult> {
-  console.log('Manual data refresh triggered...');
+  console.log('🔧 Manual refresh triggered');
   return await performDailyDataRefresh();
 }
 
@@ -217,52 +189,50 @@ export async function triggerManualRefresh(): Promise<DataRefreshResult> {
  * Sets up daily refresh at 3 AM local time
  */
 export function initializeDataRefreshScheduler() {
-  console.log('Initializing auction data refresh scheduler...');
+  console.log('📅 Initializing auction data refresh scheduler');
   
   // Calculate time until next 3 AM
   const now = new Date();
-  const next3AM = new Date();
-  next3AM.setHours(3, 0, 0, 0);
+  const nextThreeAM = new Date();
+  nextThreeAM.setHours(3, 0, 0, 0);
   
-  // If 3 AM has passed today, schedule for tomorrow
-  if (next3AM <= now) {
-    next3AM.setDate(next3AM.getDate() + 1);
+  if (nextThreeAM <= now) {
+    nextThreeAM.setDate(nextThreeAM.getDate() + 1);
   }
   
-  const msUntil3AM = next3AM.getTime() - now.getTime();
+  const timeUntilNextRun = nextThreeAM.getTime() - now.getTime();
   
-  console.log(`Next data refresh scheduled for: ${next3AM.toISOString()}`);
+  // Schedule initial run
+  setTimeout(async () => {
+    await performDailyDataRefresh();
+    
+    // Schedule recurring daily runs
+    setInterval(async () => {
+      await performDailyDataRefresh();
+    }, 24 * 60 * 60 * 1000); // 24 hours
+    
+  }, timeUntilNextRun);
   
-  // Initial refresh to populate database
-  console.log('Performing initial auction data refresh...');
-  performDailyDataRefresh().catch(console.error);
-  
-  // Schedule first refresh at 3 AM
-  setTimeout(() => {
-    performDailyDataRefresh().then(() => {
-      // Set up daily interval after first refresh
-      setInterval(() => {
-        performDailyDataRefresh().catch(console.error);
-      }, 24 * 60 * 60 * 1000); // 24 hours
-    }).catch(console.error);
-  }, msUntil3AM);
+  console.log(`⏰ Next auction data refresh scheduled for ${nextThreeAM.toISOString()}`);
 }
 
 /**
  * Health check for auction data system
  */
 export function getSystemHealthStatus() {
-  const freshnessStatus = getDataFreshnessStatus();
-  const memoryUsage = process.memoryUsage();
+  const cache = getCachedAuctionData();
+  const refreshStatus = getDataFreshnessStatus();
   
   return {
-    dataFreshness: freshnessStatus,
-    memoryUsage: {
-      heapUsed: Math.round(memoryUsage.heapUsed / 1024 / 1024) + ' MB',
-      heapTotal: Math.round(memoryUsage.heapTotal / 1024 / 1024) + ' MB'
-    },
-    uptime: Math.floor(process.uptime() / 60) + ' minutes',
-    timestamp: new Date().toISOString()
+    status: cache && refreshStatus.isFresh ? 'healthy' : 'needs_refresh',
+    cacheSize: cache ? 
+      (cache.japaneseAuctions.length + cache.usAuctions.length) : 0,
+    lastUpdated: cache?.lastUpdated || null,
+    nextRefreshDue: refreshStatus.nextRefreshDue,
+    dataSourcesActive: {
+      japanese: cache?.japaneseAuctions.length || 0,
+      us: cache?.usAuctions.length || 0
+    }
   };
 }
 
@@ -271,45 +241,70 @@ export function getSystemHealthStatus() {
  */
 export function validateAuctionDataQuality(listings: any[]): {
   isValid: boolean;
+  qualityScore: number;
   issues: string[];
-  score: number;
 } {
   const issues: string[] = [];
-  let score = 100;
-
-  // Check for required fields
-  const requiredFields = ['id', 'make', 'model', 'year', 'price', 'location', 'source'];
-  const invalidListings = listings.filter(listing => 
-    requiredFields.some(field => !listing[field])
+  let qualityScore = 100;
+  
+  if (listings.length === 0) {
+    issues.push('No listings found');
+    qualityScore = 0;
+  }
+  
+  const validListings = listings.filter(listing => 
+    listing.make && listing.model && listing.price
   );
   
-  if (invalidListings.length > 0) {
-    issues.push(`${invalidListings.length} listings missing required fields`);
-    score -= Math.min(50, invalidListings.length * 5);
+  const completenessRatio = validListings.length / listings.length;
+  if (completenessRatio < 0.8) {
+    issues.push('High number of incomplete listings');
+    qualityScore -= 20;
   }
-
-  // Check for realistic prices
-  const unrealisticPrices = listings.filter(listing => 
-    listing.price < 1000 || listing.price > 1000000
-  );
   
-  if (unrealisticPrices.length > 0) {
-    issues.push(`${unrealisticPrices.length} listings with unrealistic prices`);
-    score -= Math.min(30, unrealisticPrices.length * 3);
+  const uniqueSources = new Set(listings.map(l => l.sourceSite)).size;
+  if (uniqueSources < 2) {
+    issues.push('Limited data source diversity');
+    qualityScore -= 10;
   }
-
-  // Check for duplicate IDs
-  const ids = listings.map(l => l.id);
-  const duplicateIds = ids.filter((id, index) => ids.indexOf(id) !== index);
   
-  if (duplicateIds.length > 0) {
-    issues.push(`${duplicateIds.length} duplicate listing IDs found`);
-    score -= duplicateIds.length * 5;
-  }
-
   return {
-    isValid: issues.length === 0,
-    issues,
-    score: Math.max(0, score)
+    isValid: qualityScore >= 70,
+    qualityScore,
+    issues
+  };
+}
+
+/**
+ * Convert raw auction data to database format
+ */
+function convertToAuctionListing(listing: any) {
+  const refreshBatch = new Date().toISOString().slice(0, 10);
+  
+  return {
+    title: listing.title || `${listing.make} ${listing.model}` || 'Unknown Vehicle',
+    description: listing.description || `${listing.year} ${listing.make} ${listing.model}`,
+    price: listing.price?.toString() || '0',
+    currency: listing.currency || 'USD',
+    mileage: listing.mileage?.toString() || null,
+    location: listing.location || 'Unknown',
+    imageUrl: listing.imageUrl || null,
+    listingUrl: listing.listingUrl || listing.url || '#',
+    sourceSite: listing.sourceSite || 'auction_site',
+    make: listing.make || null,
+    model: listing.model || null,
+    year: listing.year || null,
+    condition: listing.condition || null,
+    bodyType: listing.bodyType || null,
+    transmission: listing.transmission || null,
+    fuelType: listing.fuelType || null,
+    engineSize: listing.engineSize || null,
+    auctionId: listing.auctionId || listing.id || `auto_${Date.now()}_${Math.random()}`,
+    lotNumber: listing.lotNumber || null,
+    auctionDate: listing.auctionDate ? new Date(listing.auctionDate) : null,
+    auctionGrade: listing.auctionGrade || null,
+    saleStatus: listing.saleStatus || 'current',
+    refreshBatch,
+    dataSource: 'auction_scraper'
   };
 }

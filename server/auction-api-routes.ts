@@ -46,6 +46,7 @@ router.get('/listings', async (req, res) => {
 
     res.json({
       success: true,
+      source: 'postgres',
       data: paginatedListings,
       pagination: {
         total: listings.length,

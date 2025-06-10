@@ -6,7 +6,7 @@ import {
   submissions, 
   dataIngestionLogs
 } from '@shared/schema';
-import { desc, count, gte, sql } from 'drizzle-orm';
+import { desc, count, gte, sql, eq } from 'drizzle-orm';
 import { auctionDataCache } from './auction-data-manager';
 
 const router = Router();
@@ -176,13 +176,13 @@ router.get('/refresh-log', async (req, res) => {
     const logs = await db
       .select({
         id: dataIngestionLogs.id,
-        source: dataIngestionLogs.source,
+        sourceName: dataIngestionLogs.sourceName,
+        recordsReceived: dataIngestionLogs.recordsReceived,
         recordsProcessed: dataIngestionLogs.recordsProcessed,
-        recordsInserted: dataIngestionLogs.recordsInserted,
+        recordsSkipped: dataIngestionLogs.recordsSkipped,
         status: dataIngestionLogs.status,
-        errorMessage: dataIngestionLogs.errorMessage,
-        startTime: dataIngestionLogs.startTime,
-        endTime: dataIngestionLogs.endTime,
+        errors: dataIngestionLogs.errors,
+        processingTimeMs: dataIngestionLogs.processingTimeMs,
         createdAt: dataIngestionLogs.createdAt
       })
       .from(dataIngestionLogs)
@@ -191,10 +191,10 @@ router.get('/refresh-log', async (req, res) => {
 
     const stats = {
       totalRuns: logs.length,
-      successfulRuns: logs.filter(log => log.status === 'completed').length,
+      successfulRuns: logs.filter(log => log.status === 'success').length,
       failedRuns: logs.filter(log => log.status === 'failed').length,
       totalRecordsProcessed: logs.reduce((sum, log) => sum + (log.recordsProcessed || 0), 0),
-      totalRecordsInserted: logs.reduce((sum, log) => sum + (log.recordsInserted || 0), 0),
+      totalRecordsReceived: logs.reduce((sum, log) => sum + (log.recordsReceived || 0), 0),
       lastRunTime: logs[0]?.createdAt?.toISOString() || null
     };
 
@@ -205,17 +205,14 @@ router.get('/refresh-log', async (req, res) => {
         stats,
         recentLogs: logs.map(log => ({
           id: log.id,
-          source: log.source,
+          sourceName: log.sourceName,
+          recordsReceived: log.recordsReceived,
           recordsProcessed: log.recordsProcessed,
-          recordsInserted: log.recordsInserted,
+          recordsSkipped: log.recordsSkipped,
           status: log.status,
-          errorMessage: log.errorMessage,
-          startTime: log.startTime?.toISOString(),
-          endTime: log.endTime?.toISOString(),
-          createdAt: log.createdAt.toISOString(),
-          duration: log.startTime && log.endTime 
-            ? log.endTime.getTime() - log.startTime.getTime() 
-            : null
+          errors: log.errors,
+          processingTimeMs: log.processingTimeMs,
+          createdAt: log.createdAt.toISOString()
         }))
       }
     });

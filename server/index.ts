@@ -284,6 +284,10 @@ app.use((req, res, next) => {
   // Register admin API routes
   const { adminApiRoutes } = await import("./admin-api-routes");
   app.use("/api/admin", adminApiRoutes);
+  
+  // Register user API routes
+  const { userApiRoutes } = await import("./user-api-routes");
+  app.use("/api/user", userApiRoutes);
 
   // API error handler - ensures JSON responses for API routes
   app.use('/api/*', (err: any, req: Request, res: Response, next: NextFunction) => {
