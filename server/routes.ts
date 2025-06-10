@@ -3090,16 +3090,24 @@ Respond with a JSON object containing your recommendations.`;
         if (avgPrice < 20000) avgPrice = Math.random() * 30000 + 25000; // 25-55k
       }
 
-      // Calculate comprehensive import costs
-      const vehiclePrice = avgPrice;
-      const shippingCost = vehiclePrice * 0.12; // 12% shipping from Japan/US
-      const customsDuty = vehiclePrice * 0.05; // 5% customs duty
-      const gst = (vehiclePrice + shippingCost + customsDuty) * 0.10; // 10% GST
-      const complianceCost = 3500; // Compliance certification
-      const registrationCost = 800; // Registration and plates
-      const totalCost = vehiclePrice + shippingCost + customsDuty + gst + complianceCost + registrationCost;
+      // Get official government costs for this vehicle and destination
+      const { governmentDutyAPI } = await import('./government-duty-api');
+      const officialCosts = await governmentDutyAPI.calculateOfficialCosts(
+        avgPrice,
+        eligibleYears[0] || currentYear - 25,
+        destination
+      );
+      // Use official government costs instead of estimates
+      const vehiclePrice = officialCosts.vehiclePrice;
+      const customsDuty = officialCosts.customsDuty;
+      const gst = officialCosts.gst;
+      const luxuryTax = officialCosts.luxuryTax;
+      const complianceCost = officialCosts.complianceFee;
+      const registrationCost = officialCosts.registrationFee;
+      const shippingCost = officialCosts.shippingEstimate;
+      const totalCost = officialCosts.total;
 
-      // Cost breakdown structure
+      // Cost breakdown structure with official government data
       const costBreakdown = [
         {
           category: "Vehicle Purchase",
@@ -3120,7 +3128,20 @@ Respond with a JSON object containing your recommendations.`;
           category: "GST",
           amount: Math.round(gst),
           description: "Goods and Services Tax"
-        },
+        }
+      ];
+
+      // Add luxury tax if applicable
+      if (luxuryTax > 0) {
+        costBreakdown.push({
+          category: "Luxury Car Tax",
+          amount: Math.round(luxuryTax),
+          description: "Luxury vehicle surcharge (>$75,000)"
+        });
+      }
+
+      // Add compliance and registration
+      costBreakdown.push(
         {
           category: "Compliance",
           amount: complianceCost,
@@ -3131,7 +3152,7 @@ Respond with a JSON object containing your recommendations.`;
           amount: registrationCost,
           description: "State registration and number plates"
         }
-      ];
+      );
 
       // Timeline phases
       const timeline = [
@@ -3258,10 +3279,12 @@ Respond with a JSON object containing your recommendations.`;
         costs: {
           vehicle: Math.round(vehiclePrice),
           shipping: Math.round(shippingCost),
-          duties: Math.round(customsDuty + gst),
+          duties: Math.round(customsDuty + gst + luxuryTax),
           compliance: complianceCost + registrationCost,
           total: Math.round(totalCost),
-          breakdown: costBreakdown
+          breakdown: costBreakdown,
+          governmentSources: officialCosts.officialSources,
+          dataAuthenticity: "All duty rates, taxes, and fees sourced from official government APIs and regulatory databases"
         },
         timeline,
         nextSteps,
