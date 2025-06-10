@@ -158,7 +158,6 @@ export default function Landing() {
       }
 
       const data = await response.json();
-      setResult(data);
       
       // Save successful lookup to localStorage for smart behavior
       if (data && data.vehicle) {
@@ -170,7 +169,14 @@ export default function Landing() {
         };
         localStorage.setItem('importiq_last_search', JSON.stringify(lookupData));
         setLastLookup(lookupData);
+        
+        // Automatically redirect to Import Journey - no friction
+        setLocation('/import-journey');
+        return;
       }
+      
+      // Only show result if there's an error or no vehicle found
+      setResult(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
