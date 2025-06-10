@@ -7,6 +7,11 @@
 import { getAuthenticJapaneseListings } from './legitimate-japanese-data';
 import { scrapeAllUSAuctions } from './us-auction-scraper';
 import { auctionPersistence } from './auction-persistence-service';
+import { db } from './db';
+import { dataIngestionLogs } from '@shared/schema';
+
+// Export auctionDataCache for admin API access
+export let auctionDataCache: Record<string, any[]> = {};
 
 interface DataRefreshResult {
   success: boolean;

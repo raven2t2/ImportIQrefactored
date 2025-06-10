@@ -280,6 +280,10 @@ app.use((req, res, next) => {
 
   // Register auction API routes
   app.use("/api/auctions", auctionApiRoutes);
+  
+  // Register admin API routes
+  const { adminApiRoutes } = await import("./admin-api-routes");
+  app.use("/api/admin", adminApiRoutes);
 
   // API error handler - ensures JSON responses for API routes
   app.use('/api/*', (err: any, req: Request, res: Response, next: NextFunction) => {
