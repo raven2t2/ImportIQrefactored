@@ -89,7 +89,7 @@ export class UserAuthService {
       const sessionToken = this.generateSessionToken();
       const expiresAt = new Date(Date.now() + this.SESSION_DURATION);
 
-      await storage.createUserSession({
+      await storage.createUserAuthSession({
         userId: user.id,
         sessionToken,
         expiresAt,
@@ -111,17 +111,17 @@ export class UserAuthService {
 
   static async validateSession(sessionToken: string): Promise<UserAuthResult> {
     try {
-      const session = await storage.getUserSession(sessionToken);
+      const session = await storage.getUserAuthSession(sessionToken);
       if (!session || new Date() > new Date(session.expiresAt)) {
         if (session) {
-          await storage.deleteUserSession(sessionToken);
+          await storage.deleteUserAuthSession(sessionToken);
         }
         return { success: false, error: "Session expired" };
       }
 
       const user = await storage.getUser(session.userId);
       if (!user || !user.isActive) {
-        await storage.deleteUserSession(sessionToken);
+        await storage.deleteUserAuthSession(sessionToken);
         return { success: false, error: "User not found or inactive" };
       }
 
