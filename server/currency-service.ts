@@ -10,6 +10,13 @@ interface ExchangeRates {
   GBP: number;
   EUR: number;
   JPY: number;
+  SEK: number;
+  NOK: number;
+  DKK: number;
+  CHF: number;
+  SGD: number;
+  NZD: number;
+  ZAR: number;
   timestamp: Date;
 }
 
@@ -75,6 +82,13 @@ export class CurrencyService {
         GBP: 0.79,     // 1 USD = 0.79 GBP
         EUR: 0.92,     // 1 USD = 0.92 EUR
         JPY: 149.5,    // 1 USD = 149.5 JPY
+        SEK: 10.84,    // 1 USD = 10.84 SEK
+        NOK: 11.23,    // 1 USD = 11.23 NOK
+        DKK: 6.86,     // 1 USD = 6.86 DKK
+        CHF: 0.89,     // 1 USD = 0.89 CHF
+        SGD: 1.36,     // 1 USD = 1.36 SGD
+        NZD: 1.67,     // 1 USD = 1.67 NZD
+        ZAR: 18.35,    // 1 USD = 18.35 ZAR
         timestamp: now
       };
 
@@ -97,6 +111,13 @@ export class CurrencyService {
         GBP: 0.79,
         EUR: 0.92,
         JPY: 149.5,
+        SEK: 10.84,
+        NOK: 11.23,
+        DKK: 6.86,
+        CHF: 0.89,
+        SGD: 1.36,
+        NZD: 1.67,
+        ZAR: 18.35,
         timestamp: now
       };
 

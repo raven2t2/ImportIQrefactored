@@ -3394,6 +3394,21 @@ Respond with a JSON object containing your recommendations.`;
         canada: { flag: "🇨🇦", name: "Canada" },
         uk: { flag: "🇬🇧", name: "United Kingdom" },
         germany: { flag: "🇩🇪", name: "Germany" },
+        deutschland: { flag: "🇩🇪", name: "Germany" },
+        netherlands: { flag: "🇳🇱", name: "Netherlands" },
+        nederland: { flag: "🇳🇱", name: "Netherlands" },
+        france: { flag: "🇫🇷", name: "France" },
+        italy: { flag: "🇮🇹", name: "Italy" },
+        spain: { flag: "🇪🇸", name: "Spain" },
+        belgium: { flag: "🇧🇪", name: "Belgium" },
+        austria: { flag: "🇦🇹", name: "Austria" },
+        sweden: { flag: "🇸🇪", name: "Sweden" },
+        norway: { flag: "🇳🇴", name: "Norway" },
+        denmark: { flag: "🇩🇰", name: "Denmark" },
+        switzerland: { flag: "🇨🇭", name: "Switzerland" },
+        singapore: { flag: "🇸🇬", name: "Singapore" },
+        newzealand: { flag: "🇳🇿", name: "New Zealand" },
+        southafrica: { flag: "🇿🇦", name: "South Africa" },
         japan: { flag: "🇯🇵", name: "Japan" }
       };
 
