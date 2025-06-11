@@ -236,6 +236,24 @@ export const emailCache = pgTable("email_cache", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// User quotes to replace submissions.json
+export const userQuotes = pgTable("user_quotes", {
+  id: serial("id").primaryKey(),
+  fullName: text("full_name").notNull(),
+  email: text("email").notNull(),
+  vehiclePrice: numeric("vehicle_price", { precision: 10, scale: 2 }).notNull(),
+  shippingOrigin: text("shipping_origin").notNull(),
+  shipping: numeric("shipping", { precision: 10, scale: 2 }).notNull(),
+  customsDuty: numeric("customs_duty", { precision: 10, scale: 2 }).notNull(),
+  gst: numeric("gst", { precision: 10, scale: 2 }).notNull(),
+  lct: numeric("lct", { precision: 10, scale: 2 }).notNull(),
+  inspection: numeric("inspection", { precision: 10, scale: 2 }).notNull(),
+  serviceFee: numeric("service_fee", { precision: 10, scale: 2 }).notNull(),
+  totalCost: numeric("total_cost", { precision: 10, scale: 2 }).notNull(),
+  serviceTier: text("service_tier").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const trials = pgTable("trials", {
   id: serial("id").primaryKey(),
   email: text("email").unique().notNull(),
@@ -2209,6 +2227,11 @@ export const insertSavedReportSchema = createInsertSchema(savedReports);
 export const insertApiTokenSchema = createInsertSchema(apiTokens);
 export const insertCsvImportJobSchema = createInsertSchema(csvImportJobs);
 export const insertBulkVinJobSchema = createInsertSchema(bulkVinJobs);
+
+// User quotes types
+export type UserQuote = typeof userQuotes.$inferSelect;
+export type InsertUserQuote = typeof userQuotes.$inferInsert;
+export const insertUserQuoteSchema = createInsertSchema(userQuotes);
 
 // Export compliance forms schema
 export * from "./compliance-forms-schema";

@@ -12,6 +12,7 @@ import { initializeLiveMarketDataMonitoring } from "./live-market-data";
 import { ComprehensiveDataSeeder } from "./comprehensive-data-seeder";
 import { ComprehensiveVehicleDatabase } from "./comprehensive-vehicle-database";
 import { ComplianceFormsSeeder } from "./compliance-forms-seeder";
+import { migrateJSONToPostgreSQL } from "./migrate-json-to-postgres";
 
 const app = express();
 app.use(express.json());
