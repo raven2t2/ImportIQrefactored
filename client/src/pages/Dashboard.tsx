@@ -71,6 +71,10 @@ export default function Dashboard() {
 
   const { data: dashboardData, isLoading: dashboardLoading } = useQuery<DashboardData>({
     queryKey: ["/api/dashboard"],
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 
   if (userLoading || dashboardLoading) {
