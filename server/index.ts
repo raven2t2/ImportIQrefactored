@@ -13,6 +13,7 @@ import { ComprehensiveDataSeeder } from "./comprehensive-data-seeder";
 import { ComprehensiveVehicleDatabase } from "./comprehensive-vehicle-database";
 import { ComplianceFormsSeeder } from "./compliance-forms-seeder";
 import { migrateJSONToPostgreSQL } from "./migrate-json-to-postgres";
+import { backgroundJobService } from "./background-jobs";
 
 const app = express();
 app.use(express.json());
@@ -345,6 +346,14 @@ app.use((req, res, next) => {
     reusePort: true,
   }, async () => {
     log(`serving on port ${port}`);
+    
+    // Migrate JSON data to PostgreSQL on startup
+    try {
+      await migrateJSONToPostgreSQL();
+    } catch (error) {
+      console.log('Migration already completed or no JSON files found');
+    }
+    
     // Initialize automated auction data refresh after server starts
     initializeDataRefreshScheduler();
     // Initialize live market data monitoring
@@ -358,5 +367,8 @@ app.use((req, res, next) => {
     console.log('🏛️ Seeding global vehicle import compliance forms database...');
     await ComplianceFormsSeeder.seedComplianceDatabase();
     console.log('✅ Global vehicle import compliance forms database ready');
+    
+    // Initialize background job service for production
+    await backgroundJobService.initialize();
   });
 })();
