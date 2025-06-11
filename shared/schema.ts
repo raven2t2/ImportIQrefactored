@@ -47,6 +47,15 @@ export const savedReports = pgTable("saved_reports", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+// Saved journeys for complete import planning
+export const savedJourneys = pgTable("saved_journeys", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  vehicleData: jsonb("vehicle_data").notNull(),
+  destinationCountry: text("destination_country").notNull(),
+  savedAt: timestamp("saved_at").defaultNow().notNull(),
+});
+
 // API access tokens for Pro users
 export const apiTokens = pgTable("api_tokens", {
   id: serial("id").primaryKey(),
@@ -640,33 +649,7 @@ export const recentLookups = pgTable("recent_lookups", {
   createdAtIdx: index("recent_lookups_created_at_idx").on(table.createdAt),
 }));
 
-export const savedJourneys = pgTable("saved_journeys", {
-  id: serial("id").primaryKey(),
-  sessionId: text("session_id").notNull(),
-  userId: integer("user_id"), // nullable for anonymous users
-  journeyName: text("journey_name").notNull(), // user-defined or auto-generated
-  vehicleMake: text("vehicle_make").notNull(),
-  vehicleModel: text("vehicle_model").notNull(),
-  chassisCode: text("chassis_code"),
-  vehicleYear: integer("vehicle_year"),
-  destination: text("destination").notNull(),
-  journeyData: jsonb("journey_data").notNull(), // full import intelligence result
-  aiSummary: text("ai_summary"), // GPT-generated personalized summary
-  isBookmarked: boolean("is_bookmarked").default(true),
-  tags: text("tags").array(), // user or AI-generated tags
-  progress: text("progress").default("planning"), // planning, purchasing, shipping, compliance, completed
-  estimatedCompletion: timestamp("estimated_completion"),
-  totalCostEstimate: integer("total_cost_estimate"), // in cents
-  currency: text("currency").default("AUD"),
-  lastViewed: timestamp("last_viewed").defaultNow(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-}, (table) => ({
-  sessionIdx: index("saved_journeys_session_idx").on(table.sessionId),
-  userIdx: index("saved_journeys_user_idx").on(table.userId),
-  progressIdx: index("saved_journeys_progress_idx").on(table.progress),
-  lastViewedIdx: index("saved_journeys_last_viewed_idx").on(table.lastViewed),
-}));
+// Duplicate table definition removed
 
 export const vehicleWatchlist = pgTable("vehicle_watchlist", {
   id: serial("id").primaryKey(),
@@ -2207,6 +2190,8 @@ export type InsertUserSubscription = typeof userSubscriptions.$inferInsert;
 // Subscription Feature Types
 export type SavedReport = typeof savedReports.$inferSelect;
 export type InsertSavedReport = typeof savedReports.$inferInsert;
+export type SavedJourney = typeof savedJourneys.$inferSelect;
+export type InsertSavedJourney = typeof savedJourneys.$inferInsert;
 export type ApiToken = typeof apiTokens.$inferSelect;
 export type InsertApiToken = typeof apiTokens.$inferInsert;
 export type CsvImportJob = typeof csvImportJobs.$inferSelect;

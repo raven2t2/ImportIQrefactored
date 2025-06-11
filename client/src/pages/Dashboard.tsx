@@ -1,417 +1,336 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Progress } from "@/components/ui/progress";
-import { 
-  Clock, 
-  TrendingUp, 
-  Eye, 
-  Star, 
-  DollarSign, 
-  BarChart3,
-  Search,
-  Bookmark,
-  History,
-  AlertTriangle,
-  CheckCircle,
-  Activity
-} from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { Clock, FileText, CreditCard, Search, Bookmark, ExternalLink, Crown, Zap } from "lucide-react";
 import { format } from "date-fns";
+import { Link } from "wouter";
 
-interface RecentLookup {
+interface RecentSearch {
   id: number;
-  vehicleMake: string;
-  vehicleModel: string;
+  searchQuery: string;
   destination: string;
-  totalCost: number;
-  confidenceScore: number;
+  vehicleData: any;
   createdAt: string;
-  status: string;
+}
+
+interface SavedReport {
+  id: number;
+  title: string;
+  searchQuery: string;
+  destination: string;
+  reportType: string;
+  isBookmarked: boolean;
+  createdAt: string;
 }
 
 interface SavedJourney {
   id: number;
-  vehicleMake: string;
-  vehicleModel: string;
-  vehicleYear?: number;
-  currentPhase: string;
-  estimatedCost: number;
-  progressPercentage: number;
-  nextAction: string;
-  createdAt: string;
-  lastUpdated: string;
+  vehicleData: any;
+  destinationCountry: string;
+  savedAt: string;
 }
 
-interface WatchedVehicle {
+interface UserSubscription {
   id: number;
-  make: string;
-  model: string;
-  targetPrice: number;
-  currentPrice: number;
-  priceChange: number;
-  changePercent: number;
-  alertsEnabled: boolean;
-  lastPriceUpdate: string;
+  plan: string;
+  status: string;
+  currentPeriodEnd: string;
+  cancelAtPeriodEnd: boolean;
 }
 
-interface AuctionTrend {
-  make: string;
-  model: string;
-  avgPrice: number;
-  priceChange: number;
-  changePercent: number;
-  listingCount: number;
-  confidenceScore: number;
-}
-
-interface DashboardStats {
-  totalLookups: number;
-  totalSaved: number;
-  totalWatched: number;
-  avgConfidence: number;
+interface DashboardData {
+  recentSearches: RecentSearch[];
+  savedReports: SavedReport[];
+  savedJourneys: SavedJourney[];
+  subscription: UserSubscription | null;
 }
 
 export default function Dashboard() {
-  const queryClient = useQueryClient();
+  const { user, isAuthenticated, isLoading } = useAuth();
 
-  // Fetch dashboard data
-  const { data: stats } = useQuery<DashboardStats>({
-    queryKey: ['/api/dashboard/stats'],
+  const { data: dashboardData, isLoading: dashboardLoading } = useQuery<DashboardData>({
+    queryKey: ["/api/dashboard"],
+    enabled: isAuthenticated,
   });
 
-  const { data: recentLookups } = useQuery<RecentLookup[]>({
-    queryKey: ['/api/dashboard/recent-lookups'],
-  });
+  if (isLoading || dashboardLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
 
-  const { data: savedJourneys } = useQuery<SavedJourney[]>({
-    queryKey: ['/api/dashboard/saved-journeys'],
-  });
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Authentication Required</CardTitle>
+            <CardDescription>Please log in to access your dashboard</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/login">
+              <Button className="w-full">Go to Login</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
-  const { data: watchedVehicles } = useQuery<WatchedVehicle[]>({
-    queryKey: ['/api/dashboard/watched-vehicles'],
-  });
-
-  const { data: auctionTrends } = useQuery<AuctionTrend[]>({
-    queryKey: ['/api/dashboard/auction-trends'],
-  });
-
-  // Remove from watchlist mutation
-  const removeFromWatchlist = useMutation({
-    mutationFn: async (vehicleId: number) => {
-      const response = await fetch(`/api/watchlist/${vehicleId}`, {
-        method: 'DELETE',
-      });
-      if (!response.ok) throw new Error('Failed to remove from watchlist');
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/dashboard/watched-vehicles'] });
-    },
-  });
+  const subscription = dashboardData?.subscription;
+  const isSubscribed = subscription && subscription.status === 'active';
+  const planName = subscription?.plan || 'free';
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Import Intelligence Dashboard</h1>
-          <p className="text-muted-foreground">Track your vehicle import research and market insights</p>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="flex justify-between items-start mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              Welcome back, {user?.fullName || user?.email}
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-2">
+              Manage your vehicle imports and track your progress
+            </p>
+          </div>
+          
+          {/* Plan Status */}
+          <div className="text-right">
+            <div className="flex items-center gap-2 mb-2">
+              {planName === 'pro' && <Crown className="h-4 w-4 text-yellow-500" />}
+              {planName === 'starter' && <Zap className="h-4 w-4 text-blue-500" />}
+              <Badge variant={isSubscribed ? "default" : "secondary"}>
+                {planName === 'free' ? 'Free Plan' : 
+                 planName === 'starter' ? 'Starter Plan' : 
+                 planName === 'pro' ? 'Pro Plan' : 'Unknown Plan'}
+              </Badge>
+            </div>
+            {subscription && (
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {subscription.cancelAtPeriodEnd ? 'Cancels' : 'Renews'} {format(new Date(subscription.currentPeriodEnd), "MMM dd, yyyy")}
+              </p>
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Lookups</CardTitle>
-            <Search className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalLookups || 0}</div>
-            <p className="text-xs text-muted-foreground">Vehicle searches performed</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Saved Journeys</CardTitle>
-            <Bookmark className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalSaved || 0}</div>
-            <p className="text-xs text-muted-foreground">Import projects tracked</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Watched Vehicles</CardTitle>
-            <Eye className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalWatched || 0}</div>
-            <p className="text-xs text-muted-foreground">Price alerts active</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Confidence</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.avgConfidence || 0}%</div>
-            <p className="text-xs text-muted-foreground">Data accuracy score</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Tabs defaultValue="recent" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="recent">Recent Lookups</TabsTrigger>
-          <TabsTrigger value="journeys">Saved Journeys</TabsTrigger>
-          <TabsTrigger value="watchlist">Price Watchlist</TabsTrigger>
-          <TabsTrigger value="trends">Market Trends</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="recent" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <History className="h-5 w-5" />
-                Recent Vehicle Lookups
-              </CardTitle>
-              <CardDescription>
-                Your latest import cost calculations and eligibility checks
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ScrollArea className="h-[400px]">
-                <div className="space-y-4">
-                  {recentLookups?.map((lookup) => (
-                    <div key={lookup.id} className="border rounded-lg p-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="font-semibold">
-                            {lookup.vehicleMake} {lookup.vehicleModel}
-                          </h3>
-                          <p className="text-sm text-muted-foreground">
-                            Import to {lookup.destination}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-lg font-bold">
-                            ${lookup.totalCost.toLocaleString()}
-                          </div>
-                          <Badge variant={lookup.confidenceScore > 80 ? "default" : "secondary"}>
-                            {lookup.confidenceScore}% confidence
-                          </Badge>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
-                        <span>{format(new Date(lookup.createdAt), 'MMM dd, yyyy')}</span>
-                        <Badge variant={lookup.status === 'eligible' ? "default" : "destructive"}>
-                          {lookup.status}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
+        {/* Upgrade Banner for Non-Subscribers */}
+        {!isSubscribed && (
+          <Card className="mb-8 border-blue-200 bg-blue-50 dark:bg-blue-950 dark:border-blue-800">
+            <CardContent className="flex items-center justify-between p-6">
+              <div>
+                <h3 className="font-semibold text-blue-900 dark:text-blue-100">
+                  Unlock Premium Features
+                </h3>
+                <p className="text-blue-700 dark:text-blue-300 text-sm">
+                  Get unlimited lookups, CSV imports, bulk VIN processing, and API access
+                </p>
+              </div>
+              <Link href="/pricing">
+                <Button className="bg-blue-600 hover:bg-blue-700">
+                  Upgrade Now
+                </Button>
+              </Link>
             </CardContent>
           </Card>
-        </TabsContent>
+        )}
 
-        <TabsContent value="journeys" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Bookmark className="h-5 w-5" />
-                Active Import Journeys
-              </CardTitle>
-              <CardDescription>
-                Track progress on your vehicle import projects
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ScrollArea className="h-[400px]">
-                <div className="space-y-4">
-                  {savedJourneys?.map((journey) => (
-                    <div key={journey.id} className="border rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <h3 className="font-semibold">
-                            {journey.vehicleMake} {journey.vehicleModel}
-                            {journey.vehicleYear && ` (${journey.vehicleYear})`}
-                          </h3>
-                          <p className="text-sm text-muted-foreground">
-                            Current Phase: {journey.currentPhase}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-lg font-bold">
-                            ${journey.estimatedCost.toLocaleString()}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between text-sm">
-                          <span>Progress</span>
-                          <span>{journey.progressPercentage}%</span>
-                        </div>
-                        <Progress value={journey.progressPercentage} className="h-2" />
-                      </div>
-                      
-                      <div className="mt-3 p-2 bg-muted rounded">
-                        <p className="text-sm font-medium">Next Action:</p>
-                        <p className="text-sm text-muted-foreground">{journey.nextAction}</p>
-                      </div>
-                      
-                      <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
-                        <span>Started {format(new Date(journey.createdAt), 'MMM dd, yyyy')}</span>
-                        <span>Updated {format(new Date(journey.lastUpdated), 'MMM dd')}</span>
-                      </div>
-                    </div>
-                  ))}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Recent Searches */}
+          <div className="lg:col-span-2">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Search className="h-5 w-5" />
+                    Your Recent Searches
+                  </CardTitle>
+                  <CardDescription>Last 5 vehicle lookups</CardDescription>
                 </div>
-              </ScrollArea>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="watchlist" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Eye className="h-5 w-5" />
-                Price Watchlist
-              </CardTitle>
-              <CardDescription>
-                Monitor auction prices for vehicles you're interested in
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ScrollArea className="h-[400px]">
-                <div className="space-y-4">
-                  {watchedVehicles?.map((vehicle) => (
-                    <div key={vehicle.id} className="border rounded-lg p-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="font-semibold">
-                            {vehicle.make} {vehicle.model}
-                          </h3>
-                          <p className="text-sm text-muted-foreground">
-                            Target: ${vehicle.targetPrice.toLocaleString()}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-lg font-bold">
-                            ${vehicle.currentPrice.toLocaleString()}
+                <Link href="/import-calculator">
+                  <Button variant="outline" size="sm">
+                    <Search className="h-4 w-4 mr-2" />
+                    New Search
+                  </Button>
+                </Link>
+              </CardHeader>
+              <CardContent>
+                {dashboardData?.recentSearches?.length ? (
+                  <div className="space-y-4">
+                    {dashboardData.recentSearches.map((search) => (
+                      <div key={search.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-medium">{search.searchQuery}</span>
+                            <Badge variant="outline" size="sm">{search.destination}</Badge>
                           </div>
-                          <div className={`text-sm flex items-center gap-1 ${
-                            vehicle.priceChange > 0 ? 'text-red-600' : 'text-green-600'
-                          }`}>
-                            <TrendingUp className="h-3 w-3" />
-                            {vehicle.priceChange > 0 ? '+' : ''}
-                            {vehicle.changePercent.toFixed(1)}%
+                          <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {format(new Date(search.createdAt), "MMM dd, HH:mm")}
+                            </span>
                           </div>
                         </div>
-                      </div>
-                      
-                      <div className="flex items-center justify-between mt-3">
-                        <div className="flex items-center gap-2">
-                          {vehicle.alertsEnabled ? (
-                            <Badge variant="default">Alerts On</Badge>
-                          ) : (
-                            <Badge variant="secondary">Alerts Off</Badge>
-                          )}
-                          {vehicle.currentPrice <= vehicle.targetPrice && (
-                            <Badge variant="destructive">
-                              <AlertTriangle className="h-3 w-3 mr-1" />
-                              Target Reached
-                            </Badge>
-                          )}
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => removeFromWatchlist.mutate(vehicle.id)}
-                        >
-                          Remove
+                        <Button variant="ghost" size="sm">
+                          Re-run
                         </Button>
                       </div>
-                      
-                      <p className="text-xs text-muted-foreground mt-2">
-                        Last updated {format(new Date(vehicle.lastPriceUpdate), 'MMM dd, HH:mm')}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                    <Search className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>No recent searches yet</p>
+                    <Link href="/import-calculator">
+                      <Button className="mt-4" size="sm">Start Your First Search</Button>
+                    </Link>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
 
-        <TabsContent value="trends" className="space-y-4">
+          {/* Plan Management */}
+          <div>
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CreditCard className="h-5 w-5" />
+                  Your Plan
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Current Plan</span>
+                    <Badge variant={isSubscribed ? "default" : "secondary"}>
+                      {planName === 'free' ? 'Free' : 
+                       planName === 'starter' ? 'Starter' : 
+                       planName === 'pro' ? 'Pro' : 'Unknown'}
+                    </Badge>
+                  </div>
+                  
+                  {subscription && (
+                    <>
+                      <Separator />
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600 dark:text-gray-400">Status</span>
+                          <span className="capitalize">{subscription.status}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600 dark:text-gray-400">Next billing</span>
+                          <span>{format(new Date(subscription.currentPeriodEnd), "MMM dd")}</span>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                  
+                  <Separator />
+                  <div className="space-y-2">
+                    {!isSubscribed && (
+                      <Link href="/pricing">
+                        <Button className="w-full" size="sm">
+                          Upgrade Plan
+                        </Button>
+                      </Link>
+                    )}
+                    {isSubscribed && planName === 'starter' && (
+                      <Link href="/upgrade?plan=pro">
+                        <Button className="w-full" size="sm">
+                          Upgrade to Pro
+                        </Button>
+                      </Link>
+                    )}
+                    {isSubscribed && (
+                      <Button variant="outline" className="w-full" size="sm">
+                        Manage Billing
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Quick Stats */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Stats</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Total Searches</span>
+                    <span className="font-medium">{dashboardData?.recentSearches?.length || 0}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Saved Reports</span>
+                    <span className="font-medium">{dashboardData?.savedReports?.length || 0}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Saved Journeys</span>
+                    <span className="font-medium">{dashboardData?.savedJourneys?.length || 0}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Saved Reports */}
+        <div className="mt-8">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5" />
-                Market Auction Trends
-              </CardTitle>
-              <CardDescription>
-                Real-time pricing intelligence from authenticated auction sources
-              </CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Your Saved Reports
+                </CardTitle>
+                <CardDescription>Bookmarked vehicle import analyses</CardDescription>
+              </div>
             </CardHeader>
             <CardContent>
-              <ScrollArea className="h-[400px]">
-                <div className="space-y-4">
-                  {auctionTrends?.map((trend, index) => (
-                    <div key={index} className="border rounded-lg p-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="font-semibold">
-                            {trend.make} {trend.model}
-                          </h3>
-                          <p className="text-sm text-muted-foreground">
-                            {trend.listingCount} active listings
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-lg font-bold">
-                            ${trend.avgPrice.toLocaleString()}
-                          </div>
-                          <div className={`text-sm flex items-center gap-1 ${
-                            trend.priceChange > 0 ? 'text-green-600' : 'text-red-600'
-                          }`}>
-                            <TrendingUp className="h-3 w-3" />
-                            {trend.priceChange > 0 ? '+' : ''}
-                            {trend.changePercent.toFixed(1)}%
-                          </div>
-                        </div>
+              {dashboardData?.savedReports?.length ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {dashboardData.savedReports.map((report) => (
+                    <div key={report.id} className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800">
+                      <div className="flex items-start justify-between mb-2">
+                        <h4 className="font-medium text-sm">{report.title}</h4>
+                        {report.isBookmarked && <Bookmark className="h-4 w-4 text-yellow-500" />}
                       </div>
-                      
-                      <div className="flex items-center justify-between mt-3">
-                        <Badge variant={trend.confidenceScore > 80 ? "default" : "secondary"}>
-                          {trend.confidenceScore}% confidence
-                        </Badge>
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <CheckCircle className="h-3 w-3" />
-                          Authentic auction data
-                        </div>
+                      <div className="flex items-center gap-2 mb-3">
+                        <Badge variant="outline" size="sm">{report.destination}</Badge>
+                        <Badge variant="secondary" size="sm">{report.reportType}</Badge>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {format(new Date(report.createdAt), "MMM dd")}
+                        </span>
+                        <Button variant="ghost" size="sm">
+                          <ExternalLink className="h-3 w-3 mr-1" />
+                          View
+                        </Button>
                       </div>
                     </div>
                   ))}
                 </div>
-              </ScrollArea>
+              ) : (
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                  <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>No saved reports yet</p>
+                  <p className="text-sm">Save reports from your searches to access them later</p>
+                </div>
+              )}
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
+        </div>
+      </div>
     </div>
   );
 }
