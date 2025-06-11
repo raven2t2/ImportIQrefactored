@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { db } from "./db";
 import { insertSubmissionSchema, insertAuctionListingSchema, type CalculationResult } from "@shared/schema";
 import { AdminAuthService } from "./admin-auth";
 import { getMarketIntelligence } from "./market-data";
@@ -48,6 +49,9 @@ import {
   customsRegulations,
   customsDuties,
   automotiveNews,
+  smartParserHistory,
+  recentLookups,
+  userSubscriptions,
   vehicleTechnicalIntelligence,
   popularVehicleModifications,
   modificationCostAnalysis,
@@ -2525,14 +2529,43 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
-  // Dashboard API endpoints
+  // Dashboard API endpoints - showing search analytics instead of empty submissions
   app.get("/api/admin/submissions", async (req, res) => {
     try {
-      const submissions = await storage.getAllSubmissions();
-      res.json(submissions);
+      // Get search analytics from smart_parser_history table
+      const searchHistory = await db.select({
+        id: smartParserHistory.id,
+        query_text: smartParserHistory.query_text,
+        lookup_type: smartParserHistory.lookup_type,
+        confidence_score: smartParserHistory.confidence_score,
+        import_risk_index: smartParserHistory.import_risk_index,
+        user_intent: smartParserHistory.user_intent,
+        ip_address: smartParserHistory.ip_address,
+        created_at: smartParserHistory.created_at
+      })
+      .from(smartParserHistory)
+      .orderBy(smartParserHistory.created_at)
+      .limit(100);
+
+      // Transform data to match admin dashboard expectations
+      const transformedData = searchHistory.map(search => ({
+        id: search.id,
+        fullName: `Search Query: ${search.query_text}`,
+        email: search.ip_address || 'Unknown',
+        vehiclePrice: `Confidence: ${search.confidence_score}%`,
+        totalCost: search.lookup_type || 'intelligent',
+        serviceTier: search.user_intent || 'vehicle_lookup',
+        shippingOrigin: `Risk: ${search.import_risk_index || 0}`,
+        vehicleMake: search.query_text?.split(' ')[0] || '',
+        vehicleModel: search.query_text?.split(' ').slice(1).join(' ') || '',
+        vehicleYear: new Date(search.created_at).getFullYear(),
+        createdAt: search.created_at
+      }));
+
+      res.json(transformedData);
     } catch (error) {
-      console.error("Error fetching submissions:", error);
-      res.status(500).json({ error: "Failed to fetch submissions" });
+      console.error("Error fetching search analytics:", error);
+      res.status(500).json({ error: "Failed to fetch search analytics" });
     }
   });
 
@@ -2548,19 +2581,27 @@ Respond with a JSON object containing your recommendations.`;
 
   app.get("/api/admin/stats", async (req, res) => {
     try {
-      const submissions = await storage.getAllSubmissions();
-      const emailCache = await storage.getAllEmailCache();
-      const trials = await storage.getAllTrials();
-      const aiRecommendations = await storage.getAllAIRecommendations();
-      const affiliates = await storage.getAllAffiliates();
+      // Get search analytics from smart_parser_history table
+      const searchHistory = await db.select().from(smartParserHistory);
+      const recentLookups = await db.select().from(recentLookups);
       
-      const activeTrials = trials.filter(trial => trial.isActive).length;
-      const estimatedRevenue = activeTrials * 77; // $77 per trial
+      // Get subscription data
+      const subscriptions = await db.select().from(userSubscriptions);
+      
+      // Calculate user count from unique users in search data
+      const uniqueUsers = new Set(searchHistory.map(s => s.ip_address).filter(Boolean)).size;
+      
+      // Calculate revenue from active subscriptions
+      const activeSubscriptions = subscriptions.filter(sub => sub.status === 'active');
+      const estimatedRevenue = activeSubscriptions.reduce((total, sub) => {
+        const amount = sub.subscription_tier === 'pro' ? 99 : 29;
+        return total + amount;
+      }, 0);
       
       res.json({
-        totalSubmissions: submissions.length,
-        totalUsers: emailCache.length,
-        activeTrials: activeTrials,
+        totalSubmissions: searchHistory.length,
+        totalUsers: uniqueUsers,
+        activeTrials: activeSubscriptions.length,
         totalRevenue: estimatedRevenue
       });
     } catch (error) {
