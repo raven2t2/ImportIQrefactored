@@ -18,6 +18,7 @@ import { getAllPorts, getPortByCode, findBestPortsForLocation, calculatePortCost
 import { PostgreSQLComplianceService } from "./postgresql-compliance-service";
 import modShopRoutes from "./mod-shop-api-routes";
 import { initializeModShopScraping } from "./mod-shop-geodata-scraper";
+import { CurrencyService } from "./currency-service";
 import { z } from "zod";
 import OpenAI from "openai";
 import Stripe from "stripe";
@@ -3237,9 +3238,8 @@ Respond with a JSON object containing your recommendations.`;
       );
 
       // Apply currency conversion to all costs
-      const { currencyService } = await import('./currency-service');
-      const conversionRate = await currencyService.getConversionRate('USD', destination);
-      const destinationCurrency = currencyService.getCurrencyInfo(destination);
+      const conversionRate = await CurrencyService.getExchangeRate('USD', CurrencyService.getCurrencyConfig(destination).code);
+      const destinationCurrency = CurrencyService.getCurrencyConfig(destination);
       
       // Convert all costs to destination currency
       const vehiclePrice = Math.round(officialCosts.vehiclePrice * conversionRate);
