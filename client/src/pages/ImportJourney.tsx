@@ -372,13 +372,13 @@ export default function ImportJourney() {
             </div>
             <div className="text-right">
               <Badge 
-                variant={importIntelligence.eligibility?.status === 'eligible' ? 'default' : 'secondary'}
+                variant={importIntelligence?.eligibility?.status === 'eligible' ? 'default' : 'secondary'}
                 className="text-base px-4 py-2 mb-2"
               >
-                {importIntelligence.eligibility?.status?.toUpperCase() || 'CHECKING'}
+                {importIntelligence?.eligibility?.status?.toUpperCase() || 'CHECKING'}
               </Badge>
               <div className="text-sm text-gray-500">
-                {importIntelligence.eligibility?.confidence}% confidence
+                {importIntelligence?.eligibility?.confidence || 0}% confidence
               </div>
             </div>
           </div>
@@ -396,9 +396,9 @@ export default function ImportJourney() {
                   <p className="text-sm text-gray-600">Total Cost</p>
                   <p className="text-2xl font-bold text-gray-900">
                     {(() => {
-                      const vehiclePrice = customVehiclePrice || importIntelligence.costs?.vehicle || 0;
-                      const importFees = importIntelligence.costs?.total && importIntelligence.costs?.vehicle 
-                        ? importIntelligence.costs.total - importIntelligence.costs.vehicle 
+                      const vehiclePrice = customVehiclePrice || importIntelligence?.costs?.vehicle || 0;
+                      const importFees = importIntelligence?.costs?.total && importIntelligence?.costs?.vehicle 
+                        ? importIntelligence?.costs?.total - importIntelligence?.costs?.vehicle 
                         : 0;
                       const totalCost = vehiclePrice + importFees;
                       return totalCost ? `$${totalCost.toLocaleString()}` : 'N/A';
@@ -484,7 +484,7 @@ export default function ImportJourney() {
                 <div>
                   <p className="text-sm text-gray-600">Shipping</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    ${importIntelligence.costs?.shipping?.toLocaleString() || 'N/A'}
+                    ${importIntelligence?.costs?.shipping?.toLocaleString() || 'N/A'}
                   </p>
                 </div>
               </div>
@@ -570,9 +570,9 @@ export default function ImportJourney() {
                     <p className="text-sm text-gray-600">Total Import Cost</p>
                     <p className="text-3xl font-bold text-blue-600">
                       {(() => {
-                        const vehiclePrice = customVehiclePrice || importIntelligence.costs?.vehicle || 0;
-                        const importFees = importIntelligence.costs?.total && importIntelligence.costs?.vehicle 
-                          ? importIntelligence.costs.total - importIntelligence.costs.vehicle 
+                        const vehiclePrice = customVehiclePrice || importIntelligence?.costs?.vehicle || 0;
+                        const importFees = importIntelligence?.costs?.total && importIntelligence?.costs?.vehicle 
+                          ? importIntelligence?.costs?.total - importIntelligence?.costs?.vehicle 
                           : 0;
                         const totalCost = vehiclePrice + importFees;
                         return totalCost ? `$${totalCost.toLocaleString()}` : 'Calculating...';
@@ -586,7 +586,7 @@ export default function ImportJourney() {
                         <span className="text-2xl font-bold text-green-600">$</span>
                         <Input
                           type="number"
-                          value={customVehiclePrice || importIntelligence.costs?.vehicle || ''}
+                          value={customVehiclePrice || importIntelligence?.costs?.vehicle || ''}
                           onChange={(e) => setCustomVehiclePrice(Number(e.target.value))}
                           className="w-32 text-center text-xl font-bold border-green-300 focus:border-green-500"
                           onBlur={() => setIsEditingPrice(false)}
