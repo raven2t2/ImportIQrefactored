@@ -63,6 +63,10 @@ interface DashboardData {
 }
 
 export default function Dashboard() {
+  // Force cache invalidation
+  React.useEffect(() => {
+    document.title = "Dashboard - ImportIQ";
+  }, []);
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data: user, isLoading: userLoading } = useQuery({
