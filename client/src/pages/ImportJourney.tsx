@@ -69,9 +69,17 @@ interface ImportIntelligence {
 
 export default function ImportJourney() {
   const [location] = useLocation();
-  const [vehicleData, setVehicleData] = useState<any>({});
-  const [destination, setDestination] = useState('');
-  const [sessionToken, setSessionToken] = useState<string | null>(null);
+  
+  // Initialize with URL parameters immediately
+  const urlParams = SessionManager.parseUrlParams();
+  const [vehicleData, setVehicleData] = useState<any>({
+    make: urlParams.make || '',
+    model: urlParams.model || '',
+    chassis: urlParams.chassis || '',
+    year: urlParams.year || ''
+  });
+  const [destination, setDestination] = useState(urlParams.destination || 'australia');
+  const [sessionToken, setSessionToken] = useState<string | null>(SessionManager.getSessionToken());
   const [isInitialized, setIsInitialized] = useState(false);
   const [customVehiclePrice, setCustomVehiclePrice] = useState<number | null>(null);
   const [isEditingPrice, setIsEditingPrice] = useState(false);
@@ -299,8 +307,21 @@ export default function ImportJourney() {
     isInitialized
   });
 
-  // Only show placeholder if we truly have no vehicle data AND no loading state
-  if ((!vehicleData.make || !vehicleData.model) && !isLoading && !importIntelligence) {
+  // Show loading state while data is being fetched
+  if (isLoading || (!importIntelligence && isInitialized && vehicleData.make)) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <h2 className="text-xl font-semibold mb-2 text-gray-900">Analyzing Import Requirements</h2>
+          <p className="text-gray-600">Generating comprehensive analysis for {vehicleData.make} {vehicleData.model}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Only show placeholder if we truly have no vehicle data
+  if (!vehicleData.make || !vehicleData.model) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center max-w-md mx-auto p-6">
@@ -317,19 +338,6 @@ export default function ImportJourney() {
             <ArrowRight className="h-4 w-4 mr-2" />
             Search Vehicles
           </Button>
-        </div>
-      </div>
-    );
-  }
-
-  if (!importIntelligence && !isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-2 text-gray-900">No Import Intelligence Data</h2>
-          <p className="text-gray-600">Unable to generate analysis for this vehicle</p>
-          <p className="text-gray-500 mt-2">Vehicle: {vehicleData.make} {vehicleData.model}</p>
-          <p className="text-gray-500">Destination: {destination}</p>
         </div>
       </div>
     );
