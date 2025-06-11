@@ -25,7 +25,20 @@ const CURRENCY_CONFIGS: { [key: string]: CurrencyConfig } = {
   'canada': { code: 'CAD', symbol: 'C$', name: 'Canadian Dollar' },
   'uk': { code: 'GBP', symbol: '£', name: 'British Pound' },
   'germany': { code: 'EUR', symbol: '€', name: 'Euro' },
-  'japan': { code: 'JPY', symbol: '¥', name: 'Japanese Yen' }
+  'netherlands': { code: 'EUR', symbol: '€', name: 'Euro' },
+  'france': { code: 'EUR', symbol: '€', name: 'Euro' },
+  'italy': { code: 'EUR', symbol: '€', name: 'Euro' },
+  'spain': { code: 'EUR', symbol: '€', name: 'Euro' },
+  'belgium': { code: 'EUR', symbol: '€', name: 'Euro' },
+  'austria': { code: 'EUR', symbol: '€', name: 'Euro' },
+  'sweden': { code: 'SEK', symbol: 'kr', name: 'Swedish Krona' },
+  'norway': { code: 'NOK', symbol: 'kr', name: 'Norwegian Krone' },
+  'denmark': { code: 'DKK', symbol: 'kr', name: 'Danish Krone' },
+  'switzerland': { code: 'CHF', symbol: 'Fr', name: 'Swiss Franc' },
+  'japan': { code: 'JPY', symbol: '¥', name: 'Japanese Yen' },
+  'singapore': { code: 'SGD', symbol: 'S$', name: 'Singapore Dollar' },
+  'newzealand': { code: 'NZD', symbol: 'NZ$', name: 'New Zealand Dollar' },
+  'southafrica': { code: 'ZAR', symbol: 'R', name: 'South African Rand' }
 };
 
 export class CurrencyService {
