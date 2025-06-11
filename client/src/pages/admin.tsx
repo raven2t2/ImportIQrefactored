@@ -11,13 +11,21 @@ import { format } from "date-fns";
 
 interface Submission {
   id: number;
-  name: string;
+  fullName?: string;
+  name?: string;
   email: string;
-  make: string;
-  model: string;
-  year: number;
-  budget: number;
-  location: string;
+  vehicleMake?: string;
+  make?: string;
+  vehicleModel?: string;
+  model?: string;
+  vehicleYear?: number;
+  year?: number;
+  vehiclePrice?: string;
+  totalCost?: string;
+  budget?: number;
+  shippingOrigin?: string;
+  serviceTier?: string;
+  location?: string;
   createdAt: string;
 }
 
@@ -79,10 +87,10 @@ export default function AdminDashboard() {
   };
 
   const filteredSubmissions = submissions.filter((submission: Submission) =>
-    submission.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    submission.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    submission.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    submission.model.toLowerCase().includes(searchTerm.toLowerCase())
+    (submission.fullName || submission.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (submission.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (submission.vehicleMake || submission.make || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (submission.vehicleModel || submission.model || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const exportToCSV = () => {
@@ -234,35 +242,35 @@ export default function AdminDashboard() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Email</TableHead>
+                      <TableHead>Search Query</TableHead>
+                      <TableHead>IP Address</TableHead>
                       <TableHead>Vehicle</TableHead>
-                      <TableHead>Budget</TableHead>
-                      <TableHead>Location</TableHead>
+                      <TableHead>Confidence</TableHead>
+                      <TableHead>Type</TableHead>
                       <TableHead>Date</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredSubmissions.map((submission: Submission) => (
                       <TableRow key={submission.id}>
-                        <TableCell className="font-medium">{submission.name}</TableCell>
-                        <TableCell>{submission.email}</TableCell>
+                        <TableCell className="font-medium">{submission.fullName || 'Unknown Query'}</TableCell>
+                        <TableCell>{submission.email || 'Anonymous'}</TableCell>
                         <TableCell>
                           <div className="flex flex-col">
                             <span className="font-medium">
-                              {submission.make} {submission.model}
+                              {submission.vehicleMake || 'Unknown'} {submission.vehicleModel || 'Model'}
                             </span>
-                            <span className="text-sm text-gray-500">{submission.year}</span>
+                            <span className="text-sm text-gray-500">{submission.vehicleYear || 2024}</span>
                           </div>
                         </TableCell>
                         <TableCell>
                           <Badge variant="secondary">
-                            ${submission.budget.toLocaleString()}
+                            {submission.vehiclePrice || 'N/A'}
                           </Badge>
                         </TableCell>
-                        <TableCell>{submission.location}</TableCell>
+                        <TableCell>{submission.totalCost || 'Unknown'}</TableCell>
                         <TableCell>
-                          {format(new Date(submission.createdAt), "MMM dd, yyyy")}
+                          {submission.createdAt ? format(new Date(submission.createdAt), "MMM dd, yyyy") : 'Unknown'}
                         </TableCell>
                       </TableRow>
                     ))}
