@@ -138,13 +138,25 @@ export class BackgroundJobService {
   private async cleanupOldCache() {
     const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     
-    // Clean vehicle lookup cache older than 1 week
-    await db.delete(vehicleLookupCache)
-      .where(lt(vehicleLookupCache.lastAccessed, oneWeekAgo));
+    try {
+      // Clean vehicle lookup cache older than 1 week
+      const result1 = await db.delete(vehicleLookupCache)
+        .where(lt(vehicleLookupCache.lastAccessed, oneWeekAgo));
+      
+      console.log(`Cleaned ${result1.rowCount || 0} vehicle lookup cache entries`);
+    } catch (error) {
+      console.log('Vehicle lookup cache cleanup skipped - table may not exist yet');
+    }
 
-    // Clean import intelligence cache older than 1 week
-    await db.delete(importIntelligenceCache)
-      .where(lt(importIntelligenceCache.lastAccessed, oneWeekAgo));
+    try {
+      // Clean import intelligence cache older than 1 week
+      const result2 = await db.delete(importIntelligenceCache)
+        .where(lt(importIntelligenceCache.lastAccessed, oneWeekAgo));
+      
+      console.log(`Cleaned ${result2.rowCount || 0} import intelligence cache entries`);
+    } catch (error) {
+      console.log('Import intelligence cache cleanup skipped - table may not exist yet');
+    }
   }
 
   /**
