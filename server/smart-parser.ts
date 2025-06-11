@@ -19,7 +19,8 @@ import {
   patternStaging,
   lookupAnalytics,
   userWatchlist,
-  vehicleAuctions
+  vehicleAuctions,
+  auctionListings
 } from '@shared/schema';
 import { eq, and, or, like, ilike, desc, asc, sql } from 'drizzle-orm';
 
@@ -1094,7 +1095,14 @@ class PostgreSQLSmartParser {
       return this.buildResponse(chassisResult, 98, 'Chassis Code Database');
     }
 
-    // Step 3: Try auction database search for vehicle matching
+    // Step 3: Try auction URL parsing for direct vehicle extraction
+    const urlParseResult = await this.parseAuctionUrl(query);
+    if (urlParseResult) {
+      console.log(`✓ URL parsed: ${urlParseResult.make} ${urlParseResult.model}`);
+      return this.buildResponse(urlParseResult, 95, 'Auction URL Parser');
+    }
+
+    // Step 4: Try auction database search for vehicle matching
     const auctionResult = await this.searchAuctionDatabase(query);
     if (auctionResult) {
       console.log(`✓ Auction database match: ${auctionResult.make} ${auctionResult.model}`);
