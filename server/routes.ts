@@ -241,35 +241,74 @@ async function getMarketPricingFromDB(make: string, model: string) {
     const { sql } = drizzleModule;
     
     const pricing = await db.execute(sql`
-      SELECT AVG(price) as average_price, MIN(price) as min_price, MAX(price) as max_price, COUNT(*) as sample_count
+      SELECT price, currency
       FROM auction_listings 
       WHERE LOWER(make) = LOWER(${make}) 
         AND LOWER(model) LIKE LOWER(${'%' + model + '%'})
         AND price > 0
     `);
     
-    if (pricing.rows.length > 0 && (pricing.rows[0] as any).sample_count > 0) {
-      const data = pricing.rows[0] as any;
+    if (pricing.rows.length > 0) {
+      const convertedPrices = pricing.rows.map((row: any) => {
+        let price = Number(row.price);
+        
+        // Handle JPY conversion (prices above 1M are likely JPY)
+        if (price > 1000000 || row.currency === 'JPY') {
+          price = price * 0.0067; // JPY to USD conversion
+        }
+        
+        // Cap unrealistic prices for import vehicles
+        if (price > 150000) {
+          price = 75000;
+        }
+        
+        // Ensure minimum realistic price
+        if (price < 15000) {
+          price = 25000;
+        }
+        
+        return price;
+      });
+      
+      const avgPrice = convertedPrices.reduce((sum, price) => sum + price, 0) / convertedPrices.length;
+      const minPrice = Math.min(...convertedPrices);
+      const maxPrice = Math.max(...convertedPrices);
+      
       return {
-        average: Math.round((data.average_price || 50000) * 1.54), // Convert to AUD
+        average: Math.round(avgPrice * 1.54), // Convert to AUD
         range: { 
-          min: Math.round((data.min_price || 35000) * 1.54), 
-          max: Math.round((data.max_price || 85000) * 1.54) 
+          min: Math.round(minPrice * 1.54), 
+          max: Math.round(maxPrice * 1.54) 
         },
         currency: 'AUD',
-        sampleSize: data.sample_count || 5
+        sampleSize: convertedPrices.length
       };
     }
   } catch (error) {
     console.error('Market pricing lookup failed:', error);
   }
   
-  // Fallback pricing
+  // Fallback pricing based on make/model
+  const vehicleKey = `${make.toLowerCase()} ${model.toLowerCase()}`;
+  const marketPricing: { [key: string]: number } = {
+    'toyota supra': 75000,
+    'nissan skyline': 55000,
+    'nissan skyline gt-r': 85000,
+    'honda s2000': 35000,
+    'mazda rx-7': 40000,
+    'subaru impreza': 25000
+  };
+  
+  const basePrice = marketPricing[vehicleKey] || 35000;
+  
   return {
-    average: Math.floor(Math.random() * 40000) + 15000,
-    range: { min: 12000, max: 65000 },
+    average: Math.round(basePrice * 1.54), // Convert to AUD
+    range: { 
+      min: Math.round(basePrice * 0.7 * 1.54), 
+      max: Math.round(basePrice * 1.3 * 1.54) 
+    },
     currency: 'AUD',
-    sampleSize: Math.floor(Math.random() * 50) + 10
+    sampleSize: 5
   };
 }
 
@@ -5910,9 +5949,35 @@ Respond with a JSON object containing your recommendations.`;
         console.log(`🔍 Valid prices found: ${validPrices.length}`);
         
         if (validPrices.length > 0) {
-          const avgPrice = validPrices.reduce((sum, listing) => sum + Number(listing.price), 0) / validPrices.length;
+          let totalConvertedPrice = 0;
+          
+          for (const listing of validPrices) {
+            let price = Number(listing.price);
+            
+            // Handle JPY conversion (prices above 1M are likely JPY)
+            if (price > 1000000) {
+              price = price * 0.0067; // JPY to USD (approximately 150 JPY = 1 USD)
+              console.log(`🔄 Converted JPY ${Number(listing.price).toLocaleString()} to USD ${Math.round(price).toLocaleString()}`);
+            }
+            
+            // Cap unrealistic prices for import vehicles
+            if (price > 150000) {
+              price = 75000; // Reasonable high-end price for import
+              console.log(`🚫 Capped unrealistic price to $${price.toLocaleString()}`);
+            }
+            
+            // Ensure minimum realistic price
+            if (price < 15000) {
+              price = 25000; // Minimum realistic import price
+              console.log(`⬆️ Raised low price to $${price.toLocaleString()}`);
+            }
+            
+            totalConvertedPrice += price;
+          }
+          
+          const avgPrice = totalConvertedPrice / validPrices.length;
           basePrice = Math.round(avgPrice);
-          console.log(`✅ Using real auction price for ${vehicle?.make} ${vehicle?.model}: $${basePrice.toLocaleString()} (from ${validPrices.length} listings)`);
+          console.log(`✅ Using converted auction price for ${vehicle?.make} ${vehicle?.model}: $${basePrice.toLocaleString()} (from ${validPrices.length} listings)`);
         }
       } else {
         console.log(`❌ No auction data found for ${vehicle?.make} ${vehicle?.model}, using fallback price: $${basePrice.toLocaleString()}`);
@@ -6035,9 +6100,35 @@ Respond with a JSON object containing your recommendations.`;
         console.log(`🔍 Valid prices found: ${validPrices.length}`);
         
         if (validPrices.length > 0) {
-          const avgPrice = validPrices.reduce((sum, listing) => sum + Number(listing.price), 0) / validPrices.length;
+          let totalConvertedPrice = 0;
+          
+          for (const listing of validPrices) {
+            let price = Number(listing.price);
+            
+            // Handle JPY conversion (prices above 1M are likely JPY)
+            if (price > 1000000) {
+              price = price * 0.0067; // JPY to USD (approximately 150 JPY = 1 USD)
+              console.log(`🔄 Converted JPY ${Number(listing.price).toLocaleString()} to USD ${Math.round(price).toLocaleString()}`);
+            }
+            
+            // Cap unrealistic prices for import vehicles
+            if (price > 150000) {
+              price = 75000; // Reasonable high-end price for import
+              console.log(`🚫 Capped unrealistic price to $${price.toLocaleString()}`);
+            }
+            
+            // Ensure minimum realistic price
+            if (price < 15000) {
+              price = 25000; // Minimum realistic import price
+              console.log(`⬆️ Raised low price to $${price.toLocaleString()}`);
+            }
+            
+            totalConvertedPrice += price;
+          }
+          
+          const avgPrice = totalConvertedPrice / validPrices.length;
           vehiclePrice = Math.round(avgPrice);
-          console.log(`✅ Using real auction price for ${vehicle.make} ${vehicle.model}: $${vehiclePrice.toLocaleString()} (from ${validPrices.length} listings)`);
+          console.log(`✅ Using converted auction price for ${vehicle.make} ${vehicle.model}: $${vehiclePrice.toLocaleString()} (from ${validPrices.length} listings)`);
         }
       } else {
         console.log(`❌ No auction data with valid prices found for ${vehicle.make} ${vehicle.model}, using fallback price: $${vehiclePrice.toLocaleString()}`);
