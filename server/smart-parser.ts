@@ -7,6 +7,7 @@
 import { db } from './db';
 import { 
   vehicleSpecs, 
+  vehicleSpecifications,
   complianceRules, 
   shippingRoutes, 
   marketDataSamples, 
@@ -1590,6 +1591,77 @@ class PostgreSQLSmartParser {
       sourceAttribution: `Combined analysis from ${analyses.length} data sources`,
       disclaimer: "Comprehensive analysis based on available data"
     };
+  }
+
+  /**
+   * Parse auction URLs to extract vehicle information
+   */
+  private async parseAuctionUrl(url: string): Promise<any | null> {
+    try {
+      // Handle Goo-net Exchange URLs
+      if (url.includes('goo-net-exchange.com')) {
+        // URL format: https://www.goo-net-exchange.com/usedcars/TOYOTA/SUPRA/700020917530250601001/
+        const urlParts = url.split('/');
+        const makeIndex = urlParts.findIndex(part => part === 'usedcars') + 1;
+        
+        if (makeIndex > 0 && urlParts.length > makeIndex + 1) {
+          const make = urlParts[makeIndex];
+          const model = urlParts[makeIndex + 1];
+          
+          if (make && model) {
+            // Try to find this vehicle in our database
+            const specs = await db.select()
+              .from(vehicleSpecs)
+              .where(
+                and(
+                  ilike(vehicleSpecs.make, make),
+                  ilike(vehicleSpecs.model, model)
+                )
+              )
+              .limit(1);
+
+            if (specs.length > 0) {
+              const spec = specs[0];
+              return {
+                make: spec.make,
+                model: spec.model,
+                year: spec.year,
+                chassisCode: spec.chassisCode,
+                countryOfOrigin: spec.countryOfOrigin,
+                sourceUrl: url,
+                sourceAttribution: 'Goo-net Exchange URL Parser'
+              };
+            }
+
+            // If not in database, return parsed data anyway
+            return {
+              make: make.charAt(0).toUpperCase() + make.slice(1).toLowerCase(),
+              model: model.charAt(0).toUpperCase() + model.slice(1).toLowerCase(),
+              countryOfOrigin: 'Japan',
+              sourceUrl: url,
+              sourceAttribution: 'Goo-net Exchange URL Parser'
+            };
+          }
+        }
+      }
+
+      // Handle Yahoo Auctions Japan URLs
+      if (url.includes('yahoo.co.jp') || url.includes('yahoo-auctions.jp')) {
+        // Try to extract vehicle info from Yahoo auction URLs
+        const urlMatch = url.match(/page\/([^\/]+)/);
+        if (urlMatch) {
+          const itemId = urlMatch[1];
+          // Look for known patterns in the URL or item ID
+          return null; // For now, return null - can be enhanced later
+        }
+      }
+
+      // Handle other auction sites as needed
+      return null;
+    } catch (error) {
+      console.error('Error parsing auction URL:', error);
+      return null;
+    }
   }
 }
 
