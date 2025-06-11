@@ -2,7 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
 import { registerRoutes } from "./routes";
 import realModShopAPI from "./real-mod-shop-api";
-import { registerDashboardRoutes } from "./dashboard-routes";
+import { registerDashboardRoutes } from "./dashboard-routes-simple";
 import { setupDemoAuth, initializeDemoUser } from "./demo-auth";
 import enterpriseGeospatialRoutes from "./enterprise-geospatial-routes";
 import { auctionApiRoutes } from "./auction-api-routes";
