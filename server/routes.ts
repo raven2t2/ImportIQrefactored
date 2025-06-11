@@ -3235,15 +3235,21 @@ Respond with a JSON object containing your recommendations.`;
         importEligibleYears[0] || currentYear - 25,
         destination
       );
-      // Use official government costs instead of estimates
-      const vehiclePrice = officialCosts.vehiclePrice;
-      const customsDuty = officialCosts.customsDuty;
-      const gst = officialCosts.gst;
-      const luxuryTax = officialCosts.luxuryTax;
-      const complianceCost = officialCosts.complianceFee;
-      const registrationCost = officialCosts.registrationFee;
-      const shippingCost = officialCosts.shippingEstimate;
-      const totalCost = officialCosts.total;
+
+      // Apply currency conversion to all costs
+      const { currencyService } = await import('./currency-service');
+      const conversionRate = await currencyService.getConversionRate('USD', destination);
+      const destinationCurrency = currencyService.getCurrencyInfo(destination);
+      
+      // Convert all costs to destination currency
+      const vehiclePrice = Math.round(officialCosts.vehiclePrice * conversionRate);
+      const customsDuty = Math.round(officialCosts.customsDuty * conversionRate);
+      const gst = Math.round(officialCosts.gst * conversionRate);
+      const luxuryTax = Math.round(officialCosts.luxuryTax * conversionRate);
+      const complianceCost = Math.round(officialCosts.complianceFee * conversionRate);
+      const registrationCost = Math.round(officialCosts.registrationFee * conversionRate);
+      const shippingCost = Math.round(officialCosts.shippingEstimate * conversionRate);
+      const totalCost = Math.round(officialCosts.total * conversionRate);
 
       // Cost breakdown structure with official government data
       const costBreakdown = [
@@ -3386,7 +3392,9 @@ Respond with a JSON object containing your recommendations.`;
         australia: { flag: "🇦🇺", name: "Australia" },
         usa: { flag: "🇺🇸", name: "United States" },
         canada: { flag: "🇨🇦", name: "Canada" },
-        uk: { flag: "🇬🇧", name: "United Kingdom" }
+        uk: { flag: "🇬🇧", name: "United Kingdom" },
+        germany: { flag: "🇩🇪", name: "Germany" },
+        japan: { flag: "🇯🇵", name: "Japan" }
       };
 
       const destInfo = destinationInfo[destination.toLowerCase()] || 
@@ -3421,6 +3429,12 @@ Respond with a JSON object containing your recommendations.`;
           compliance: complianceCost + registrationCost,
           total: Math.round(totalCost),
           breakdown: costBreakdown,
+          currency: {
+            code: destinationCurrency.currency,
+            symbol: destinationCurrency.symbol,
+            rate: conversionRate,
+            convertedFrom: 'USD'
+          },
           governmentSources: officialCosts.officialSources,
           dataAuthenticity: "All duty rates, taxes, and fees sourced from official government APIs and regulatory databases"
         },
