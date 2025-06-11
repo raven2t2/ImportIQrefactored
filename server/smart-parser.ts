@@ -1600,6 +1600,8 @@ class PostgreSQLSmartParser {
    */
   private async parseAuctionUrl(url: string): Promise<any | null> {
     try {
+      console.log(`🔗 Attempting to parse URL: ${url}`);
+      
       // Handle Goo-net Exchange URLs
       if (url.includes('goo-net-exchange.com')) {
         // URL format: https://www.goo-net-exchange.com/usedcars/TOYOTA/SUPRA/700020917530250601001/
