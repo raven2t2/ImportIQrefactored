@@ -333,54 +333,48 @@ export class ApifyAuctionIngestion {
   }
 
   /**
-   * Get market pricing intelligence for a vehicle
+   * Get market pricing intelligence for a vehicle with destination currency conversion
    */
-  static async getMarketPricing(make: string, model: string, year?: number) {
+  static async getMarketPricing(make: string, model: string, year?: number, destinationCountry: string = 'usa') {
     try {
-      let query = db.select()
-        .from(vehicleAuctions)
-        .where(
-          eq(vehicleAuctions.make, make)
-        );
-
-      // Add model filter if provided
+      const { CurrencyService } = await import('./currency-service');
+      
+      const conditions = [eq(vehicleAuctions.make, make)];
+      
       if (model) {
-        query = query.where(eq(vehicleAuctions.model, model));
+        conditions.push(eq(vehicleAuctions.model, model));
       }
-
-      // Add year filter if provided
+      
       if (year) {
-        query = query.where(eq(vehicleAuctions.year, year));
+        conditions.push(eq(vehicleAuctions.year, year));
       }
 
-      const results = await query.limit(50);
+      const results = await db.select()
+        .from(vehicleAuctions)
+        .where(and(...conditions))
+        .limit(50);
 
       if (results.length === 0) {
         return null;
       }
 
-      const convertedPrices = results
-        .filter(r => r.price && r.price > 0)
-        .map(r => {
-          let price = parseFloat(r.price.toString());
-          
-          // Handle JPY conversion (prices above 1M are likely JPY)
-          if (price > 1000000) {
-            price = price * 0.0067; // JPY to USD conversion
-          }
-          
-          // Cap unrealistic prices for import vehicles
-          if (price > 150000) {
-            price = 75000;
-          }
-          
-          // Ensure minimum realistic price
-          if (price < 15000) {
-            price = 25000;
-          }
-          
-          return price;
-        });
+      const convertedPrices = await Promise.all(
+        results
+          .filter(r => r.price && r.price > 0)
+          .map(async (r) => {
+            const price = parseFloat(r.price.toString());
+            const sourceCurrency = r.currency || null;
+            
+            // Use currency service for proper conversion
+            const normalizedPrice = await CurrencyService.normalizePrice(
+              price, 
+              sourceCurrency, 
+              destinationCountry
+            );
+            
+            return normalizedPrice.amount;
+          })
+      );
 
       if (convertedPrices.length === 0) {
         return null;
@@ -389,12 +383,15 @@ export class ApifyAuctionIngestion {
       const avgPrice = convertedPrices.reduce((sum, price) => sum + price, 0) / convertedPrices.length;
       const minPrice = Math.min(...convertedPrices);
       const maxPrice = Math.max(...convertedPrices);
+      
+      const currencyConfig = CurrencyService.getCurrencyConfig(destinationCountry);
 
       return {
         averagePrice: Math.round(avgPrice),
         minPrice: Math.round(minPrice),
         maxPrice: Math.round(maxPrice),
-        sampleSize: prices.length,
+        currency: currencyConfig.code,
+        sampleSize: convertedPrices.length,
         recentListings: results.slice(0, 5).map(r => ({
           price: r.price,
           location: r.location,
