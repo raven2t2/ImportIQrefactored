@@ -22,6 +22,7 @@ import OpenAI from "openai";
 import Stripe from "stripe";
 import bcrypt from "bcrypt";
 import fs from "fs";
+import { desc } from "drizzle-orm";
 import { smartParser } from './smart-parser';
 import { JourneyToolsService } from './journey-tools-service';
 import { setupUserRoutes } from './user-routes';
@@ -2544,7 +2545,7 @@ Respond with a JSON object containing your recommendations.`;
         created_at: smartParserHistory.created_at
       })
       .from(smartParserHistory)
-      .orderBy(smartParserHistory.created_at)
+      .orderBy(desc(smartParserHistory.created_at))
       .limit(100);
 
       // Transform data to match admin dashboard expectations
