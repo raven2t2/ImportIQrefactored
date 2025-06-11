@@ -5822,8 +5822,68 @@ Respond with a JSON object containing your recommendations.`;
     
     const costs = costStructures[0];
     
-    // Get real auction market price from PostgreSQL
-    let basePrice = 45000; // Fallback only
+    // Get dynamic vehicle market price based on make/model
+    function getDynamicVehiclePrice(make: string, model: string): number {
+      const vehicleKey = `${(make || '').toLowerCase()} ${(model || '').toLowerCase()}`;
+      
+      // Market-based pricing for popular import vehicles
+      const marketPricing: { [key: string]: number } = {
+        'toyota supra': 75000,
+        'nissan skyline': 55000, 
+        'nissan skyline gt-r': 85000,
+        'honda nsx': 120000,
+        'honda s2000': 35000,
+        'mazda rx-7': 40000,
+        'mazda rx-8': 18000,
+        'subaru impreza': 25000,
+        'subaru impreza wrx': 35000,
+        'mitsubishi lancer': 28000,
+        'mitsubishi lancer evolution': 45000,
+        'honda civic': 20000,
+        'honda civic type r': 35000,
+        'toyota ae86': 25000,
+        'nissan 240sx': 22000,
+        'nissan silvia': 30000,
+        'bmw m3': 45000,
+        'bmw m5': 55000,
+        'mercedes c63': 65000,
+        'audi rs4': 50000,
+        'porsche 911': 85000
+      };
+      
+      // Check for exact match first
+      if (marketPricing[vehicleKey]) {
+        return marketPricing[vehicleKey];
+      }
+      
+      // Check for partial matches
+      for (const [key, price] of Object.entries(marketPricing)) {
+        if (vehicleKey.includes(key.split(' ')[1]) && vehicleKey.includes(key.split(' ')[0])) {
+          return price;
+        }
+      }
+      
+      // Brand-based fallback pricing
+      const brandPricing: { [key: string]: number } = {
+        'toyota': 35000,
+        'nissan': 40000,
+        'honda': 30000,
+        'mazda': 25000,
+        'subaru': 28000,
+        'mitsubishi': 30000,
+        'bmw': 50000,
+        'mercedes': 60000,
+        'audi': 45000,
+        'porsche': 70000,
+        'lexus': 45000,
+        'infiniti': 35000
+      };
+      
+      const brand = (make || '').toLowerCase();
+      return brandPricing[brand] || 35000;
+    }
+    
+    let basePrice = getDynamicVehiclePrice(vehicle?.make, vehicle?.model);
     
     try {
       console.log(`🔍 Querying auction data for ${vehicle?.make} ${vehicle?.model}...`);
@@ -5886,8 +5946,69 @@ Respond with a JSON object containing your recommendations.`;
   async function calculateImportCosts(vehicle: any, destination: string) {
     console.log(`🔍 FUNCTION CALLED: calculateImportCosts for ${JSON.stringify(vehicle)} to ${destination}`);
     
+    // Get dynamic vehicle market price based on make/model
+    function getDynamicVehiclePrice(make: string, model: string): number {
+      const vehicleKey = `${(make || '').toLowerCase()} ${(model || '').toLowerCase()}`;
+      
+      // Market-based pricing for popular import vehicles
+      const marketPricing: { [key: string]: number } = {
+        'toyota supra': 75000,
+        'nissan skyline': 55000, 
+        'nissan skyline gt-r': 85000,
+        'honda nsx': 120000,
+        'honda s2000': 35000,
+        'mazda rx-7': 40000,
+        'mazda rx-8': 18000,
+        'subaru impreza': 25000,
+        'subaru impreza wrx': 35000,
+        'mitsubishi lancer': 28000,
+        'mitsubishi lancer evolution': 45000,
+        'honda civic': 20000,
+        'honda civic type r': 35000,
+        'toyota ae86': 25000,
+        'nissan 240sx': 22000,
+        'nissan silvia': 30000,
+        'bmw m3': 45000,
+        'bmw m5': 55000,
+        'mercedes c63': 65000,
+        'audi rs4': 50000,
+        'porsche 911': 85000
+      };
+      
+      // Check for exact match first
+      if (marketPricing[vehicleKey]) {
+        return marketPricing[vehicleKey];
+      }
+      
+      // Check for partial matches
+      for (const [key, price] of Object.entries(marketPricing)) {
+        if (vehicleKey.includes(key.split(' ')[1]) && vehicleKey.includes(key.split(' ')[0])) {
+          return price;
+        }
+      }
+      
+      // Brand-based fallback pricing
+      const brandPricing: { [key: string]: number } = {
+        'toyota': 35000,
+        'nissan': 40000,
+        'honda': 30000,
+        'mazda': 25000,
+        'subaru': 28000,
+        'mitsubishi': 30000,
+        'bmw': 50000,
+        'mercedes': 60000,
+        'audi': 45000,
+        'porsche': 70000,
+        'lexus': 45000,
+        'infiniti': 35000
+      };
+      
+      const brand = (make || '').toLowerCase();
+      return brandPricing[brand] || 35000;
+    }
+    
     // Get real auction market price from PostgreSQL
-    let vehiclePrice = 25000; // Fallback only
+    let vehiclePrice = getDynamicVehiclePrice(vehicle?.make, vehicle?.model);
     
     console.log(`🔍 Calculating import costs for ${vehicle.make} ${vehicle.model} to ${destination}`);
     
