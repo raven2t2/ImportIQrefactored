@@ -12,6 +12,24 @@ export const users = pgTable("users", {
   lastLogin: timestamp("last_login"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  // Subscription tracking
+  stripeCustomerId: text("stripe_customer_id"),
+  freeLookupUsed: boolean("free_lookup_used").default(false),
+});
+
+// User subscriptions for plan management
+export const userSubscriptions = pgTable("user_subscriptions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  stripeSubscriptionId: text("stripe_subscription_id").notNull().unique(),
+  stripeCustomerId: text("stripe_customer_id").notNull(),
+  plan: text("plan").notNull(), // 'starter' or 'pro'
+  status: text("status").notNull(), // 'active', 'canceled', 'past_due', 'incomplete'
+  currentPeriodStart: timestamp("current_period_start").notNull(),
+  currentPeriodEnd: timestamp("current_period_end").notNull(),
+  cancelAtPeriodEnd: boolean("cancel_at_period_end").default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 // User sessions for authenticated users
@@ -2119,9 +2137,14 @@ export type InsertUser = typeof users.$inferInsert;
 export type UserAuthSession = typeof userAuthSessions.$inferSelect;
 export type InsertUserAuthSession = typeof userAuthSessions.$inferInsert;
 
+// Subscription Types
+export type UserSubscription = typeof userSubscriptions.$inferSelect;
+export type InsertUserSubscription = typeof userSubscriptions.$inferInsert;
+
 // User authentication schemas
 export const insertUserAccountSchema = createInsertSchema(users);
 export const insertUserAuthSessionSchema = createInsertSchema(userAuthSessions);
+export const insertUserSubscriptionSchema = createInsertSchema(userSubscriptions);
 
 // Export compliance forms schema
 export * from "./compliance-forms-schema";
