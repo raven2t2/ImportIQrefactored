@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import Stripe from 'stripe';
-import { subscriptionService, SUBSCRIPTION_PLANS } from './subscription-service';
+import { subscriptionService } from './subscription-service';
 import { requireAuth } from './auth-middleware';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {

@@ -240,7 +240,13 @@ app.use((req, res, next) => {
   // Enterprise Geospatial Intelligence with PostGIS and advanced Google Maps APIs
   app.use('/api/geospatial', enterpriseGeospatialRoutes);
   
-  configureDashboardRoutes(app);
+  registerDashboardRoutes(app, (req: any, res: any, next: any) => {
+    if (req.user) {
+      next();
+    } else {
+      res.status(401).json({ message: "Authentication required" });
+    }
+  });
   
   // Initialize authentic mod shop database
   try {

@@ -11,6 +11,7 @@ import { checkVehicleCompliance, getImportGuidance } from "./vehicle-compliance-
 import { calculateShippingCost as calculateShippingQuote, getAllPorts as getShippingPorts, getPortsByCountry, getPopularRoutes, getShippingTips } from "./shipping-calculator";
 import { calculateInsuranceQuote, calculateROI, AUSTRALIAN_MARKET_DATA, DOCUMENTATION_REQUIREMENTS, STATE_REGISTRATION_DATA, ADR_COMPLIANCE_DATABASE } from "./authentic-vehicle-data";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { subscriptionService } from "./subscription-service";
 import { checkPlateRequirements } from "./plate-availability";
 import { getStateRequirements, getStatesByDifficulty, compareStatesCosts } from "./australian-state-requirements";
 import { getAllPorts, getPortByCode, findBestPortsForLocation, calculatePortCosts, getSeasonalRecommendations } from "./australian-port-intelligence";
@@ -11232,6 +11233,37 @@ IMPORTANT GUIDELINES:
     } catch (error) {
       console.error('Subscription status error:', error);
       res.status(500).json({ error: "Failed to fetch subscription status" });
+    }
+  });
+
+  // Subscription routes for checkout flow
+  app.post("/api/subscription/create-subscription", async (req, res) => {
+    try {
+      const { plan } = req.body;
+      const userEmail = req.user?.email;
+      
+      const subscription = await subscriptionService.createSubscription(plan, userEmail);
+      res.json(subscription);
+    } catch (error: any) {
+      console.error('Create subscription error:', error);
+      res.status(500).json({ 
+        error: 'Failed to create subscription',
+        message: error.message 
+      });
+    }
+  });
+
+  app.get("/api/subscription/status", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.id || req.user?.sub;
+      const status = await subscriptionService.getSubscriptionStatus(userId);
+      res.json(status);
+    } catch (error: any) {
+      console.error('Get subscription status error:', error);
+      res.status(500).json({ 
+        error: 'Failed to get subscription status',
+        message: error.message 
+      });
     }
   });
 
