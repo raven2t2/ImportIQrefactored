@@ -137,13 +137,15 @@ export default function ImportJourney() {
       
       // Check for stored search result data first
       const storedSearchResult = localStorage.getItem('importiq_search_result');
+      let vehicleDataToSet;
+      
       if (storedSearchResult) {
         try {
           const searchData = JSON.parse(storedSearchResult);
           console.log('Found stored search result:', searchData);
           
           // Use the rich data from the search result
-          const newVehicleData = {
+          vehicleDataToSet = {
             make: searchData.vehicle?.make || urlParams.make || '',
             model: searchData.vehicle?.model || urlParams.model || '',
             chassis: searchData.vehicle?.chassisCode || urlParams.chassis || '',
@@ -151,8 +153,8 @@ export default function ImportJourney() {
             // Store the full search result for later use
             searchResult: searchData
           };
-          console.log('Setting vehicle data from search result:', newVehicleData);
-          setVehicleData(newVehicleData);
+          console.log('Setting vehicle data from search result:', vehicleDataToSet);
+          setVehicleData(vehicleDataToSet);
           setDestination(searchData.destination || urlParams.destination || 'australia');
           
           // Clear the stored result after using it
@@ -160,41 +162,33 @@ export default function ImportJourney() {
         } catch (error) {
           console.error('Failed to parse stored search result:', error);
           // Fallback to URL parameters
-          const newVehicleData = {
+          vehicleDataToSet = {
             make: urlParams.make || '',
             model: urlParams.model || '',
             chassis: urlParams.chassis || '',
             year: urlParams.year || ''
           };
-          console.log('Setting vehicle data from URL params:', newVehicleData);
-          setVehicleData(newVehicleData);
+          console.log('Setting vehicle data from URL params:', vehicleDataToSet);
+          setVehicleData(vehicleDataToSet);
           setDestination(urlParams.destination || 'australia');
         }
       } else {
         // Fallback to URL parameters
-        const newVehicleData = {
+        vehicleDataToSet = {
           make: urlParams.make || '',
           model: urlParams.model || '',
           chassis: urlParams.chassis || '',
           year: urlParams.year || ''
         };
-        console.log('Setting vehicle data from URL params:', newVehicleData);
-        setVehicleData(newVehicleData);
+        console.log('Setting vehicle data from URL params:', vehicleDataToSet);
+        setVehicleData(vehicleDataToSet);
         setDestination(urlParams.destination || 'australia');
       }
       
       // Try to get or create session token
       let token = SessionManager.getSessionToken();
       
-      // Get the current vehicle data for session management
-      const currentVehicleData = {
-        make: urlParams.make || '',
-        model: urlParams.model || '',
-        chassis: urlParams.chassis || '',
-        year: urlParams.year || ''
-      };
-      
-      if (!token && (currentVehicleData.make || currentVehicleData.model)) {
+      if (!token && (vehicleDataToSet.make || vehicleDataToSet.model)) {
         try {
           const reconstructed = await SessionManager.reconstructSession(urlParams);
           if (reconstructed) {
@@ -296,7 +290,17 @@ export default function ImportJourney() {
     );
   }
 
-  if (!importIntelligence && !isLoading && (!vehicleData.make || !vehicleData.model)) {
+  // Debug logging to understand state
+  console.log('Component render state:', {
+    vehicleData,
+    importIntelligence: !!importIntelligence,
+    isLoading,
+    sessionToken,
+    isInitialized
+  });
+
+  // Only show placeholder if we truly have no vehicle data AND no loading state
+  if ((!vehicleData.make || !vehicleData.model) && !isLoading && !importIntelligence) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center max-w-md mx-auto p-6">
