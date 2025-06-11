@@ -233,8 +233,9 @@ async function generateVehicleResponseFromDB(vehicle: any) {
   }
 }
 
-async function getMarketPricingFromDB(make: string, model: string) {
+async function getMarketPricingFromDB(make: string, model: string, destinationCountry: string = 'usa') {
   try {
+    const { CurrencyService } = await import('./currency-service');
     const dbModule = await import('./db.js');
     const drizzleModule = await import('drizzle-orm');
     const { db } = dbModule;
@@ -249,38 +250,33 @@ async function getMarketPricingFromDB(make: string, model: string) {
     `);
     
     if (pricing.rows.length > 0) {
-      const convertedPrices = pricing.rows.map((row: any) => {
-        let price = Number(row.price);
-        
-        // Handle JPY conversion (prices above 1M are likely JPY)
-        if (price > 1000000 || row.currency === 'JPY') {
-          price = price * 0.0067; // JPY to USD conversion
-        }
-        
-        // Cap unrealistic prices for import vehicles
-        if (price > 150000) {
-          price = 75000;
-        }
-        
-        // Ensure minimum realistic price
-        if (price < 15000) {
-          price = 25000;
-        }
-        
-        return price;
-      });
+      const convertedPrices = await Promise.all(
+        pricing.rows.map(async (row: any) => {
+          const price = Number(row.price);
+          const sourceCurrency = row.currency || null;
+          
+          const normalizedPrice = await CurrencyService.normalizePrice(
+            price, 
+            sourceCurrency, 
+            destinationCountry
+          );
+          
+          return normalizedPrice.amount;
+        })
+      );
       
       const avgPrice = convertedPrices.reduce((sum, price) => sum + price, 0) / convertedPrices.length;
       const minPrice = Math.min(...convertedPrices);
       const maxPrice = Math.max(...convertedPrices);
+      const currencyConfig = CurrencyService.getCurrencyConfig(destinationCountry);
       
       return {
-        average: Math.round(avgPrice * 1.54), // Convert to AUD
+        average: Math.round(avgPrice),
         range: { 
-          min: Math.round(minPrice * 1.54), 
-          max: Math.round(maxPrice * 1.54) 
+          min: Math.round(minPrice), 
+          max: Math.round(maxPrice) 
         },
-        currency: 'AUD',
+        currency: currencyConfig.code,
         sampleSize: convertedPrices.length
       };
     }
@@ -288,28 +284,41 @@ async function getMarketPricingFromDB(make: string, model: string) {
     console.error('Market pricing lookup failed:', error);
   }
   
-  // Fallback pricing based on make/model
-  const vehicleKey = `${make.toLowerCase()} ${model.toLowerCase()}`;
-  const marketPricing: { [key: string]: number } = {
-    'toyota supra': 75000,
-    'nissan skyline': 55000,
-    'nissan skyline gt-r': 85000,
-    'honda s2000': 35000,
-    'mazda rx-7': 40000,
-    'subaru impreza': 25000
-  };
-  
-  const basePrice = marketPricing[vehicleKey] || 35000;
-  
-  return {
-    average: Math.round(basePrice * 1.54), // Convert to AUD
-    range: { 
-      min: Math.round(basePrice * 0.7 * 1.54), 
-      max: Math.round(basePrice * 1.3 * 1.54) 
-    },
-    currency: 'AUD',
-    sampleSize: 5
-  };
+  // Fallback pricing based on make/model with proper currency conversion
+  try {
+    const { CurrencyService } = await import('./currency-service');
+    const vehicleKey = `${make.toLowerCase()} ${model.toLowerCase()}`;
+    const basePricesUSD: { [key: string]: number } = {
+      'toyota supra': 75000,
+      'nissan skyline': 55000,
+      'nissan skyline gt-r': 85000,
+      'honda s2000': 35000,
+      'mazda rx-7': 40000,
+      'subaru impreza': 25000
+    };
+    
+    const basePriceUSD = basePricesUSD[vehicleKey] || 35000;
+    const currencyConfig = CurrencyService.getCurrencyConfig(destinationCountry);
+    const convertedPrice = await CurrencyService.convertPrice(basePriceUSD, 'USD', currencyConfig.code);
+    
+    return {
+      average: Math.round(convertedPrice),
+      range: { 
+        min: Math.round(convertedPrice * 0.7), 
+        max: Math.round(convertedPrice * 1.3) 
+      },
+      currency: currencyConfig.code,
+      sampleSize: 5
+    };
+  } catch (error) {
+    console.error('Currency conversion failed:', error);
+    return {
+      average: 45000,
+      range: { min: 25000, max: 75000 },
+      currency: 'USD',
+      sampleSize: 5
+    };
+  }
 }
 
 async function extractVehicleFromQueryDB(query: string) {
@@ -4969,17 +4978,19 @@ Respond with a JSON object containing your recommendations.`;
 
   app.get('/api/auction-data/market-pricing', async (req, res) => {
     try {
-      const { make, model, year } = req.query;
+      const { make, model, year, destination } = req.query;
       
       if (!make) {
         return res.status(400).json({ error: 'make parameter required' });
       }
 
+      const destinationCountry = destination as string || 'usa';
       const { ApifyAuctionIngestion } = await import('./apify-auction-ingestion.js');
       const pricing = await ApifyAuctionIngestion.getMarketPricing(
         make as string,
         model as string,
-        year ? parseInt(year as string) : undefined
+        year ? parseInt(year as string) : undefined,
+        destinationCountry
       );
       
       if (!pricing) {
@@ -4987,14 +4998,16 @@ Respond with a JSON object containing your recommendations.`;
           message: 'No market data available for this vehicle',
           make,
           model,
-          year
+          year,
+          destination: destinationCountry
         });
       }
 
-      console.log(`🏷️ Market pricing for ${make} ${model}:`, {
+      console.log(`🏷️ Market pricing for ${make} ${model} (${destinationCountry}):`, {
         averagePrice: pricing.averagePrice,
         minPrice: pricing.minPrice,
         maxPrice: pricing.maxPrice,
+        currency: pricing.currency,
         sampleSize: pricing.sampleSize
       });
 
