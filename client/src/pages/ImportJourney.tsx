@@ -307,8 +307,8 @@ export default function ImportJourney() {
     isInitialized
   });
 
-  // Show loading state while data is being fetched
-  if (isLoading || (!importIntelligence && isInitialized && vehicleData.make)) {
+  // Show loading state while data is being fetched or if importIntelligence is not a valid object
+  if (isLoading || !importIntelligence || importIntelligence === false || typeof importIntelligence !== 'object') {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -722,7 +722,7 @@ export default function ImportJourney() {
             </Card>
 
             {/* Import Timeline */}
-            {importIntelligence.timeline && importIntelligence.timeline.length > 0 && (
+            {importIntelligence?.timeline && importIntelligence?.timeline.length > 0 && (
               <Card className="bg-white">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -735,12 +735,12 @@ export default function ImportJourney() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {importIntelligence.timeline.map((phase, index) => (
+                    {importIntelligence?.timeline?.map((phase, index) => (
                       <div key={index} className="relative pl-8 pb-4">
                         <div className="absolute left-0 top-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
                           <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
                         </div>
-                        {index < importIntelligence.timeline.length - 1 && (
+                        {index < (importIntelligence?.timeline?.length || 0) - 1 && (
                           <div className="absolute left-3 top-6 w-0.5 h-full bg-gray-200"></div>
                         )}
                         <div className="ml-2">
