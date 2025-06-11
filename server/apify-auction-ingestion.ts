@@ -359,17 +359,36 @@ export class ApifyAuctionIngestion {
         return null;
       }
 
-      const prices = results
+      const convertedPrices = results
         .filter(r => r.price && r.price > 0)
-        .map(r => parseFloat(r.price.toString()));
+        .map(r => {
+          let price = parseFloat(r.price.toString());
+          
+          // Handle JPY conversion (prices above 1M are likely JPY)
+          if (price > 1000000) {
+            price = price * 0.0067; // JPY to USD conversion
+          }
+          
+          // Cap unrealistic prices for import vehicles
+          if (price > 150000) {
+            price = 75000;
+          }
+          
+          // Ensure minimum realistic price
+          if (price < 15000) {
+            price = 25000;
+          }
+          
+          return price;
+        });
 
-      if (prices.length === 0) {
+      if (convertedPrices.length === 0) {
         return null;
       }
 
-      const avgPrice = prices.reduce((sum, price) => sum + price, 0) / prices.length;
-      const minPrice = Math.min(...prices);
-      const maxPrice = Math.max(...prices);
+      const avgPrice = convertedPrices.reduce((sum, price) => sum + price, 0) / convertedPrices.length;
+      const minPrice = Math.min(...convertedPrices);
+      const maxPrice = Math.max(...convertedPrices);
 
       return {
         averagePrice: Math.round(avgPrice),

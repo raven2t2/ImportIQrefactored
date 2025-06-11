@@ -4991,6 +4991,13 @@ Respond with a JSON object containing your recommendations.`;
         });
       }
 
+      console.log(`🏷️ Market pricing for ${make} ${model}:`, {
+        averagePrice: pricing.averagePrice,
+        minPrice: pricing.minPrice,
+        maxPrice: pricing.maxPrice,
+        sampleSize: pricing.sampleSize
+      });
+
       res.json({
         vehicle: { make, model, year },
         marketData: pricing
