@@ -1097,10 +1097,12 @@ class PostgreSQLSmartParser {
     }
 
     // Step 3: Try auction URL parsing for direct vehicle extraction
-    const urlParseResult = await this.parseAuctionUrl(query);
-    if (urlParseResult) {
-      console.log(`✓ URL parsed: ${urlParseResult.make} ${urlParseResult.model}`);
-      return this.buildResponse(urlParseResult, 95, 'Auction URL Parser');
+    if (query.includes('http') || query.includes('www.') || query.includes('.com') || query.includes('.co.jp')) {
+      const urlParseResult = await this.parseAuctionUrl(query);
+      if (urlParseResult) {
+        console.log(`✓ URL parsed: ${urlParseResult.make} ${urlParseResult.model}`);
+        return this.buildResponse(urlParseResult, 95, 'Auction URL Parser');
+      }
     }
 
     // Step 4: Try auction database search for vehicle matching
@@ -1646,17 +1648,119 @@ class PostgreSQLSmartParser {
       }
 
       // Handle Yahoo Auctions Japan URLs
-      if (url.includes('yahoo.co.jp') || url.includes('yahoo-auctions.jp')) {
-        // Try to extract vehicle info from Yahoo auction URLs
-        const urlMatch = url.match(/page\/([^\/]+)/);
-        if (urlMatch) {
-          const itemId = urlMatch[1];
-          // Look for known patterns in the URL or item ID
-          return null; // For now, return null - can be enhanced later
+      if (url.includes('yahoo.co.jp') || url.includes('yahoo-auctions.jp') || url.includes('auctions.yahoo.co.jp')) {
+        // Yahoo URLs often have complex structures, try to extract from path or title
+        // Examples: https://auctions.yahoo.co.jp/item/s1234567890
+        // or https://page.auctions.yahoo.co.jp/jp/auction/s1234567890
+        const itemMatch = url.match(/(?:item|auction)\/([a-z]\d+)/);
+        if (itemMatch) {
+          // For now, return null as we'd need to scrape the page for vehicle info
+          return null;
         }
       }
 
-      // Handle other auction sites as needed
+      // Handle Copart URLs
+      if (url.includes('copart.com')) {
+        // Example: https://www.copart.com/lot/12345678/2020-TOYOTA-SUPRA-GR-3-0
+        const copartMatch = url.match(/\/lot\/\d+\/(\d{4})-([A-Z]+)-([A-Z0-9\-]+)/i);
+        if (copartMatch) {
+          const [, year, make, model] = copartMatch;
+          return {
+            make: make.charAt(0).toUpperCase() + make.slice(1).toLowerCase(),
+            model: model.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+            year: parseInt(year),
+            countryOfOrigin: 'United States',
+            sourceUrl: url,
+            sourceAttribution: 'Copart URL Parser'
+          };
+        }
+      }
+
+      // Handle IAAI URLs
+      if (url.includes('iaai.com')) {
+        // Example: https://www.iaai.com/vehicle/12345678/2020-TOYOTA-SUPRA
+        const iaaiMatch = url.match(/\/vehicle\/\d+\/(\d{4})-([A-Z]+)-([A-Z0-9\-]+)/i);
+        if (iaaiMatch) {
+          const [, year, make, model] = iaaiMatch;
+          return {
+            make: make.charAt(0).toUpperCase() + make.slice(1).toLowerCase(),
+            model: model.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+            year: parseInt(year),
+            countryOfOrigin: 'United States',
+            sourceUrl: url,
+            sourceAttribution: 'IAAI URL Parser'
+          };
+        }
+      }
+
+      // Handle BringATrailer URLs
+      if (url.includes('bringatrailer.com')) {
+        // Example: https://bringatrailer.com/listing/1996-toyota-supra-turbo/
+        const batMatch = url.match(/\/listing\/(\d{4})-([a-z]+)-([a-z0-9\-]+)/i);
+        if (batMatch) {
+          const [, year, make, model] = batMatch;
+          return {
+            make: make.charAt(0).toUpperCase() + make.slice(1).toLowerCase(),
+            model: model.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+            year: parseInt(year),
+            countryOfOrigin: 'Unknown',
+            sourceUrl: url,
+            sourceAttribution: 'Bring a Trailer URL Parser'
+          };
+        }
+      }
+
+      // Handle Cars & Bids URLs
+      if (url.includes('carsandbids.com')) {
+        // Example: https://carsandbids.com/auctions/1996-toyota-supra-turbo
+        const cabMatch = url.match(/\/auctions\/(\d{4})-([a-z]+)-([a-z0-9\-]+)/i);
+        if (cabMatch) {
+          const [, year, make, model] = cabMatch;
+          return {
+            make: make.charAt(0).toUpperCase() + make.slice(1).toLowerCase(),
+            model: model.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+            year: parseInt(year),
+            countryOfOrigin: 'Unknown',
+            sourceUrl: url,
+            sourceAttribution: 'Cars & Bids URL Parser'
+          };
+        }
+      }
+
+      // Handle Manheim URLs (dealer only but sometimes shared)
+      if (url.includes('manheim.com')) {
+        // Example: https://www.manheim.com/vehicle/12345678/2020-TOYOTA-SUPRA
+        const manheimMatch = url.match(/\/vehicle\/\d+\/(\d{4})-([A-Z]+)-([A-Z0-9\-]+)/i);
+        if (manheimMatch) {
+          const [, year, make, model] = manheimMatch;
+          return {
+            make: make.charAt(0).toUpperCase() + make.slice(1).toLowerCase(),
+            model: model.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+            year: parseInt(year),
+            countryOfOrigin: 'United States',
+            sourceUrl: url,
+            sourceAttribution: 'Manheim URL Parser'
+          };
+        }
+      }
+
+      // Handle Japanese auction house URLs (general pattern)
+      if (url.includes('auction') && (url.includes('.jp') || url.includes('japan'))) {
+        // Try to extract any year-make-model patterns from the URL
+        const generalMatch = url.match(/(\d{4}).*?([a-z]{3,})[_\-\s]([a-z]{2,})/i);
+        if (generalMatch) {
+          const [, year, possibleMake, possibleModel] = generalMatch;
+          return {
+            make: possibleMake.charAt(0).toUpperCase() + possibleMake.slice(1).toLowerCase(),
+            model: possibleModel.charAt(0).toUpperCase() + possibleModel.slice(1).toLowerCase(),
+            year: parseInt(year),
+            countryOfOrigin: 'Japan',
+            sourceUrl: url,
+            sourceAttribution: 'Japanese Auction URL Parser'
+          };
+        }
+      }
+
       return null;
     } catch (error) {
       console.error('Error parsing auction URL:', error);
