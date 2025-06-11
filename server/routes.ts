@@ -24,6 +24,10 @@ import fs from "fs";
 import { smartParser } from './smart-parser';
 import { JourneyToolsService } from './journey-tools-service';
 import { setupUserRoutes } from './user-routes';
+import { registerSubscriptionRoutes } from './subscription-routes';
+import { subscriptionFeaturesService } from './subscription-features-service';
+import { subscriptionService } from './subscription-service';
+import { requireAuth, optionalAuth, type AuthenticatedRequest } from './auth-middleware';
 import { 
   adminQueryReviews, 
   patternStaging, 
@@ -2791,8 +2795,8 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
-  // Smart lookup endpoint for homepage analysis
-  app.post("/api/smart-lookup", async (req, res) => {
+  // Smart lookup endpoint for homepage analysis with subscription gating
+  app.post("/api/smart-lookup", optionalAuth, async (req, res) => {
     try {
       const { query, destination } = req.body;
       if (!query || typeof query !== 'string') {
@@ -2800,6 +2804,36 @@ Respond with a JSON object containing your recommendations.`;
       }
       if (!destination || typeof destination !== 'string') {
         return res.status(400).json({ error: "Destination country required" });
+      }
+
+      const authReq = req as AuthenticatedRequest;
+      let userId = authReq.user?.id;
+      
+      // Check if user can make lookup (free users get 1 lookup, subscribers unlimited)
+      if (!userId) {
+        // Anonymous users - no free lookups anymore, require signup
+        return res.status(401).json({ 
+          error: "Authentication required",
+          message: "Please sign up to analyze vehicles with ImportIQ",
+          requiresAuth: true
+        });
+      }
+
+      // Check if user can make lookup based on subscription
+      const canMakeLookup = await subscriptionService.canMakeFreeLookup(userId);
+      const hasActiveSubscription = await subscriptionService.hasActiveSubscription(userId);
+      
+      if (!canMakeLookup && !hasActiveSubscription) {
+        return res.status(402).json({
+          error: "Subscription required",
+          message: "You've used your free lookup. Upgrade to continue analyzing vehicles.",
+          requiresSubscription: true
+        });
+      }
+
+      // Mark free lookup as used if no active subscription
+      if (!hasActiveSubscription) {
+        await subscriptionService.markFreeLookupUsed(userId);
       }
 
       const userAgent = req.get('User-Agent');
@@ -2821,6 +2855,21 @@ Respond with a JSON object containing your recommendations.`;
           );
         } catch (complianceError) {
           console.log('Compliance lookup warning:', complianceError.message);
+        }
+
+        // Save the lookup as a report if user has subscription
+        if (hasActiveSubscription) {
+          try {
+            await subscriptionFeaturesService.saveReport(userId, {
+              title: `${result.data.make} ${result.data.model} Analysis`,
+              vehicleData: result.data,
+              searchQuery: query,
+              destination: destination,
+              reportType: 'lookup'
+            });
+          } catch (saveError) {
+            console.log('Report save warning:', saveError.message);
+          }
         }
 
         // Transform the smart parser response into homepage format

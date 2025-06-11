@@ -32,6 +32,69 @@ export const userSubscriptions = pgTable("user_subscriptions", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+// Saved import reports for users
+export const savedReports = pgTable("saved_reports", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  title: text("title").notNull(),
+  vehicleData: jsonb("vehicle_data").notNull(), // Store the complete vehicle lookup result
+  searchQuery: text("search_query").notNull(),
+  destination: text("destination").notNull(),
+  reportType: text("report_type").notNull().default('lookup'), // 'lookup', 'bulk_vin', 'csv_import'
+  isBookmarked: boolean("is_bookmarked").default(false),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// API access tokens for Pro users
+export const apiTokens = pgTable("api_tokens", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  tokenName: text("token_name").notNull(),
+  tokenHash: text("token_hash").notNull().unique(),
+  scopes: text("scopes").array().notNull().default(['lookup']), // ['lookup', 'bulk', 'compliance']
+  lastUsed: timestamp("last_used"),
+  isActive: boolean("is_active").default(true),
+  expiresAt: timestamp("expires_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// CSV import jobs for Pro users
+export const csvImportJobs = pgTable("csv_import_jobs", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  fileName: text("file_name").notNull(),
+  status: text("status").notNull().default('processing'), // 'processing', 'completed', 'failed'
+  totalRows: integer("total_rows").notNull(),
+  processedRows: integer("processed_rows").default(0),
+  successfulRows: integer("successful_rows").default(0),
+  failedRows: integer("failed_rows").default(0),
+  resultsData: jsonb("results_data"), // Store processed results
+  errorLog: jsonb("error_log"), // Store any errors
+  downloadUrl: text("download_url"), // URL to download results
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  completedAt: timestamp("completed_at"),
+});
+
+// Bulk VIN lookup jobs for Pro users
+export const bulkVinJobs = pgTable("bulk_vin_jobs", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  jobName: text("job_name").notNull(),
+  vinList: text("vin_list").array().notNull(),
+  destination: text("destination").notNull(),
+  status: text("status").notNull().default('processing'), // 'processing', 'completed', 'failed'
+  totalVins: integer("total_vins").notNull(),
+  processedVins: integer("processed_vins").default(0),
+  successfulVins: integer("successful_vins").default(0),
+  failedVins: integer("failed_vins").default(0),
+  resultsData: jsonb("results_data"), // Store all VIN lookup results
+  downloadUrl: text("download_url"), // URL to download results
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  completedAt: timestamp("completed_at"),
+});
+
 // User sessions for authenticated users
 export const userAuthSessions = pgTable("user_auth_sessions", {
   id: serial("id").primaryKey(),
@@ -2141,10 +2204,26 @@ export type InsertUserAuthSession = typeof userAuthSessions.$inferInsert;
 export type UserSubscription = typeof userSubscriptions.$inferSelect;
 export type InsertUserSubscription = typeof userSubscriptions.$inferInsert;
 
+// Subscription Feature Types
+export type SavedReport = typeof savedReports.$inferSelect;
+export type InsertSavedReport = typeof savedReports.$inferInsert;
+export type ApiToken = typeof apiTokens.$inferSelect;
+export type InsertApiToken = typeof apiTokens.$inferInsert;
+export type CsvImportJob = typeof csvImportJobs.$inferSelect;
+export type InsertCsvImportJob = typeof csvImportJobs.$inferInsert;
+export type BulkVinJob = typeof bulkVinJobs.$inferSelect;
+export type InsertBulkVinJob = typeof bulkVinJobs.$inferInsert;
+
 // User authentication schemas
 export const insertUserAccountSchema = createInsertSchema(users);
 export const insertUserAuthSessionSchema = createInsertSchema(userAuthSessions);
 export const insertUserSubscriptionSchema = createInsertSchema(userSubscriptions);
+
+// Subscription feature schemas
+export const insertSavedReportSchema = createInsertSchema(savedReports);
+export const insertApiTokenSchema = createInsertSchema(apiTokens);
+export const insertCsvImportJobSchema = createInsertSchema(csvImportJobs);
+export const insertBulkVinJobSchema = createInsertSchema(bulkVinJobs);
 
 // Export compliance forms schema
 export * from "./compliance-forms-schema";
