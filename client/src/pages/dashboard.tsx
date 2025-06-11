@@ -87,13 +87,13 @@ export default function Dashboard() {
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      // Navigate to search page with query
-      window.location.href = `/lookup?q=${encodeURIComponent(searchQuery)}`;
+      // Navigate to import journey page with query
+      window.location.href = `/import-journey?q=${encodeURIComponent(searchQuery)}`;
     }
   };
 
   const handleRerunSearch = (search: any) => {
-    window.location.href = `/lookup?q=${encodeURIComponent(search.searchQuery)}&destination=${search.destination}`;
+    window.location.href = `/import-journey?q=${encodeURIComponent(search.searchQuery)}&destination=${search.destination}`;
   };
 
   const handleViewReport = (report: any) => {
