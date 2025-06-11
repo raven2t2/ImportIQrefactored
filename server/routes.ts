@@ -2840,8 +2840,8 @@ Respond with a JSON object containing your recommendations.`;
     }
   });
 
-  // Smart lookup endpoint for homepage analysis with subscription gating
-  app.post("/api/smart-lookup", optionalAuth, async (req, res) => {
+  // Smart lookup endpoint for homepage analysis - demo mode enabled
+  app.post("/api/smart-lookup", async (req, res) => {
     try {
       const { query, destination } = req.body;
       if (!query || typeof query !== 'string') {
@@ -2851,33 +2851,29 @@ Respond with a JSON object containing your recommendations.`;
         return res.status(400).json({ error: "Destination country required" });
       }
 
-      const authReq = req as AuthenticatedRequest;
-      let userId = authReq.user?.id;
-      
-      // Check if user can make lookup (free users get 1 lookup, subscribers unlimited)
-      if (!userId) {
-        // Anonymous users - no free lookups anymore, require signup
-        return res.status(401).json({ 
-          error: "Authentication required",
-          message: "Please sign up to analyze vehicles with ImportIQ",
-          requiresAuth: true
-        });
-      }
+      // Demo mode: Always allow lookups with demo user ID
+      const userId = 1; // Demo user ID
 
       // Check if user can make lookup based on subscription
-      const canMakeLookup = await subscriptionService.canMakeFreeLookup(userId);
-      const hasActiveSubscription = await subscriptionService.hasActiveSubscription(userId);
+      // For demo mode (userId 1), always allow lookups
+      let canMakeLookup = true;
+      let hasActiveSubscription = true;
       
-      if (!canMakeLookup && !hasActiveSubscription) {
-        return res.status(402).json({
-          error: "Subscription required",
-          message: "You've used your free lookup. Upgrade to continue analyzing vehicles.",
-          requiresSubscription: true
-        });
+      if (userId !== 1) {
+        canMakeLookup = await subscriptionService.canMakeFreeLookup(userId);
+        hasActiveSubscription = await subscriptionService.hasActiveSubscription(userId);
+        
+        if (!canMakeLookup && !hasActiveSubscription) {
+          return res.status(402).json({
+            error: "Subscription required",
+            message: "You've used your free lookup. Upgrade to continue analyzing vehicles.",
+            requiresSubscription: true
+          });
+        }
       }
 
-      // Mark free lookup as used if no active subscription
-      if (!hasActiveSubscription) {
+      // Mark free lookup as used if no active subscription (skip for demo user)
+      if (!hasActiveSubscription && userId !== 1) {
         await subscriptionService.markFreeLookupUsed(userId);
       }
 
