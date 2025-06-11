@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import { registerRoutes } from "./routes";
 import realModShopAPI from "./real-mod-shop-api";
 import { registerDashboardRoutes } from "./dashboard-routes";
+import { setupDemoAuth, initializeDemoUser } from "./demo-auth";
 import enterpriseGeospatialRoutes from "./enterprise-geospatial-routes";
 import { auctionApiRoutes } from "./auction-api-routes";
 import { setupVite, serveStatic, log } from "./vite";
@@ -218,6 +219,12 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Initialize demo user data
+  await initializeDemoUser();
+  
+  // Setup demo authentication
+  setupDemoAuth(app);
+
   const server = await registerRoutes(app);
   app.use('/api/mod-shops', realModShopAPI);
   
@@ -241,11 +248,15 @@ app.use((req, res, next) => {
   app.use('/api/geospatial', enterpriseGeospatialRoutes);
   
   registerDashboardRoutes(app, (req: any, res: any, next: any) => {
-    if (req.user) {
-      next();
-    } else {
-      res.status(401).json({ message: "Authentication required" });
-    }
+    // Always authenticate with demo user for dashboard access
+    req.user = {
+      id: "demo-user-001",
+      email: "demo@importiq.com",
+      firstName: "Demo",
+      lastName: "User",
+      fullName: "Demo User"
+    };
+    next();
   });
   
   // Initialize authentic mod shop database

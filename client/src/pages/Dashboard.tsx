@@ -54,7 +54,7 @@ export default function Dashboard() {
 
   const { data: dashboardData, isLoading: dashboardLoading } = useQuery<DashboardData>({
     queryKey: ["/api/dashboard"],
-    enabled: isAuthenticated,
+    enabled: true, // Always enabled since we have demo auth
   });
 
   if (isLoading || dashboardLoading) {
@@ -65,23 +65,11 @@ export default function Dashboard() {
     );
   }
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Authentication Required</CardTitle>
-            <CardDescription>Please log in to access your dashboard</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link href="/login">
-              <Button className="w-full">Go to Login</Button>
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  // Always show dashboard with demo user data
+  const demoUser = {
+    fullName: "Demo User",
+    email: "demo@importiq.com"
+  };
 
   const subscription = dashboardData?.subscription;
   const isSubscribed = subscription && subscription.status === 'active';
