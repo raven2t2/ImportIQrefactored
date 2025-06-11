@@ -49,12 +49,12 @@ export default function AdminDashboard() {
     }
   }, []);
 
-  const { data: submissions = [], isLoading: submissionsLoading } = useQuery({
+  const { data: submissions = [], isLoading: submissionsLoading } = useQuery<Submission[]>({
     queryKey: ["/api/admin/submissions"],
     enabled: isAuthenticated,
   });
 
-  const { data: stats, isLoading: statsLoading } = useQuery({
+  const { data: stats = { totalSubmissions: 0, totalUsers: 0, activeTrials: 0, totalRevenue: 0 }, isLoading: statsLoading } = useQuery<AdminStats>({
     queryKey: ["/api/admin/stats"],
     enabled: isAuthenticated,
   });
@@ -86,7 +86,7 @@ export default function AdminDashboard() {
     localStorage.removeItem('admin_authenticated');
   };
 
-  const filteredSubmissions = submissions.filter((submission: Submission) =>
+  const filteredSubmissions = (submissions || []).filter((submission: Submission) =>
     (submission.fullName || submission.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (submission.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (submission.vehicleMake || submission.make || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
