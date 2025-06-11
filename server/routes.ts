@@ -5867,6 +5867,9 @@ Respond with a JSON object containing your recommendations.`;
   async function calculateRealAuctionBasedCosts(vehicle: any, destination: string) {
     console.log(`🔍 calculateRealAuctionBasedCosts called for ${vehicle?.make} ${vehicle?.model} to ${destination}`);
     
+    const { CurrencyService } = await import('./currency-service');
+    const { ApifyAuctionIngestion } = await import('./apify-auction-ingestion.js');
+    
     // Get cost structure from database
     const costStructures = await db.select()
       .from(importCostStructure)
@@ -5943,73 +5946,54 @@ Respond with a JSON object containing your recommendations.`;
     }
     
     let basePrice = getDynamicVehiclePrice(vehicle?.make, vehicle?.model);
+    let currency = 'USD';
     
     try {
-      console.log(`🔍 Querying auction data for ${vehicle?.make} ${vehicle?.model}...`);
+      console.log(`🔍 Querying market pricing for ${vehicle?.make} ${vehicle?.model} to ${destination}...`);
       
-      // Direct SQL query to bypass complex Drizzle syntax issues
-      const auctionResults = await db.execute(sql`
-        SELECT make, model, price, source, last_updated 
-        FROM vehicle_auctions 
-        WHERE make = ${vehicle?.make || ''} 
-        AND model = ${vehicle?.model || ''}
-        AND price IS NOT NULL 
-        AND price > 0
-      `);
+      // Use the new currency-aware market pricing service
+      const marketPricing = await ApifyAuctionIngestion.getMarketPricing(
+        vehicle?.make || '',
+        vehicle?.model || '',
+        vehicle?.year,
+        destination
+      );
       
-      const auctionData = auctionResults.rows || [];
-      
-      console.log(`🔍 Found ${auctionData.length} auction records for ${vehicle?.make} ${vehicle?.model}`);
-      
-      if (auctionData.length > 0) {
-        console.log(`🔍 Raw auction data:`, auctionData.map(item => ({ make: item.make, model: item.model, price: item.price })));
-        
-        // Calculate average price from recent auction listings with valid prices
-        const validPrices = auctionData.filter(listing => listing.price && Number(listing.price) > 0);
-        console.log(`🔍 Valid prices found: ${validPrices.length}`);
-        
-        if (validPrices.length > 0) {
-          let totalConvertedPrice = 0;
-          
-          for (const listing of validPrices) {
-            let price = Number(listing.price);
-            
-            // Handle JPY conversion (prices above 1M are likely JPY)
-            if (price > 1000000) {
-              price = price * 0.0067; // JPY to USD (approximately 150 JPY = 1 USD)
-              console.log(`🔄 Converted JPY ${Number(listing.price).toLocaleString()} to USD ${Math.round(price).toLocaleString()}`);
-            }
-            
-            // Cap unrealistic prices for import vehicles
-            if (price > 150000) {
-              price = 75000; // Reasonable high-end price for import
-              console.log(`🚫 Capped unrealistic price to $${price.toLocaleString()}`);
-            }
-            
-            // Ensure minimum realistic price
-            if (price < 15000) {
-              price = 25000; // Minimum realistic import price
-              console.log(`⬆️ Raised low price to $${price.toLocaleString()}`);
-            }
-            
-            totalConvertedPrice += price;
-          }
-          
-          const avgPrice = totalConvertedPrice / validPrices.length;
-          basePrice = Math.round(avgPrice);
-          console.log(`✅ Using converted auction price for ${vehicle?.make} ${vehicle?.model}: $${basePrice.toLocaleString()} (from ${validPrices.length} listings)`);
-        }
+      if (marketPricing) {
+        basePrice = marketPricing.averagePrice;
+        currency = marketPricing.currency;
+        console.log(`✅ Using market pricing: ${CurrencyService.formatPrice(basePrice, currency)} for ${vehicle?.make} ${vehicle?.model} (${marketPricing.sampleSize} listings)`);
       } else {
-        console.log(`❌ No auction data found for ${vehicle?.make} ${vehicle?.model}, using fallback price: $${basePrice.toLocaleString()}`);
+        // Convert fallback price to destination currency
+        const currencyConfig = CurrencyService.getCurrencyConfig(destination);
+        const convertedPrice = await CurrencyService.convertPrice(basePrice, 'USD', currencyConfig.code);
+        basePrice = Math.round(convertedPrice);
+        currency = currencyConfig.code;
+        console.log(`📊 Using fallback pricing: ${CurrencyService.formatPrice(basePrice, currency)} for ${vehicle?.make} ${vehicle?.model}`);
       }
     } catch (error) {
-      console.error('❌ Error fetching auction price:', error);
+      console.error('❌ Error fetching market pricing:', error);
+      // Ensure currency conversion even for errors
+      const currencyConfig = CurrencyService.getCurrencyConfig(destination);
+      const convertedPrice = await CurrencyService.convertPrice(basePrice, 'USD', currencyConfig.code);
+      basePrice = Math.round(convertedPrice);
+      currency = currencyConfig.code;
     }
     
-    const shipping = Number(costs.baseShippingCost) || 4200;
+    // Convert fixed costs to destination currency
+    const baseShippingCost = Number(costs.baseShippingCost) || 4200;
+    const baseComplianceFee = Number(costs.complianceFee) || 8500;
+    
+    const shipping = currency !== 'USD' ? 
+      Math.round(await CurrencyService.convertPrice(baseShippingCost, 'USD', currency)) :
+      baseShippingCost;
+    
+    const compliance = currency !== 'USD' ?
+      Math.round(await CurrencyService.convertPrice(baseComplianceFee, 'USD', currency)) :
+      baseComplianceFee;
+    
     const duties = Math.round(basePrice * (Number(costs.dutyRate) || 0.05));
     const gst = Math.round((basePrice + shipping + duties) * (Number(costs.gstRate) || 0.10));
-    const compliance = Number(costs.complianceFee) || 8500;
     const total = basePrice + shipping + duties + gst + compliance;
     
     return {
@@ -6018,9 +6002,10 @@ Respond with a JSON object containing your recommendations.`;
       duties: duties + gst,
       compliance: compliance,
       total: Math.round(total),
+      currency: currency,
       breakdown: [
         { category: 'Vehicle Purchase', amount: basePrice, description: 'Market-verified vehicle cost from auction data' },
-        { category: 'Shipping', amount: shipping, description: 'Japan to Australia authenticated rates' },
+        { category: 'Shipping', amount: shipping, description: 'International shipping with currency conversion' },
         { category: 'Import Duties', amount: duties, description: `${((costs.dutyRate || 0.05) * 100).toFixed(1)}% import duty` },
         { category: 'GST', amount: gst, description: `${((costs.gstRate || 0.10) * 100).toFixed(1)}% goods and services tax` },
         { category: 'Compliance', amount: compliance, description: 'Official compliance certification' }
