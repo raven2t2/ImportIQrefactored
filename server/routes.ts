@@ -10881,6 +10881,316 @@ IMPORTANT GUIDELINES:
     }
   });
 
+  // Register subscription routes
+  registerSubscriptionRoutes(app);
+
+  // ===== SUBSCRIPTION FEATURE ROUTES =====
+
+  // Saved Reports Management
+  app.get("/api/reports", requireAuth, async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const reports = await subscriptionFeaturesService.getUserReports(authReq.user.id);
+      res.json({ reports });
+    } catch (error) {
+      console.error('Reports fetch error:', error);
+      res.status(500).json({ error: "Failed to fetch reports" });
+    }
+  });
+
+  app.get("/api/reports/:id", requireAuth, async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const report = await subscriptionFeaturesService.getReport(authReq.user.id, parseInt(req.params.id));
+      if (!report) {
+        return res.status(404).json({ error: "Report not found" });
+      }
+      res.json({ report });
+    } catch (error) {
+      console.error('Report fetch error:', error);
+      res.status(500).json({ error: "Failed to fetch report" });
+    }
+  });
+
+  app.put("/api/reports/:id", requireAuth, async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const { title, notes, isBookmarked } = req.body;
+      const updated = await subscriptionFeaturesService.updateReport(authReq.user.id, parseInt(req.params.id), {
+        title, notes, isBookmarked
+      });
+      if (!updated) {
+        return res.status(404).json({ error: "Report not found" });
+      }
+      res.json({ report: updated });
+    } catch (error) {
+      console.error('Report update error:', error);
+      res.status(500).json({ error: "Failed to update report" });
+    }
+  });
+
+  app.delete("/api/reports/:id", requireAuth, async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const deleted = await subscriptionFeaturesService.deleteReport(authReq.user.id, parseInt(req.params.id));
+      if (!deleted) {
+        return res.status(404).json({ error: "Report not found" });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Report delete error:', error);
+      res.status(500).json({ error: "Failed to delete report" });
+    }
+  });
+
+  // API Token Management (Pro feature)
+  app.get("/api/tokens", requireAuth, async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const tokens = await subscriptionFeaturesService.getUserTokens(authReq.user.id);
+      res.json({ tokens });
+    } catch (error) {
+      console.error('Tokens fetch error:', error);
+      res.status(500).json({ error: "Failed to fetch API tokens" });
+    }
+  });
+
+  app.post("/api/tokens", requireAuth, async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const { tokenName, scopes } = req.body;
+      
+      if (!tokenName || typeof tokenName !== 'string') {
+        return res.status(400).json({ error: "Token name is required" });
+      }
+
+      const result = await subscriptionFeaturesService.createApiToken(authReq.user.id, tokenName, scopes);
+      res.json({
+        success: true,
+        token: result.token,
+        apiToken: result.apiToken
+      });
+    } catch (error) {
+      console.error('Token creation error:', error);
+      if (error.message.includes('Pro subscription')) {
+        return res.status(402).json({ error: error.message, requiresUpgrade: true });
+      }
+      res.status(500).json({ error: "Failed to create API token" });
+    }
+  });
+
+  app.delete("/api/tokens/:id", requireAuth, async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const revoked = await subscriptionFeaturesService.revokeApiToken(authReq.user.id, parseInt(req.params.id));
+      if (!revoked) {
+        return res.status(404).json({ error: "Token not found" });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Token revoke error:', error);
+      res.status(500).json({ error: "Failed to revoke token" });
+    }
+  });
+
+  // CSV Import Feature (Pro feature)
+  app.post("/api/csv-import", requireAuth, async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const { fileName, csvData } = req.body;
+      
+      if (!fileName || !csvData || !Array.isArray(csvData)) {
+        return res.status(400).json({ error: "File name and CSV data are required" });
+      }
+
+      const job = await subscriptionFeaturesService.createCsvImportJob(authReq.user.id, fileName, csvData);
+      res.json({ success: true, job });
+    } catch (error) {
+      console.error('CSV import error:', error);
+      if (error.message.includes('Pro subscription')) {
+        return res.status(402).json({ error: error.message, requiresUpgrade: true });
+      }
+      res.status(500).json({ error: "Failed to start CSV import" });
+    }
+  });
+
+  app.get("/api/csv-jobs", requireAuth, async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const jobs = await subscriptionFeaturesService.getUserCsvJobs(authReq.user.id);
+      res.json({ jobs });
+    } catch (error) {
+      console.error('CSV jobs fetch error:', error);
+      res.status(500).json({ error: "Failed to fetch CSV jobs" });
+    }
+  });
+
+  app.get("/api/csv-jobs/:id", requireAuth, async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const job = await subscriptionFeaturesService.getCsvImportJob(authReq.user.id, parseInt(req.params.id));
+      if (!job) {
+        return res.status(404).json({ error: "Job not found" });
+      }
+      res.json({ job });
+    } catch (error) {
+      console.error('CSV job fetch error:', error);
+      res.status(500).json({ error: "Failed to fetch CSV job" });
+    }
+  });
+
+  // Bulk VIN Lookup Feature (Pro feature)
+  app.post("/api/bulk-vin", requireAuth, async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const { jobName, vinList, destination } = req.body;
+      
+      if (!jobName || !vinList || !Array.isArray(vinList) || !destination) {
+        return res.status(400).json({ error: "Job name, VIN list, and destination are required" });
+      }
+
+      const job = await subscriptionFeaturesService.createBulkVinJob(authReq.user.id, jobName, vinList, destination);
+      res.json({ success: true, job });
+    } catch (error) {
+      console.error('Bulk VIN error:', error);
+      if (error.message.includes('Pro subscription')) {
+        return res.status(402).json({ error: error.message, requiresUpgrade: true });
+      }
+      res.status(500).json({ error: "Failed to start bulk VIN lookup" });
+    }
+  });
+
+  app.get("/api/bulk-vin-jobs", requireAuth, async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const jobs = await subscriptionFeaturesService.getUserBulkVinJobs(authReq.user.id);
+      res.json({ jobs });
+    } catch (error) {
+      console.error('Bulk VIN jobs fetch error:', error);
+      res.status(500).json({ error: "Failed to fetch bulk VIN jobs" });
+    }
+  });
+
+  app.get("/api/bulk-vin-jobs/:id", requireAuth, async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const job = await subscriptionFeaturesService.getBulkVinJob(authReq.user.id, parseInt(req.params.id));
+      if (!job) {
+        return res.status(404).json({ error: "Job not found" });
+      }
+      res.json({ job });
+    } catch (error) {
+      console.error('Bulk VIN job fetch error:', error);
+      res.status(500).json({ error: "Failed to fetch bulk VIN job" });
+    }
+  });
+
+  // API Access Endpoint (for external integrations)
+  app.post("/api/external/lookup", async (req, res) => {
+    try {
+      const apiKey = req.headers.authorization?.replace('Bearer ', '');
+      if (!apiKey) {
+        return res.status(401).json({ error: "API key required" });
+      }
+
+      const tokenData = await subscriptionFeaturesService.validateApiToken(apiKey);
+      if (!tokenData) {
+        return res.status(401).json({ error: "Invalid API key" });
+      }
+
+      const { query, destination } = req.body;
+      if (!query || !destination) {
+        return res.status(400).json({ error: "Query and destination are required" });
+      }
+
+      // Perform the same lookup logic as the main endpoint
+      const result = await smartParser.intelligentVehicleLookup(query.trim());
+      
+      if (result.data) {
+        // Get compliance data for the selected destination
+        let complianceData = null;
+        try {
+          const complianceService = new PostgreSQLComplianceService();
+          complianceData = await complianceService.getComplianceForDestination(
+            result.data.make,
+            result.data.model,
+            result.data.year,
+            destination
+          );
+        } catch (complianceError) {
+          console.log('API compliance lookup warning:', complianceError.message);
+        }
+
+        // Save as report for API user
+        try {
+          await subscriptionFeaturesService.saveReport(tokenData.userId, {
+            title: `API: ${result.data.make} ${result.data.model} Analysis`,
+            vehicleData: result.data,
+            searchQuery: query,
+            destination: destination,
+            reportType: 'api_lookup'
+          });
+        } catch (saveError) {
+          console.log('API report save warning:', saveError.message);
+        }
+
+        const response = {
+          vehicle: {
+            make: result.data.make || 'Unknown',
+            model: result.data.model || 'Unknown',
+            year: result.data.year || result.data.yearRange || null
+          },
+          eligibility: {
+            status: result.confidenceScore > 70 ? 'eligible' : 'needs_review',
+            confidence: result.confidenceScore,
+            notes: result.whyThisResult,
+            complianceInfo: complianceData
+          },
+          costs: result.data.estimatedCosts || null,
+          nextSteps: result.nextSteps || [],
+          sourceAttribution: result.sourceAttribution,
+          destination: destination,
+          apiLookup: true
+        };
+
+        res.json(response);
+      } else {
+        res.status(404).json({
+          error: 'Vehicle not found',
+          message: result.whyThisResult || 'Could not identify vehicle from input',
+          suggestions: result.nextSteps || [],
+          fallbackSuggestions: result.fallbackSuggestions || []
+        });
+      }
+    } catch (error) {
+      console.error('API lookup error:', error);
+      res.status(500).json({ error: "API lookup failed" });
+    }
+  });
+
+  // User subscription status endpoint
+  app.get("/api/subscription-status", requireAuth, async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const subscription = await subscriptionService.getUserSubscription(authReq.user.id);
+      const hasActive = await subscriptionService.hasActiveSubscription(authReq.user.id);
+      const canMakeFree = await subscriptionService.canMakeFreeLookup(authReq.user.id);
+
+      res.json({
+        hasActiveSubscription: hasActive,
+        canMakeFreeLookup: canMakeFree,
+        subscription: subscription,
+        user: {
+          email: authReq.user.email,
+          freeLookupUsed: authReq.user.freeLookupUsed
+        }
+      });
+    } catch (error) {
+      console.error('Subscription status error:', error);
+      res.status(500).json({ error: "Failed to fetch subscription status" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
