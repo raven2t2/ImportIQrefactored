@@ -129,15 +129,128 @@ class SessionManager {
     chassis?: string;
     year?: string;
     destination?: string;
+    query?: string;
   } {
     const urlParams = new URLSearchParams(window.location.search);
     
+    // Handle generic search query parameter
+    const query = urlParams.get('q');
+    let parsedVehicle = {};
+    
+    if (query) {
+      // Try to parse the query for vehicle information
+      parsedVehicle = this.parseVehicleQuery(query);
+    }
+    
     return {
-      make: urlParams.get('make') || undefined,
-      model: urlParams.get('model') || undefined,
+      make: urlParams.get('make') || parsedVehicle.make || undefined,
+      model: urlParams.get('model') || parsedVehicle.model || undefined,
       chassis: urlParams.get('chassis') || undefined,
-      year: urlParams.get('year') || undefined,
-      destination: urlParams.get('destination') || undefined
+      year: urlParams.get('year') || parsedVehicle.year || undefined,
+      destination: urlParams.get('destination') || undefined,
+      query: query || undefined
+    };
+  }
+  
+  // Parse a search query to extract vehicle information
+  static parseVehicleQuery(query: string): {
+    make?: string;
+    model?: string;
+    year?: string;
+  } {
+    const cleaned = query.trim().toLowerCase();
+    
+    // Common vehicle make patterns
+    const makePatterns = {
+      'toyota': ['toyota', 'toyata'],
+      'nissan': ['nissan', 'nisan'],
+      'honda': ['honda'],
+      'mazda': ['mazda'],
+      'subaru': ['subaru'],
+      'mitsubishi': ['mitsubishi', 'mitsu'],
+      'bmw': ['bmw'],
+      'mercedes': ['mercedes', 'benz', 'mercedes-benz'],
+      'audi': ['audi'],
+      'volkswagen': ['volkswagen', 'vw'],
+      'porsche': ['porsche'],
+      'ferrari': ['ferrari'],
+      'lamborghini': ['lamborghini', 'lambo'],
+      'mclaren': ['mclaren'],
+      'ford': ['ford'],
+      'chevrolet': ['chevrolet', 'chevy'],
+      'dodge': ['dodge'],
+      'chrysler': ['chrysler']
+    };
+    
+    // Common model patterns
+    const modelPatterns = {
+      'supra': ['supra'],
+      'skyline': ['skyline', 'gtr', 'gt-r'],
+      'silvia': ['silvia', 's13', 's14', 's15'],
+      'rx7': ['rx7', 'rx-7'],
+      'rx8': ['rx8', 'rx-8'],
+      'lancer': ['lancer', 'evo', 'evolution'],
+      'impreza': ['impreza', 'wrx', 'sti'],
+      'm3': ['m3'],
+      'm5': ['m5'],
+      'golf': ['golf'],
+      '911': ['911'],
+      'camaro': ['camaro'],
+      'mustang': ['mustang'],
+      'corvette': ['corvette']
+    };
+    
+    let detectedMake = '';
+    let detectedModel = '';
+    let detectedYear = '';
+    
+    // Extract year (4 digits)
+    const yearMatch = cleaned.match(/\b(19[0-9]{2}|20[0-9]{2})\b/);
+    if (yearMatch) {
+      detectedYear = yearMatch[1];
+    }
+    
+    // Detect make
+    for (const [make, patterns] of Object.entries(makePatterns)) {
+      if (patterns.some(pattern => cleaned.includes(pattern))) {
+        detectedMake = make;
+        break;
+      }
+    }
+    
+    // Detect model
+    for (const [model, patterns] of Object.entries(modelPatterns)) {
+      if (patterns.some(pattern => cleaned.includes(pattern))) {
+        detectedModel = model;
+        break;
+      }
+    }
+    
+    // If no specific make detected but model is found, try to infer make
+    if (!detectedMake && detectedModel) {
+      const modelToMake = {
+        'supra': 'toyota',
+        'skyline': 'nissan',
+        'silvia': 'nissan',
+        'rx7': 'mazda',
+        'rx8': 'mazda',
+        'lancer': 'mitsubishi',
+        'impreza': 'subaru',
+        'm3': 'bmw',
+        'm5': 'bmw',
+        'golf': 'volkswagen',
+        '911': 'porsche',
+        'camaro': 'chevrolet',
+        'mustang': 'ford',
+        'corvette': 'chevrolet'
+      };
+      detectedMake = modelToMake[detectedModel] || '';
+    }
+    
+    return {
+      make: detectedMake || undefined,
+      model: detectedModel || undefined,
+      year: detectedYear || undefined
     };
   }
   

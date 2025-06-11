@@ -186,7 +186,15 @@ export default function ImportJourney() {
       // Try to get or create session token
       let token = SessionManager.getSessionToken();
       
-      if (!token && (newVehicleData.make || newVehicleData.model)) {
+      // Get the current vehicle data for session management
+      const currentVehicleData = {
+        make: urlParams.make || '',
+        model: urlParams.model || '',
+        chassis: urlParams.chassis || '',
+        year: urlParams.year || ''
+      };
+      
+      if (!token && (currentVehicleData.make || currentVehicleData.model)) {
         try {
           const reconstructed = await SessionManager.reconstructSession(urlParams);
           if (reconstructed) {
@@ -235,7 +243,7 @@ export default function ImportJourney() {
       
       return response.json();
     },
-    enabled: !!(vehicleData.make && vehicleData.model && (vehicleData.searchResult || (sessionToken && isInitialized))),
+    enabled: !!(vehicleData.make && vehicleData.model && isInitialized),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
