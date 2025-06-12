@@ -3196,98 +3196,21 @@ Respond with a JSON object containing your recommendations.`;
       const shippingCost = Math.round(officialCosts.shippingEstimate * conversionRate);
       const totalCost = Math.round(officialCosts.total * conversionRate);
 
-      // Cost breakdown structure with official government data
-      const costBreakdown = [
-        {
-          category: "Vehicle Purchase",
-          amount: Math.round(vehiclePrice),
-          description: `Average auction price from ${eligiblePricing.length} listings`
-        },
-        {
-          category: "Shipping",
-          amount: Math.round(shippingCost),
-          description: "Door-to-door shipping and logistics"
-        },
-        {
-          category: "Customs Duty",
-          amount: Math.round(customsDuty),
-          description: "Import duties and border processing"
-        },
-        {
-          category: "GST",
-          amount: Math.round(gst),
-          description: "Goods and Services Tax"
-        }
-      ];
-
-      // Add luxury tax if applicable
-      if (luxuryTax > 0) {
-        costBreakdown.push({
-          category: "Luxury Car Tax",
-          amount: Math.round(luxuryTax),
-          description: "Luxury vehicle surcharge (>$75,000)"
-        });
-      }
-
-      // Add compliance and registration
-      costBreakdown.push(
-        {
-          category: "Compliance",
-          amount: complianceCost,
-          description: "RAWS certification and modifications"
-        },
-        {
-          category: "Registration",
-          amount: registrationCost,
-          description: "State registration and number plates"
-        }
+      // Cost breakdown structure with destination-specific data
+      const costBreakdown = getDestinationCostBreakdown(
+        destination.toString(),
+        vehiclePrice,
+        shippingCost,
+        customsDuty,
+        gst,
+        luxuryTax,
+        complianceCost,
+        registrationCost,
+        eligiblePricing.length
       );
 
-      // Timeline phases
-      const timeline = [
-        {
-          phase: "Vehicle Purchase",
-          duration: "1-2 weeks",
-          status: specifiedYear ? "current" : "upcoming",
-          description: "Find and purchase vehicle from auction or dealer",
-          requirements: ["Secure financing", "Arrange inspection", "Complete purchase"]
-        },
-        {
-          phase: "Export Documentation",
-          duration: "1 week",
-          status: "upcoming",
-          description: "Prepare export documentation and shipping",
-          requirements: ["Export certificate", "De-registration", "Shipping booking"]
-        },
-        {
-          phase: "Ocean Freight",
-          duration: "3-4 weeks",
-          status: "upcoming",
-          description: "Vehicle shipped to destination port",
-          requirements: ["Container loading", "Ocean transit", "Port arrival"]
-        },
-        {
-          phase: "Customs Clearance",
-          duration: "3-5 days",
-          status: "upcoming",
-          description: "Customs processing and duty payment",
-          requirements: ["Import permit", "Duty payment", "Quarantine inspection"]
-        },
-        {
-          phase: "Compliance Certification",
-          duration: "2-4 weeks",
-          status: "upcoming",
-          description: "RAWS workshop compliance modifications",
-          requirements: ["RAWS assessment", "Required modifications", "Compliance plate"]
-        },
-        {
-          phase: "Registration",
-          duration: "1 week",
-          status: "upcoming",
-          description: "State registration and roadworthy certificate",
-          requirements: ["Roadworthy inspection", "Registration application", "Number plates"]
-        }
-      ];
+      // Timeline phases - destination-specific
+      const timeline = getDestinationTimeline(destination.toString(), specifiedYear);
 
       // Next steps based on year selection
       const nextSteps = [];
@@ -5727,22 +5650,419 @@ Respond with a JSON object containing your recommendations.`;
   // Helper functions for import intelligence
   function getDestinationFlag(destination: string): string {
     const flags: Record<string, string> = {
-      australia: '🇦🇺',
-      usa: '🇺🇸',
-      uk: '🇬🇧',
-      canada: '🇨🇦'
+      australia: '🇦🇺', usa: '🇺🇸', uk: '🇬🇧', canada: '🇨🇦',
+      germany: '🇩🇪', deutschland: '🇩🇪', japan: '🇯🇵',
+      france: '🇫🇷', italy: '🇮🇹', spain: '🇪🇸', netherlands: '🇳🇱',
+      belgium: '🇧🇪', switzerland: '🇨🇭', austria: '🇦🇹',
+      sweden: '🇸🇪', norway: '🇳🇴', denmark: '🇩🇰',
+      finland: '🇫🇮', ireland: '🇮🇪', portugal: '🇵🇹',
+      newzealand: '🇳🇿', singapore: '🇸🇬', hongkong: '🇭🇰',
+      southafrica: '🇿🇦', israel: '🇮🇱', uae: '🇦🇪',
+      chile: '🇨🇱', mexico: '🇲🇽', brazil: '🇧🇷'
     };
-    return flags[destination] || '🌍';
+    return flags[destination.toLowerCase()] || '🌍';
   }
 
   function getDestinationName(destination: string): string {
     const names: Record<string, string> = {
-      australia: 'Australia',
-      usa: 'United States',
-      uk: 'United Kingdom',
-      canada: 'Canada'
+      australia: 'Australia', usa: 'United States', uk: 'United Kingdom', 
+      canada: 'Canada', germany: 'Germany', deutschland: 'Germany',
+      japan: 'Japan', france: 'France', italy: 'Italy', spain: 'Spain',
+      netherlands: 'Netherlands', belgium: 'Belgium', switzerland: 'Switzerland',
+      austria: 'Austria', sweden: 'Sweden', norway: 'Norway', denmark: 'Denmark',
+      finland: 'Finland', ireland: 'Ireland', portugal: 'Portugal',
+      newzealand: 'New Zealand', singapore: 'Singapore', hongkong: 'Hong Kong',
+      southafrica: 'South Africa', israel: 'Israel', uae: 'United Arab Emirates',
+      chile: 'Chile', mexico: 'Mexico', brazil: 'Brazil'
     };
-    return names[destination] || 'International';
+    return names[destination.toLowerCase()] || 'International';
+  }
+
+  function getDestinationCostBreakdown(
+    destination: string,
+    vehiclePrice: number,
+    shippingCost: number,
+    customsDuty: number,
+    gst: number,
+    luxuryTax: number,
+    complianceCost: number,
+    registrationCost: number,
+    listingCount: number
+  ): Array<{ category: string; amount: number; description: string }> {
+    const dest = destination.toLowerCase();
+    const baseBreakdown = [
+      {
+        category: "Vehicle Purchase",
+        amount: Math.round(vehiclePrice),
+        description: `Average auction price from ${listingCount} listings`
+      },
+      {
+        category: "Shipping",
+        amount: Math.round(shippingCost),
+        description: "Door-to-door shipping and logistics"
+      },
+      {
+        category: "Customs Duty",
+        amount: Math.round(customsDuty),
+        description: "Import duties and border processing"
+      }
+    ];
+
+    switch (dest) {
+      case 'usa':
+        baseBreakdown.push(
+          {
+            category: "Federal Compliance",
+            amount: Math.round(complianceCost),
+            description: "DOT/EPA 25-year exemption processing"
+          },
+          {
+            category: "State Registration",
+            amount: Math.round(registrationCost),
+            description: "DMV registration and state inspection"
+          }
+        );
+        break;
+
+      case 'canada':
+        baseBreakdown.push(
+          {
+            category: "GST/HST",
+            amount: Math.round(gst),
+            description: "Goods and Services Tax"
+          },
+          {
+            category: "Transport Canada Compliance",
+            amount: Math.round(complianceCost),
+            description: "RIV registration and safety modifications"
+          },
+          {
+            category: "Provincial Registration",
+            amount: Math.round(registrationCost),
+            description: "Provincial licensing and safety certificate"
+          }
+        );
+        break;
+
+      case 'uk':
+        baseBreakdown.push(
+          {
+            category: "VAT",
+            amount: Math.round(gst),
+            description: "Value Added Tax (20%)"
+          },
+          {
+            category: "DVLA Compliance",
+            amount: Math.round(complianceCost),
+            description: "IVA test and vehicle registration"
+          },
+          {
+            category: "Registration & MOT",
+            amount: Math.round(registrationCost),
+            description: "Vehicle registration and MOT certificate"
+          }
+        );
+        break;
+
+      case 'germany':
+      case 'deutschland':
+        baseBreakdown.push(
+          {
+            category: "VAT (MwSt)",
+            amount: Math.round(gst),
+            description: "German Value Added Tax (19%)"
+          },
+          {
+            category: "TÜV Compliance",
+            amount: Math.round(complianceCost),
+            description: "Technical inspection and approval"
+          },
+          {
+            category: "Registration",
+            amount: Math.round(registrationCost),
+            description: "German vehicle registration and plates"
+          }
+        );
+        break;
+
+      case 'australia':
+      default:
+        baseBreakdown.push(
+          {
+            category: "GST",
+            amount: Math.round(gst),
+            description: "Goods and Services Tax"
+          }
+        );
+        
+        if (luxuryTax > 0) {
+          baseBreakdown.push({
+            category: "Luxury Car Tax",
+            amount: Math.round(luxuryTax),
+            description: "Luxury vehicle surcharge (>$75,000)"
+          });
+        }
+
+        baseBreakdown.push(
+          {
+            category: "RAWS Compliance",
+            amount: Math.round(complianceCost),
+            description: "RAWS certification and modifications"
+          },
+          {
+            category: "State Registration",
+            amount: Math.round(registrationCost),
+            description: "State registration and number plates"
+          }
+        );
+        break;
+    }
+
+    return baseBreakdown;
+  }
+
+  function getDestinationTimeline(destination: string, specifiedYear?: number | null): Array<{
+    phase: string;
+    duration: string;
+    status: string;
+    description: string;
+    requirements: string[];
+  }> {
+    const dest = destination.toLowerCase();
+    
+    switch (dest) {
+      case 'usa':
+        return [
+          {
+            phase: "Vehicle Purchase",
+            duration: "1-2 weeks",
+            status: specifiedYear ? "current" : "upcoming",
+            description: "Find and purchase vehicle from auction or dealer",
+            requirements: ["Secure financing", "Arrange inspection", "Complete purchase"]
+          },
+          {
+            phase: "Export Documentation",
+            duration: "1 week",
+            status: "upcoming",
+            description: "Prepare US export documentation",
+            requirements: ["Export declaration", "Title transfer", "DOT compliance check"]
+          },
+          {
+            phase: "Ocean Freight",
+            duration: "2-3 weeks",
+            status: "upcoming",
+            description: "Vehicle shipped to US port",
+            requirements: ["Container loading", "Ocean transit", "Port arrival"]
+          },
+          {
+            phase: "Customs Clearance",
+            duration: "3-5 days",
+            status: "upcoming",
+            description: "CBP processing and duty payment",
+            requirements: ["HS-7 declaration", "DOT bond", "EPA clearance"]
+          },
+          {
+            phase: "Federal Compliance",
+            duration: "2-6 weeks",
+            status: "upcoming",
+            description: "DOT/EPA compliance modifications",
+            requirements: ["25-year exemption", "Safety standards", "Emissions compliance"]
+          },
+          {
+            phase: "State Registration",
+            duration: "1-2 weeks",
+            status: "upcoming",
+            description: "State DMV registration and title",
+            requirements: ["State inspection", "Registration application", "License plates"]
+          }
+        ];
+
+      case 'canada':
+        return [
+          {
+            phase: "Vehicle Purchase",
+            duration: "1-2 weeks",
+            status: specifiedYear ? "current" : "upcoming",
+            description: "Find and purchase vehicle from auction or dealer",
+            requirements: ["Secure financing", "Arrange inspection", "Complete purchase"]
+          },
+          {
+            phase: "Export Documentation",
+            duration: "1 week",
+            status: "upcoming",
+            description: "Prepare Canadian export documentation",
+            requirements: ["Export permit", "Title documentation", "Shipping arrangement"]
+          },
+          {
+            phase: "Ocean Freight",
+            duration: "2-4 weeks",
+            status: "upcoming",
+            description: "Vehicle shipped to Canadian port",
+            requirements: ["Container loading", "Ocean transit", "Port arrival"]
+          },
+          {
+            phase: "Customs Clearance",
+            duration: "3-7 days",
+            status: "upcoming",
+            description: "CBSA processing and duty payment",
+            requirements: ["Import declaration", "Duty payment", "RIV registration"]
+          },
+          {
+            phase: "Transport Canada Compliance",
+            duration: "4-8 weeks",
+            status: "upcoming",
+            description: "National Safety Mark compliance",
+            requirements: ["Recall clearance", "Required modifications", "Safety inspection"]
+          },
+          {
+            phase: "Provincial Registration",
+            duration: "1-2 weeks",
+            status: "upcoming",
+            description: "Provincial registration and licensing",
+            requirements: ["Safety certificate", "Registration application", "License plates"]
+          }
+        ];
+
+      case 'uk':
+        return [
+          {
+            phase: "Vehicle Purchase",
+            duration: "1-2 weeks",
+            status: specifiedYear ? "current" : "upcoming",
+            description: "Find and purchase vehicle from auction or dealer",
+            requirements: ["Secure financing", "Arrange inspection", "Complete purchase"]
+          },
+          {
+            phase: "Export Documentation",
+            duration: "1 week",
+            status: "upcoming",
+            description: "Prepare UK import documentation",
+            requirements: ["Export certificate", "Title transfer", "Shipping booking"]
+          },
+          {
+            phase: "Ocean Freight",
+            duration: "2-3 weeks",
+            status: "upcoming",
+            description: "Vehicle shipped to UK port",
+            requirements: ["Container loading", "Ocean transit", "Port arrival"]
+          },
+          {
+            phase: "Customs Clearance",
+            duration: "3-5 days",
+            status: "upcoming",
+            description: "HMRC processing and duty payment",
+            requirements: ["Import declaration", "VAT payment", "Customs duty"]
+          },
+          {
+            phase: "DVLA Registration",
+            duration: "2-4 weeks",
+            status: "upcoming",
+            description: "UK vehicle registration and compliance",
+            requirements: ["IVA test", "V55/5 form", "MOT certificate"]
+          },
+          {
+            phase: "Final Registration",
+            duration: "1 week",
+            status: "upcoming",
+            description: "Number plates and road legal status",
+            requirements: ["Registration certificate", "Number plates", "Insurance"]
+          }
+        ];
+
+      case 'germany':
+      case 'deutschland':
+        return [
+          {
+            phase: "Vehicle Purchase",
+            duration: "1-2 weeks",
+            status: specifiedYear ? "current" : "upcoming",
+            description: "Find and purchase vehicle from auction or dealer",
+            requirements: ["Secure financing", "Arrange inspection", "Complete purchase"]
+          },
+          {
+            phase: "Export Documentation",
+            duration: "1 week",
+            status: "upcoming",
+            description: "Prepare German import documentation",
+            requirements: ["Export certificate", "COC documentation", "Shipping arrangement"]
+          },
+          {
+            phase: "Ocean Freight",
+            duration: "2-3 weeks",
+            status: "upcoming",
+            description: "Vehicle shipped to German port",
+            requirements: ["Container loading", "Ocean transit", "Port arrival"]
+          },
+          {
+            phase: "Customs Clearance",
+            duration: "3-5 days",
+            status: "upcoming",
+            description: "German customs processing",
+            requirements: ["Import declaration", "VAT payment", "Customs duty"]
+          },
+          {
+            phase: "TÜV Compliance",
+            duration: "3-6 weeks",
+            status: "upcoming",
+            description: "German technical inspection and approval",
+            requirements: ["TÜV inspection", "Technical modifications", "Emissions compliance"]
+          },
+          {
+            phase: "Registration",
+            duration: "1-2 weeks",
+            status: "upcoming",
+            description: "German vehicle registration",
+            requirements: ["Registration application", "Insurance", "License plates"]
+          }
+        ];
+
+      case 'australia':
+      default:
+        return [
+          {
+            phase: "Vehicle Purchase",
+            duration: "1-2 weeks",
+            status: specifiedYear ? "current" : "upcoming",
+            description: "Find and purchase vehicle from auction or dealer",
+            requirements: ["Secure financing", "Arrange inspection", "Complete purchase"]
+          },
+          {
+            phase: "Export Documentation",
+            duration: "1 week",
+            status: "upcoming",
+            description: "Prepare export documentation and shipping",
+            requirements: ["Export certificate", "De-registration", "Shipping booking"]
+          },
+          {
+            phase: "Ocean Freight",
+            duration: "3-4 weeks",
+            status: "upcoming",
+            description: "Vehicle shipped to destination port",
+            requirements: ["Container loading", "Ocean transit", "Port arrival"]
+          },
+          {
+            phase: "Customs Clearance",
+            duration: "3-5 days",
+            status: "upcoming",
+            description: "Customs processing and duty payment",
+            requirements: ["Import permit", "Duty payment", "Quarantine inspection"]
+          },
+          {
+            phase: "Compliance Certification",
+            duration: "2-4 weeks",
+            status: "upcoming",
+            description: "RAWS workshop compliance modifications",
+            requirements: ["RAWS assessment", "Required modifications", "Compliance plate"]
+          },
+          {
+            phase: "Registration",
+            duration: "1 week",
+            status: "upcoming",
+            description: "State registration and roadworthy certificate",
+            requirements: ["Roadworthy inspection", "Registration application", "Number plates"]
+          }
+        ];
+    }
   }
 
   async function calculateEligibility(vehicle: any, destination: string) {
