@@ -32,11 +32,18 @@ export default function ImportCalculator() {
   const { toast } = useToast();
 
   // Fetch compliance forms for selected destination
-  const { data: complianceFormsData } = useQuery({
+  const { data: complianceFormsData, refetch: refetchComplianceForms } = useQuery({
     queryKey: ['/api/compliance-forms', selectedDestination],
     queryFn: () => fetch(`/api/compliance-forms/${selectedDestination}?vehicleType=passenger_cars`).then(res => res.json()),
     enabled: !!selectedDestination,
   });
+
+  // Refetch compliance forms when destination changes
+  useEffect(() => {
+    if (selectedDestination) {
+      refetchComplianceForms();
+    }
+  }, [selectedDestination, refetchComplianceForms]);
 
   // Check for existing trial login status and URL parameters
   useEffect(() => {
