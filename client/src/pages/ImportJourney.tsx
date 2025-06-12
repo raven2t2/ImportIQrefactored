@@ -94,7 +94,13 @@ export default function ImportJourney() {
       'usa': 'USA',
       'united states': 'USA',
       'new zealand': 'NZL',
-      'singapore': 'SGP'
+      'singapore': 'SGP',
+      'france': 'FRA',
+      'netherlands': 'NLD',
+      'norway': 'NOR',
+      'sweden': 'SWE',
+      'finland': 'FIN',
+      'germany': 'DEU'
     };
     return mapping[dest.toLowerCase()] || 'AUS';
   };
@@ -1156,6 +1162,75 @@ export default function ImportJourney() {
                         ],
                         totalCost: 2600,
                         riskFactors: ["Engineering complexity", "State variations", "Modification costs"]
+                      };
+                    case 'france':
+                      return {
+                        critical: [
+                          {
+                            category: "DREAL Homologation",
+                            requirement: "French Vehicle Type Approval",
+                            cost: 85,
+                            complexity: "High",
+                            timeframe: "4-6 weeks",
+                            risks: ["European conformity", "Technical documentation"]
+                          },
+                          {
+                            category: "ANTS Registration",
+                            requirement: "French Vehicle Registration",
+                            cost: 254,
+                            complexity: "Medium",
+                            timeframe: "2-3 weeks",
+                            risks: ["Prefecture processing", "Document translation"]
+                          }
+                        ],
+                        totalCost: 339,
+                        riskFactors: ["EU conformity requirements", "French documentation", "DREAL approval delays"]
+                      };
+                    case 'netherlands':
+                      return {
+                        critical: [
+                          {
+                            category: "RDW Type Approval",
+                            requirement: "Dutch Vehicle Approval",
+                            cost: 450,
+                            complexity: "High",
+                            timeframe: "3-5 weeks",
+                            risks: ["EU type approval", "Technical inspection"]
+                          },
+                          {
+                            category: "Registration Certificate",
+                            requirement: "Dutch Vehicle Registration",
+                            cost: 350,
+                            complexity: "Medium",
+                            timeframe: "1-2 weeks",
+                            risks: ["Provincial processing", "Insurance requirements"]
+                          }
+                        ],
+                        totalCost: 800,
+                        riskFactors: ["EU compliance standards", "Dutch technical requirements", "Registration delays"]
+                      };
+                    case 'norway':
+                      return {
+                        critical: [
+                          {
+                            category: "Statens Vegvesen Approval",
+                            requirement: "Norwegian Road Authority Approval",
+                            cost: 2500,
+                            complexity: "High",
+                            timeframe: "4-8 weeks",
+                            risks: ["Strict emissions standards", "Safety modifications"]
+                          },
+                          {
+                            category: "Vehicle Registration",
+                            requirement: "Norwegian Registration Certificate",
+                            cost: 800,
+                            complexity: "Medium",
+                            timeframe: "2-3 weeks",
+                            risks: ["High import taxes", "Environmental fees"]
+                          }
+                        ],
+                        totalCost: 3300,
+                        riskFactors: ["High Norwegian standards", "Significant import duties", "Environmental compliance"]
                       };
                     default:
                       return { critical: [], totalCost: 0, riskFactors: [] };
