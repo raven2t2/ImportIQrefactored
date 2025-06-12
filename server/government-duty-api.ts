@@ -468,6 +468,7 @@ export class GovernmentDutyAPI {
         // Nordic Countries
         case 'sweden':
         case 'norway':
+        case 'finland':
         case 'denmark':
           dutyData = await this.getNordicDutyRates(vehiclePrice, year, destination);
           shippingEstimate = 3500; // Japan to Nordic
