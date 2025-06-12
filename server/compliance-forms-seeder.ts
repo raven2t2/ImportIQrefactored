@@ -28,6 +28,12 @@ export class ComplianceFormsSeeder {
       await this.seedAustraliaForms();
       await this.seedGermanyForms();
       await this.seedJapanForms();
+      await this.seedFranceForms();
+      await this.seedNetherlandsForms();
+      await this.seedNorwayForms();
+      await this.seedSwedenForms();
+      await this.seedFinlandForms();
+      await this.seedNewZealandForms();
       
       console.log('✅ Global compliance forms database seeded successfully');
       
@@ -79,6 +85,48 @@ export class ComplianceFormsSeeder {
         currency: 'JPY',
         importAgencyName: 'Japan Customs',
         agencyWebsite: 'https://www.customs.go.jp'
+      },
+      {
+        countryCode: 'FRA',
+        countryName: 'France',
+        currency: 'EUR',
+        importAgencyName: 'Direction Générale des Douanes et Droits Indirects',
+        agencyWebsite: 'https://www.douane.gouv.fr'
+      },
+      {
+        countryCode: 'NLD',
+        countryName: 'Netherlands',
+        currency: 'EUR',
+        importAgencyName: 'Nederlandse Douane',
+        agencyWebsite: 'https://www.belastingdienst.nl/douane'
+      },
+      {
+        countryCode: 'NOR',
+        countryName: 'Norway',
+        currency: 'NOK',
+        importAgencyName: 'Norwegian Customs',
+        agencyWebsite: 'https://www.toll.no'
+      },
+      {
+        countryCode: 'SWE',
+        countryName: 'Sweden',
+        currency: 'SEK',
+        importAgencyName: 'Swedish Customs',
+        agencyWebsite: 'https://www.tullverket.se'
+      },
+      {
+        countryCode: 'FIN',
+        countryName: 'Finland',
+        currency: 'EUR',
+        importAgencyName: 'Finnish Customs',
+        agencyWebsite: 'https://tulli.fi'
+      },
+      {
+        countryCode: 'NZL',
+        countryName: 'New Zealand',
+        currency: 'NZD',
+        importAgencyName: 'New Zealand Customs Service',
+        agencyWebsite: 'https://www.customs.govt.nz'
       }
     ];
     

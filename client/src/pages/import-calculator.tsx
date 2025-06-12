@@ -539,6 +539,12 @@ export default function ImportCalculator() {
                         <SelectItem value="USA">🇺🇸 United States</SelectItem>
                         <SelectItem value="CAN">🇨🇦 Canada</SelectItem>
                         <SelectItem value="GBR">🇬🇧 United Kingdom</SelectItem>
+                        <SelectItem value="DEU">🇩🇪 Germany</SelectItem>
+                        <SelectItem value="FRA">🇫🇷 France</SelectItem>
+                        <SelectItem value="NLD">🇳🇱 Netherlands</SelectItem>
+                        <SelectItem value="NOR">🇳🇴 Norway</SelectItem>
+                        <SelectItem value="SWE">🇸🇪 Sweden</SelectItem>
+                        <SelectItem value="FIN">🇫🇮 Finland</SelectItem>
                         <SelectItem value="NZL">🇳🇿 New Zealand</SelectItem>
                         <SelectItem value="SGP">🇸🇬 Singapore</SelectItem>
                       </SelectContent>
