@@ -104,6 +104,18 @@ export default function ImportCalculator() {
         countryCode = 'NZL';
       } else if (dest === 'singapore' || dest === 'sgp' || dest === 'sg') {
         countryCode = 'SGP';
+      } else if (dest === 'france' || dest === 'fra' || dest === 'fr') {
+        countryCode = 'FRA';
+      } else if (dest === 'netherlands' || dest === 'nld' || dest === 'nl') {
+        countryCode = 'NLD';
+      } else if (dest === 'norway' || dest === 'nor' || dest === 'no') {
+        countryCode = 'NOR';
+      } else if (dest === 'sweden' || dest === 'swe' || dest === 'se') {
+        countryCode = 'SWE';
+      } else if (dest === 'finland' || dest === 'fin' || dest === 'fi') {
+        countryCode = 'FIN';
+      } else if (dest === 'germany' || dest === 'deu' || dest === 'de') {
+        countryCode = 'DEU';
       }
       
       setSelectedDestination(countryCode);
