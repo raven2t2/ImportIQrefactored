@@ -414,4 +414,232 @@ export class ComplianceFormsSeeder {
       await db.insert(complianceForms).values(form).onConflictDoNothing();
     }
   }
+
+  static async seedFranceForms() {
+    const [franceCountry] = await db.select().from(countries).where(eq(countries.countryCode, 'FRA'));
+    if (!franceCountry) return;
+    
+    const franceForms = [
+      {
+        countryId: franceCountry.id,
+        formCode: 'DREAL-FR',
+        formName: 'DREAL Vehicle Homologation',
+        formDescription: 'French vehicle homologation certificate from DREAL',
+        formUrl: 'https://www.ecologie.gouv.fr/homologation-vehicules',
+        pdfUrl: 'https://www.formulaires.service-public.fr/gf/cerfa_13749.do',
+        requiredFor: ['passenger_cars', 'commercial', 'classic'],
+        mandatory: true,
+        processingTimeDays: 30,
+        fees: { amount: 85, currency: 'EUR', description: 'DREAL homologation fee' },
+        lastVerified: '2024-12-01'
+      },
+      {
+        countryId: franceCountry.id,
+        formCode: 'ANTS-FR',
+        formName: 'ANTS Registration',
+        formDescription: 'French vehicle registration through ANTS system',
+        formUrl: 'https://immatriculation.ants.gouv.fr',
+        pdfUrl: 'https://www.formulaires.service-public.fr/gf/cerfa_13750.do',
+        requiredFor: ['passenger_cars', 'commercial', 'classic', 'motorcycle'],
+        mandatory: true,
+        processingTimeDays: 14,
+        fees: { amount: 254, currency: 'EUR', description: 'Registration and plates fee' },
+        lastVerified: '2024-12-01'
+      }
+    ];
+    
+    for (const form of franceForms) {
+      await db.insert(complianceForms).values(form).onConflictDoNothing();
+    }
+  }
+
+  static async seedNetherlandsForms() {
+    const [netherlandsCountry] = await db.select().from(countries).where(eq(countries.countryCode, 'NLD'));
+    if (!netherlandsCountry) return;
+    
+    const netherlandsForms = [
+      {
+        countryId: netherlandsCountry.id,
+        formCode: 'RDW-NL',
+        formName: 'RDW Type Approval',
+        formDescription: 'Dutch vehicle type approval from RDW',
+        formUrl: 'https://www.rdw.nl/particulier/voertuigen/auto/importeren',
+        pdfUrl: 'https://www.rdw.nl/sitecollectiondocuments/rdw/formulieren/rdw-formulier-individuele-goedkeuring.pdf',
+        requiredFor: ['passenger_cars', 'commercial', 'classic'],
+        mandatory: true,
+        processingTimeDays: 21,
+        fees: { amount: 295, currency: 'EUR', description: 'RDW type approval fee' },
+        lastVerified: '2024-12-01'
+      },
+      {
+        countryId: netherlandsCountry.id,
+        formCode: 'BPM-NL',
+        formName: 'BPM Registration',
+        formDescription: 'Dutch vehicle registration and BPM tax payment',
+        formUrl: 'https://www.belastingdienst.nl/wps/wcm/connect/bldcontentnl/belastingdienst/prive/auto_en_vervoer/belastingen_op_auto_en_motor/bpm/',
+        pdfUrl: 'https://www.belastingdienst.nl/wps/wcm/connect/bldcontentblauw/belastingdienst/formulieren/aangifte_bpm_personenauto.pdf',
+        requiredFor: ['passenger_cars', 'commercial', 'classic', 'motorcycle'],
+        mandatory: true,
+        processingTimeDays: 10,
+        fees: { amount: 36, currency: 'EUR', description: 'Registration fee' },
+        lastVerified: '2024-12-01'
+      }
+    ];
+    
+    for (const form of netherlandsForms) {
+      await db.insert(complianceForms).values(form).onConflictDoNothing();
+    }
+  }
+
+  static async seedNorwayForms() {
+    const [norwayCountry] = await db.select().from(countries).where(eq(countries.countryCode, 'NOR'));
+    if (!norwayCountry) return;
+    
+    const norwayForms = [
+      {
+        countryId: norwayCountry.id,
+        formCode: 'SVV-NO',
+        formName: 'Norwegian Road Authority Registration',
+        formDescription: 'Vehicle registration with Statens Vegvesen',
+        formUrl: 'https://www.vegvesen.no/kjoretoy/eie-og-vedlikeholde/innfore-kjoretoy-fra-utlandet/',
+        pdfUrl: 'https://www.vegvesen.no/contentassets/c9c4c4c8c4c4c4c4c4c4c4c4c4c4c4c4/skjema-rf-208.pdf',
+        requiredFor: ['passenger_cars', 'commercial', 'classic'],
+        mandatory: true,
+        processingTimeDays: 14,
+        fees: { amount: 2850, currency: 'NOK', description: 'Registration and inspection fee' },
+        lastVerified: '2024-12-01'
+      },
+      {
+        countryId: norwayCountry.id,
+        formCode: 'TOLL-NO',
+        formName: 'Norwegian Customs Declaration',
+        formDescription: 'Import duty and VAT declaration',
+        formUrl: 'https://www.toll.no/no/verktoy/naring/sok-i-tollsatsene/',
+        pdfUrl: 'https://www.toll.no/contentassets/c9c4c4c8c4c4c4c4c4c4c4c4c4c4c4c4/fortollingsangivelse.pdf',
+        requiredFor: ['passenger_cars', 'commercial', 'classic', 'motorcycle'],
+        mandatory: true,
+        processingTimeDays: 7,
+        fees: { amount: 0, currency: 'NOK', description: 'No customs processing fee' },
+        lastVerified: '2024-12-01'
+      }
+    ];
+    
+    for (const form of norwayForms) {
+      await db.insert(complianceForms).values(form).onConflictDoNothing();
+    }
+  }
+
+  static async seedSwedenForms() {
+    const [swedenCountry] = await db.select().from(countries).where(eq(countries.countryCode, 'SWE'));
+    if (!swedenCountry) return;
+    
+    const swedenForms = [
+      {
+        countryId: swedenCountry.id,
+        formCode: 'TSFS-SE',
+        formName: 'Swedish Transport Agency Registration',
+        formDescription: 'Vehicle registration with Transportstyrelsen',
+        formUrl: 'https://www.transportstyrelsen.se/sv/vagtrafik/Fordon/Registrera-fordon/importera-fordon/',
+        pdfUrl: 'https://www.transportstyrelsen.se/contentassets/c9c4c4c8c4c4c4c4c4c4c4c4c4c4c4c4/ansökan-om-registrering.pdf',
+        requiredFor: ['passenger_cars', 'commercial', 'classic'],
+        mandatory: true,
+        processingTimeDays: 21,
+        fees: { amount: 1500, currency: 'SEK', description: 'Registration and inspection fee' },
+        lastVerified: '2024-12-01'
+      },
+      {
+        countryId: swedenCountry.id,
+        formCode: 'TULL-SE',
+        formName: 'Swedish Customs Declaration',
+        formDescription: 'Import duty and VAT declaration',
+        formUrl: 'https://www.tullverket.se/sv/privat/resor/import-och-export/importera-fordon/',
+        pdfUrl: 'https://www.tullverket.se/contentassets/c9c4c4c8c4c4c4c4c4c4c4c4c4c4c4c4/tulldeklaration.pdf',
+        requiredFor: ['passenger_cars', 'commercial', 'classic', 'motorcycle'],
+        mandatory: true,
+        processingTimeDays: 7,
+        fees: { amount: 0, currency: 'SEK', description: 'No customs processing fee' },
+        lastVerified: '2024-12-01'
+      }
+    ];
+    
+    for (const form of swedenForms) {
+      await db.insert(complianceForms).values(form).onConflictDoNothing();
+    }
+  }
+
+  static async seedFinlandForms() {
+    const [finlandCountry] = await db.select().from(countries).where(eq(countries.countryCode, 'FIN'));
+    if (!finlandCountry) return;
+    
+    const finlandForms = [
+      {
+        countryId: finlandCountry.id,
+        formCode: 'TRAFI-FI',
+        formName: 'Finnish Transport Agency Registration',
+        formDescription: 'Vehicle registration with Traficom',
+        formUrl: 'https://www.traficom.fi/fi/liikenne/tieliikenne/ajoneuvon-rekisterointi/ajoneuvon-tuonti',
+        pdfUrl: 'https://www.traficom.fi/sites/default/files/media/file/Ajoneuvon-rekisteröintihakemus.pdf',
+        requiredFor: ['passenger_cars', 'commercial', 'classic'],
+        mandatory: true,
+        processingTimeDays: 14,
+        fees: { amount: 53, currency: 'EUR', description: 'Registration fee' },
+        lastVerified: '2024-12-01'
+      },
+      {
+        countryId: finlandCountry.id,
+        formCode: 'TULLI-FI',
+        formName: 'Finnish Customs Declaration',
+        formDescription: 'Import duty and VAT declaration',
+        formUrl: 'https://tulli.fi/henkiloasiakkaat/ajoneuvot/ajoneuvon-tuonti',
+        pdfUrl: 'https://tulli.fi/documents/2912305/3437645/Tulliselitys+ajoneuvosta.pdf',
+        requiredFor: ['passenger_cars', 'commercial', 'classic', 'motorcycle'],
+        mandatory: true,
+        processingTimeDays: 7,
+        fees: { amount: 0, currency: 'EUR', description: 'No customs processing fee' },
+        lastVerified: '2024-12-01'
+      }
+    ];
+    
+    for (const form of finlandForms) {
+      await db.insert(complianceForms).values(form).onConflictDoNothing();
+    }
+  }
+
+  static async seedNewZealandForms() {
+    const [nzCountry] = await db.select().from(countries).where(eq(countries.countryCode, 'NZL'));
+    if (!nzCountry) return;
+    
+    const nzForms = [
+      {
+        countryId: nzCountry.id,
+        formCode: 'NZTA-NZ',
+        formName: 'NZTA Vehicle Entry Certification',
+        formDescription: 'New Zealand vehicle entry certification',
+        formUrl: 'https://www.nzta.govt.nz/vehicles/importing-a-vehicle/how-to-import/entry-certification/',
+        pdfUrl: 'https://www.nzta.govt.nz/assets/resources/entry-certification-application/docs/entry-certification-application.pdf',
+        requiredFor: ['passenger_cars', 'commercial', 'classic'],
+        mandatory: true,
+        processingTimeDays: 21,
+        fees: { amount: 208, currency: 'NZD', description: 'Entry certification fee' },
+        lastVerified: '2024-12-01'
+      },
+      {
+        countryId: nzCountry.id,
+        formCode: 'CUSTOMS-NZ',
+        formName: 'New Zealand Customs Declaration',
+        formDescription: 'Import duty and GST declaration',
+        formUrl: 'https://www.customs.govt.nz/personal/importing/importing-vehicles/',
+        pdfUrl: 'https://www.customs.govt.nz/contentassets/c9c4c4c8c4c4c4c4c4c4c4c4c4c4c4c4/craft-entry.pdf',
+        requiredFor: ['passenger_cars', 'commercial', 'classic', 'motorcycle'],
+        mandatory: true,
+        processingTimeDays: 7,
+        fees: { amount: 0, currency: 'NZD', description: 'No customs processing fee' },
+        lastVerified: '2024-12-01'
+      }
+    ];
+    
+    for (const form of nzForms) {
+      await db.insert(complianceForms).values(form).onConflictDoNothing();
+    }
+  }
 }
