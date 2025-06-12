@@ -5785,6 +5785,126 @@ Respond with a JSON object containing your recommendations.`;
         );
         break;
 
+      case 'france':
+        baseBreakdown.push(
+          {
+            category: "VAT (TVA)",
+            amount: Math.round(gst),
+            description: "French Value Added Tax (20%)"
+          },
+          {
+            category: "DREAL Compliance",
+            amount: Math.round(complianceCost),
+            description: "French homologation and conformity"
+          },
+          {
+            category: "Prefecture Registration",
+            amount: Math.round(registrationCost),
+            description: "Carte grise and registration"
+          }
+        );
+        break;
+
+      case 'netherlands':
+        baseBreakdown.push(
+          {
+            category: "BTW (VAT)",
+            amount: Math.round(gst),
+            description: "Dutch Value Added Tax (21%)"
+          },
+          {
+            category: "RDW Compliance",
+            amount: Math.round(complianceCost),
+            description: "Dutch vehicle authority approval"
+          },
+          {
+            category: "Registration",
+            amount: Math.round(registrationCost),
+            description: "Dutch registration and plates"
+          }
+        );
+        break;
+
+      case 'norway':
+        baseBreakdown.push(
+          {
+            category: "MVA (VAT)",
+            amount: Math.round(gst),
+            description: "Norwegian Value Added Tax (25%)"
+          },
+          {
+            category: "Statens Vegvesen",
+            amount: Math.round(complianceCost),
+            description: "Norwegian road authority approval"
+          },
+          {
+            category: "Registration",
+            amount: Math.round(registrationCost),
+            description: "Norwegian registration and plates"
+          }
+        );
+        break;
+
+      case 'sweden':
+        baseBreakdown.push(
+          {
+            category: "MOMS (VAT)",
+            amount: Math.round(gst),
+            description: "Swedish Value Added Tax (25%)"
+          },
+          {
+            category: "Transportstyrelsen",
+            amount: Math.round(complianceCost),
+            description: "Swedish transport agency approval"
+          },
+          {
+            category: "Registration",
+            amount: Math.round(registrationCost),
+            description: "Swedish registration and plates"
+          }
+        );
+        break;
+
+      case 'finland':
+        baseBreakdown.push(
+          {
+            category: "ALV (VAT)",
+            amount: Math.round(gst),
+            description: "Finnish Value Added Tax (24%)"
+          },
+          {
+            category: "Trafi Compliance",
+            amount: Math.round(complianceCost),
+            description: "Finnish transport safety agency"
+          },
+          {
+            category: "Registration",
+            amount: Math.round(registrationCost),
+            description: "Finnish registration and plates"
+          }
+        );
+        break;
+
+      case 'newzealand':
+        baseBreakdown.push(
+          {
+            category: "GST",
+            amount: Math.round(gst),
+            description: "New Zealand Goods and Services Tax (15%)"
+          },
+          {
+            category: "NZTA Compliance",
+            amount: Math.round(complianceCost),
+            description: "Entry certification and compliance"
+          },
+          {
+            category: "Registration",
+            amount: Math.round(registrationCost),
+            description: "WoF and registration"
+          }
+        );
+        break;
+
       case 'australia':
       default:
         baseBreakdown.push(
@@ -6013,6 +6133,282 @@ Respond with a JSON object containing your recommendations.`;
             status: "upcoming",
             description: "German vehicle registration",
             requirements: ["Registration application", "Insurance", "License plates"]
+          }
+        ];
+
+      case 'france':
+        return [
+          {
+            phase: "Vehicle Purchase",
+            duration: "1-2 weeks",
+            status: specifiedYear ? "current" : "upcoming",
+            description: "Find and purchase vehicle from auction or dealer",
+            requirements: ["Secure financing", "Arrange inspection", "Complete purchase"]
+          },
+          {
+            phase: "Export Documentation",
+            duration: "1 week",
+            status: "upcoming",
+            description: "Prepare French import documentation",
+            requirements: ["Export certificate", "CE conformity", "Shipping arrangement"]
+          },
+          {
+            phase: "Ocean Freight",
+            duration: "2-3 weeks",
+            status: "upcoming",
+            description: "Vehicle shipped to French port",
+            requirements: ["Container loading", "Ocean transit", "Port arrival"]
+          },
+          {
+            phase: "Customs Clearance",
+            duration: "3-5 days",
+            status: "upcoming",
+            description: "French customs processing",
+            requirements: ["Import declaration", "TVA payment", "Customs duty"]
+          },
+          {
+            phase: "DREAL Homologation",
+            duration: "4-8 weeks",
+            status: "upcoming",
+            description: "French vehicle homologation process",
+            requirements: ["Technical inspection", "Conformity certificate", "Emissions compliance"]
+          },
+          {
+            phase: "Prefecture Registration",
+            duration: "1-2 weeks",
+            status: "upcoming",
+            description: "Registration and carte grise",
+            requirements: ["Carte grise application", "Contrôle technique", "Insurance"]
+          }
+        ];
+
+      case 'netherlands':
+        return [
+          {
+            phase: "Vehicle Purchase",
+            duration: "1-2 weeks",
+            status: specifiedYear ? "current" : "upcoming",
+            description: "Find and purchase vehicle from auction or dealer",
+            requirements: ["Secure financing", "Arrange inspection", "Complete purchase"]
+          },
+          {
+            phase: "Export Documentation",
+            duration: "1 week",
+            status: "upcoming",
+            description: "Prepare Dutch import documentation",
+            requirements: ["Export certificate", "COC documentation", "Shipping arrangement"]
+          },
+          {
+            phase: "Ocean Freight",
+            duration: "2-3 weeks",
+            status: "upcoming",
+            description: "Vehicle shipped to Dutch port",
+            requirements: ["Container loading", "Ocean transit", "Port arrival"]
+          },
+          {
+            phase: "Customs Clearance",
+            duration: "3-5 days",
+            status: "upcoming",
+            description: "Dutch customs processing",
+            requirements: ["Import declaration", "BTW payment", "Customs duty"]
+          },
+          {
+            phase: "RDW Approval",
+            duration: "3-6 weeks",
+            status: "upcoming",
+            description: "Dutch vehicle authority approval",
+            requirements: ["Technical inspection", "Individual approval", "Emissions compliance"]
+          },
+          {
+            phase: "Registration",
+            duration: "1-2 weeks",
+            status: "upcoming",
+            description: "Dutch vehicle registration",
+            requirements: ["Registration application", "APK inspection", "License plates"]
+          }
+        ];
+
+      case 'norway':
+        return [
+          {
+            phase: "Vehicle Purchase",
+            duration: "1-2 weeks",
+            status: specifiedYear ? "current" : "upcoming",
+            description: "Find and purchase vehicle from auction or dealer",
+            requirements: ["Secure financing", "Arrange inspection", "Complete purchase"]
+          },
+          {
+            phase: "Export Documentation",
+            duration: "1 week",
+            status: "upcoming",
+            description: "Prepare Norwegian import documentation",
+            requirements: ["Export certificate", "Documentation", "Shipping arrangement"]
+          },
+          {
+            phase: "Ocean Freight",
+            duration: "2-3 weeks",
+            status: "upcoming",
+            description: "Vehicle shipped to Norwegian port",
+            requirements: ["Container loading", "Ocean transit", "Port arrival"]
+          },
+          {
+            phase: "Customs Clearance",
+            duration: "3-5 days",
+            status: "upcoming",
+            description: "Norwegian customs processing",
+            requirements: ["Import declaration", "MVA payment", "Customs duty"]
+          },
+          {
+            phase: "Statens Vegvesen Approval",
+            duration: "4-8 weeks",
+            status: "upcoming",
+            description: "Norwegian road authority approval",
+            requirements: ["Technical inspection", "Individual approval", "Safety compliance"]
+          },
+          {
+            phase: "Registration",
+            duration: "1-2 weeks",
+            status: "upcoming",
+            description: "Norwegian vehicle registration",
+            requirements: ["Registration application", "EU control", "License plates"]
+          }
+        ];
+
+      case 'sweden':
+        return [
+          {
+            phase: "Vehicle Purchase",
+            duration: "1-2 weeks",
+            status: specifiedYear ? "current" : "upcoming",
+            description: "Find and purchase vehicle from auction or dealer",
+            requirements: ["Secure financing", "Arrange inspection", "Complete purchase"]
+          },
+          {
+            phase: "Export Documentation",
+            duration: "1 week",
+            status: "upcoming",
+            description: "Prepare Swedish import documentation",
+            requirements: ["Export certificate", "Documentation", "Shipping arrangement"]
+          },
+          {
+            phase: "Ocean Freight",
+            duration: "2-3 weeks",
+            status: "upcoming",
+            description: "Vehicle shipped to Swedish port",
+            requirements: ["Container loading", "Ocean transit", "Port arrival"]
+          },
+          {
+            phase: "Customs Clearance",
+            duration: "3-5 days",
+            status: "upcoming",
+            description: "Swedish customs processing",
+            requirements: ["Import declaration", "MOMS payment", "Customs duty"]
+          },
+          {
+            phase: "Transportstyrelsen Approval",
+            duration: "4-8 weeks",
+            status: "upcoming",
+            description: "Swedish transport agency approval",
+            requirements: ["Technical inspection", "Individual approval", "Safety compliance"]
+          },
+          {
+            phase: "Registration",
+            duration: "1-2 weeks",
+            status: "upcoming",
+            description: "Swedish vehicle registration",
+            requirements: ["Registration application", "Bilprovning", "License plates"]
+          }
+        ];
+
+      case 'finland':
+        return [
+          {
+            phase: "Vehicle Purchase",
+            duration: "1-2 weeks",
+            status: specifiedYear ? "current" : "upcoming",
+            description: "Find and purchase vehicle from auction or dealer",
+            requirements: ["Secure financing", "Arrange inspection", "Complete purchase"]
+          },
+          {
+            phase: "Export Documentation",
+            duration: "1 week",
+            status: "upcoming",
+            description: "Prepare Finnish import documentation",
+            requirements: ["Export certificate", "Documentation", "Shipping arrangement"]
+          },
+          {
+            phase: "Ocean Freight",
+            duration: "2-3 weeks",
+            status: "upcoming",
+            description: "Vehicle shipped to Finnish port",
+            requirements: ["Container loading", "Ocean transit", "Port arrival"]
+          },
+          {
+            phase: "Customs Clearance",
+            duration: "3-5 days",
+            status: "upcoming",
+            description: "Finnish customs processing",
+            requirements: ["Import declaration", "ALV payment", "Customs duty"]
+          },
+          {
+            phase: "Trafi Approval",
+            duration: "4-8 weeks",
+            status: "upcoming",
+            description: "Finnish transport safety agency approval",
+            requirements: ["Technical inspection", "Individual approval", "Safety compliance"]
+          },
+          {
+            phase: "Registration",
+            duration: "1-2 weeks",
+            status: "upcoming",
+            description: "Finnish vehicle registration",
+            requirements: ["Registration application", "Katsastus inspection", "License plates"]
+          }
+        ];
+
+      case 'newzealand':
+        return [
+          {
+            phase: "Vehicle Purchase",
+            duration: "1-2 weeks",
+            status: specifiedYear ? "current" : "upcoming",
+            description: "Find and purchase vehicle from auction or dealer",
+            requirements: ["Secure financing", "Arrange inspection", "Complete purchase"]
+          },
+          {
+            phase: "Export Documentation",
+            duration: "1 week",
+            status: "upcoming",
+            description: "Prepare NZ import documentation",
+            requirements: ["Export certificate", "Documentation", "Shipping arrangement"]
+          },
+          {
+            phase: "Ocean Freight",
+            duration: "2-4 weeks",
+            status: "upcoming",
+            description: "Vehicle shipped to NZ port",
+            requirements: ["Container loading", "Ocean transit", "Port arrival"]
+          },
+          {
+            phase: "Customs Clearance",
+            duration: "3-7 days",
+            status: "upcoming",
+            description: "NZ customs processing",
+            requirements: ["Import declaration", "GST payment", "Customs duty"]
+          },
+          {
+            phase: "NZTA Entry Certification",
+            duration: "3-6 weeks",
+            status: "upcoming",
+            description: "Entry certification and compliance",
+            requirements: ["Entry certification", "Safety compliance", "Emissions check"]
+          },
+          {
+            phase: "Registration",
+            duration: "1-2 weeks",
+            status: "upcoming",
+            description: "NZ vehicle registration",
+            requirements: ["WoF inspection", "Registration application", "License plates"]
           }
         ];
 

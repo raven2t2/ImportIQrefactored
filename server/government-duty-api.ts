@@ -497,7 +497,12 @@ export class GovernmentDutyAPI {
 
       const customsDuty = vehiclePrice * dutyData.dutyRate;
       const gst = (vehiclePrice + customsDuty) * dutyData.taxRate;
-      const luxuryTax = vehiclePrice > 75000 ? (vehiclePrice - 75000) * 0.33 : 0; // Australia LCT
+      
+      // Destination-specific luxury tax calculations
+      let luxuryTax = 0;
+      if (destination.toLowerCase() === 'australia' && vehiclePrice > 75000) {
+        luxuryTax = (vehiclePrice - 75000) * 0.33; // Australian LCT only
+      }
       
       const total = vehiclePrice + customsDuty + gst + luxuryTax + 
                    dutyData.complianceCost + dutyData.registrationFee + shippingEstimate;
